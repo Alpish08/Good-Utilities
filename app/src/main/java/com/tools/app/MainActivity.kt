@@ -51,24 +51,37 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                 val routes = stack.split(',').map(Route::valueOf)
                 val home = remember { com.tools.app.home.HomeState() }
                 val musicList = rememberLazyListState()
-                fun push(r: Route) { stack = "$stack,${r.name}" }
-                fun pop() { stack = stack.substringBeforeLast(',') }
                 // Predictive back: the back swipe scrubs the same page transition, so the page
                 // follows your finger and the previous one peeks in from the left. Let go to finish,
                 // or swipe back the other way to cancel and it settles back into place.
                 val nav = remember { SeekableTransitionState(routes) }
-                LaunchedEffect(routes) { if (nav.currentState != routes) nav.animateTo(routes) }
+                // True while a back swipe drives the transition; it finishes its own animation.
+                var backGesture by remember { mutableStateOf(false) }
+                LaunchedEffect(routes) {
+                    if (!backGesture && (nav.currentState != routes || nav.targetState != routes)) nav.animateTo(routes)
+                }
                 val scope = rememberCoroutineScope()
                 PredictiveBackHandler(enabled = routes.size > 1) { gesture ->
-                    val previous = routes.dropLast(1)
+                    // The back stack is the single source of truth. A back swipe that starts while a page is
+                    // still sliding in first lands that page, so seeking always starts from what the stack says.
+                    val current = stack.split(',').map(Route::valueOf)
+                    val previous = current.dropLast(1)
+                    var committed = false
+                    backGesture = true
                     try {
+                        if (nav.currentState != current || nav.targetState != current) nav.snapTo(current)
                         // Undo the motion curve while seeking so the page moves 1:1 with the finger.
                         gesture.collect { e -> nav.seekTo(unease(e.progress * 0.85f), targetState = previous) }
+                        stack = previous.joinToString(",") { it.name }
+                        committed = true
                         nav.animateTo(previous)
-                        pop()
                     } catch (e: kotlin.coroutines.cancellation.CancellationException) {
-                        scope.launch { nav.snapTo(nav.currentState) }
+                        // Cancelled (or interrupted): show exactly what the stack holds, never an older page.
+                        val show = if (committed) previous else current
+                        scope.launch { nav.snapTo(show) }
                         throw e
+                    } finally {
+                        backGesture = false
                     }
                 }
 
@@ -97,6 +110,11 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     },
                     contentKey = { it.joinToString() },
                 ) { s ->
+                    // Only the page that is (or is becoming) the top of the stack may navigate. Taps on a page
+                    // that is sliding away used to push pages you never saw, which back then walked through.
+                    val here = s.joinToString(",") { it.name }
+                    fun push(r: Route) { if (stack == here && s.last() != r) stack = "$here,${r.name}" }
+                    fun pop() { if (stack == here && s.size > 1) stack = here.substringBeforeLast(',') }
                     when (s.last()) {
                         Route.Home -> HomeScreen(home, open = ::push)
                         Route.Music -> MusicScreen(musicList, onBack = ::pop, onOpenSettings = { push(Route.MusicSettings) })
