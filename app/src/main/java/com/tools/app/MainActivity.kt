@@ -171,7 +171,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         }
         if (intent?.action != Intent.ACTION_SEND) return
         val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return
-        // "Video Downloader" in the share sheet is an alias of this activity.
+        // "Video downloader" in the share sheet is an alias of this activity.
         if (intent.component?.className?.endsWith(".VideoShare") == true) {
             stack = "Home,VideoDownloader"
             com.tools.app.video.VideoDownloader.fetch(text)

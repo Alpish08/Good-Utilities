@@ -1,5 +1,7 @@
 package com.tools.app.ui
 
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.rememberCoroutineScope
@@ -312,8 +314,20 @@ fun ToolPage(
             ) {
                 Toolbar("", onBack, actions, Modifier.align(Alignment.BottomStart))
             }
+            // While expanded, the page keeps its normal height and slides down (running off the bottom)
+            // instead of being squeezed into the space that's left.
             Column(
-                Modifier.fillMaxWidth().weight(1f).navigationBarsPadding().nestedScroll(nested),
+                Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clipToBounds()
+                    .layout { m, cs ->
+                        val h = cs.maxHeight + extra.roundToInt()
+                        val p = m.measure(cs.copy(minHeight = h, maxHeight = h))
+                        layout(cs.maxWidth, cs.maxHeight) { p.place(0, 0) }
+                    }
+                    .navigationBarsPadding()
+                    .nestedScroll(nested),
                 content = content,
             )
         }
@@ -798,11 +812,19 @@ fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Un
         Row(Modifier.fillMaxSize()) {
             options.forEachIndexed { i, label ->
                 val sel = i == selected
+                // No press highlight of its own: the sliding pill is the only highlight (two looked doubled).
+                // A pressed label just dims, like Samsung's segmented buttons.
+                val press = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+                val pressed by press.collectIsPressedAsState()
+                val dim by androidx.compose.animation.core.animateFloatAsState(if (pressed) 0.55f else 1f, tween(120), label = "press")
                 Box(
-                    Modifier.weight(1f).fillMaxHeight().clip(CircleShape).clickable { onSelect(i) },
+                    Modifier.weight(1f).fillMaxHeight().clickable(press, indication = null) { onSelect(i) },
                     contentAlignment = Alignment.Center,
                 ) {
-                    Text(label, fontSize = 14.5.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Medium, color = if (sel) c.text else c.textSecondary)
+                    Text(
+                        label, fontSize = 14.5.sp, fontWeight = if (sel) FontWeight.SemiBold else FontWeight.Medium,
+                        color = if (sel) c.text else c.textSecondary, modifier = Modifier.graphicsLayer { alpha = dim },
+                    )
                 }
             }
         }

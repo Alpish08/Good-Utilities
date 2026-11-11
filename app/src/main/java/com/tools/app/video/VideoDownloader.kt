@@ -103,7 +103,7 @@ object VideoDownloader {
 
     fun setLink(text: String) = _state.update { it.copy(link = text, error = null) }
 
-    /** Called when a link is shared to "Video Downloader" or the user taps Fetch / Paste. */
+    /** Called when a link is shared to "Video downloader" or the user taps Fetch / Paste. */
     fun fetch(raw: String) {
         if (_state.value.phase == VPhase.Downloading) return
         val url = extractUrl(raw)
@@ -442,7 +442,7 @@ object VideoDownloader {
             "unable to download" in m || "urlopen" in m || "timed out" in m || "name or service" in m || "unreachable" in m ||
                 "connection" in m || "network" in m || "resolve" in m -> "Couldn't reach the site. Check your connection and try again."
             "video unavailable" in m || "has been removed" in m || "not available" in m -> "This video isn't available."
-            "403" in m -> "The site refused the download (HTTP 403). Update yt-dlp in Music Downloader settings and try again."
+            "403" in m -> "The site refused the download (HTTP 403). Update yt-dlp in Music downloader settings and try again."
             else -> e.friendlyMessage()
         }
     }

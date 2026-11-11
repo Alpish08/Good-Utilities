@@ -140,7 +140,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
 
 private val SUPPORTED = listOf(
     Triple("Supported sites", "YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo and more", OneUiIcons.Globe),
-    Triple("Share from any app", "Tap Share → Video Downloader on a video or post, or paste its link above.", OneUiIcons.Share),
+    Triple("Share from any app", "Tap Share → Video downloader on a video or post, or paste its link above.", OneUiIcons.Share),
     Triple("Saved to ${Storage.label(Storage.Folder.Videos)}", "Ready in Samsung Gallery and any player.", OneUiIcons.Folder),
 )
 

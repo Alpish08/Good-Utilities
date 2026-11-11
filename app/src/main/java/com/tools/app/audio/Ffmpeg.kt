@@ -18,7 +18,7 @@ import java.io.File
 import kotlin.coroutines.resume
 
 /**
- * Runs the FFmpeg 7.1 build that already ships with Music Downloader (youtubedl-android), so the
+ * Runs the FFmpeg 7.1 build that already ships with Music downloader (youtubedl-android), so the
  * audio tools add nothing to the APK. ffmpeg-kit, which was suggested, was retired in 2025 and its
  * binaries were pulled from Maven Central.
  */
@@ -34,7 +34,7 @@ object Ffmpeg {
     private fun prepare(context: Context) = synchronized(lock) {
         if (ready) return
         val app = context.applicationContext
-        // Both are no-ops after the first unpack (shared with Music Downloader).
+        // Both are no-ops after the first unpack (shared with Music downloader).
         YoutubeDL.getInstance().init(app)
         FFmpeg.getInstance().init(app)
         ready = true

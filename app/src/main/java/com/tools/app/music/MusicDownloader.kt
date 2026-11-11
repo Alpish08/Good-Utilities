@@ -49,7 +49,7 @@ object MusicDownloader {
         settings = Settings(app)
     }
 
-    /** Unpacks/initialises Python + yt-dlp + FFmpeg on first use of Music Downloader. */
+    /** Unpacks/initialises Python + yt-dlp + FFmpeg on first use of Music downloader. */
     fun prepareEngine() {
         if (!engineStarted.compareAndSet(false, true)) return
         scope.launch {

@@ -163,7 +163,7 @@ fun Throwable.friendlyMessage(): String {
     val line = text.lines().lastOrNull { it.startsWith("ERROR:") }
         ?: text.lines().firstOrNull { it.isNotBlank() } ?: text
     val clean = line.removePrefix("ERROR: ").replace(Regex("^\\[[^]]+] [\\w-]+: "), "").take(240)
-    return if ("403" in clean) "YouTube refused the download (HTTP 403). Update yt-dlp in Music Downloader settings and retry." else clean
+    return if ("403" in clean) "YouTube refused the download (HTTP 403). Update yt-dlp in Music downloader settings and retry." else clean
 }
 
 /** Writes into the shared Music collection — no storage permission needed on Android 10+. */

@@ -18,7 +18,7 @@ object Storage {
     const val ROOT = "Good Utilities"
 
     enum class Folder(val path: String) {
-        Music("Music"),       // Music Downloader (one subfolder per playlist)
+        Music("Music"),       // Music downloader (one subfolder per playlist)
         Audio("Audio"),       // Audio merger and trimmer
         Pictures("Pictures"), // Image blur, Background remover, QR codes
         APKs("APKs"),         // APK extractor

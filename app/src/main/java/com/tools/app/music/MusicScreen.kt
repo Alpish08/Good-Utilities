@@ -72,7 +72,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
     }
 
     OneUiScaffold(
-        title = "Music Downloader",
+        title = "Music downloader",
         onBack = onBack,
         listState = listState,
         actions = { com.tools.app.ui.OverflowMenu(listOf("Settings" to onOpenSettings)) },
@@ -146,7 +146,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
 }
 
 private val HOW_IT_WORKS = listOf(
-    Triple("Share from YouTube", "Tap Share → Music Downloader on any song, video or playlist, or paste its link above.", OneUiIcons.Share),
+    Triple("Share from YouTube", "Tap Share → Music downloader on any song, video or playlist, or paste its link above.", OneUiIcons.Share),
     Triple("MP3 with album art", "Square cover, title, artist, album and track number are embedded.", OneUiIcons.MusicNote),
     Triple("Saved to Good Utilities/Music", "Playlists get their own folder. Ready in Samsung Music or any player.", OneUiIcons.Folder),
 )

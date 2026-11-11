@@ -54,7 +54,7 @@ fun AboutScreen(onBack: () -> Unit) {
         Credit("Claude", "Developer · AI by Anthropic", "https://claude.ai", R.drawable.ic_claude, Color(0xFFF5F4EE)),
     )
     val libraries = listOf(
-        Credit("yt-dlp", "Music Downloader", "https://github.com/yt-dlp/yt-dlp"),
+        Credit("yt-dlp", "Music downloader", "https://github.com/yt-dlp/yt-dlp"),
         Credit("FFmpeg", "Audio conversion, merging and trimming", "https://ffmpeg.org"),
         Credit("Google ML Kit", "Background remover", "https://developers.google.com/ml-kit/vision/subject-segmentation"),
         Credit("ARSCLib", "APK merging", "https://github.com/REAndroid/ARSCLib"),

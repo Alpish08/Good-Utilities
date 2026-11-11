@@ -60,7 +60,7 @@
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
-            <!-- YouTube / YouTube Music: Share → Music Downloader -->
+            <!-- YouTube / YouTube Music: Share → Music downloader -->
             <intent-filter android:label="@string/music_downloader">
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -68,7 +68,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Share a link → Video Downloader (same activity, routed by component name) -->
+        <!-- Share a link → Video downloader (same activity, routed by component name) -->
         <activity-alias
             android:name=".VideoShare"
             android:targetActivity=".MainActivity"

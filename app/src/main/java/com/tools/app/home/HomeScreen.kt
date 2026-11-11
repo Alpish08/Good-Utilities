@@ -73,7 +73,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     }
     val groups = listOf(
         "Media" to listOf(
-            Tool(Route.Music, "Music Downloader", musicSummary, Icons.Rounded.MusicNote, IconColors.Red),
+            Tool(Route.Music, "Music downloader", musicSummary, Icons.Rounded.MusicNote, IconColors.Red),
             Tool(Route.VideoDownloader, "Video downloader", "YouTube, TikTok, Instagram, X and more", Icons.Rounded.VideoLibrary, IconColors.Blue),
             Tool(Route.AudioMerge, "Audio merger", "Join songs into one MP3 with a crossfade", Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange),
             Tool(Route.AudioTrim, "Audio trimmer", "Cut a song without losing quality", Icons.Rounded.ContentCut, IconColors.Purple),

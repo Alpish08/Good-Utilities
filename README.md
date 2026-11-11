@@ -8,7 +8,7 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 ## Tools
 
 **Media**
-- **Music Downloader**: YouTube songs and playlists to MP3 with cover art and tags. Downloads in parallel and keeps running in the background.
+- **Music downloader**: YouTube songs and playlists to MP3 with cover art and tags. Downloads in parallel and keeps running in the background.
 - **Video downloader**: YouTube, TikTok, Instagram, X, Reddit and more. Choose the quality, a format that plays everywhere (H.264 MP4), or audio only.
 - **Audio merger**: join songs into one MP3 with a crossfade.
 - **Audio trimmer**: cut a song without losing quality.
