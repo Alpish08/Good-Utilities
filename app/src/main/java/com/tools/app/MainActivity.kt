@@ -78,7 +78,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         // which drifts a little left and dims. Back does the exact reverse (L → R),
                         // with the leaving page kept on top.
                         val forward = targetState.size >= initialState.size
-                        val dur = 253 // 1.5x faster than the original 380 ms
+                        val dur = 570 // 50% slower than the original 380 ms
                         val move = tween<androidx.compose.ui.unit.IntOffset>(dur, easing = com.tools.app.ui.theme.OneUiEasing)
                         val fade = tween<Float>(dur, easing = com.tools.app.ui.theme.OneUiEasing)
                         if (forward) {

@@ -32,7 +32,7 @@ fun MusicSettingsScreen(onBack: () -> Unit, onSignIn: () -> Unit) {
     val s by MusicDownloader.state.collectAsState()
 
     OneUiScaffold(
-        title = "Music Downloader settings",
+        title = "Download Settings",
         onBack = onBack,
     ) {
         sectionLabel("MP3 quality")

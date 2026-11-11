@@ -1,5 +1,11 @@
 package com.tools.app.ui
 
+import androidx.compose.ui.geometry.Offset
+import kotlinx.coroutines.launch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.animation.core.animate
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.layout.positionOnScreen
@@ -129,7 +135,9 @@ fun OneUiScaffold(
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val expanded = expandedTitle
+    // Every page can show the big title; expandedTitle = false only means it starts collapsed
+    // (pull down at the top to expand it, like Samsung apps, for one-handed use).
+    val expanded = true
 
     BoxWithConstraints(Modifier.fillMaxSize().background(c.background)) {
         val headerHeight = (maxHeight * 0.36f).coerceAtLeast(190.dp)
@@ -137,6 +145,10 @@ fun OneUiScaffold(
         val statusTopPx = with(density) { statusTop.toPx() }
         val toolbarBottomPx = with(density) { (statusTop + ToolbarHeight).toPx() }
         val fadePx = with(density) { 28.dp.toPx() }
+        if (!expandedTitle) remember(listState) {
+            if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0)
+                listState.requestScrollToItem(0, rangePx.roundToInt())
+        }
 
         /** How far the expanded header has scrolled away, 0..rangePx. */
         val headerScroll by remember(rangePx, expanded) {
@@ -228,56 +240,23 @@ fun OneUiScaffold(
             modifier = if (expanded) Modifier.graphicsLayer { translationY = rangePx - headerScroll } else Modifier,
         )
 
-        if (expanded) {
-            // One title that travels from the centre of the header to the toolbar's top-left.
-            val widthPx = constraints.maxWidth.toFloat()
-            // Collapsed, the title sits where the toolbar title would: after the back arrow if there is one.
-            val startPx = with(density) { (if (onBack != null) 58.dp else 26.dp).toPx() }
-            val subtitleGapPx = with(density) { 18.dp.toPx() }
-            val collapsedScale = 21f / 35f
-            var titleSize by remember { mutableStateOf(IntSize.Zero) }
-            fun lerp(a: Float, b: Float, t: Float) = a + (b - a) * t
+        val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
+        ExpandingTitle(
+            title, subtitle, hasBack = onBack != null, widthPx = constraints.maxWidth.toFloat(),
+            t = { headerScroll / rangePx },
             // Expanded: centred in the space above the buttons. Collapsed: on the toolbar's centre line.
-            val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
-            fun centerY() = lerp(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx)
-            Text(
-                title, fontSize = 35.sp, lineHeight = 41.sp, fontWeight = FontWeight.ExtraBold, color = c.text, maxLines = 1,
-                modifier = Modifier
-                    .wrapContentSize(unbounded = true, align = Alignment.TopStart)
-                    .onSizeChanged { titleSize = it }
-                    .graphicsLayer {
-                        val t = headerScroll / rangePx
-                        // Long titles shrink to fit: the large one inside the screen's side margins,
-                        // the collapsed one between the back arrow and the toolbar actions.
-                        val w = titleSize.width.coerceAtLeast(1).toFloat()
-                        val fitExpanded = ((widthPx - 48.dp.toPx()) / w).coerceAtMost(1f)
-                        val fitCollapsed = ((widthPx - startPx - 64.dp.toPx()) / w).coerceAtMost(collapsedScale)
-                        val scale = lerp(fitExpanded, fitCollapsed, t)
-                        val cx = lerp(widthPx / 2f, startPx + titleSize.width * fitCollapsed / 2f, t)
-                        val cy = centerY() - (if (subtitle != null) subtitleGapPx * (1f - t) else 0f)
-                        scaleX = scale; scaleY = scale
-                        translationX = cx - titleSize.width / 2f
-                        translationY = cy - titleSize.height / 2f
-                    },
-            )
-            if (subtitle != null) Text(
-                subtitle, fontSize = 15.sp, color = c.textSecondary, maxLines = 1,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .graphicsLayer {
-                        val t = headerScroll / rangePx
-                        alpha = (1f - t * 3f).coerceIn(0f, 1f)
-                        translationY = centerY() + titleSize.height / 2f - subtitleGapPx + 6.dp.toPx()
-                    },
-            )
-        }
+            centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx) },
+        )
 
         if (bottomBar != null) BottomBarHost(Modifier.align(Alignment.BottomCenter).onSizeChanged { bottomBarPx = it.height }, bottomBar)
     }
 }
 
-/** One UI page whose body is not a list (image editors etc.). */
+/**
+ * One UI page whose body is not a list (image editors etc.). It opens with the compact toolbar; drag the
+ * toolbar down (or pull past the top of scrolling content) to expand the big title for one-handed use.
+ * It snaps fully open or closed.
+ */
 @Composable
 fun ToolPage(
     title: String,
@@ -286,10 +265,120 @@ fun ToolPage(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val c = OneUi.colors
-    Column(Modifier.fillMaxSize().background(c.background)) {
-        Toolbar(title, onBack, actions)
-        Column(Modifier.fillMaxWidth().weight(1f).navigationBarsPadding(), content = content)
+    val density = LocalDensity.current
+    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    BoxWithConstraints(Modifier.fillMaxSize().background(c.background)) {
+        val rangePx = with(density) { ((maxHeight * 0.36f).coerceAtLeast(190.dp) - ToolbarHeight).toPx() }
+        val statusTopPx = with(density) { statusTop.toPx() }
+        val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
+        var extra by remember { mutableFloatStateOf(0f) } // 0 = collapsed … rangePx = expanded
+        val scope = rememberCoroutineScope()
+        fun settle(velocity: Float) {
+            val target = when {
+                velocity > 900f -> rangePx
+                velocity < -900f -> 0f
+                else -> if (extra > rangePx / 2f) rangePx else 0f
+            }
+            scope.launch { animate(extra, target, animationSpec = tween(300, easing = OneUiEasing)) { v, _ -> extra = v } }
+        }
+        val nested = remember(rangePx) {
+            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
+                    // Scrolling content up first folds the header away.
+                    if (available.y < 0f && extra > 0f) { val used = maxOf(available.y, -extra); extra += used; return Offset(0f, used) }
+                    return Offset.Zero
+                }
+                override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
+                    // Pulling past the top of the content opens it.
+                    if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput) {
+                        val used = minOf(available.y, rangePx - extra); extra += used; return Offset(0f, used)
+                    }
+                    return Offset.Zero
+                }
+                override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
+                    if (extra > 0.5f && extra < rangePx - 0.5f) { settle(available.y); return available }
+                    return androidx.compose.ui.unit.Velocity.Zero
+                }
+            }
+        }
+        val drag = androidx.compose.foundation.gestures.rememberDraggableState { d -> extra = (extra + d).coerceIn(0f, rangePx) }
+        // A drag anywhere on the page that nothing inside claims (sliders, canvases and scroll areas
+        // consume their own) pulls the header open or closed.
+        Column(Modifier.fillMaxSize().draggable(drag, androidx.compose.foundation.gestures.Orientation.Vertical, onDragStopped = { v -> settle(v) })) {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(statusTop + ToolbarHeight + with(density) { extra.toDp() }),
+            ) {
+                Toolbar("", onBack, actions, Modifier.align(Alignment.BottomStart))
+            }
+            Column(
+                Modifier.fillMaxWidth().weight(1f).navigationBarsPadding().nestedScroll(nested),
+                content = content,
+            )
+        }
+        ExpandingTitle(
+            title, null, hasBack = true, widthPx = constraints.maxWidth.toFloat(),
+            t = { 1f - extra / rangePx },
+            centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, 1f - extra / rangePx) },
+        )
     }
+}
+
+private fun lerpF(a: Float, b: Float, t: Float) = a + (b - a) * t
+
+/**
+ * The page title that travels from the centre of the expanded header ([t] = 0) to the toolbar's
+ * top-left ([t] = 1), shrinking as it goes. Long titles shrink to fit.
+ */
+@Composable
+private fun ExpandingTitle(title: String, subtitle: String?, hasBack: Boolean, widthPx: Float, t: () -> Float, centerY: () -> Float) {
+    val c = OneUi.colors
+    val density = LocalDensity.current
+    val subtitleGapPx = with(density) { 18.dp.toPx() }
+    var titleH by remember { mutableIntStateOf(0) }
+    val lift = { if (subtitle != null) subtitleGapPx * (1f - t()) else 0f }
+    MovingTitle(title, hasBack, widthPx, t, { centerY() - lift() }) { titleH = it }
+    if (subtitle != null) Text(
+        subtitle, fontSize = 15.sp, color = c.textSecondary, maxLines = 1,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                alpha = (1f - t() * 3f).coerceIn(0f, 1f)
+                translationY = centerY() + titleH / 2f - subtitleGapPx + 6.dp.toPx()
+            },
+    )
+}
+
+@Composable
+private fun MovingTitle(
+    text: String, hasBack: Boolean, widthPx: Float, t: () -> Float, centerY: () -> Float, onHeight: (Int) -> Unit = {},
+) {
+    val c = OneUi.colors
+    val density = LocalDensity.current
+    // Collapsed, the title sits where the toolbar title would: after the back arrow if there is one.
+    val startPx = with(density) { (if (hasBack) 58.dp else 26.dp).toPx() }
+    val collapsedScale = 21f / 35f
+    var size by remember { mutableStateOf(IntSize.Zero) }
+    Text(
+        text, fontSize = 35.sp, lineHeight = 41.sp, fontWeight = FontWeight.ExtraBold, color = c.text,
+        maxLines = 1,
+        modifier = Modifier
+            .wrapContentSize(unbounded = true, align = Alignment.TopStart)
+            .onSizeChanged { size = it; onHeight(it.height) }
+            .graphicsLayer {
+                val tt = t()
+                val w = size.width.coerceAtLeast(1).toFloat()
+                val fitExpanded = ((widthPx - 48.dp.toPx()) / w).coerceAtMost(1f)
+                val fitCollapsed = ((widthPx - startPx - 64.dp.toPx()) / w).coerceAtMost(collapsedScale)
+                val scale = lerpF(fitExpanded, fitCollapsed, tt)
+                val cx = lerpF(widthPx / 2f, startPx + size.width * fitCollapsed / 2f, tt)
+                scaleX = scale; scaleY = scale
+                translationX = cx - size.width / 2f
+                translationY = centerY() - size.height / 2f
+            },
+    )
 }
 
 @Composable
@@ -775,7 +864,7 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
     }
     if (!open) return
     val density = LocalDensity.current
-    val shape = RoundedCornerShape(26.dp)
+    val shape = RoundedCornerShape(22.dp)
     androidx.compose.ui.window.Dialog(
         onDismissRequest = { open = false; backdrop = null },
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
@@ -817,20 +906,20 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
             Column(
                 Modifier
                     .background(if (snap != null) c.popup.copy(alpha = if (c.isDark) 0.74f else 0.8f) else c.popup)
-                    .padding(6.dp)
-                    .widthIn(min = 160.dp)
+                    .padding(4.dp)
+                    .widthIn(min = 140.dp)
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
             ) {
                 for ((label, action) in items) {
                     Text(
-                        label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                        label, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.text,
                         maxLines = 1,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 56.dp)
-                            .clip(RoundedCornerShape(22.dp))
+                            .heightIn(min = 46.dp)
+                            .clip(RoundedCornerShape(18.dp))
                             .clickable { open = false; backdrop = null; action() }
-                            .padding(horizontal = 24.dp)
+                            .padding(horizontal = 20.dp)
                             .wrapContentHeight(Alignment.CenterVertically),
                     )
                 }

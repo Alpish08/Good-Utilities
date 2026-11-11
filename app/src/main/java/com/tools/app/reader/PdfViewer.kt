@@ -329,12 +329,12 @@ internal fun PdfViewer(
             exit = fadeOut(tween(120)) + scaleOut(tween(160), 0.95f),
         ) {
             val s = remember(selection) { selection } ?: return@AnimatedVisibility
-            Row(Modifier.clip(RoundedCornerShape(24.dp)).background(c.popup).padding(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Copy", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-                    modifier = Modifier.clip(CircleShape).clickable { copyToClipboard(ctx, doc.info.name, s.text); selection = null }.padding(horizontal = 18.dp, vertical = 12.dp))
-                Box(Modifier.width(1.dp).height(18.dp).background(c.divider))
-                Text("Select all on page", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-                    modifier = Modifier.clip(CircleShape).clickable { scope.launch { selection = doc.allText(s.page).takeIf { it.text.isNotBlank() } ?: s } }.padding(horizontal = 18.dp, vertical = 12.dp))
+            Row(Modifier.clip(RoundedCornerShape(20.dp)).background(c.popup).padding(3.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text("Copy", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.text,
+                    modifier = Modifier.clip(CircleShape).clickable { copyToClipboard(ctx, doc.info.name, s.text); selection = null }.padding(horizontal = 14.dp, vertical = 9.dp))
+                Box(Modifier.width(1.dp).height(14.dp).background(c.divider))
+                Text("Select all on page", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.text,
+                    modifier = Modifier.clip(CircleShape).clickable { scope.launch { selection = doc.allText(s.page).takeIf { it.text.isNotBlank() } ?: s } }.padding(horizontal = 14.dp, vertical = 9.dp))
             }
         }
 
