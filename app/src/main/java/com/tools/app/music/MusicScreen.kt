@@ -75,7 +75,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
         title = "Music Downloader",
         onBack = onBack,
         listState = listState,
-        actions = { ToolbarIcon(com.tools.app.ui.OneUiIcons.Settings, "Settings", onOpenSettings) },
+        actions = { com.tools.app.ui.OverflowMenu(listOf("Settings" to onOpenSettings)) },
         bottomBar = bottomBar(s, onDownload = download, onRetry = { MusicDownloader.retryFailed(context) }),
     ) {
         item(key = "link") { LinkCard(s) }
