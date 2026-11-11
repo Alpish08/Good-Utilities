@@ -864,7 +864,7 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
     }
     if (!open) return
     val density = LocalDensity.current
-    val shape = RoundedCornerShape(22.dp)
+    val shape = RoundedCornerShape(24.dp)
     androidx.compose.ui.window.Dialog(
         onDismissRequest = { open = false; backdrop = null },
         properties = androidx.compose.ui.window.DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false),
@@ -906,20 +906,20 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
             Column(
                 Modifier
                     .background(if (snap != null) c.popup.copy(alpha = if (c.isDark) 0.74f else 0.8f) else c.popup)
-                    .padding(4.dp)
-                    .widthIn(min = 140.dp)
+                    .padding(5.dp)
+                    .widthIn(min = 150.dp)
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
             ) {
                 for ((label, action) in items) {
                     Text(
-                        label, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = c.text,
+                        label, fontSize = 15.5.sp, fontWeight = FontWeight.Medium, color = c.text,
                         maxLines = 1,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 46.dp)
-                            .clip(RoundedCornerShape(18.dp))
+                            .heightIn(min = 51.dp)
+                            .clip(RoundedCornerShape(20.dp))
                             .clickable { open = false; backdrop = null; action() }
-                            .padding(horizontal = 20.dp)
+                            .padding(horizontal = 22.dp)
                             .wrapContentHeight(Alignment.CenterVertically),
                     )
                 }
