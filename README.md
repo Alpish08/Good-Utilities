@@ -47,6 +47,11 @@ Requirements: Android Studio (its bundled JDK), Android SDK 37.
 adb install -r app/build/outputs/apk/release/app-release.apk
 ```
 
+Release builds are signed with the key in `~/.good-utilities/release.p12`. Its password is read from the
+macOS Keychain item "Good Utilities release key", or from the `GU_KEYSTORE_PASSWORD` environment variable.
+Neither the key nor the password is in this repository. Without them, release builds fall back to the debug key,
+and those can't be installed over the published app.
+
 Android 16 marks sideloaded apps as restricted and switches their accessibility service off after each
 install. `enable-applock.sh` turns App lock back on over adb after reinstalling.
 

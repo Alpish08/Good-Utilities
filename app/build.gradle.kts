@@ -17,10 +17,31 @@ android {
         ndk { abiFilters += "arm64-v8a" }
     }
 
+    // Release key: ~/.good-utilities/release.p12, its password in the macOS Keychain under
+    // "Good Utilities release key" (or the GU_KEYSTORE_PASSWORD environment variable). Neither is in the repo.
+    // Without them (e.g. on another machine) release builds fall back to the debug key.
+    val releaseStore = file("${System.getProperty("user.home")}/.good-utilities/release.p12")
+    val releasePassword: String? = System.getenv("GU_KEYSTORE_PASSWORD") ?: runCatching {
+        providers.exec {
+            commandLine("security", "find-generic-password", "-s", "Good Utilities release key", "-w")
+            isIgnoreExitValue = true
+        }.standardOutput.asText.get().trim().ifEmpty { null }
+    }.getOrNull()
+    val hasReleaseKey = releaseStore.exists() && releasePassword != null
+    signingConfigs {
+        if (hasReleaseKey) create("release") {
+            storeFile = releaseStore
+            storeType = "PKCS12"
+            storePassword = releasePassword
+            keyAlias = "good-utilities"
+            keyPassword = releasePassword
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName(if (hasReleaseKey) "release" else "debug")
         }
     }
     compileOptions {
