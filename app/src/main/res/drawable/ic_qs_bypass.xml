@@ -1,0 +1,10 @@
+<!-- One UI-style Quick panel glyph: rounded power plug feeding straight through. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <!-- prongs -->
+    <path android:fillColor="#FFFFFFFF"
+        android:pathData="M8.25,2.5a1.25,1.25 0 0 1 1.25,1.25V7h-2.5V3.75A1.25,1.25 0 0 1 8.25,2.5zM15.75,2.5a1.25,1.25 0 0 1 1.25,1.25V7h-2.5V3.75a1.25,1.25 0 0 1 1.25,-1.25z" />
+    <!-- body with a bolt cut-out -->
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd"
+        android:pathData="M6.5,8h11a1.5,1.5 0 0 1 1.5,1.5V12a5,5 0 0 1 -4,4.9V20a1.5,1.5 0 0 1 -1.5,1.5h-3A1.5,1.5 0 0 1 9,20V16.9A5,5 0 0 1 5,12V9.5A1.5,1.5 0 0 1 6.5,8zM12.6,9.6L9.6,13.2h2.1l-0.5,2.9l3.1,-3.7h-2.1z" />
+</vector>

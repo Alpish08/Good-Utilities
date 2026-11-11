@@ -1,0 +1,27 @@
+<resources>
+    <color name="window_bg">#F4F4F7</color>
+    <style name="Theme.Tools" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_bg</item>
+    </style>
+    <!-- App lock gate: see-through window so the lock card can fade out over the unlocked app. -->
+    <style name="Theme.Tools.Lock" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLayoutInDisplayCutoutMode">always</item>
+    </style>
+    <style name="Theme.Tools.Sheet" parent="android:Theme.Translucent.NoTitleBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation.Translucent</item>
+    </style>
+    <style name="OneUiMenuAnimation">
+        <item name="android:windowEnterAnimation">@anim/menu_enter</item>
+        <item name="android:windowExitAnimation">@anim/menu_exit</item>
+    </style>
+</resources>

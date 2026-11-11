@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <!-- Saves everything to Internal Storage/Good Utilities (the user allows this in Settings). -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
+    <!-- Audio tools: list songs in the in-app picker. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <!-- Charge limit: granted once via `adb shell pm grant`; never requested at runtime. -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- APK extractor lists every installed user app (personal sideloaded build, not for Play). -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
+
+    <!-- App lock: list launchable apps. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+    </queries>
+
+    <application
+        android:networkSecurityConfig="@xml/network_security"
+        android:name=".ToolsApp"
+        android:enableOnBackInvokedCallback="true"
+        android:label="@string/app_name"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:extractNativeLibs="true"
+        android:largeHeap="true"
+        android:theme="@style/Theme.Tools">
+
+        <!-- Ask Play services to fetch the background-remover model at install time. -->
+        <meta-data android:name="com.google.mlkit.vision.DEPENDENCIES" android:value="subject_segment" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+            <!-- Long-press on the Bypass charging tile -->
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
+            </intent-filter>
+            <!-- YouTube / YouTube Music: Share → Music Downloader -->
+            <intent-filter android:label="@string/music_downloader">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <!-- Share a link → Video Downloader (same activity, routed by component name) -->
+        <activity-alias
+            android:name=".VideoShare"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:label="@string/video_downloader">
+            <intent-filter android:label="@string/video_downloader">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Share PDFs / photos → Print (same activity, routed by component name) -->
+        <activity-alias
+            android:name=".PrintShare"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:label="@string/print">
+            <intent-filter android:label="@string/print">
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Document reader: can be set as the default app for PDFs, Word files and text -->
+        <activity
+            android:name=".reader.ReaderActivity"
+            android:exported="true"
+            android:label="@string/document_reader"
+            android:taskAffinity="com.tools.app.reader"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Tools"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="content" />
+                <data android:scheme="file" />
+                <data android:mimeType="application/pdf" />
+                <data android:mimeType="application/vnd.openxmlformats-officedocument.wordprocessingml.document" />
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="text/markdown" />
+                <data android:mimeType="text/x-markdown" />
+            </intent-filter>
+        </activity>
+
+        <!-- Share any text/link → QR code sheet -->
+        <activity
+            android:name=".qr.QrActivity"
+            android:exported="true"
+            android:excludeFromRecents="true"
+            android:taskAffinity="com.tools.app.qr"
+            android:label="@string/qr_code"
+            android:icon="@drawable/ic_share_qr"
+            android:theme="@style/Theme.Tools.Sheet">
+            <intent-filter android:label="@string/qr_code" android:icon="@drawable/ic_share_qr">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.tools.app.files"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths" />
+        </provider>
+
+        <activity
+            android:name=".applock.LockActivity"
+            android:exported="false"
+            android:process=":lock"
+            android:excludeFromRecents="true"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.tools.app.lock"
+            android:theme="@style/Theme.Tools.Lock" />
+
+        <service
+            android:name=".music.DownloadService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Headless bypass-charging actions for Modes and Routines / automation apps -->
+        <activity
+            android:name=".battery.BypassActionActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.NoDisplay" />
+        <activity-alias android:name=".battery.BypassOn" android:targetActivity=".battery.BypassActionActivity"
+            android:exported="true" android:label="@string/bypass_on" android:icon="@drawable/ic_shortcut_bypass">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.tools.app.BYPASS_ON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".battery.BypassOff" android:targetActivity=".battery.BypassActionActivity"
+            android:exported="true" android:label="@string/bypass_off" android:icon="@drawable/ic_shortcut_bypass_off">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="com.tools.app.BYPASS_OFF" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias android:name=".battery.BypassToggle" android:targetActivity=".battery.BypassActionActivity"
+            android:exported="true" android:label="@string/bypass_toggle" android:icon="@drawable/ic_shortcut_bypass">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity-alias>
+
+        <service
+            android:name=".battery.BypassTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_qs_bypass"
+            android:label="Bypass charging"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+            <meta-data android:name="android.service.quicksettings.ACTIVE_TILE" android:value="false" />
+        </service>
+
+        <service
+            android:name=".dns.PrivateDnsTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_qs_dns"
+            android:label="DNS"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+        </service>
+
+        <service
+            android:name=".applock.AppLockService"
+            android:exported="false"
+            android:process=":lock"
+            android:label="@string/app_lock_service"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/app_lock_service" />
+        </service>
+    </application>
+</manifest>

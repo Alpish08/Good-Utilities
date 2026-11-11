@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut android:shortcutId="bypass_on" android:enabled="true"
+        android:icon="@drawable/ic_shortcut_bypass"
+        android:shortcutShortLabel="@string/bypass_on" android:shortcutLongLabel="@string/bypass_on">
+        <intent android:action="com.tools.app.BYPASS_ON"
+            android:targetPackage="com.tools.app" android:targetClass="com.tools.app.battery.BypassOn" />
+    </shortcut>
+    <shortcut android:shortcutId="bypass_off" android:enabled="true"
+        android:icon="@drawable/ic_shortcut_bypass_off"
+        android:shortcutShortLabel="@string/bypass_off" android:shortcutLongLabel="@string/bypass_off">
+        <intent android:action="com.tools.app.BYPASS_OFF"
+            android:targetPackage="com.tools.app" android:targetClass="com.tools.app.battery.BypassOff" />
+    </shortcut>
+</shortcuts>
