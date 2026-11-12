@@ -187,7 +187,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
         "Dictionary" to { showSettings = true },
     )
 
-    OneUiScaffold(title = "Read Japanese", onBack = onClose, expandedTitle = false, actions = { OverflowMenu(menu) }) {
+    OneUiScaffold(title = "Japanese reader", onBack = onClose, expandedTitle = false, actions = { OverflowMenu(menu) }) {
         item(key = "image") {
             val bmp = bitmap
             if (bmp != null) ImageCard(bmp, ocr, sel, wholeBlock) { selected = it }
@@ -214,12 +214,20 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                     SegmentedControl(listOf("This line", "Whole bubble"), if (wholeBlock) 1 else 0, { wholeBlock = it == 1 })
                 }
             }
-            sectionLabel("Selected text")
-            card("sentence") {
-                Box(Modifier.padding(18.dp)) {
-                    val w = words
-                    if (w == null) Text(text, fontSize = 22.sp, color = OneUi.colors.text)
-                    else RubySentence(w, 24.sp, if (JpPrefs.romaji) romajis else null)
+            // Words first (what you look up most), then the sentence translation.
+            val list = infos
+            sectionLabel("Words")
+            if (list == null) card("wordsLoading") { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp) } }
+            else {
+                val rows = buildList {
+                    list.filter { it.word.isWord && !it.word.isParticle }.forEach { add(WordItem("w${it.idx}", it, null)) }
+                    val p = list.filter { it.word.isWord && it.word.isParticle }
+                    if (p.isNotEmpty()) add(WordItem("particles", null, p))
+                }
+                if (rows.isEmpty()) description("No words in this line.", key = "noWords")
+                else cardList(rows, key = { it.key }) { item ->
+                    if (item.info != null) WordRow(item.info, installed, savedKeys, romajis?.getOrNull(item.info.idx).orEmpty(), dim = false)
+                    else ParticleGroup(item.particles.orEmpty(), installed, savedKeys, romajis)
                 }
             }
             sectionLabel("English")
@@ -239,21 +247,6 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
             }
             if (!installed) item(key = "dictHint") { DictionaryHint() }
 
-            val list = infos
-            sectionLabel("Words")
-            if (list == null) card("wordsLoading") { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp) } }
-            else {
-                val rows = buildList {
-                    list.filter { it.word.isWord && !it.word.isParticle }.forEach { add(WordItem("w${it.idx}", it, null)) }
-                    val p = list.filter { it.word.isWord && it.word.isParticle }
-                    if (p.isNotEmpty()) add(WordItem("particles", null, p))
-                }
-                if (rows.isEmpty()) description("No words in this line.", key = "noWords")
-                else cardList(rows, key = { it.key }) { item ->
-                    if (item.info != null) WordRow(item.info, installed, savedKeys, romajis?.getOrNull(item.info.idx).orEmpty(), dim = false)
-                    else ParticleGroup(item.particles.orEmpty(), installed, savedKeys, romajis)
-                }
-            }
         }
 
         if (o != null && o.lines.isNotEmpty()) {

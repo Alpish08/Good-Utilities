@@ -110,6 +110,8 @@ class JapaneseTileService : TileService() {
         qsTile?.apply {
             state = Tile.STATE_INACTIVE
             label = getString(R.string.read_japanese)
+            // Set every time: One UI otherwise keeps showing a cached copy of an older icon.
+            icon = android.graphics.drawable.Icon.createWithResource(this@JapaneseTileService, R.drawable.ic_qs_japanese)
             subtitle = if (JapaneseCapture.serviceEnabled(this@JapaneseTileService)) null else "Setup needed"
             updateTile()
         }
