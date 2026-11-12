@@ -55,9 +55,10 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                 // follows your finger and the previous one peeks in from the left. Let go to finish,
                 // or swipe back the other way to cancel and it settles back into place.
                 val nav = remember { SeekableTransitionState(routes) }
-                // True while a back swipe drives the transition; it finishes its own animation.
+                // True while a back swipe is being dragged; once you let go, the LaunchedEffect below finishes the slide.
                 var backGesture by remember { mutableStateOf(false) }
-                LaunchedEffect(routes) {
+                // Also re-checked when a back swipe ends, so a tap made during its animation still opens its page.
+                LaunchedEffect(routes, backGesture) {
                     if (!backGesture && (nav.currentState != routes || nav.targetState != routes)) nav.animateTo(routes)
                 }
                 val scope = rememberCoroutineScope()
@@ -72,9 +73,11 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         if (nav.currentState != current || nav.targetState != current) nav.snapTo(current)
                         // Undo the motion curve while seeking so the page moves 1:1 with the finger.
                         gesture.collect { e -> nav.seekTo(unease(e.progress * 0.85f), targetState = previous) }
-                        stack = previous.joinToString(",") { it.name }
                         committed = true
-                        nav.animateTo(previous)
+                        // Hand the rest of the slide to the LaunchedEffect above (it continues from where the finger
+                        // let go), so a page tapped while it is still sliding interrupts it and opens normally.
+                        backGesture = false
+                        stack = previous.joinToString(",") { it.name }
                     } catch (e: kotlin.coroutines.cancellation.CancellationException) {
                         // Cancelled (or interrupted): show exactly what the stack holds, never an older page.
                         val show = if (committed) previous else current
