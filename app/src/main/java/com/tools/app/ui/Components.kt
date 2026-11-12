@@ -938,8 +938,7 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
                 Modifier
                     .background(if (snap != null) c.popup.copy(alpha = if (c.isDark) 0.74f else 0.8f) else c.popup)
                     .padding(5.dp)
-                    // One width for every menu (fits the longest label in the app), so they all match.
-                    .widthIn(min = 210.dp)
+                    .widthIn(min = 150.dp)
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
             ) {
                 for ((label, action) in items) {

@@ -11,8 +11,8 @@ android {
         applicationId = "com.tools.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 12
-        versionName = "1.4.6"
+        versionCode = 13
+        versionName = "1.4.7"
         // S24 Ultra (and every modern phone) is arm64; keeps the bundled Python/FFmpeg small.
         ndk { abiFilters += "arm64-v8a" }
     }
