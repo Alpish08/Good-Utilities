@@ -49,11 +49,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     val lock by AppLock.config.collectAsState()
     val music by MusicDownloader.state.collectAsState()
     val limit = ChargeLimit.activeLimit(context)
-    // Battery health for the Misc tab; also saves today's reading for the history chart.
+    // Battery health for the Miscellaneous row (Samsung's figures when Good Utilities may read them).
     var battery by remember { mutableStateOf<com.tools.app.battery.BatterySnapshot?>(null) }
     LaunchedEffect(Unit) {
         battery = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-            com.tools.app.battery.BatteryHealth.read(context).also { com.tools.app.battery.BatteryHealth.record(context, it) }
+            com.tools.app.battery.BatteryHealth.read(context).copy(samsung = com.tools.app.battery.BatteryHealth.samsung(context))
         }
     }
     // Re-checked every time you come back (e.g. from the All files access page in Settings).
@@ -110,7 +110,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         "Miscellaneous" to listOf(
             Tool(
                 Route.Battery, "Battery",
-                battery?.let { b -> b.healthPercent?.let { "Health ≈ $it%" + (b.cycles?.let { c -> " · $c cycles" } ?: "") } } ?: "Health, temperature and charging speed",
+                battery?.let { b -> b.healthPercent?.let { "Health ${if (b.healthIsSamsung) "" else "≈ "}$it%" + (b.totalCycles?.let { c -> " · $c cycles" } ?: "") } } ?: "Health, temperature and charging speed",
                 Icons.Rounded.BatteryStd, IconColors.Green,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),

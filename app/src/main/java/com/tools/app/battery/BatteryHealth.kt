@@ -22,10 +22,25 @@ data class BatterySnapshot(
     val estimatedMah: Int?,    // current full capacity, estimated
     val designMah: Int,       // typical capacity when new
     val ratedMah: Int,        // minimum (rated) capacity from the power profile
+    val samsung: SamsungBattery? = null, // Samsung's own figures, when Good Utilities may read them
 ) {
-    val healthPercent: Int? get() = estimatedMah?.let { (it * 100f / designMah).toInt().coerceIn(1, 100) } // rounded down, like Samsung
+    /** The fuel-gauge estimate (charge stored ÷ level); runs a couple of points high. */
+    val estimatedPercent: Int? get() = estimatedMah?.let { (it * 100f / designMah).toInt().coerceIn(1, 100) }
+    /** Samsung's battery health (ASOC) when available, otherwise the estimate. */
+    val healthPercent: Int? get() = samsung?.asoc ?: estimatedPercent
+    /** True when [healthPercent] is Samsung's own measurement rather than an estimate. */
+    val healthIsSamsung: Boolean get() = samsung?.asoc != null
     val watts: Float? get() = currentMa?.let { abs(it) / 1000f * voltageV }
+    /** Samsung's lifetime cycle count when available, else Android's (Samsung reports 0 there). */
+    val totalCycles: Int? get() = samsung?.cycles ?: cycles
 }
+
+/**
+ * Samsung's battery service figures, from `dumpsys battery`:
+ * mSavedBatteryAsoc (health: learned full capacity as % of design), mSavedBatteryUsage (lifetime usage
+ * in hundredths of a cycle), battery FirstUseDate and LLB MAN (manufacture date).
+ */
+data class SamsungBattery(val asoc: Int?, val cycles: Int?, val firstUse: java.time.LocalDate?, val made: java.time.LocalDate?)
 
 object BatteryHealth {
     /**
@@ -96,26 +111,42 @@ object BatteryHealth {
         (cls.getMethod("getBatteryCapacity").invoke(profile) as Double).roundToInt()
     }.getOrNull()?.takeIf { it in 1000..20000 } ?: 5000
 
-    // --- History: one reading per day, kept in the app's own files.
+    // --- Samsung's own figures
 
-    data class Point(val day: Long, val mah: Int, val cycles: Int?)
+    const val DUMP = "android.permission.DUMP"
 
-    private fun file(context: Context) = File(context.filesDir, "battery_history.csv")
+    /**
+     * Reading Samsung's battery report needs the DUMP permission, which only adb can grant
+     * (`adb shell pm grant com.tools.app android.permission.DUMP`); enable-applock.sh does it.
+     */
+    fun canReadSamsung(context: Context) = context.checkSelfPermission(DUMP) == android.content.pm.PackageManager.PERMISSION_GRANTED
 
-    fun history(context: Context): List<Point> = runCatching {
-        file(context).readLines().mapNotNull { l ->
-            val p = l.split(',')
-            if (p.size < 2) null else Point(p[0].toLong(), p[1].toInt(), p.getOrNull(2)?.toIntOrNull())
+    @Volatile private var cached: Pair<Long, SamsungBattery?>? = null
+
+    /** Blocking (runs dumpsys); call off the main thread. Cached for a few minutes, the values change slowly. */
+    fun samsung(context: Context): SamsungBattery? {
+        if (!canReadSamsung(context)) return null
+        cached?.let { (t, v) -> if (System.currentTimeMillis() - t < 5 * 60_000L) return v }
+        val v = runCatching {
+            val p = ProcessBuilder("dumpsys", "battery").redirectErrorStream(true).start()
+            val text = p.inputStream.bufferedReader().use { it.readText() }
+            p.waitFor()
+            parseSamsung(text)
+        }.getOrNull()
+        cached = System.currentTimeMillis() to v
+        return v
+    }
+
+    fun parseSamsung(text: String): SamsungBattery? {
+        fun field(name: String) = Regex("""$name:\s*\[?\s*([A-Za-z0-9]+)""").find(text)?.groupValues?.get(1)
+        val asoc = field("mSavedBatteryAsoc")?.toIntOrNull()?.takeIf { it in 1..120 }?.coerceAtMost(100)
+        val usage = field("mSavedBatteryUsage")?.toIntOrNull()?.takeIf { it >= 0 }
+        fun date(s: String?) = s?.takeIf { it.length == 8 && it.all(Char::isDigit) }?.let {
+            runCatching { java.time.LocalDate.parse(it, java.time.format.DateTimeFormatter.BASIC_ISO_DATE) }.getOrNull()
         }
-    }.getOrDefault(emptyList())
-
-    /** Records today's estimate (once a day, only from a reliable reading). */
-    fun record(context: Context, s: BatterySnapshot) {
-        val mah = s.estimatedMah ?: return
-        if (s.level < 50) return
-        val today = System.currentTimeMillis() / 86_400_000L
-        val all = history(context)
-        if (all.lastOrNull()?.day == today) return
-        file(context).appendText("$today,$mah,${s.cycles ?: ""}\n")
+        val firstUse = date(field("battery FirstUseDate"))
+        val made = date(field("LLB MAN"))
+        if (asoc == null && usage == null) return null
+        return SamsungBattery(asoc, usage?.let { it / 100 }, firstUse, made)
     }
 }

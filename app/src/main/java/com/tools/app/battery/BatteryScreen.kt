@@ -47,12 +47,12 @@ fun BatteryScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val c = OneUi.colors
     var now by remember { mutableStateOf(BatteryHealth.read(context)) }
-    var history by remember { mutableStateOf(BatteryHealth.history(context)) }
+    var samsung by remember { mutableStateOf<SamsungBattery?>(null) }
     LaunchedEffect(Unit) {
-        withContext(Dispatchers.IO) { BatteryHealth.record(context, now) }
-        history = BatteryHealth.history(context)
-        while (true) { delay(1000); now = BatteryHealth.read(context) }
+        samsung = withContext(Dispatchers.IO) { BatteryHealth.samsung(context) }
+        while (true) { now = BatteryHealth.read(context).copy(samsung = samsung); delay(1000) }
     }
+    val dateFmt = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
     val n = NumberFormat.getIntegerInstance()
 
     OneUiScaffold(title = "Battery", onBack = onBack) {
@@ -60,13 +60,14 @@ fun BatteryScreen(onBack: () -> Unit) {
             Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 HealthRing(now.healthPercent)
                 Column(Modifier.padding(start = 22.dp)) {
-                    Text("Estimated health", fontSize = 15.sp, color = c.textSecondary)
+                    Text(if (now.healthIsSamsung) "Battery health" else "Estimated health", fontSize = 15.sp, color = c.textSecondary)
+                    val mah = if (now.healthIsSamsung) now.healthPercent?.let { now.designMah * it / 100 } else now.estimatedMah
                     Text(
-                        now.estimatedMah?.let { "≈ ${n.format(it)} mAh" } ?: "Charge above 20% to estimate",
+                        mah?.let { "${if (now.healthIsSamsung) "" else "≈ "}${n.format(it)} mAh" } ?: "Charge above 20% to estimate",
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 2.dp),
                     )
                     Text("of ${n.format(now.designMah)} mAh when new", fontSize = 14.sp, color = c.textSecondary)
-                    now.cycles?.let { Text("$it charge cycles", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp)) }
+                    now.totalCycles?.let { Text("${n.format(it)} charge cycles", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp)) }
                 }
             }
         }
@@ -100,7 +101,11 @@ fun BatteryScreen(onBack: () -> Unit) {
         sectionLabel("Battery")
         cardList(
             listOfNotNull(
-                now.cycles?.let { "Charge cycles" to "$it" },
+                now.totalCycles?.let { "Charge cycles" to n.format(it) + if (samsung?.cycles != null) " (Samsung)" else "" },
+                now.samsung?.asoc?.let { "Samsung capacity (ASOC)" to "$it%" },
+                now.estimatedPercent?.let { "Fuel-gauge estimate" to "≈ $it%" },
+                now.samsung?.firstUse?.let { "First used" to dateFmt.format(it) },
+                now.samsung?.made?.let { "Battery made" to dateFmt.format(it) },
                 "Condition" to now.health,
                 "Capacity when new" to "${n.format(now.designMah)} mAh typical · ${n.format(now.ratedMah)} mAh rated",
                 "Type" to now.technology,
@@ -108,24 +113,14 @@ fun BatteryScreen(onBack: () -> Unit) {
             key = { "bat-" + it.first },
         ) { (label, value) -> ListRow(label, summary = value) }
 
-        sectionLabel("Capacity over time")
-        if (history.size >= 2) {
-            card(key = "history") {
-                val first = history.first(); val last = history.last()
-                Column(Modifier.padding(20.dp)) {
-                    Text(
-                        "${n.format(last.mah - first.mah)} mAh since ${java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(java.util.Date(first.day * 86_400_000L))}",
-                        fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-                    )
-                    Sparkline(history.map { it.mah.toFloat() }, now.designMah.toFloat(), Modifier.padding(top = 14.dp).fillMaxWidth().height(90.dp))
-                }
-            }
-        } else description(
-            "Good Utilities saves one reading a day when you open it with the battery above 50%. A chart of your battery's capacity appears here after a couple of days.",
-            key = "history-empty",
-        )
-        description(
-            "Health is estimated from the fuel gauge (charge stored ÷ level), so it moves by a percent or two between readings. It is most accurate above 50%. Keeping your charge limit at 80–85% slows battery wear.",
+        if (!BatteryHealth.canReadSamsung(context)) description(
+            "Health is estimated from the fuel gauge (charge stored ÷ level) and reads a couple of points high. " +
+                "For Samsung's exact health and lifetime cycle count, run enable-applock.sh on your Mac once " +
+                "(it grants Good Utilities permission to read Samsung's battery report).",
+            key = "about",
+        ) else description(
+            "Health and cycles come from Samsung's battery service: the capacity its fuel gauge has learned, as a share of the " +
+                "${n.format(now.designMah)} mAh design. Cycles include any previous owner's. Keeping your charge limit at 80–85% slows wear.",
             key = "about",
         )
     }
@@ -154,26 +149,3 @@ private fun HealthRing(percent: Int?) {
         }
     }
 }
-
-@Composable
-private fun Sparkline(values: List<Float>, design: Float, modifier: Modifier) {
-    val c = OneUi.colors
-    Canvas(modifier) {
-        val lo = (values.min() - design * 0.02f).coerceAtMost(design * 0.9f)
-        val hi = maxOf(values.max(), design)
-        fun y(v: Float) = size.height - (v - lo) / (hi - lo) * size.height
-        // Dashed line at the rated capacity.
-        val dy = y(design)
-        var x = 0f
-        while (x < size.width) { drawLine(c.divider, Offset(x, dy), Offset(x + 8.dp.toPx(), dy), 1.dp.toPx()); x += 14.dp.toPx() }
-        val path = Path()
-        values.forEachIndexed { i, v ->
-            val px = if (values.size == 1) 0f else i * size.width / (values.size - 1)
-            if (i == 0) path.moveTo(px, y(v)) else path.lineTo(px, y(v))
-        }
-        drawPath(path, c.accent, style = Stroke(3.dp.toPx(), cap = StrokeCap.Round))
-        val lastX = size.width; val lastY = y(values.last())
-        drawCircle(c.accent, 5.dp.toPx(), Offset(lastX, lastY))
-    }
-}
-
