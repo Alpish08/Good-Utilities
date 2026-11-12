@@ -97,7 +97,7 @@ fun ConverterScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val c = OneUi.colors
     val jobs = ConvertJobs
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+    val picker = rememberLauncherForActivityResult(com.tools.app.ui.FilesPickMultiple()) { uris ->
         if (uris.isNotEmpty()) jobs.add(context, uris)
     }
     // Re-check All files access when coming back from Settings.

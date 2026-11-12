@@ -94,8 +94,11 @@ object ReaderStore {
                     o.optInt("c", 0), o.optInt("p", 0), o.optLong("t", 0),
                 )
             }
-        }.getOrDefault(emptyList())
+        }.getOrDefault(emptyList<Recent>()).distinctBy { same(it.name, it.size, it.uri) }
     }
+
+    /** The same file opened through different links (My Files, Gallery, a share) counts once. */
+    private fun same(name: String, size: Long, uri: String) = if (size > 0) "$name|$size" else uri
 
     private fun writeRecents(c: Context, list: List<Recent>) {
         val a = JSONArray()
@@ -109,7 +112,8 @@ object ReaderStore {
     @Synchronized
     fun touch(c: Context, info: DocInfo, pages: Int, page: Int) {
         val now = System.currentTimeMillis()
-        val rest = recents(c).filterNot { it.uri == info.uri.toString() }
+        val me = same(info.name, info.size, info.uri.toString())
+        val rest = recents(c).filterNot { it.uri == info.uri.toString() || same(it.name, it.size, it.uri) == me }
         writeRecents(c, (listOf(Recent(info.uri.toString(), info.name, info.size, info.kind, pages, page, now)) + rest).take(MAX_RECENTS))
     }
 

@@ -83,9 +83,9 @@ fun PdfEditorScreen(onBack: () -> Unit) {
     var fitA4 by remember { mutableStateOf(true) }
     var securityOpen by remember { mutableStateOf(false) }
 
-    val openOne = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { u -> if (u != null) s.open(context, listOf(u), append = false) }
-    val openMany = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { l -> s.open(context, l, append = true) }
-    val pickImages = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { l -> if (l.isNotEmpty()) pendingImages = l }
+    val openOne = rememberLauncherForActivityResult(com.tools.app.ui.FilesPick()) { u -> if (u != null) s.open(context, listOf(u), append = false) }
+    val openMany = rememberLauncherForActivityResult(com.tools.app.ui.FilesPickMultiple()) { l -> s.open(context, l, append = true) }
+    val pickImages = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPickMultiple()) { l -> if (l.isNotEmpty()) pendingImages = l }
     val pdfMime = arrayOf("application/pdf")
 
     BackHandler(editing != null) { editing = null }

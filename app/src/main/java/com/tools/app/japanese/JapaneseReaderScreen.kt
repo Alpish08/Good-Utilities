@@ -94,7 +94,7 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
     var serviceOn by remember { mutableStateOf(JapaneseCapture.serviceEnabled(ctx)) }
     LaunchedEffect(Unit) { serviceOn = JapaneseCapture.serviceEnabled(ctx) }
 
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri: Uri? ->
+    val picker = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { uri: Uri? ->
         if (uri != null) JapaneseReaderActivity.open(ctx, uri)
     }
     val photoFile = remember { File(ctx.cacheDir, "japanese/photo.jpg").also { it.parentFile?.mkdirs() } }

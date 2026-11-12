@@ -118,8 +118,8 @@ fun PrintScreen(onBack: () -> Unit) {
         }
     }
 
-    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { PrintSession.add(context, it) }
-    val pickPhotos = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { PrintSession.add(context, it) }
+    val pickFiles = rememberLauncherForActivityResult(com.tools.app.ui.FilesPickMultiple()) { PrintSession.add(context, it) }
+    val pickPhotos = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPickMultiple()) { PrintSession.add(context, it) }
     val chooseFiles = { pickFiles.launch(arrayOf("application/pdf", "image/*")) }
     val choosePhotos = { pickPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 

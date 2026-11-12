@@ -97,7 +97,7 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
     var query by remember { mutableStateOf("") }
     val chosen = remember { mutableStateListOf<Uri>() }
 
-    val files = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+    val files = rememberLauncherForActivityResult(com.tools.app.ui.FilesPickMultiple()) { uris ->
         if (uris.isNotEmpty()) onPicked(if (multiple) uris else uris.take(1))
     }
     val browse = { files.launch(arrayOf("audio/*")) }

@@ -120,7 +120,7 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
     var crop by remember { mutableStateOf(true) }
     var saving by remember { mutableStateOf(false) }
 
-    val chooser = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    val chooser = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             cutout = null; showOriginal = false; status = "Opening…"

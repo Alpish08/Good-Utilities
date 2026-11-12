@@ -99,7 +99,7 @@ fun ColorPickerScreen(onBack: () -> Unit) {
     var palette by remember { mutableStateOf<List<Int>>(emptyList()) }
     var saved by remember { mutableStateOf(SavedColors.load(context)) }
 
-    val chooser = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    val chooser = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { uri ->
         if (uri != null) scope.launch {
             val bmp = withContext(Dispatchers.IO) { runCatching { Images.load(context, uri, 2400) }.getOrNull() } ?: return@launch
             bitmap = bmp; image = bmp.asImageBitmap()

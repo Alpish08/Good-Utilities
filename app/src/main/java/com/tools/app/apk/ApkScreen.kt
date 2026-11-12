@@ -109,7 +109,7 @@ fun ApkScreen(onBack: () -> Unit) {
     var selected by remember { mutableStateOf<InstalledApp?>(null) }
     val job by ApkJob.state.collectAsState()
     LaunchedEffect(Unit) { apps = ApkTools.listApps(context) }
-    val bundlePicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+    val bundlePicker = rememberLauncherForActivityResult(com.tools.app.ui.FilesPick()) { uri ->
         if (uri != null) { selected = null; ApkJob.runFile(context, uri) }
     }
 

@@ -98,7 +98,7 @@ fun BlurScreen(onBack: () -> Unit) {
     var current by remember { mutableStateOf<List<Offset>>(emptyList()) }
     var saving by remember { mutableStateOf(false) }
 
-    val chooser = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+    val chooser = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { uri ->
         if (uri != null) scope.launch {
             val bmp = withContext(Dispatchers.IO) { runCatching { Images.load(context, uri, 4096) }.getOrNull() } ?: return@launch
             strokes.clear(); original = bmp; originalImage = bmp.asImageBitmap()

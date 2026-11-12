@@ -75,7 +75,7 @@ fun CompressorScreen(onBack: () -> Unit) {
     val pickError by jobs.pickError
     var pickingAudio by remember { mutableStateOf(false) }
 
-    val videoPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { it?.let { u -> jobs.pickVideo(context, u) } }
+    val videoPicker = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { it?.let { u -> jobs.pickVideo(context, u) } }
     val choose = {
         if (isVideo) videoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
         else pickingAudio = true

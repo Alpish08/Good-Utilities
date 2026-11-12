@@ -26,6 +26,9 @@
 
     <!-- App lock: list launchable apps. -->
     <queries>
+        <!-- Samsung Gallery as the photo picker. -->
+        <package android:name="com.sec.android.gallery3d" />
+        <package android:name="com.sec.android.app.myfiles" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
