@@ -134,12 +134,9 @@ fun PrintScreen(onBack: () -> Unit) {
                         (doc.error?.let { "$it\n\n" } ?: "") +
                             "Choose PDFs or images here. You can also share files from any app and choose \"Print\".",
                         "Choose files", onAction = chooseFiles,
+                        secondary = "Choose photos" to choosePhotos,
                     )
                 }
-                PillButton(
-                    "Choose photos", onClick = choosePhotos, tonal = true,
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp).padding(bottom = 16.dp),
-                )
             }
         }
         return

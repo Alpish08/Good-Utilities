@@ -184,7 +184,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                 Toast.makeText(ctx, "Copied", Toast.LENGTH_SHORT).show()
             }
         },
-        "Dictionary & translation" to { showSettings = true },
+        "Dictionary" to { showSettings = true },
     )
 
     OneUiScaffold(title = "Read Japanese", onBack = onClose, expandedTitle = false, actions = { OverflowMenu(menu) }) {
@@ -273,11 +273,13 @@ private fun ImageCard(bitmap: Bitmap, ocr: OcrResult?, selected: Int?, wholeBloc
     val image = remember(bitmap) { bitmap.asImageBitmap() }
     val density = LocalDensity.current
     val screenH = with(density) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
-    BoxWithConstraints(Modifier.padding(horizontal = CardMargin, vertical = 10.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card)) {
-        val cw = constraints.maxWidth.toFloat()
-        val fit = cw / bitmap.width
+    BoxWithConstraints(Modifier.padding(horizontal = CardMargin, vertical = 10.dp).fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+        // The card takes the picture's own shape (no cropping): full width, or for tall screenshots narrower,
+        // so it is never taller than 75% of the screen.
+        val fit = min(constraints.maxWidth.toFloat() / bitmap.width, screenH * 0.75f / bitmap.height)
+        val cw = bitmap.width * fit
         val dispH = bitmap.height * fit
-        val boxH = min(dispH, screenH * 0.45f)
+        val boxH = dispH
         var scale by remember(bitmap) { mutableFloatStateOf(1f) }
         var tx by remember(bitmap) { mutableFloatStateOf(0f) }
         var ty by remember(bitmap) { mutableFloatStateOf(0f) }
@@ -298,9 +300,10 @@ private fun ImageCard(bitmap: Bitmap, ocr: OcrResult?, selected: Int?, wholeBloc
 
         Box(
             Modifier
-                .fillMaxWidth()
+                .width(with(density) { cw.toDp() })
                 .height(with(density) { boxH.toDp() })
-                .clip(androidx.compose.ui.graphics.RectangleShape)
+                .clip(OneUi.CardShape)
+                .background(c.card)
                 .pointerInput(cw, boxH) {
                     awaitEachGesture {
                         awaitFirstDown(requireUnconsumed = false)

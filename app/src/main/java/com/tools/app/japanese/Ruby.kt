@@ -74,5 +74,6 @@ fun romajiSource(w: Word): String = when {
     w.pos.contains("particle") && w.surface == "は" -> "わ"
     w.pos.contains("particle") && w.surface == "を" -> "お"
     w.pos.contains("particle") && w.surface == "へ" -> "え"
-    else -> w.pronunciation
+    // Spelled as written (びょういん → byouin), the way learners type it, rather than as pronounced (byooin).
+    else -> w.reading.ifEmpty { w.pronunciation }
 }

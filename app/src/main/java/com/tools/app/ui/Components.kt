@@ -837,7 +837,12 @@ fun EmptyState(icon: ImageVector, title: String, summary: String, action: String
 
 /** Empty state headed by the tool's own Home icon ([color] = its Home circle color). */
 @Composable
-fun EmptyState(icon: ImageVector, color: Color?, title: String, summary: String, action: String, onAction: () -> Unit, modifier: Modifier = Modifier) {
+fun EmptyState(
+    icon: ImageVector, color: Color?, title: String, summary: String, action: String, onAction: () -> Unit,
+    modifier: Modifier = Modifier,
+    /** An optional second choice, shown as a matching tonal button beside the main one. */
+    secondary: Pair<String, () -> Unit>? = null,
+) {
     val c = OneUi.colors
     Column(modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
         if (color != null) ColorIcon(icon, color, 84.dp, glyph = 0.5f)
@@ -846,7 +851,11 @@ fun EmptyState(icon: ImageVector, color: Color?, title: String, summary: String,
         }
         Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 20.dp), textAlign = TextAlign.Center)
         Text(summary, fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp, bottom = 24.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-        PillButton(action, onClick = onAction)
+        if (secondary == null) PillButton(action, onClick = onAction)
+        else Column(Modifier.fillMaxWidth(0.72f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            PillButton(action, onClick = onAction, modifier = Modifier.fillMaxWidth())
+            PillButton(secondary.first, onClick = secondary.second, tonal = true, modifier = Modifier.fillMaxWidth())
+        }
     }
 }
 
@@ -929,7 +938,8 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
                 Modifier
                     .background(if (snap != null) c.popup.copy(alpha = if (c.isDark) 0.74f else 0.8f) else c.popup)
                     .padding(5.dp)
-                    .widthIn(min = 150.dp)
+                    // One width for every menu (fits the longest label in the app), so they all match.
+                    .widthIn(min = 210.dp)
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
             ) {
                 for ((label, action) in items) {

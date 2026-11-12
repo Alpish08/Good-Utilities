@@ -1,5 +1,8 @@
 package com.tools.app.home
 
+import androidx.compose.material3.Text
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 
 import androidx.compose.material.icons.rounded.*
@@ -36,7 +39,7 @@ import com.tools.app.ui.cardList
 import com.tools.app.ui.sectionLabel
 import com.tools.app.ui.theme.IconColors
 
-private data class Tool(val route: Route, val title: String, val summary: String, val icon: ImageVector, val color: Color)
+private data class Tool(val route: Route, val title: String, val summary: String, val icon: ImageVector, val color: Color, val beta: Boolean = false)
 
 /** Home's scroll position, kept by MainActivity so it survives opening a tool. */
 class HomeState {
@@ -114,7 +117,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 Icons.Rounded.BatteryStd, IconColors.Green,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
-            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red),
+            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red, beta = true),
             Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
             Tool(Route.Random, "Random", "Numbers in any range, or roll some dice", Icons.Rounded.Casino, IconColors.Purple),
         ),
@@ -142,7 +145,13 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         for ((label, tools) in groups) {
             sectionLabel(label)
             cardList(tools, key = { it.route.name }, dividerStart = IconRowDivider) { t ->
-                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) })
+                ListRow(
+                    t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) },
+                    // Tools still being shaped get a small BETA tag on the right.
+                    trailing = if (t.beta) ({
+                        Text("BETA", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color(0xFFFF3700), letterSpacing = 0.6.sp)
+                    }) else null,
+                )
             }
         }
     }

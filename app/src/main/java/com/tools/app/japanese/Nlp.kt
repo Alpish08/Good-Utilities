@@ -46,7 +46,7 @@ object Nlp {
 
     val ready get() = tokenizer != null
 
-    /** Splits [text]. With [dictionary] (when JMdict is installed) suspicious runs of small pieces are merged into real words. */
+    /** Splits [text]. With [dictionary] (when JMdict is installed), pieces of a word split apart are joined back into real words. */
     suspend fun split(text: String, dictionary: android.content.Context? = null): List<Word> {
         val raw = rawSplit(text)
         return if (dictionary != null) withContext(Dispatchers.IO) { resegment(dictionary, raw) } else raw
@@ -72,9 +72,14 @@ object Nlp {
                     if (piece.any { !it.isWord }) continue
                     val surface = piece.joinToString("") { it.surface }
                     if (surface.length > 8) continue
-                    if (piece.none(::suspicious)) continue
                     if (piece.first().isParticle) continue // particle + word is not a word
+                    // Words written in kana (びょういん) often come out as two plausible pieces (びょう + いん).
+                    // Runs of kana-only pieces with no particle or auxiliary among them are joined too, but only into
+                    // a common dictionary word, so real two-word phrases stay apart.
+                    val kanaRun = piece.all { Kana.isKana(it.surface) && !it.isParticle && it.posGroup != PosGroup.Auxiliary }
+                    if (piece.none(::suspicious) && !kanaRun) continue
                     val entry = Jmdict.exact(ctx, surface) ?: continue
+                    if (piece.none(::suspicious) && !entry.common) continue
                     merged = mergedWord(piece, surface, entry)
                     used = len
                     break
