@@ -59,6 +59,10 @@ fun AboutScreen(onBack: () -> Unit) {
         Credit("Google ML Kit", "Background remover", "https://developers.google.com/ml-kit/vision/subject-segmentation"),
         Credit("ARSCLib", "APK merging", "https://github.com/REAndroid/ARSCLib"),
         Credit("ZXing", "QR codes", "https://github.com/zxing/zxing"),
+        Credit("JMdict (EDRDG), CC BY-SA 4.0", "Japanese dictionary", "https://www.edrdg.org/jmdict/j_jmdict.html"),
+        Credit("jmdict-simplified", "JMdict as JSON", "https://github.com/scriptin/jmdict-simplified"),
+        Credit("Kuromoji", "Japanese word splitting (IPADIC)", "https://github.com/atilika/kuromoji"),
+        Credit("ML Kit", "Japanese text recognition and translation", "https://developers.google.com/ml-kit"),
     )
 
     ToolPage("", onBack) {

@@ -114,6 +114,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 Icons.Rounded.BatteryStd, IconColors.Green,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
+            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red),
             Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
             Tool(Route.Random, "Random", "Numbers in any range, or roll some dice", Icons.Rounded.Casino, IconColors.Purple),
         ),

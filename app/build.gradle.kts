@@ -11,8 +11,8 @@ android {
         applicationId = "com.tools.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 5
-        versionName = "1.3.1"
+        versionCode = 6
+        versionName = "1.4"
         // S24 Ultra (and every modern phone) is arm64; keeps the bundled Python/FFmpeg small.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -50,7 +50,11 @@ android {
     }
     buildFeatures { compose = true }
     // yt-dlp runs as a native Python binary, which must be extracted to disk.
-    packaging { jniLibs { useLegacyPackaging = true } }
+    packaging {
+        jniLibs { useLegacyPackaging = true }
+        // Kuromoji's two jars both ship these license notes.
+        resources { pickFirsts += setOf("META-INF/CONTRIBUTORS.md", "META-INF/LICENSE.md", "META-INF/NOTICE.md", "META-INF/LICENSE", "META-INF/NOTICE") }
+    }
 }
 
 dependencies {
@@ -84,6 +88,11 @@ dependencies {
     implementation("androidx.media3:media3-transformer:$media3")
     implementation("androidx.media3:media3-effect:$media3")
     implementation("androidx.media3:media3-common:$media3")
+
+    // Japanese reader: on-device OCR + translation (ML Kit), word splitting (Kuromoji / IPADIC).
+    implementation("com.google.mlkit:text-recognition-japanese:16.0.1")
+    implementation("com.google.mlkit:translate:17.0.3")
+    implementation("com.atilika.kuromoji:kuromoji-ipadic:0.9.0")
 
     val ytdl = "0.18.1"
     implementation("io.github.junkfood02.youtubedl-android:library:$ytdl")

@@ -35,7 +35,7 @@ import com.tools.app.music.MusicScreen
 import com.tools.app.music.MusicSettingsScreen
 import com.tools.app.ui.theme.OneUiTheme
 
-enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor }
+enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor }
 
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
@@ -122,12 +122,14 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.YouTubeSignIn -> com.tools.app.music.YouTubeSignInScreen(onDone = ::pop)
                         Route.ColorPicker -> ColorPickerScreen(onBack = ::pop)
                         Route.Blur -> BlurScreen(onBack = ::pop)
-                        Route.AppLock -> AppLockScreen(onBack = ::pop, onSetPin = { push(Route.AppLockPin) })
+                        Route.AppLock -> AppLockScreen(onBack = ::pop, onSetPin = { push(Route.AppLockPin) }, onGuide = { push(Route.GuideAppLock) })
                         Route.AppLockPin -> com.tools.app.applock.PinSetupScreen(onDone = ::pop)
                         Route.ChargeLimit -> ChargeLimitScreen(onBack = ::pop)
                         Route.PrivateDns -> com.tools.app.dns.PrivateDnsScreen(onBack = ::pop)
                         Route.About -> com.tools.app.home.AboutScreen(onBack = ::pop)
-                        Route.Battery -> com.tools.app.battery.BatteryScreen(onBack = ::pop)
+                        Route.Battery -> com.tools.app.battery.BatteryScreen(onBack = ::pop, onGuide = { push(Route.GuideBattery) })
+                        Route.GuideAppLock -> com.tools.app.home.GuideScreen(com.tools.app.home.GuideKind.AppLock, onBack = ::pop)
+                        Route.GuideBattery -> com.tools.app.home.GuideScreen(com.tools.app.home.GuideKind.Battery, onBack = ::pop)
                         Route.PdfEditor -> com.tools.app.pdf.PdfEditorScreen(onBack = ::pop)
                         Route.Converter -> com.tools.app.convert.ConverterScreen(onBack = ::pop)
                         Route.Compressor -> com.tools.app.compress.CompressorScreen(onBack = ::pop)
@@ -135,6 +137,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.VideoDownloader -> com.tools.app.video.VideoDownloaderScreen(onBack = ::pop)
                         Route.Reader -> com.tools.app.reader.ReaderHomeScreen(onBack = ::pop)
                         Route.QrCode -> com.tools.app.qr.QrScreen(onBack = ::pop)
+                        Route.Japanese -> com.tools.app.japanese.JapaneseReaderScreen(onBack = ::pop)
                         Route.Print -> com.tools.app.print.PrintScreen(onBack = ::pop)
                         Route.AudioMerge -> com.tools.app.audio.MergeScreen(onBack = ::pop)
                         Route.AudioTrim -> com.tools.app.audio.TrimScreen(onBack = ::pop)

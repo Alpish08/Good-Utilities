@@ -81,6 +81,17 @@
             </intent-filter>
         </activity-alias>
 
+        <!-- Spacer: an invisible, untappable widget for keeping home screen space empty -->
+        <receiver
+            android:name=".widget.SpacerWidget"
+            android:exported="false"
+            android:label="@string/spacer_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_spacer" />
+        </receiver>
+
         <!-- Samsung battery health from sync-battery.sh; only senders with DUMP (adb's shell) may send. -->
         <receiver
             android:name=".battery.SamsungBatterySync"
@@ -222,6 +233,38 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data android:name="android.service.quicksettings.TOGGLEABLE_TILE" android:value="true" />
+        </service>
+
+        <!-- Japanese reader: opened by the "Read Japanese" tile, the in-app page and Share → Read Japanese -->
+        <activity
+            android:name=".japanese.JapaneseReaderActivity"
+            android:exported="false"
+            android:label="@string/read_japanese"
+            android:taskAffinity="com.tools.app.japanese"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Tools"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode" />
+        <activity-alias
+            android:name=".JapaneseShare"
+            android:targetActivity=".japanese.JapaneseReaderActivity"
+            android:exported="true"
+            android:label="@string/read_japanese">
+            <intent-filter android:label="@string/read_japanese">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity-alias>
+        <service
+            android:name=".japanese.JapaneseTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_qs_japanese"
+            android:label="@string/read_japanese"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <meta-data android:name="android.service.quicksettings.ACTIVE_TILE" android:value="false" />
         </service>
 
         <service

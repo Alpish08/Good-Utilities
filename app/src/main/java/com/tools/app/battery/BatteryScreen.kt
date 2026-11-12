@@ -43,7 +43,7 @@ import java.text.NumberFormat
 import kotlin.math.abs
 
 @Composable
-fun BatteryScreen(onBack: () -> Unit) {
+fun BatteryScreen(onBack: () -> Unit, onGuide: () -> Unit = {}) {
     val context = LocalContext.current
     val c = OneUi.colors
     var now by remember { mutableStateOf(BatteryHealth.read(context)) }
@@ -59,7 +59,7 @@ fun BatteryScreen(onBack: () -> Unit) {
     val dateFmt = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
     val n = NumberFormat.getIntegerInstance()
 
-    OneUiScaffold(title = "Battery", onBack = onBack) {
+    OneUiScaffold(title = "Battery", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide)) }) {
         card(key = "hero") {
             Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 HealthRing(now.healthPercent)

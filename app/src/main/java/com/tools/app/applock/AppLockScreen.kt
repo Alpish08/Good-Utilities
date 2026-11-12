@@ -57,7 +57,7 @@ import kotlinx.coroutines.withContext
 private class AppEntry(val pkg: String, val label: String, val icon: ImageBitmap)
 
 @Composable
-fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}) {
+fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> Unit = {}) {
     val context = LocalContext.current
     val c = OneUi.colors
     val config by AppLock.config.collectAsState()
@@ -86,7 +86,7 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}) {
     val openAccessibility = { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
     val active = config.enabled && serviceOn
 
-    OneUiScaffold(title = "App lock", onBack = onBack) {
+    OneUiScaffold(title = "App lock", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide)) }) {
         item("master") {
             MasterSwitchCard(active, onCheckedChange = { on ->
                 if (on && !serviceOn) openAccessibility()

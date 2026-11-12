@@ -33,6 +33,8 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 **Miscellaneous**
 - **Battery**: Samsung's own battery health and lifetime cycle count (synced from a Mac with `sync-battery.sh`, since Android doesn't let apps read them), plus temperature and charging speed.
 - **APK extractor**: save installed apps as APKs, merging split bundles into one installable file.
+- **Japanese reader**: reads Japanese on your screen (Quick Settings tile), in photos or the camera: furigana, word meanings (JMdict, offline), sentence translation (on-device) and a saved-words list with flashcards.
+- **Spacer widget**: an invisible, untappable home-screen widget of any size (1×1 and up) for keeping space empty.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
 - **Random**: numbers in any range, or roll dice (d4 to d20) with One UI animations.
 

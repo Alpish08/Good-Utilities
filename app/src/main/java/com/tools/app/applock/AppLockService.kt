@@ -45,6 +45,8 @@ class AppLockService : AccessibilityService() {
         }
     }
 
+    private val captureReceiver by lazy { com.tools.app.japanese.JapaneseCapture.Receiver(this) }
+
     override fun onCreate() {
         super.onCreate()
         instance = this
@@ -57,6 +59,8 @@ class AppLockService : AccessibilityService() {
             ContextCompat.RECEIVER_EXPORTED,
         )
         ContextCompat.registerReceiver(this, receiver, IntentFilter(AppLock.ACTION_RELOAD), ContextCompat.RECEIVER_NOT_EXPORTED)
+        // "Read Japanese" tile: screenshot on request (explicit, non-exported broadcast from this app only).
+        ContextCompat.registerReceiver(this, captureReceiver, IntentFilter(com.tools.app.japanese.JapaneseCapture.ACTION_CAPTURE), ContextCompat.RECEIVER_NOT_EXPORTED)
         keyboards = getSystemService(InputMethodManager::class.java).inputMethodList.map { it.packageName }.toSet()
         // Battery: with nothing to lock, ask Android not to deliver any events at all.
         scope.launch {
@@ -173,6 +177,7 @@ class AppLockService : AccessibilityService() {
         hideShield()
         if (instance === this) instance = null
         runCatching { unregisterReceiver(receiver) }
+        runCatching { unregisterReceiver(captureReceiver) }
         scope.cancel()
         super.onDestroy()
     }

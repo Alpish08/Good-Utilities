@@ -72,6 +72,22 @@ object OneUiIcons {
         }
     }
 
+    /** Copy: two overlapping rounded sheets. */
+    val Copy: ImageVector by lazy {
+        icon("Copy") {
+            line {
+                moveTo(10.5f, 8f); horizontalLineTo(17f); arcTo(2.5f, 2.5f, 0f, false, true, 19.5f, 10.5f)
+                verticalLineTo(18f); arcTo(2.5f, 2.5f, 0f, false, true, 17f, 20.5f); horizontalLineTo(10.5f)
+                arcTo(2.5f, 2.5f, 0f, false, true, 8f, 18f); verticalLineTo(10.5f); arcTo(2.5f, 2.5f, 0f, false, true, 10.5f, 8f); close()
+            }
+            line {
+                // The back sheet: only its top and left edges show, tucked behind the front one.
+                moveTo(15.5f, 8f); verticalLineTo(6f); arcTo(2.5f, 2.5f, 0f, false, false, 13f, 3.5f); horizontalLineTo(6.5f)
+                arcTo(2.5f, 2.5f, 0f, false, false, 4f, 6f); verticalLineTo(13f); arcTo(2.5f, 2.5f, 0f, false, false, 6.5f, 15.5f); horizontalLineTo(8f)
+            }
+        }
+    }
+
     /** Gallery / photo: rounded frame, hills and a sun. */
     val Gallery: ImageVector by lazy {
         icon("Gallery") {
