@@ -68,6 +68,21 @@ object Jmdict {
         return null
     }
 
+    /**
+     * For words written only in kana (がっき), other common entries spelled the same way with a matching part of
+     * speech (学期 "school term" vs 楽器 "musical instrument"). Kana alone can't say which is meant, so the reader
+     * shows them under its best guess.
+     */
+    fun alternatives(context: Context, word: Word, chosen: Entry): List<Entry> {
+        if (word.base.any(Kana::isKanji) || word.surface.any(Kana::isKanji)) return emptyList()
+        val d = open(context) ?: return emptyList()
+        val ids = ArrayList<Long>()
+        d.rawQuery("SELECT entry FROM form WHERE form = ? LIMIT 25", arrayOf(word.base)).use { while (it.moveToNext()) ids += it.getLong(0) }
+        return ids.distinct().mapNotNull { load(d, it) }
+            .filter { it != chosen && it.common && it.kanji.isNotEmpty() && it.senses.any { s -> s.pos.any { t -> posMatches(word.posGroup, t) } } }
+            .take(3)
+    }
+
     private fun lookupForm(d: SQLiteDatabase, form: String, word: Word, reading: String): Entry? {
         val ids = ArrayList<Long>()
         d.rawQuery("SELECT entry FROM form WHERE form = ? LIMIT 25", arrayOf(form)).use { while (it.moveToNext()) ids += it.getLong(0) }
@@ -113,6 +128,14 @@ object Jmdict {
             while (it.moveToNext()) senses += Sense(it.getString(0).split('|').filter(String::isNotEmpty), it.getString(1).split('|').filter(String::isNotEmpty))
         }
         return Entry(kanji, kana, common, senses)
+    }
+
+    /** Dictionary entry whose kana or kanji form is exactly [form] (common entries first), or null. */
+    fun exact(context: Context, form: String): Entry? {
+        val d = open(context) ?: return null
+        val ids = ArrayList<Long>()
+        d.rawQuery("SELECT entry FROM form WHERE form = ? LIMIT 25", arrayOf(form)).use { while (it.moveToNext()) ids += it.getLong(0) }
+        return ids.distinct().mapNotNull { load(d, it) }.let { l -> l.firstOrNull { it.common } ?: l.firstOrNull() }
     }
 
     /** Short plain-English names for JMdict part-of-speech codes. */

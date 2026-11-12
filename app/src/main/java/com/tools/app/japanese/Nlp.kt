@@ -22,6 +22,10 @@ data class Word(
 ) {
     val isParticle get() = posGroup == PosGroup.Particle
     val isSymbol get() = posGroup == PosGroup.Symbol
+    /** Has hiragana, katakana or kanji. Latin words, digits and symbols are shown in the sentence only. */
+    val japanese get() = Kana.hasJapanese(surface)
+    /** Worth a dictionary entry of its own. */
+    val isWord get() = japanese && !isSymbol
 }
 
 data class Seg(val text: String, val ruby: String?)
@@ -42,7 +46,63 @@ object Nlp {
 
     val ready get() = tokenizer != null
 
-    suspend fun split(text: String): List<Word> {
+    /** Splits [text]. With [dictionary] (when JMdict is installed) suspicious runs of small pieces are merged into real words. */
+    suspend fun split(text: String, dictionary: android.content.Context? = null): List<Word> {
+        val raw = rawSplit(text)
+        return if (dictionary != null) withContext(Dispatchers.IO) { resegment(dictionary, raw) } else raw
+    }
+
+    private fun suspicious(w: Word): Boolean {
+        if (!w.japanese) return false
+        val last = w.surface.last()
+        if (last == 'っ' || last == 'ッ') return true
+        if (w.surface.length == 1 && Kana.isKana(w.surface) && !w.isParticle) return true
+        return w.posGroup == PosGroup.Suffix || w.posGroup == PosGroup.Other
+    }
+
+    private fun resegment(ctx: android.content.Context, words: List<Word>): List<Word> {
+        val out = ArrayList<Word>()
+        var i = 0
+        while (i < words.size) {
+            var merged: Word? = null
+            var used = 1
+            if (words[i].isWord && !words[i].isParticle || suspicious(words[i])) {
+                for (len in minOf(4, words.size - i) downTo 2) {
+                    val piece = words.subList(i, i + len)
+                    if (piece.any { !it.isWord }) continue
+                    val surface = piece.joinToString("") { it.surface }
+                    if (surface.length > 8) continue
+                    if (piece.none(::suspicious)) continue
+                    if (piece.first().isParticle) continue // particle + word is not a word
+                    val entry = Jmdict.exact(ctx, surface) ?: continue
+                    merged = mergedWord(piece, surface, entry)
+                    used = len
+                    break
+                }
+            }
+            if (merged != null) { out += merged; i += used } else { out += words[i]; i++ }
+        }
+        return out
+    }
+
+    private fun mergedWord(piece: List<Word>, surface: String, entry: Entry): Word {
+        val reading = if (Kana.isKana(surface)) Kana.toHiragana(surface) else piece.joinToString("") { it.reading.ifEmpty { Kana.toHiragana(it.surface) } }
+        val pron = piece.joinToString("") { it.pronunciation }
+        val code = entry.senses.firstOrNull()?.pos?.firstOrNull() ?: "n"
+        val group = when {
+            code.startsWith("v") -> PosGroup.Verb
+            code.startsWith("adj") -> PosGroup.Adjective
+            code.startsWith("adv") -> PosGroup.Adverb
+            code == "pn" -> PosGroup.Pronoun
+            code == "conj" -> PosGroup.Conjunction
+            code == "int" -> PosGroup.Interjection
+            else -> PosGroup.Noun
+        }
+        val label = Jmdict.posName(code).ifEmpty { "noun" }
+        return Word(surface, surface, reading, pron, label, group, Kana.rubySegments(surface, if (surface.any(Kana::isKanji)) reading else ""))
+    }
+
+    private suspend fun rawSplit(text: String): List<Word> {
         warmUp()
         return withContext(Dispatchers.Default) {
             val t = tokenizer ?: return@withContext emptyList()
@@ -103,7 +163,8 @@ object Kana {
     fun isHiragana(c: Char) = c in 'ぁ'..'ゟ'
     fun isKatakana(c: Char) = c in '゠'..'ヿ'
     fun isKana(s: String) = s.isNotEmpty() && s.all { isHiragana(it) || isKatakana(it) || it == 'ー' }
-    fun hasJapanese(s: String) = s.any { isKanji(it) || isHiragana(it) || isKatakana(it) }
+    /** Hiragana, katakana or CJK ideographs. A lone ー or ・ doesn't count. */
+    fun hasJapanese(s: String) = s.any { isKanji(it) || isHiragana(it) || (isKatakana(it) && it != '\u30FB' && it != '\u30FC') }
 
     fun toHiragana(s: String): String = buildString(s.length) {
         for (c in s) append(if (c in 'ァ'..'ヶ') (c.code - 0x60).toChar() else c)
@@ -116,10 +177,10 @@ object Kana {
         var r = readingHira
         val head = StringBuilder()
         val tail = StringBuilder()
-        while (s.length > 1 && !isKanji(s.first()) && r.isNotEmpty() && toHiragana(s.first().toString()) == r.first().toString()) {
+        while (s.length > 1 && !isKanji(s.first()) && r.length > 1 && toHiragana(s.first().toString()) == r.first().toString()) {
             head.append(s.first()); s = s.substring(1); r = r.substring(1)
         }
-        while (s.length > 1 && !isKanji(s.last()) && r.isNotEmpty() && toHiragana(s.last().toString()) == r.last().toString()) {
+        while (s.length > 1 && !isKanji(s.last()) && r.length > 1 && toHiragana(s.last().toString()) == r.last().toString()) {
             tail.insert(0, s.last()); s = s.dropLast(1); r = r.dropLast(1)
         }
         return buildList {
@@ -160,14 +221,23 @@ object Kana {
         "てぃ" to "ti", "でぃ" to "di", "しぇ" to "she", "ちぇ" to "che", "じぇ" to "je", "ゔぁ" to "va", "ゔぃ" to "vi", "ゔぇ" to "ve", "ゔぉ" to "vo",
     )
 
-    /** Hepburn romaji for hiragana (katakana is converted first). Long vowels are written doubled (ou, uu) as people usually type them. */
-    fun toRomaji(kana: String): String {
+    /** Hepburn romaji for hiragana (katakana is converted first). Long vowels are doubled (ou, uu) as people usually type them. */
+    fun toRomaji(kana: String): String = romajiWithStarts(kana).first
+
+    /**
+     * Romaji of [text] plus, for each input character, where its romaji starts. A small っ doubles the
+     * consonant of whatever follows it, and ゃゅょ join the previous kana, so slicing the result by
+     * word boundaries keeps がっ|き → "ga" + "kki".
+     */
+    fun romajiWithStarts(kana: String): Pair<String, IntArray> {
         val s = toHiragana(kana)
         val out = StringBuilder()
+        val starts = IntArray(s.length + 1)
         var i = 0
         var geminate = false
         while (i < s.length) {
             val c = s[i]
+            starts[i] = out.length
             if (c == 'っ') { geminate = true; i++; continue }
             var r: String? = null
             var used = 1
@@ -185,8 +255,28 @@ object Kana {
             geminate = false
             // ん before a vowel or y gets an apostrophe (shin'ichi).
             if (c == 'ん' && i + 1 < s.length && s[i + 1] in "あいうえおやゆよ") out.append("n'") else out.append(romaji)
+            if (used == 2) starts[i + 1] = out.length
             i += used
         }
-        return out.toString()
+        starts[s.length] = out.length
+        return out.toString() to starts
+    }
+
+    /** Romaji for each word of a sentence, computed across word boundaries. Words that aren't Japanese get "". */
+    fun romajiPerWord(words: List<Word>): List<String> {
+        val sb = StringBuilder()
+        val bounds = ArrayList<IntRange?>()
+        for (w in words) {
+            if (w.isWord) {
+                val src = romajiSource(w)
+                bounds += sb.length until sb.length + src.length
+                sb.append(src)
+            } else {
+                bounds += null
+                sb.append(' ') // breaks any pending っ / ん
+            }
+        }
+        val (full, starts) = romajiWithStarts(sb.toString())
+        return bounds.map { r -> if (r == null || r.isEmpty()) "" else full.substring(starts[r.first], starts[r.last + 1]) }
     }
 }

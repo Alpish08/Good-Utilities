@@ -52,16 +52,16 @@ fun RubyWord(
 fun RubySentence(
     words: List<Word>,
     size: TextUnit,
-    romaji: Boolean,
+    romaji: List<String>?,
     modifier: Modifier = Modifier,
     color: Color = OneUi.colors.text,
 ) {
     FlowRow(modifier, horizontalArrangement = Arrangement.Start, verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        for (w in words) {
+        words.forEachIndexed { wi, w ->
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 RubyWord(w.segments, size, color = if (w.isParticle) color.copy(alpha = 0.78f) else color)
-                if (romaji) {
-                    val r = if (w.isSymbol || w.pronunciation.isEmpty() || !Kana.hasJapanese(w.surface)) " " else Kana.toRomaji(romajiSource(w))
+                if (romaji != null) {
+                    val r = romaji.getOrNull(wi)?.ifEmpty { " " } ?: " "
                     Text(r, fontSize = (size.value * 0.42f).coerceAtLeast(9f).sp, color = OneUi.colors.textSecondary, maxLines = 1, softWrap = false)
                 }
             }

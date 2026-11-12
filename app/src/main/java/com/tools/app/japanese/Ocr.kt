@@ -39,13 +39,15 @@ class OcrResult(val lines: List<OcrLine>, val vertical: Boolean) {
 object Ocr {
     private val recognizer by lazy { TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build()) }
 
-    suspend fun recognize(bitmap: Bitmap): OcrResult {
+    /** [topInset]: height in px of the status bar in a screenshot; lines inside it are ignored. */
+    suspend fun recognize(bitmap: Bitmap, topInset: Int = 0): OcrResult {
         val result = recognizer.process(InputImage.fromBitmap(bitmap, 0)).await()
         val blocks = ArrayList<List<OcrLine>>()
         result.textBlocks.forEachIndexed { bi, b ->
             val lines = b.lines.mapNotNull { l ->
                 val box = l.boundingBox ?: return@mapNotNull null
-                if (l.text.isBlank()) return@mapNotNull null
+                if (l.text.isBlank() || !Kana.hasJapanese(l.text)) return@mapNotNull null
+                if (topInset > 0 && box.centerY() < topInset) return@mapNotNull null
                 val vertical = box.height() > box.width() * 1.3f && l.text.length >= 2
                 OcrLine(
                     l.text.trim(), box, vertical, bi,

@@ -59,7 +59,7 @@ class JapaneseReaderActivity : ComponentActivity() {
         source = when {
             path != null -> {
                 val f = File(path)
-                ReaderSource(Uri.fromFile(f), "$path@${i.getLongExtra(EXTRA_STAMP, f.lastModified())}")
+                ReaderSource(Uri.fromFile(f), "$path@${i.getLongExtra(EXTRA_STAMP, f.lastModified())}", i.getIntExtra(EXTRA_TOP_INSET, 0))
             }
             i?.action == Intent.ACTION_SEND -> @Suppress("DEPRECATION") i.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)?.let { ReaderSource(it, it.toString() + System.nanoTime()) }
             i?.data != null -> ReaderSource(i.data!!, i.data.toString() + System.nanoTime())
@@ -71,11 +71,12 @@ class JapaneseReaderActivity : ComponentActivity() {
         const val EXTRA_PATH = "path"
         const val EXTRA_STAMP = "stamp"
         const val EXTRA_NO_SERVICE = "no_service"
+        const val EXTRA_TOP_INSET = "top_inset"
 
         fun open(context: Context, uri: Uri) {
             context.startActivity(
                 Intent(context, JapaneseReaderActivity::class.java).setData(uri)
-                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION).also { if (context !is android.app.Activity) it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
             )
         }
 
@@ -83,10 +84,11 @@ class JapaneseReaderActivity : ComponentActivity() {
             context.startActivity(
                 Intent(context, JapaneseReaderActivity::class.java)
                     .putExtra(EXTRA_PATH, file.path).putExtra(EXTRA_STAMP, System.nanoTime())
-                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    .also { if (context !is android.app.Activity) it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
             )
         }
     }
 }
 
-class ReaderSource(val uri: Uri, val key: String)
+/** [topInset]: status-bar height in px for screenshots (that text is ignored). */
+class ReaderSource(val uri: Uri, val key: String, val topInset: Int = 0)

@@ -64,6 +64,7 @@ object JapaneseCapture {
                         Intent(service, JapaneseReaderActivity::class.java)
                             .putExtra(JapaneseReaderActivity.EXTRA_PATH, f.path)
                             .putExtra(JapaneseReaderActivity.EXTRA_STAMP, System.currentTimeMillis())
+                            .putExtra(JapaneseReaderActivity.EXTRA_TOP_INSET, statusBarHeight(service))
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     )
                 } catch (t: Throwable) {
@@ -82,6 +83,11 @@ object JapaneseCapture {
                 )
             }
         })
+    }
+
+    private fun statusBarHeight(context: Context): Int {
+        val id = context.resources.getIdentifier("status_bar_height", "dimen", "android")
+        return if (id > 0) context.resources.getDimensionPixelSize(id) else 0
     }
 
     private fun toast(context: Context, text: String) {

@@ -299,7 +299,7 @@ private fun Flashcards(onClose: () -> Unit) {
             } else {
                 Text("${(total - queue.size + 1).coerceAtMost(total)} / $total  ·  ${queue.size} to go", fontSize = 13.5.sp, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
                 Box(
-                    Modifier.weight(1f).fillMaxWidth().clip(RoundedCornerShape(28.dp)).background(c.card).clickable { revealed = true }.padding(24.dp),
+                    Modifier.weight(1f).fillMaxWidth().clip(OneUi.CardShape).background(c.card).clickable { revealed = true }.padding(24.dp),
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {

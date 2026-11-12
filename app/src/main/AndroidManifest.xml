@@ -241,7 +241,7 @@
             android:exported="false"
             android:label="@string/read_japanese"
             android:taskAffinity="com.tools.app.japanese"
-            android:launchMode="singleTask"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Tools"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode" />
         <activity-alias
