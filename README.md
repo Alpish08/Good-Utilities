@@ -31,7 +31,7 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 - **Charge limit**: custom battery protection and bypass charging.
 
 **Miscellaneous**
-- **Battery**: health estimate, cycle count, temperature and charging speed.
+- **Battery**: Samsung's own battery health and lifetime cycle count (synced from a Mac with `sync-battery.sh`, since Android doesn't let apps read them), plus temperature and charging speed.
 - **APK extractor**: save installed apps as APKs, merging split bundles into one installable file.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
 - **Random**: numbers in any range, or roll dice (d4 to d20) with One UI animations.
@@ -51,6 +51,10 @@ Release builds are signed with the key in `~/.good-utilities/release.p12`. Its p
 macOS Keychain item "Good Utilities release key", or from the `GU_KEYSTORE_PASSWORD` environment variable.
 Neither the key nor the password is in this repository. Without them, release builds fall back to the debug key,
 and those can't be installed over the published app.
+
+`sync-battery.sh` copies Samsung's battery health (`mSavedBatteryAsoc`) and cycle count (`mSavedBatteryUsage` / 100)
+from `adb shell dumpsys battery` into the Battery page. Android blocks regular apps from that service, so it has to
+come over adb. Run it every few weeks; between syncs the app's own estimate is corrected using the gap measured at sync time.
 
 Android 16 marks sideloaded apps as restricted and switches their accessibility service off after each
 install. `enable-applock.sh` turns App lock back on over adb after reinstalling.

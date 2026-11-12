@@ -49,8 +49,12 @@ fun BatteryScreen(onBack: () -> Unit) {
     var now by remember { mutableStateOf(BatteryHealth.read(context)) }
     var samsung by remember { mutableStateOf<SamsungBattery?>(null) }
     LaunchedEffect(Unit) {
-        samsung = withContext(Dispatchers.IO) { BatteryHealth.samsung(context) }
-        while (true) { now = BatteryHealth.read(context).copy(samsung = samsung); delay(1000) }
+        // Re-read each tick so a sync from the Mac shows up while the page is open (prefs are in memory).
+        while (true) {
+            samsung = BatteryHealth.samsung(context)
+            now = BatteryHealth.read(context).copy(samsung = samsung)
+            delay(1000)
+        }
     }
     val dateFmt = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
     val n = NumberFormat.getIntegerInstance()
@@ -101,9 +105,9 @@ fun BatteryScreen(onBack: () -> Unit) {
         sectionLabel("Battery")
         cardList(
             listOfNotNull(
-                now.totalCycles?.let { "Charge cycles" to n.format(it) + if (samsung?.cycles != null) " (Samsung)" else "" },
-                now.samsung?.asoc?.let { "Samsung capacity (ASOC)" to "$it%" },
-                now.estimatedPercent?.let { "Fuel-gauge estimate" to "≈ $it%" },
+                now.totalCycles?.let { "Charge cycles" to n.format(it) },
+                now.samsung?.let { "Samsung figures" to "Synced " + dateFmt.format(java.time.Instant.ofEpochMilli(it.syncedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate()) },
+                now.estimatedPercent?.takeIf { now.healthIsSamsung }?.let { "Today's estimate" to "≈ $it%" + if (now.samsung?.offset != null) " (adjusted to Samsung's)" else "" },
                 now.samsung?.firstUse?.let { "First used" to dateFmt.format(it) },
                 now.samsung?.made?.let { "Battery made" to dateFmt.format(it) },
                 "Condition" to now.health,
@@ -113,14 +117,13 @@ fun BatteryScreen(onBack: () -> Unit) {
             key = { "bat-" + it.first },
         ) { (label, value) -> ListRow(label, summary = value) }
 
-        if (!BatteryHealth.canReadSamsung(context)) description(
-            "Health is estimated from the fuel gauge (charge stored ÷ level) and reads a couple of points high. " +
-                "For Samsung's exact health and lifetime cycle count, run enable-applock.sh on your Mac once " +
-                "(it grants Good Utilities permission to read Samsung's battery report).",
+        if (now.samsung == null) description(
+            "Health is estimated from the fuel gauge (charge stored ÷ level), which reads a couple of points high on Galaxy phones. " +
+                "For Samsung's exact health and lifetime cycle count, connect your phone to your Mac and run sync-battery.sh.",
             key = "about",
         ) else description(
-            "Health and cycles come from Samsung's battery service: the capacity its fuel gauge has learned, as a share of the " +
-                "${n.format(now.designMah)} mAh design. Cycles include any previous owner's. Keeping your charge limit at 80–85% slows wear.",
+            "Health and cycles are Samsung's own (its fuel gauge's learned capacity as a share of the ${n.format(now.designMah)} mAh design), " +
+                "as of the last sync. Run sync-battery.sh again every few weeks to refresh them. Cycles include any previous owner's.",
             key = "about",
         )
     }

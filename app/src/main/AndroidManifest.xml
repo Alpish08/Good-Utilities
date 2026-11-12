@@ -3,8 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Granted only over adb (enable-applock.sh): lets the Battery page read Samsung's battery report. -->
-    <uses-permission android:name="android.permission.DUMP" tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
@@ -82,6 +80,16 @@
                 <data android:mimeType="text/plain" />
             </intent-filter>
         </activity-alias>
+
+        <!-- Samsung battery health from sync-battery.sh; only senders with DUMP (adb's shell) may send. -->
+        <receiver
+            android:name=".battery.SamsungBatterySync"
+            android:exported="true"
+            android:permission="android.permission.DUMP">
+            <intent-filter>
+                <action android:name="com.tools.app.SAMSUNG_BATTERY" />
+            </intent-filter>
+        </receiver>
 
         <!-- Share PDFs / photos → Print (same activity, routed by component name) -->
         <activity-alias

@@ -24,8 +24,10 @@ data class BatterySnapshot(
     val ratedMah: Int,        // minimum (rated) capacity from the power profile
     val samsung: SamsungBattery? = null, // Samsung's own figures, when Good Utilities may read them
 ) {
-    /** The fuel-gauge estimate (charge stored ÷ level); runs a couple of points high. */
-    val estimatedPercent: Int? get() = estimatedMah?.let { (it * 100f / designMah).toInt().coerceIn(1, 100) }
+    /** The raw fuel-gauge estimate (charge stored ÷ level); on Samsung it runs a couple of points high. */
+    val rawPercent: Float? get() = estimatedMah?.let { it * 100f / designMah }
+    /** The estimate, corrected by the gap seen between it and Samsung's figure at the last sync. */
+    val estimatedPercent: Int? get() = rawPercent?.let { (it + (samsung?.offset ?: 0f)).toInt().coerceIn(1, 100) }
     /** Samsung's battery health (ASOC) when available, otherwise the estimate. */
     val healthPercent: Int? get() = samsung?.asoc ?: estimatedPercent
     /** True when [healthPercent] is Samsung's own measurement rather than an estimate. */
@@ -36,11 +38,15 @@ data class BatterySnapshot(
 }
 
 /**
- * Samsung's battery service figures, from `dumpsys battery`:
- * mSavedBatteryAsoc (health: learned full capacity as % of design), mSavedBatteryUsage (lifetime usage
- * in hundredths of a cycle), battery FirstUseDate and LLB MAN (manufacture date).
+ * Samsung's battery service figures (`dumpsys battery`), which apps can't read themselves: Android blocks the
+ * battery service for regular apps. sync-battery.sh reads them over adb and hands them to [SamsungBatterySync].
+ * asoc = mSavedBatteryAsoc (health: learned full capacity as % of design), cycles = mSavedBatteryUsage / 100,
+ * firstUse = battery FirstUseDate, made = LLB MAN. [offset] = Samsung's health minus the raw estimate at sync time.
  */
-data class SamsungBattery(val asoc: Int?, val cycles: Int?, val firstUse: java.time.LocalDate?, val made: java.time.LocalDate?)
+data class SamsungBattery(
+    val asoc: Int?, val cycles: Int?, val firstUse: java.time.LocalDate?, val made: java.time.LocalDate?,
+    val syncedAt: Long, val offset: Float?,
+)
 
 object BatteryHealth {
     /**
@@ -111,42 +117,38 @@ object BatteryHealth {
         (cls.getMethod("getBatteryCapacity").invoke(profile) as Double).roundToInt()
     }.getOrNull()?.takeIf { it in 1000..20000 } ?: 5000
 
-    // --- Samsung's own figures
+    // --- Samsung's own figures, synced from a Mac (sync-battery.sh)
 
-    const val DUMP = "android.permission.DUMP"
+    private fun prefs(context: Context) = context.getSharedPreferences("samsung_battery", Context.MODE_PRIVATE)
 
-    /**
-     * Reading Samsung's battery report needs the DUMP permission, which only adb can grant
-     * (`adb shell pm grant com.tools.app android.permission.DUMP`); enable-applock.sh does it.
-     */
-    fun canReadSamsung(context: Context) = context.checkSelfPermission(DUMP) == android.content.pm.PackageManager.PERMISSION_GRANTED
-
-    @Volatile private var cached: Pair<Long, SamsungBattery?>? = null
-
-    /** Blocking (runs dumpsys); call off the main thread. Cached for a few minutes, the values change slowly. */
+    /** The last synced figures, or null if never synced. */
     fun samsung(context: Context): SamsungBattery? {
-        if (!canReadSamsung(context)) return null
-        cached?.let { (t, v) -> if (System.currentTimeMillis() - t < 5 * 60_000L) return v }
-        val v = runCatching {
-            val p = ProcessBuilder("dumpsys", "battery").redirectErrorStream(true).start()
-            val text = p.inputStream.bufferedReader().use { it.readText() }
-            p.waitFor()
-            parseSamsung(text)
-        }.getOrNull()
-        cached = System.currentTimeMillis() to v
-        return v
+        val p = prefs(context)
+        if (!p.contains("syncedAt")) return null
+        fun date(k: String) = p.getString(k, null)?.let { runCatching { java.time.LocalDate.parse(it) }.getOrNull() }
+        return SamsungBattery(
+            asoc = p.getInt("asoc", -1).takeIf { it > 0 },
+            cycles = p.getInt("cycles", -1).takeIf { it >= 0 },
+            firstUse = date("firstUse"), made = date("made"),
+            syncedAt = p.getLong("syncedAt", 0L),
+            offset = if (p.contains("offset")) p.getFloat("offset", 0f) else null,
+        )
     }
 
-    fun parseSamsung(text: String): SamsungBattery? {
-        fun field(name: String) = Regex("""$name:\s*\[?\s*([A-Za-z0-9]+)""").find(text)?.groupValues?.get(1)
-        val asoc = field("mSavedBatteryAsoc")?.toIntOrNull()?.takeIf { it in 1..120 }?.coerceAtMost(100)
-        val usage = field("mSavedBatteryUsage")?.toIntOrNull()?.takeIf { it >= 0 }
+    /** Saves synced figures; the estimate's correction is measured now, against the live fuel gauge. */
+    fun saveSamsung(context: Context, asoc: Int, usage: Int?, firstUse: String?, made: String?) {
         fun date(s: String?) = s?.takeIf { it.length == 8 && it.all(Char::isDigit) }?.let {
             runCatching { java.time.LocalDate.parse(it, java.time.format.DateTimeFormatter.BASIC_ISO_DATE) }.getOrNull()
         }
-        val firstUse = date(field("battery FirstUseDate"))
-        val made = date(field("LLB MAN"))
-        if (asoc == null && usage == null) return null
-        return SamsungBattery(asoc, usage?.let { it / 100 }, firstUse, made)
+        val raw = read(context).rawPercent
+        prefs(context).edit().apply {
+            putInt("asoc", asoc.coerceIn(1, 100))
+            if (usage != null && usage >= 0) putInt("cycles", usage / 100) else remove("cycles")
+            date(firstUse)?.let { putString("firstUse", it.toString()) }
+            date(made)?.let { putString("made", it.toString()) }
+            putLong("syncedAt", System.currentTimeMillis())
+            // Only trust the gap from a reading the fuel gauge is good at (above 50%).
+            if (raw != null && read(context).level >= 50) putFloat("offset", (asoc - raw).coerceIn(-10f, 10f))
+        }.apply()
     }
 }
