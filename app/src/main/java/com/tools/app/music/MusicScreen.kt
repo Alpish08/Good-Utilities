@@ -117,8 +117,8 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
 
             playlist == null -> {
                 sectionLabel("How it works")
-                cardList(HOW_IT_WORKS, key = { it.first }, dividerStart = 74.dp) { (title, summary, icon) ->
-                    ListRow(title, summary = summary, leading = { IconBadge(icon) })
+                cardList(HOW_IT_WORKS, key = { it.first }) { (title, summary, icon) ->
+                    ListRow(title, summary = summary)
                 }
             }
 

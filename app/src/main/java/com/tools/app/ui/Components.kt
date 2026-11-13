@@ -216,6 +216,11 @@ fun OneUiScaffold(
         // Short lists get invisible bottom room so the header can always collapse all the way.
         val viewportPx = constraints.maxHeight.toFloat()
         var fillerPx by remember { mutableFloatStateOf(0f) }
+        // When the list's contents change (e.g. search results → full list), drop the old filler first, so a long
+        // list can't keep the short list's extra room and scroll past its end.
+        LaunchedEffect(listState) {
+            snapshotFlow { listState.layoutInfo.totalItemsCount }.collect { fillerPx = 0f }
+        }
         if (expanded) LaunchedEffect(listState, rangePx, viewportPx) {
             snapshotFlow {
                 val info = listState.layoutInfo
@@ -248,8 +253,10 @@ fun OneUiScaffold(
                             // The list runs right up under the status bar now, fading out just below it.
                             f(statusTopPx) to solid.copy(alpha = 1f - topFade),
                             f(statusTopPx + fadePx * 1.6f) to solid,
-                            f(h - bottomCutPx - fadePx * 1.4f) to solid,
-                            f(h - bottomCutPx) to solid.copy(alpha = 1f - bottomFade),
+                            // Above a floating bar (search pill etc.) the list always fades out completely before
+                            // reaching it, over a longer stretch, like Reminder's "Add reminder" bar.
+                            f(h - bottomCutPx - fadePx * (if (bottomBar != null) 2.6f else 1.4f)) to solid,
+                            f(h - bottomCutPx) to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
                             1f to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
                         ),
                         blendMode = BlendMode.DstIn,
@@ -326,6 +333,8 @@ fun ToolPage(
             }
             scope.launch { animate(extra, target, animationSpec = tween(300, easing = OneUiEasing)) { v, _ -> extra = v } }
         }
+        // A page without a title (About) has nothing to expand.
+        val expandable = title.isNotEmpty()
         val nested = remember(rangePx) {
             object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
@@ -335,7 +344,7 @@ fun ToolPage(
                 }
                 override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
                     // Pulling past the top of the content opens it.
-                    if (available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput) {
+                    if (expandable && available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput) {
                         val used = minOf(available.y, rangePx - extra); extra += used; return Offset(0f, used)
                     }
                     return Offset.Zero
@@ -346,7 +355,7 @@ fun ToolPage(
                 }
             }
         }
-        val drag = androidx.compose.foundation.gestures.rememberDraggableState { d -> extra = (extra + d).coerceIn(0f, rangePx) }
+        val drag = androidx.compose.foundation.gestures.rememberDraggableState { d -> if (expandable) extra = (extra + d).coerceIn(0f, rangePx) }
         // A drag anywhere on the page that nothing inside claims (sliders, canvases and scroll areas
         // consume their own) pulls the header open or closed.
         Column(Modifier.fillMaxSize().draggable(drag, androidx.compose.foundation.gestures.Orientation.Vertical, onDragStopped = { v -> settle(v) })) {

@@ -240,7 +240,6 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                     ListRow(
                         "Google Translate",
                         summary = "Listen, see alternatives, and get the online translation",
-                        leading = { com.tools.app.ui.ColorIcon(androidx.compose.material.icons.Icons.Rounded.GTranslate, com.tools.app.ui.theme.IconColors.Blue) },
                         onClick = { GoogleTranslate.open(ctx, text) },
                     )
                 }

@@ -295,7 +295,6 @@ private fun PrinterCard(st: PrinterState, onClick: () -> Unit) {
             status?.second == PrintModels.Tone.Ok -> c.success
             else -> null
         },
-        leading = { ColorIcon(Icons.Rounded.Print, if (st.error != null && caps == null) c.textSecondary else c.accent, size = 40.dp) },
         trailing = { Text("Change", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent) },
         onClick = onClick,
     )

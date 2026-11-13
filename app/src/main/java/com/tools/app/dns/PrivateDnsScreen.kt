@@ -120,7 +120,6 @@ fun PrivateDnsScreen(onBack: () -> Unit) {
                 ListRow(
                     "Add Private DNS to Quick panel",
                     summary = "Tap to switch between Custom and Automatic. Touch and hold to open this page.",
-                    leading = { ColorIcon(Icons.Rounded.Language, IconColors.Teal) },
                     onClick = {
                         context.getSystemService(android.app.StatusBarManager::class.java).requestAddTileService(
                             ComponentName(context, PrivateDnsTileService::class.java), "DNS",

@@ -186,7 +186,6 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             ListRow(
                 "Add Bypass charging to Quick panel",
                 summary = "One tap holds the battery at its current level. Touch and hold the tile to open this page.",
-                leading = { com.tools.app.ui.ColorIcon(Icons.Rounded.Bolt, com.tools.app.ui.theme.IconColors.Green) },
                 onClick = {
                     context.getSystemService(android.app.StatusBarManager::class.java).requestAddTileService(
                         android.content.ComponentName(context, BypassTileService::class.java),

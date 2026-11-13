@@ -107,8 +107,8 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
 
             info == null -> {
                 sectionLabel("Supported")
-                cardList(SUPPORTED, key = { it.first }, dividerStart = 74.dp) { (title, summary, icon) ->
-                    ListRow(title, summary = summary, leading = { IconBadge(icon) })
+                cardList(SUPPORTED, key = { it.first }) { (title, summary, icon) ->
+                    ListRow(title, summary = summary)
                 }
             }
 

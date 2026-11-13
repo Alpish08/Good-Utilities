@@ -18,6 +18,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -45,7 +46,7 @@ data class OneUiColors(
 val SamsungBlue = Color(0xFF3679FD)
 
 private val Light = OneUiColors(
-    background = Color(0xFFF4F4F7), card = Color.White,
+    background = Color(0xFFF4F4F7), card = Color.White.copy(alpha = 0.86f),
     text = Color(0xFF111114), textSecondary = Color(0xFF79797D),
     accent = SamsungBlue, onAccent = Color.White, accentContainer = Color(0xFFE1EAFF),
     tonal = Color(0xFFE7E7EA), divider = Color(0x14000008), switchOff = Color(0xFFC4C4C8),
@@ -56,7 +57,8 @@ private val Light = OneUiColors(
 // Sampled from One UI 8.5 system apps (Settings, Modes and Routines): Samsung's dark grays are
 // slightly cool (a touch of blue), never neutral or warm.
 private val Dark = OneUiColors(
-    background = Color(0xFF010102), card = Color(0xFF17171A),
+    // Cards are slightly see-through so the page glow shows faintly; over plain black they look the same as before.
+    background = Color(0xFF010102), card = Color(0xFF1D1D21).copy(alpha = 0.8f),
     text = Color(0xFFFAFAFC), textSecondary = Color(0xFF9B9BA0),
     accent = SamsungBlue, onAccent = Color.White, accentContainer = Color(0xFF16264A),
     tonal = Color(0xFF2A2A2D), divider = Color(0x1AFFFFFF), switchOff = Color(0xFF5A5A5E),
@@ -108,8 +110,9 @@ fun OneUiTheme(content: @Composable () -> Unit) {
     val ctx = androidx.compose.ui.platform.LocalContext.current
     androidx.compose.runtime.remember { Glow.load(ctx) }
     val c = if (dark) Dark else Light
-    val scheme = if (dark) darkColorScheme(primary = c.accent, background = c.background, surface = c.card, onSurface = c.text)
-    else lightColorScheme(primary = c.accent, background = c.background, surface = c.card, onSurface = c.text)
+    val surface = c.card.compositeOver(c.background)
+    val scheme = if (dark) darkColorScheme(primary = c.accent, background = c.background, surface = surface, onSurface = c.text)
+    else lightColorScheme(primary = c.accent, background = c.background, surface = surface, onSurface = c.text)
     // System font: on Galaxy devices this resolves to SamsungOne.
     MaterialTheme(colorScheme = scheme, typography = SamsungTypography) {
         CompositionLocalProvider(

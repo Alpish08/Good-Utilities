@@ -116,11 +116,10 @@ fun ApkScreen(onBack: () -> Unit) {
     val shown = apps.orEmpty()
     OneUiScaffold(title = "APK extractor", onBack = onBack) {
         description("Save apps as APK files in ${ApkTools.FOLDER}. Split apps and bundle files are merged into one APK you can install anywhere.")
-        cardList(listOf(Unit), key = { "bundle-file" }, dividerStart = IconRowDivider) {
+        cardList(listOf(Unit), key = { "bundle-file" }) {
             ListRow(
                 "Merge a split APK file",
                 summary = ".apks, .xapk or .apkm bundle → one installable APK",
-                leading = { ColorIcon(Icons.AutoMirrored.Rounded.CallMerge, IconColors.Blue) },
                 onClick = { if (job !is ApkJob.State.Running) { ApkJob.state.value = ApkJob.State.Idle; bundlePicker.launch(arrayOf("*/*")) } },
             )
         }

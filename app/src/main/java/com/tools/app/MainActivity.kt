@@ -5,6 +5,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.core.SeekableTransitionState
+import com.tools.app.ui.theme.drawGlow
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.LaunchedEffect
@@ -88,6 +91,15 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     }
                 }
 
+                // Behind every page: the glow of the page you're heading to. A page fading or shrinking away
+                // during a transition then blends into it instead of showing a dark gap.
+                val c = com.tools.app.ui.theme.OneUi.colors
+                androidx.compose.foundation.layout.Box(
+                    androidx.compose.ui.Modifier.fillMaxSize().drawBehind {
+                        drawRect(c.background)
+                        if (com.tools.app.ui.theme.Glow.enabled) drawGlow(glowFor(nav.targetState.last()), c.isDark)
+                    },
+                ) {
                 rememberTransition(nav, label = "nav").AnimatedContent(
                     transitionSpec = {
                         // One UI navigation: the new page slides in from the right over the old one,
@@ -118,6 +130,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     val here = s.joinToString(",") { it.name }
                     fun push(r: Route) { if (stack == here && s.last() != r) stack = "$here,${r.name}" }
                     fun pop() { if (stack == here && s.size > 1) stack = here.substringBeforeLast(',') }
+                    androidx.compose.runtime.CompositionLocalProvider(com.tools.app.ui.theme.LocalGlowStyle provides glowFor(s.last())) {
                     when (s.last()) {
                         Route.Home -> HomeScreen(home, open = ::push)
                         Route.Music -> MusicScreen(musicList, onBack = ::pop, onOpenSettings = { push(Route.MusicSettings) })
@@ -147,9 +160,22 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.BackgroundRemover -> com.tools.app.cutout.BackgroundRemoverScreen(onBack = ::pop)
                         Route.ApkExtractor -> com.tools.app.apk.ApkScreen(onBack = ::pop)
                     }
+                    }
+                }
                 }
             }
         }
+    }
+
+    /** Each part of the app has its own glow; pages share their tool's (Home has its own). */
+    private fun glowFor(r: Route): com.tools.app.ui.theme.GlowStyle = when (r) {
+        Route.Music, Route.MusicSettings, Route.YouTubeSignIn, Route.VideoDownloader, Route.AudioMerge, Route.AudioTrim ->
+            com.tools.app.ui.theme.GlowStyle.Media
+        Route.Reader, Route.PdfEditor, Route.Converter, Route.Print, Route.Compressor -> com.tools.app.ui.theme.GlowStyle.Files
+        Route.ColorPicker, Route.Blur, Route.BackgroundRemover -> com.tools.app.ui.theme.GlowStyle.Images
+        Route.AppLock, Route.AppLockPin, Route.GuideAppLock, Route.PrivateDns, Route.ChargeLimit -> com.tools.app.ui.theme.GlowStyle.Device
+        Route.Battery, Route.GuideBattery, Route.ApkExtractor, Route.Japanese, Route.QrCode, Route.Random -> com.tools.app.ui.theme.GlowStyle.Misc
+        Route.Home, Route.About -> com.tools.app.ui.theme.GlowStyle.Home
     }
 
     companion object {

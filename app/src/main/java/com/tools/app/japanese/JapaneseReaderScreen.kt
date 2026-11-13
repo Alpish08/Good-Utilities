@@ -111,13 +111,11 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
         card("capture") {
             ListRow(
                 "Choose image", summary = "A screenshot or picture with Japanese text",
-                leading = { ColorIcon(OneUiIcons.Gallery, IconColors.Purple) },
                 onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             )
-            CardDivider(62.dp)
+            CardDivider()
             ListRow(
                 "Take photo", summary = "A sign, a page, a game screen",
-                leading = { ColorIcon(Icons.Rounded.CameraAlt, IconColors.Orange) },
                 onClick = {
                     photoFile.delete()
                     camera.launch(FileProvider.getUriForFile(ctx, "com.tools.app.files", photoFile))
@@ -131,9 +129,8 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
             ListRow(
                 "Read the screen you are on",
                 summary = "Swipe down, tap Read Japanese. Works over Mihon, games, video and anything else, then tap a line for readings and meanings.",
-                leading = { ColorIcon(Icons.Rounded.Translate, IconColors.Red) },
             )
-            CardDivider(62.dp)
+            CardDivider()
             ListRow(
                 if (serviceOn) "Screen capture is ready" else "App lock's accessibility service is off",
                 summary = if (serviceOn) "Uses the same accessibility service as App lock. It captures the screen only when you tap the tile."

@@ -115,7 +115,6 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         card("open") {
             ListRow(
                 "Open file", summary = "PDF, Word and text files",
-                leading = { ColorIcon(androidx.compose.material.icons.Icons.AutoMirrored.Rounded.MenuBook, IconColors.Orange) },
                 onClick = { picker.launch(SupportedMimes) },
             )
         }
@@ -123,7 +122,6 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
             ListRow(
                 "Make it your default",
                 summary = "Open any PDF in My Files, choose Good Reader, then tap \"Always\".",
-                leading = { ColorIcon(OneUiIcons.Info, IconColors.Blue) },
             )
         }
 

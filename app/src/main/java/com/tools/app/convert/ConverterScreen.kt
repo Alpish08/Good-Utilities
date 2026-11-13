@@ -152,7 +152,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
             val context = LocalContext.current
             ListRow(
                 "Allow access to storage", summary = "Converted files are saved in Internal Storage/${Storage.ROOT}. Tap to allow All files access.",
-                leading = { ColorIcon(OneUiIcons.Folder, IconColors.Orange) },
                 onClick = { context.startActivity(Storage.accessIntent(context)) },
             )
         }
@@ -169,7 +168,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
         card("choose") {
             ListRow(
                 "Choose files", summary = "Pick one or more files of the same type",
-                leading = { ColorIcon(Icons.Rounded.SwapHoriz, IconColors.Teal) },
                 onClick = pick,
             )
         }
@@ -184,8 +182,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
                 Triple(Kind.Video, "Video", "MP4, MKV, MOV, WebM, 3GP, AVI to MP4, WebM, GIF, or just the audio"),
             )
             rows.forEachIndexed { i, (k, title, summary) ->
-                ListRow(title, summary = summary, leading = { ColorIcon(k.icon(), k.color()) })
-                if (i != rows.lastIndex) CardDivider(62.dp)
+                ListRow(title, summary = summary)
+                if (i != rows.lastIndex) CardDivider()
             }
         }
         return
@@ -198,7 +196,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
             s.name,
             summary = (if (s.ext.isEmpty()) s.kind.label else "${s.ext.uppercase()} ${s.kind.label.lowercase()}") +
                 if (s.size > 0) " · ${Formatter.formatShortFileSize(context, s.size)}" else "",
-            leading = { ColorIcon(s.kind.icon(), s.kind.color()) },
             trailing = {
                 Box(Modifier.size(36.dp).clip(CircleShape).clickable { jobs.remove(s) }, contentAlignment = Alignment.Center) {
                     Icon(OneUiIcons.Close, "Remove", tint = OneUi.colors.textSecondary, modifier = Modifier.size(20.dp))
@@ -206,7 +203,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
             },
         )
     }
-    card("add") { ListRow("Add more files", leading = { ColorIcon(OneUiIcons.Add, IconColors.Blue) }, onClick = pick) }
+    card("add") { ListRow("Add more files", onClick = pick) }
 
     val choices = jobs.choices
     sectionLabel("Convert to")
@@ -369,7 +366,6 @@ private fun ResultRow(item: Item) {
                 is ItemState.Failed -> c.error
                 else -> null
             },
-            leading = { ColorIcon(item.kind.icon(), item.kind.color()) },
             trailing = if (state is ItemState.Done) ({
                 Row {
                     RoundAction(OneUiIcons.Share, "Share") { scope.launch { share(context, state.output) } }

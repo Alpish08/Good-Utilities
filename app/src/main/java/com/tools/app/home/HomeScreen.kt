@@ -134,8 +134,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     val matches = if (q.isEmpty()) emptyList() else groups.flatMap { it.second }.filter {
         it.title.contains(q, ignoreCase = true) || it.summary.contains(q, ignoreCase = true)
     }
-    // Searching scrolls back to the results (they replace the whole list).
-    LaunchedEffect(q.isEmpty()) { if (q.isNotEmpty() && state.list.firstVisibleItemIndex > 1) state.list.scrollToItem(1) }
+    // Opening search folds the big title away so the results have room above the keyboard.
+    LaunchedEffect(searchFocused || q.isNotEmpty()) {
+        if ((searchFocused || q.isNotEmpty()) && state.list.firstVisibleItemIndex == 0) state.list.animateScrollToItem(1)
+        else if (q.isNotEmpty() && state.list.firstVisibleItemIndex > 1) state.list.scrollToItem(1)
+    }
 
     OneUiScaffold(
         title = "Good Utilities",
