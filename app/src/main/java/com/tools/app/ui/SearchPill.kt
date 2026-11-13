@@ -148,23 +148,24 @@ fun SearchBar(
 /** One tab of a [TabPill]: outline icon, and the filled one shown while selected. */
 class PillTab(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val selectedIcon: androidx.compose.ui.graphics.vector.ImageVector)
 
-/** The tab pill's faint hairline outline. Off for now; set to true to bring it back. */
-const val TabPillOutline = false
+/** The tab pill's faint hairline outline (false hides it). */
+const val TabPillOutline = true
 
 /** Labels under the tab icons (Gallery / Phone / Samsung Health style); false = icon-only like Clock. */
 const val TabPillLabels = true
 
 /**
  * One UI 8.5 bottom navigation: a floating 56 dp pill. With labels (Gallery, Phone, Samsung Health, measured):
- * tabs 72 dp apart, a 24 dp icon over a 10 sp label, the selected tab on a 79 × 48 dp capsule. Icon-only (Clock):
+ * a 22 dp icon over a 10 sp label, tabs 66 dp apart (Phone uses 72), the selected tab on a 73 × 48 dp capsule. Icon-only (Clock):
  * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
 @Composable
 fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels) {
     val c = OneUi.colors
-    val slot = if (labels) 72.dp else 56.dp
+    // Labelled tabs a little closer than Phone's 72 dp, so five fit in a shorter pill.
+    val slot = if (labels) 66.dp else 56.dp
     val rowPad = if (labels) 7.dp else 8.dp
-    val capsuleW = if (labels) 79.dp else 60.dp
+    val capsuleW = if (labels) 73.dp else 60.dp
     val capsuleH = if (labels) 48.dp else 46.dp
     // Colours halfway between Clock's bar and the app's menu cards. The capsule is lit from its centre (a soft glow).
     val pillBase = if (c.isDark) Color(0xFF202022).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
@@ -175,7 +176,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val pressEdge = if (c.isDark) 0.22f else 0.07f
     val tintBase = if (c.isDark) Color.White else Color.Black
     val iconOn = if (c.isDark) Color(0xFFFCFCFF) else Color(0xFF111114)
-    val iconOff = if (c.isDark) Color(0xFFE9E9EC) else Color(0xFF3A3A3E)
+    val iconOff = if (c.isDark) Color(0xFFD9D9DD) else Color(0xFF4A4A4F)
 
     // Clock's press, measured frame by frame: the capsule jumps to the touched tab at once (no slide), brightens
     // strongly and presses in ~4% over 0.2 s while held, then eases back to rest over ~0.35 s on release. A quick tap
@@ -246,7 +247,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                         val tint = if (on) iconOn else iconOff
                         if (!labels) Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.size(24.dp))
                         else {
-                            Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.padding(top = 7.5.dp).size(24.dp))
+                            Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.padding(top = 8.35.dp).size(22.3.dp)) // 7% under 24 dp, same centre
                             androidx.compose.material3.Text(
                                 tab.label,
                                 color = tint,
