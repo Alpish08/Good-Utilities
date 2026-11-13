@@ -141,6 +141,18 @@ object OneUiIcons {
         }
     }
 
+    /** One UI's mic (My Files search): solid capsule, cradle, stem and a base line. */
+    val Mic: ImageVector by lazy {
+        icon("Mic") {
+            fill {
+                moveTo(9.3f, 5.2f); arcTo(2.7f, 2.7f, 0f, false, true, 14.7f, 5.2f); lineTo(14.7f, 10.8f)
+                arcTo(2.7f, 2.7f, 0f, false, true, 9.3f, 10.8f); close()
+            }
+            line(1.6f) { moveTo(6f, 11f); arcTo(6f, 6f, 0f, false, false, 18f, 11f) }
+            line(1.6f) { moveTo(12f, 17f); lineTo(12f, 20.2f); moveTo(7.6f, 20.6f); lineTo(16.4f, 20.6f) }
+        }
+    }
+
     val Close: ImageVector by lazy {
         icon("Close") {
             line(1.6f) { moveTo(6f, 6f); lineTo(18f, 18f); moveTo(18f, 6f); lineTo(6f, 18f) }

@@ -145,15 +145,10 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
         actions = {
-            OverflowMenu(listOf(
-                (if (com.tools.app.ui.theme.Glow.enabled) "Turn off glow" else "Turn on glow") to {
-                    com.tools.app.ui.theme.Glow.set(context, !com.tools.app.ui.theme.Glow.enabled)
-                },
-                "About" to { open(Route.About) },
-            ))
+            OverflowMenu(listOf("About" to { open(Route.About) }))
         },
         bottomBar = {
-            com.tools.app.ui.SearchPill(query, { query = it }, "Search tools", onFocusChange = { searchFocused = it })
+            com.tools.app.ui.SearchPill(query, { query = it }, onFocusChange = { searchFocused = it })
         },
     ) {
         if (q.isNotEmpty()) {

@@ -121,8 +121,11 @@ private fun Modifier.toolbarChip(chip: () -> Float, color: Color, radius: Dp): M
     if (a > 0f) drawCircle(color, radius = radius.toPx(), alpha = a)
 }
 
-private fun chipColor(dark: Boolean) = if (dark) Color(0xFF2C2C30) else Color(0xFFE6E6EB)
+/** #222222, as opaque as the search pill. */
+private fun chipColor(dark: Boolean) = if (dark) Color(0xFF222222) else Color(0xFFE6E6EB)
 val CardMargin = 10.dp
+/** How far lists fade out at the top and bottom edges. */
+val FadeLength = 38.dp
 private val RowPadding = 18.dp
 /** Gap between card groups (each card contributes half). */
 private val CardGap = 20.dp
@@ -160,7 +163,7 @@ fun OneUiScaffold(
         val headerHeight = (maxHeight * 0.36f).coerceAtLeast(190.dp)
         val rangePx = with(density) { (headerHeight - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
-        val fadePx = with(density) { 28.dp.toPx() }
+        val fadePx = with(density) { FadeLength.toPx() }
         if (!expandedTitle) remember(listState) {
             if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0)
                 listState.requestScrollToItem(0, rangePx.roundToInt())
@@ -1199,7 +1202,7 @@ fun rememberFadeIn(key: Any?): Float {
  * One UI's soft fade at the edges of a scrolling list, for lists outside [OneUiScaffold]. Each edge
  * only fades while there is more content beyond it, and eases in and out as you scroll.
  */
-fun Modifier.fadingEdges(state: LazyListState, horizontal: Boolean = false, length: Dp = 28.dp): Modifier = composed {
+fun Modifier.fadingEdges(state: LazyListState, horizontal: Boolean = false, length: Dp = FadeLength): Modifier = composed {
     val start by animateFloatAsState(if (state.canScrollBackward) 1f else 0f, tween(200), label = "fadeStart")
     val end by animateFloatAsState(if (state.canScrollForward) 1f else 0f, tween(200), label = "fadeEnd")
     this

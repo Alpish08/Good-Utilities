@@ -30,7 +30,9 @@ object Glow {
     fun load(context: Context) {
         if (loaded) return
         loaded = true
-        enabled = prefs(context).getBoolean("glow", true)
+        // The on/off switch was removed; clear any saved "off" so the Home glow always shows.
+        prefs(context).edit().remove("glow").apply()
+        enabled = true
     }
 
     fun set(context: Context, on: Boolean) {
