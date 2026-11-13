@@ -155,6 +155,8 @@ fun OneUiScaffold(
      * chips. false (Home) keeps the classic pinned toolbar: title and buttons stay, the list fades under them.
      */
     floatingToolbar: Boolean = true,
+    /** false: no fade under the floating bottom bar (rows stay fully visible beside it). */
+    fadeUnderBottomBar: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
     val c = OneUi.colors
@@ -287,7 +289,9 @@ fun OneUiScaffold(
                             f(fadeTopPx + fadePx * (if (floatingToolbar) 1.6f else 1f)) to solid,
                             // Under a floating bar (search pill etc.) the list keeps going, like Reminder and My Files:
                             // rows stay visible beside and below the pill, fading out slowly toward the bottom edge.
-                            *(if (bottomBar != null) arrayOf(
+                            *(if (bottomBar != null && !fadeUnderBottomBar) arrayOf(
+                                1f to solid,
+                            ) else if (bottomBar != null) arrayOf(
                                 f(h - bottomCutPx - fadePx * 3.5f) to solid,
                                 f(h - bottomCutPx - fadePx * 1.5f) to solid.copy(alpha = 0.85f),
                                 f(h - bottomCutPx) to solid.copy(alpha = 0.6f),

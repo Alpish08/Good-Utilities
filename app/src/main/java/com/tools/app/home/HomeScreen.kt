@@ -183,6 +183,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         listState = state.list,
         // Home keeps the classic pinned toolbar; floating buttons are for sub-pages.
         floatingToolbar = false,
+        // Tool rows stay fully visible beside the tab bar; the fade under the bar is only for search.
+        fadeUnderBottomBar = searching,
         actions = {
             com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
             OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))
