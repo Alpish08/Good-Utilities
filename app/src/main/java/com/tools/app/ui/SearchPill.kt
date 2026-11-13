@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -152,28 +153,46 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val c = OneUi.colors
     val slot = 56.dp
     val x by androidx.compose.animation.core.animateDpAsState(slot * selected, tween(320, easing = OneUiEasing), label = "tab")
+    // Measured from Clock's bar (dark mode, over black): neutral grey pill #212121 at the ends brightening to #272727
+    // in the middle; a 60 x 46 dp capsule #3B3B3B -> #3F3F3F; icons #E9E9EC, selected #FCFCFF. No outline.
+    val pillBase = if (c.isDark) Color(0xFF232323).copy(alpha = 0.9f) else Color.White.copy(alpha = 0.9f)
+    val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.03f) else Color.White.copy(alpha = 0.4f)
+    val capsuleEdge = if (c.isDark) Color.White.copy(alpha = 0.105f) else Color.Black.copy(alpha = 0.05f)
+    val capsuleCentre = if (c.isDark) Color.White.copy(alpha = 0.13f) else Color.Black.copy(alpha = 0.035f)
+    val iconOn = if (c.isDark) Color(0xFFFCFCFF) else Color(0xFF111114)
+    val iconOff = if (c.isDark) Color(0xFFE9E9EC) else Color(0xFF3A3A3E)
     Box(modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Box(
             Modifier
                 .height(56.dp)
                 .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
                 .clip(CircleShape)
-                // 40% see-through, like Clock's bar.
-                .background(if (c.isDark) Color(0xFF262A2C).copy(alpha = 0.6f) else Color.White.copy(alpha = 0.6f))
-                // Faint hairline and highlight, to sit quietly on the see-through pill.
-                .border(0.6.dp, if (c.isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.05f), CircleShape)
-                .padding(horizontal = 4.dp),
+                .drawBehind {
+                    drawRect(pillBase)
+                    // The soft brightening toward the middle of the pill.
+                    drawRect(
+                        androidx.compose.ui.graphics.Brush.radialGradient(
+                            listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f,
+                        ),
+                    )
+                },
             contentAlignment = Alignment.CenterStart,
         ) {
-            // The selected capsule: 64 dp wide, so it reaches 4 dp past the slot on each side of the end tabs.
+            // The selected capsule, centred on its slot (2 dp wider than the slot on each side), lit softly from the middle.
             Box(
                 Modifier
-                    .offset(x = x)
-                    .size(width = 64.dp, height = 48.dp)
+                    .offset(x = 6.dp + x)
+                    .size(width = 60.dp, height = 46.dp)
                     .clip(CircleShape)
-                    .background(if (c.isDark) Color.White.copy(alpha = 0.085f) else Color.Black.copy(alpha = 0.05f)),
+                    .drawBehind {
+                        drawRect(
+                            androidx.compose.ui.graphics.Brush.radialGradient(
+                                listOf(capsuleCentre, capsuleEdge), center = center, radius = size.width * 0.55f,
+                            ),
+                        )
+                    },
             )
-            Row(Modifier.padding(horizontal = 4.dp)) {
+            Row(Modifier.padding(horizontal = 8.dp)) {
                 tabs.forEachIndexed { i, tab ->
                     val on = i == selected
                     Box(
@@ -183,11 +202,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                             .semantics { contentDescription = tab.label },
                         contentAlignment = Alignment.Center,
                     ) {
-                        Icon(
-                            if (on) tab.selectedIcon else tab.icon, null,
-                            tint = c.text, // Clock: unselected icons are full white too; only the capsule and fill mark the tab
-                            modifier = Modifier.size(25.dp),
-                        )
+                        Icon(if (on) tab.selectedIcon else tab.icon, null, tint = if (on) iconOn else iconOff, modifier = Modifier.size(24.dp))
                     }
                 }
             }

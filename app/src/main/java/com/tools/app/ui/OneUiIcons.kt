@@ -133,11 +133,11 @@ object OneUiIcons {
     }
 
     private fun PathBuilder.folderShape() {
-        moveTo(3.2f, 7.4f); arcTo(2.6f, 2.6f, 0f, false, true, 5.8f, 4.8f); lineTo(9.1f, 4.8f)
-        arcTo(1.8f, 1.8f, 0f, false, true, 10.4f, 5.4f); lineTo(12.1f, 7.2f); lineTo(18.2f, 7.2f)
-        arcTo(2.6f, 2.6f, 0f, false, true, 20.8f, 9.8f); lineTo(20.8f, 16.6f)
-        arcTo(2.6f, 2.6f, 0f, false, true, 18.2f, 19.2f); lineTo(5.8f, 19.2f)
-        arcTo(2.6f, 2.6f, 0f, false, true, 3.2f, 16.6f); close()
+        moveTo(3.2f, 6.9f); arcTo(2.6f, 2.6f, 0f, false, true, 5.8f, 4.3f); lineTo(9.1f, 4.3f)
+        arcTo(1.8f, 1.8f, 0f, false, true, 10.4f, 4.9f); lineTo(12.1f, 6.8f); lineTo(18.2f, 6.8f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 20.8f, 9.4f); lineTo(20.8f, 17.1f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 18.2f, 19.7f); lineTo(5.8f, 19.7f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 3.2f, 17.1f); close()
     }
 
     // Shapes after One UI 8.5's system icons: 1.8 strokes, generous corner radii, solid "on" variants.
@@ -175,13 +175,13 @@ object OneUiIcons {
     }
     val TabDevice: ImageVector by lazy {
         icon("TabDevice") {
-            line(1.35f) { roundRect(6.1f, 2.6f, 17.9f, 21.4f, 3.2f) }
-            line(1.35f) { moveTo(10.7f, 18.1f); lineTo(13.3f, 18.1f) }
+            line(1.35f) { roundRect(6.6f, 3.4f, 17.4f, 20.6f, 3f) }
+            line(1.35f) { moveTo(10.8f, 17.5f); lineTo(13.2f, 17.5f) }
         }
     }
     val TabDeviceOn: ImageVector by lazy {
         icon("TabDeviceOn") {
-            fill(evenOdd = true) { roundRect(5.2f, 1.7f, 18.8f, 22.3f, 4f); roundRect(9.9f, 17.2f, 14.1f, 19f, 0.9f) }
+            fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(10.1f, 16.8f, 13.9f, 18.3f, 0.75f) }
         }
     }
     // Apps: three rounded squares and a diamond (One UI's "apps & more").
@@ -300,18 +300,13 @@ object OneUiIcons {
         }
     }
 
-    /** One UI's fingerprint: an outer loop that curls into the middle, and three inner ridges. */
+    /** One UI's fingerprint, traced from Samsung's icon: outer loop curling into the middle, three inner ridges. */
     val Fingerprint: ImageVector by lazy {
         icon("Fingerprint") {
-            line(1.2f) {
-                moveTo(3.1f, 16.9f); arcTo(9.6f, 9.6f, 0f, true, true, 21.6f, 12.2f)
-                curveTo(21.6f, 14.7f, 20.2f, 16.4f, 18.4f, 16.4f); curveTo(16.8f, 16.4f, 15.6f, 15.2f, 15.6f, 13.4f)
-                lineTo(15.6f, 12.8f); curveTo(15.6f, 10.8f, 14f, 9.2f, 12f, 9.2f); curveTo(10f, 9.2f, 8.4f, 10.8f, 8.4f, 12.8f)
-                curveTo(8.4f, 16.4f, 10.6f, 19.4f, 13.8f, 20.6f)
-            }
-            line(1.2f) { moveTo(6.9f, 8.3f); curveTo(8.2f, 6.6f, 10f, 5.7f, 12.1f, 5.7f); curveTo(15.8f, 5.7f, 18.6f, 8.6f, 18.6f, 12.2f) }
-            line(1.2f) { moveTo(5.8f, 11.4f); curveTo(5.6f, 12.1f, 5.6f, 12.7f, 5.6f, 13.4f); curveTo(5.6f, 16.4f, 7f, 19f, 9.4f, 20.6f) }
-            line(1.2f) { moveTo(12f, 12.4f); curveTo(12.1f, 15.8f, 14.4f, 18.9f, 18f, 19.4f) }
+            line(1.0f) { moveTo(2.74f, 17.03f); curveTo(2.69f, 16.62f, 2.47f, 15.36f, 2.40f, 14.57f); curveTo(2.33f, 13.78f, 2.32f, 13.00f, 2.34f, 12.29f); curveTo(2.36f, 11.57f, 2.41f, 10.95f, 2.51f, 10.29f); curveTo(2.62f, 9.62f, 2.76f, 8.90f, 2.97f, 8.29f); curveTo(3.18f, 7.67f, 3.43f, 7.14f, 3.77f, 6.57f); curveTo(4.11f, 6.00f, 4.56f, 5.35f, 5.03f, 4.86f); curveTo(5.50f, 4.36f, 6.03f, 3.95f, 6.57f, 3.60f); curveTo(7.11f, 3.25f, 7.67f, 2.95f, 8.29f, 2.74f); curveTo(8.90f, 2.53f, 9.62f, 2.41f, 10.29f, 2.34f); curveTo(10.95f, 2.28f, 11.62f, 2.27f, 12.29f, 2.34f); curveTo(12.95f, 2.42f, 13.67f, 2.59f, 14.29f, 2.80f); curveTo(14.90f, 3.01f, 15.43f, 3.28f, 16.00f, 3.60f); curveTo(16.57f, 3.92f, 17.19f, 4.30f, 17.71f, 4.74f); curveTo(18.24f, 5.19f, 18.74f, 5.79f, 19.14f, 6.29f); curveTo(19.54f, 6.78f, 19.82f, 7.19f, 20.11f, 7.71f); curveTo(20.41f, 8.24f, 20.70f, 8.76f, 20.91f, 9.43f); curveTo(21.13f, 10.10f, 21.36f, 10.95f, 21.43f, 11.71f); curveTo(21.50f, 12.48f, 21.46f, 13.35f, 21.31f, 14.00f); curveTo(21.17f, 14.65f, 20.93f, 15.20f, 20.57f, 15.60f); curveTo(20.21f, 16.00f, 19.67f, 16.27f, 19.14f, 16.40f); curveTo(18.62f, 16.53f, 17.90f, 16.55f, 17.43f, 16.40f); curveTo(16.96f, 16.25f, 16.62f, 15.89f, 16.34f, 15.49f); curveTo(16.07f, 15.09f, 15.90f, 14.53f, 15.77f, 14.00f); curveTo(15.64f, 13.47f, 15.62f, 12.81f, 15.54f, 12.29f); curveTo(15.47f, 11.76f, 15.48f, 11.28f, 15.31f, 10.86f); curveTo(15.15f, 10.44f, 14.89f, 10.07f, 14.57f, 9.77f); curveTo(14.26f, 9.48f, 13.88f, 9.24f, 13.43f, 9.09f); curveTo(12.98f, 8.93f, 12.39f, 8.84f, 11.89f, 8.86f); curveTo(11.38f, 8.88f, 10.80f, 9.01f, 10.40f, 9.20f); curveTo(10.00f, 9.39f, 9.71f, 9.63f, 9.49f, 10.00f); curveTo(9.26f, 10.37f, 9.12f, 10.86f, 9.03f, 11.43f); curveTo(8.93f, 12.00f, 8.90f, 12.76f, 8.91f, 13.43f); curveTo(8.92f, 14.10f, 8.99f, 14.81f, 9.09f, 15.43f); curveTo(9.18f, 16.05f, 9.30f, 16.62f, 9.49f, 17.14f); curveTo(9.67f, 17.67f, 9.90f, 18.11f, 10.17f, 18.57f); curveTo(10.45f, 19.03f, 10.79f, 19.49f, 11.14f, 19.89f); curveTo(11.50f, 20.29f, 11.86f, 20.64f, 12.29f, 20.97f); curveTo(12.71f, 21.30f, 13.48f, 21.73f, 13.71f, 21.89f) }
+            line(1.0f) { moveTo(6.63f, 8.40f); curveTo(6.72f, 8.23f, 6.95f, 7.70f, 7.20f, 7.37f); curveTo(7.45f, 7.05f, 7.74f, 6.71f, 8.11f, 6.46f); curveTo(8.49f, 6.20f, 8.92f, 5.97f, 9.43f, 5.83f); curveTo(9.93f, 5.69f, 10.57f, 5.62f, 11.14f, 5.60f); curveTo(11.71f, 5.58f, 12.29f, 5.60f, 12.86f, 5.71f); curveTo(13.43f, 5.83f, 14.05f, 6.05f, 14.57f, 6.29f); curveTo(15.10f, 6.52f, 15.59f, 6.81f, 16.00f, 7.14f); curveTo(16.41f, 7.48f, 16.74f, 7.86f, 17.03f, 8.29f); curveTo(17.31f, 8.71f, 17.52f, 9.19f, 17.71f, 9.71f); curveTo(17.90f, 10.24f, 18.06f, 10.90f, 18.17f, 11.43f); curveTo(18.29f, 11.95f, 18.36f, 12.41f, 18.40f, 12.86f); curveTo(18.44f, 13.30f, 18.40f, 13.90f, 18.40f, 14.11f) }
+            line(1.0f) { moveTo(5.49f, 10.69f); curveTo(5.48f, 10.95f, 5.44f, 11.73f, 5.43f, 12.29f); curveTo(5.42f, 12.84f, 5.41f, 13.43f, 5.43f, 14.00f); curveTo(5.45f, 14.57f, 5.47f, 15.19f, 5.54f, 15.71f); curveTo(5.62f, 16.24f, 5.74f, 16.67f, 5.89f, 17.14f); curveTo(6.03f, 17.62f, 6.20f, 18.10f, 6.40f, 18.57f); curveTo(6.60f, 19.04f, 6.84f, 19.51f, 7.09f, 19.94f); curveTo(7.33f, 20.37f, 7.75f, 20.94f, 7.89f, 21.14f) }
+            line(1.0f) { moveTo(11.77f, 12.06f); curveTo(11.78f, 12.33f, 11.76f, 13.15f, 11.83f, 13.71f); curveTo(11.90f, 14.28f, 12.01f, 14.90f, 12.17f, 15.43f); curveTo(12.33f, 15.95f, 12.51f, 16.40f, 12.80f, 16.86f); curveTo(13.09f, 17.31f, 13.45f, 17.81f, 13.89f, 18.17f); curveTo(14.32f, 18.53f, 14.84f, 18.81f, 15.43f, 19.03f); curveTo(16.02f, 19.25f, 17.10f, 19.41f, 17.43f, 19.49f) }
         }
     }
 
