@@ -160,8 +160,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
     val restCentre = if (c.isDark) 0.15f else 0.045f
     val restEdge = if (c.isDark) 0.105f else 0.03f
-    val pressCentre = if (c.isDark) 0.42f else 0.13f
-    val pressEdge = if (c.isDark) 0.31f else 0.09f
+    val pressCentre = if (c.isDark) 0.315f else 0.10f
+    val pressEdge = if (c.isDark) 0.22f else 0.07f
     val tintBase = if (c.isDark) Color.White else Color.Black
     val iconOn = if (c.isDark) Color(0xFFFCFCFF) else Color(0xFF111114)
     val iconOff = if (c.isDark) Color(0xFFE9E9EC) else Color(0xFF3A3A3E)
