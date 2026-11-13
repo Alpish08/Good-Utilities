@@ -167,6 +167,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .height(56.dp)
                 .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
                 .clip(CircleShape)
+                // A very faint hairline, as some One UI apps have (Clock doesn't).
+                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .drawBehind {
                     drawRect(pillBase)
                     // The soft brightening toward the middle of the pill.

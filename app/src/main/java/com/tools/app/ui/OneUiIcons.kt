@@ -145,23 +145,23 @@ object OneUiIcons {
 
     val TabMedia: ImageVector by lazy {
         icon("TabMedia") {
-            line(1.35f) { circle(8.6f, 16.9f, 3.1f) }
-            line(1.35f) { noteFlag() }
+            line(1.62f) { circle(8.6f, 16.9f, 3.1f) }
+            line(1.62f) { noteFlag() }
         }
     }
     val TabMediaOn: ImageVector by lazy {
         icon("TabMediaOn") {
             fill { circle(8.6f, 16.9f, 4.0f) }
-            line(1.35f) { noteFlag() }
+            line(1.62f) { noteFlag() }
         }
     }
-    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.35f) { folderShape() } } }
-    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.35f) { folderShape() } } }
+    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.62f) { folderShape() } } }
+    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.62f) { folderShape() } } }
     val TabImages: ImageVector by lazy {
         icon("TabImages") {
-            line(1.35f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
-            line(1.35f) { circle(8.7f, 8.9f, 1.6f) }
-            line(1.35f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
+            line(1.62f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
+            line(1.62f) { circle(8.7f, 8.9f, 1.6f) }
+            line(1.62f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
         }
     }
     val TabImagesOn: ImageVector by lazy {
@@ -175,8 +175,8 @@ object OneUiIcons {
     }
     val TabDevice: ImageVector by lazy {
         icon("TabDevice") {
-            line(1.35f) { roundRect(6.6f, 3.4f, 17.4f, 20.6f, 3f) }
-            line(1.35f) { moveTo(10.8f, 17.5f); lineTo(13.2f, 17.5f) }
+            line(1.62f) { roundRect(6.6f, 3.4f, 17.4f, 20.6f, 3f) }
+            line(1.62f) { moveTo(10.8f, 17.5f); lineTo(13.2f, 17.5f) }
         }
     }
     val TabDeviceOn: ImageVector by lazy {
@@ -190,18 +190,18 @@ object OneUiIcons {
     }
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.35f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            line(1.35f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            line(1.35f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            line(1.35f) { diamond(16.9f, 7.1f, 4.0f) }
+            line(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            line(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            line(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            line(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
     val TabMiscOn: ImageVector by lazy {
         icon("TabMiscOn") {
-            solid(1.35f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            solid(1.35f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            solid(1.35f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            solid(1.35f) { diamond(16.9f, 7.1f, 4.0f) }
+            solid(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            solid(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            solid(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            solid(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
 
