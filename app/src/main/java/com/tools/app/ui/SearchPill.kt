@@ -71,20 +71,33 @@ fun SearchBar(
     val c = OneUi.colors
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
-    // The first back press only hides the keyboard; with nothing typed, that ends the search.
-    val imeVisible = WindowInsets.isImeVisible
+    // The first back press only hides the keyboard; with nothing typed, that ends the search. It ends as soon
+    // as the keyboard starts closing, so the bar fades out where it is instead of dropping first.
+    val keyboardOpening = WindowInsets.imeAnimationTarget.getBottom(androidx.compose.ui.platform.LocalDensity.current) > 0
     var hadIme by remember { mutableStateOf(false) }
     val latestQuery by androidx.compose.runtime.rememberUpdatedState(query)
-    LaunchedEffect(imeVisible) {
-        if (imeVisible) hadIme = true
+    LaunchedEffect(keyboardOpening) {
+        if (keyboardOpening) hadIme = true
         else if (hadIme) { hadIme = false; if (latestQuery.isEmpty()) onClose() }
     }
     val style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.5.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold, color = c.text)
     val hint = if (c.isDark) Color(0xFFA3A3A7) else Color(0xFF8A8A8F)
+    // Where the bar sits. Samsung Keyboard slides faster than the insets report, so following the keyboard
+    // let it cover the bar. Instead the bar goes straight to where the keyboard will end up, and while the
+    // keyboard slides away it stays put (above it) and only drops once the keyboard is gone.
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val nav = WindowInsets.navigationBars.getBottom(density)
+    val target = (WindowInsets.imeAnimationTarget.getBottom(density) - nav).coerceAtLeast(0)
+    val current = (WindowInsets.ime.getBottom(density) - nav).coerceAtLeast(0)
+    var held by remember { mutableStateOf(0) }
+    if (target > 0) held = target
+    val lift = when {
+        target > 0 -> target
+        current > 0 -> held
+        else -> 0
+    }
     Box(
-        // Sits where the keyboard will end up straight away, instead of chasing it up (Samsung Keyboard
-        // slides faster than the insets report, which covered the bar's lower half while opening).
-        modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.imeAnimationTarget.exclude(WindowInsets.navigationBars)),
+        modifier.fillMaxWidth().padding(bottom = with(density) { lift.toDp() }),
         contentAlignment = Alignment.Center,
     ) {
         Row(

@@ -141,6 +141,79 @@ object OneUiIcons {
         }
     }
 
+    // ---- Home tabs: outline (unselected) and filled (selected), One UI style ----
+
+    private fun PathBuilder.roundRect(l: Float, t: Float, r: Float, b: Float, rad: Float) {
+        moveTo(l + rad, t); lineTo(r - rad, t); arcTo(rad, rad, 0f, false, true, r, t + rad)
+        lineTo(r, b - rad); arcTo(rad, rad, 0f, false, true, r - rad, b)
+        lineTo(l + rad, b); arcTo(rad, rad, 0f, false, true, l, b - rad)
+        lineTo(l, t + rad); arcTo(rad, rad, 0f, false, true, l + rad, t); close()
+    }
+
+    private fun PathBuilder.folderShape() {
+        moveTo(3.4f, 7.2f); arcTo(2.2f, 2.2f, 0f, false, true, 5.6f, 5f); lineTo(9.4f, 5f)
+        arcTo(1.4f, 1.4f, 0f, false, true, 10.4f, 5.4f); lineTo(12f, 7.2f); lineTo(18.4f, 7.2f)
+        arcTo(2.2f, 2.2f, 0f, false, true, 20.6f, 9.4f); lineTo(20.6f, 16.8f)
+        arcTo(2.2f, 2.2f, 0f, false, true, 18.4f, 19f); lineTo(5.6f, 19f)
+        arcTo(2.2f, 2.2f, 0f, false, true, 3.4f, 16.8f); close()
+    }
+
+    val TabMedia: ImageVector by lazy {
+        icon("TabMedia") {
+            line(1.6f) { circle(9.2f, 16.6f, 2.9f) }
+            line(1.6f) { moveTo(12.1f, 16.6f); lineTo(12.1f, 4.2f); curveTo(13.2f, 6.6f, 17.2f, 6.9f, 17.6f, 9.6f) }
+        }
+    }
+    val TabMediaOn: ImageVector by lazy {
+        icon("TabMediaOn") {
+            fill { circle(9.2f, 16.6f, 3.3f) }
+            line(1.8f) { moveTo(12.1f, 16.6f); lineTo(12.1f, 4.2f); curveTo(13.2f, 6.6f, 17.2f, 6.9f, 17.6f, 9.6f) }
+        }
+    }
+    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.6f) { folderShape() } } }
+    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.2f) { folderShape() } } }
+    val TabImages: ImageVector by lazy {
+        icon("TabImages") {
+            line(1.6f) { roundRect(3.6f, 4.6f, 20.4f, 19.4f, 3f) }
+            line(1.6f) { circle(9f, 9.6f, 1.5f) }
+            line(1.6f) { moveTo(4.2f, 17.4f); lineTo(9.4f, 12.6f); lineTo(13f, 15.8f); lineTo(15.6f, 13.6f); lineTo(19.8f, 17.4f) }
+        }
+    }
+    val TabImagesOn: ImageVector by lazy {
+        icon("TabImagesOn") {
+            fill(evenOdd = true) {
+                roundRect(3f, 4f, 21f, 20f, 3.4f)
+                circle(9f, 9.6f, 1.7f)
+                moveTo(5.6f, 17.6f); lineTo(9.4f, 13.8f); lineTo(12.9f, 16.8f); lineTo(15.6f, 14.6f); lineTo(18.6f, 17.6f); close()
+            }
+        }
+    }
+    val TabDevice: ImageVector by lazy {
+        icon("TabDevice") {
+            line(1.6f) { roundRect(6.4f, 2.8f, 17.6f, 21.2f, 2.8f) }
+            line(1.6f) { moveTo(10.6f, 18.2f); lineTo(13.4f, 18.2f) }
+        }
+    }
+    val TabDeviceOn: ImageVector by lazy {
+        icon("TabDeviceOn") {
+            fill(evenOdd = true) { roundRect(5.8f, 2.2f, 18.2f, 21.8f, 3.2f); roundRect(10.2f, 17.4f, 13.8f, 19f, 0.8f) }
+        }
+    }
+    val TabMisc: ImageVector by lazy {
+        icon("TabMisc") {
+            line(1.6f) { moveTo(12f, 3.6f); lineTo(16.3f, 10.4f); lineTo(7.7f, 10.4f); close() }
+            line(1.6f) { circle(7.6f, 16.6f, 3.4f) }
+            line(1.6f) { roundRect(13.4f, 13.2f, 20.2f, 20f, 1.6f) }
+        }
+    }
+    val TabMiscOn: ImageVector by lazy {
+        icon("TabMiscOn") {
+            solid(1.2f) { moveTo(12f, 3.2f); lineTo(16.6f, 10.6f); lineTo(7.4f, 10.6f); close() }
+            fill { circle(7.6f, 16.6f, 3.8f) }
+            solid(1.2f) { roundRect(13.2f, 13f, 20.4f, 20.2f, 1.8f) }
+        }
+    }
+
     /** One UI's mic (My Files search): solid capsule, cradle, stem and a base line. */
     val Mic: ImageVector by lazy {
         icon("Mic") {

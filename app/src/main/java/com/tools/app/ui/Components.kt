@@ -105,6 +105,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import kotlinx.coroutines.flow.filter
+import androidx.compose.foundation.gestures.animateScrollBy
 import kotlin.math.roundToInt
 
 private val ToolbarHeight = 64.dp
@@ -149,6 +150,11 @@ fun OneUiScaffold(
     expandedTitle: Boolean = true,
     /** Extra room at the end of the list (e.g. for a floating tab bar the list scrolls under). */
     bottomInset: Dp = 0.dp,
+    /**
+     * One UI 8.5 sub-page behaviour: past the folded title, the title scrolls away and the buttons float on
+     * chips. false (Home) keeps the classic pinned toolbar: title and buttons stay, the list fades under them.
+     */
+    floatingToolbar: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
     val c = OneUi.colors
@@ -164,6 +170,8 @@ fun OneUiScaffold(
         val rangePx = with(density) { (headerHeight - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
         val fadePx = with(density) { FadeLength.toPx() }
+        // Where the list starts fading at the top: right under the status bar (floating) or the toolbar (pinned).
+        val fadeTopPx = with(density) { (if (floatingToolbar) statusTop else statusTop + ToolbarHeight).toPx() }
         SideEffect { headerRanges[listState] = rangePx.roundToInt() }
         if (!expandedTitle) remember(listState) {
             if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0)
@@ -182,9 +190,10 @@ fun OneUiScaffold(
         }
         // One UI 8.5: after the big title has folded away, the small title keeps scrolling up with the list
         // (instead of pinning) and the buttons stay, each on a round chip. How far past that point we are:
-        val pastPx by remember(rangePx) {
+        val pastPx by remember(rangePx, floatingToolbar) {
             derivedStateOf {
-                if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE
+                if (!floatingToolbar) 0f
+                else if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE
                 else (listState.firstVisibleItemScrollOffset - rangePx).coerceAtLeast(0f)
             }
         }
@@ -198,10 +207,12 @@ fun OneUiScaffold(
                 !listState.isScrollInProgress && listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx
             }.collect { mid ->
                 if (!mid) return@collect
-                kotlinx.coroutines.delay(120) // let the list and its bottom filler settle first
+                kotlinx.coroutines.delay(16) // one frame, so a list that just changed can lay out its bottom filler
                 val off = listState.firstVisibleItemScrollOffset
                 if (!listState.isScrollInProgress && listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx && listState.canScrollForward) {
-                    listState.animateScrollToItem(0, if (off > rangePx / 2) rangePx.roundToInt() else 0)
+                    // Glide the rest of the way with One UI's curve (animateScrollToItem's default spring is abrupt).
+                    val target = if (off > rangePx / 2) rangePx else 0f
+                    listState.animateScrollBy(target - off, tween(300, easing = OneUiEasing))
                 }
             }
         }
@@ -255,8 +266,8 @@ fun OneUiScaffold(
                         Brush.verticalGradient(
                             0f to Color.Transparent,
                             // The list runs right up under the status bar now, fading out just below it.
-                            f(statusTopPx) to solid.copy(alpha = 1f - topFade),
-                            f(statusTopPx + fadePx * 1.6f) to solid,
+                            f(fadeTopPx) to solid.copy(alpha = 1f - topFade),
+                            f(fadeTopPx + fadePx * (if (floatingToolbar) 1.6f else 1f)) to solid,
                             // Under a floating bar (search pill etc.) the list keeps going, like Reminder and My Files:
                             // rows stay visible beside and below the pill, fading out slowly toward the bottom edge.
                             *(if (bottomBar != null) arrayOf(

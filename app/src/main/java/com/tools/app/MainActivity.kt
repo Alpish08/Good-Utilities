@@ -170,7 +170,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
 
     /** Only the Home page has the glow; tool pages keep the plain One UI background. */
     private fun glowFor(r: Route): com.tools.app.ui.theme.GlowStyle? =
-        if (r == Route.Home) com.tools.app.ui.theme.GlowStyle.Home else null
+        if (r == Route.Home) com.tools.app.ui.theme.Glow.style else null
 
     companion object {
         const val ACTION_CHARGE_LIMIT = "com.tools.app.CHARGE_LIMIT"

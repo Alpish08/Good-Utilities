@@ -1,6 +1,12 @@
 package com.tools.app.home
 
 import androidx.compose.material3.Text
+import com.tools.app.ui.theme.OneUi
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
@@ -159,36 +165,40 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         if (state.list.firstVisibleItemIndex == 0) state.list.collapseHeader()
     }
 
-    // Clock-style icon tabs: one category at a time.
+    // Clock-style icon tabs: one category at a time (One UI line icons; filled while selected).
     val tabs = listOf(
-        com.tools.app.ui.PillTab("Media", Icons.Outlined.MusicNote, Icons.Rounded.MusicNote),
-        com.tools.app.ui.PillTab("Files", Icons.Outlined.Folder, Icons.Rounded.Folder),
-        com.tools.app.ui.PillTab("Images", Icons.Outlined.Image, Icons.Rounded.Image),
-        com.tools.app.ui.PillTab("Device", Icons.Outlined.PhoneAndroid, Icons.Rounded.PhoneAndroid),
-        com.tools.app.ui.PillTab("Miscellaneous", Icons.Outlined.Category, Icons.Rounded.Category),
+        com.tools.app.ui.PillTab("Media", com.tools.app.ui.OneUiIcons.TabMedia, com.tools.app.ui.OneUiIcons.TabMediaOn),
+        com.tools.app.ui.PillTab("Files", com.tools.app.ui.OneUiIcons.TabFiles, com.tools.app.ui.OneUiIcons.TabFilesOn),
+        com.tools.app.ui.PillTab("Images", com.tools.app.ui.OneUiIcons.TabImages, com.tools.app.ui.OneUiIcons.TabImagesOn),
+        com.tools.app.ui.PillTab("Device", com.tools.app.ui.OneUiIcons.TabDevice, com.tools.app.ui.OneUiIcons.TabDeviceOn),
+        com.tools.app.ui.PillTab("Miscellaneous", com.tools.app.ui.OneUiIcons.TabMisc, com.tools.app.ui.OneUiIcons.TabMiscOn),
     )
+    var choosingGlow by remember { mutableStateOf(false) }
+    if (choosingGlow) GlowPicker(onDismiss = { choosingGlow = false })
 
     OneUiScaffold(
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
+        // Home keeps the classic pinned toolbar; floating buttons are for sub-pages.
+        floatingToolbar = false,
         actions = {
             com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
-            OverflowMenu(listOf("About" to { open(Route.About) }))
+            OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))
         },
         bottomBar = {
-            androidx.compose.animation.AnimatedContent(
-                searching, label = "homeBottom",
-                transitionSpec = {
-                    (androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)) +
-                        androidx.compose.animation.scaleIn(androidx.compose.animation.core.tween(260), initialScale = 0.92f))
-                        .togetherWith(androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)))
-                        // Don't crop the bars while the area resizes between the tab pill and the search bar.
-                        .using(androidx.compose.animation.SizeTransform(clip = false))
-                },
-            ) { s ->
-                if (s) com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch)
-                else com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it })
+            // The two bars cross-fade in place (no resizing container, so neither gets cropped).
+            androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
+                androidx.compose.animation.AnimatedVisibility(
+                    !searching,
+                    enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220, delayMillis = 60)),
+                    exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)),
+                ) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it }) }
+                androidx.compose.animation.AnimatedVisibility(
+                    searching,
+                    enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220, delayMillis = 60)),
+                    exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)),
+                ) { com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch) }
             }
         },
     ) {
@@ -212,12 +222,54 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 )
             }
         }
-        groups.getOrNull(state.tab)?.let { (label, tools) ->
-            sectionLabel(label)
-            cardList(tools, key = { it.route.name }, dividerStart = IconRowDivider) { t ->
-                ListRow(
-                    t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) },
-                )
+        // The selected tab's tools. Switching tabs slides the list a little toward the new tab and cross-fades.
+        item(key = "tab-content") {
+            androidx.compose.animation.AnimatedContent(
+                state.tab, label = "homeTab",
+                transitionSpec = {
+                    val dir = if (targetState > initialState) 1 else -1
+                    (androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320, easing = com.tools.app.ui.theme.OneUiEasing)) { dir * it / 8 } +
+                        androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260, delayMillis = 40)))
+                        .togetherWith(
+                            androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(320, easing = com.tools.app.ui.theme.OneUiEasing)) { -dir * it / 8 } +
+                                androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(140)),
+                        )
+                        .using(androidx.compose.animation.SizeTransform(clip = false))
+                },
+                contentAlignment = androidx.compose.ui.Alignment.TopCenter,
+            ) { tab ->
+                val (label, tools) = groups[tab]
+                androidx.compose.foundation.layout.Column {
+                    Text(
+                        label, fontSize = 13.5.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = OneUi.colors.textSecondary,
+                        modifier = Modifier.padding(start = 24.dp, end = 20.dp, top = 14.dp),
+                    )
+                    com.tools.app.ui.RoundCard {
+                        tools.forEachIndexed { i, t ->
+                            ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) })
+                            if (i != tools.lastIndex) com.tools.app.ui.CardDivider(IconRowDivider)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Home → Background: the glow choices, applied live behind this dialog. */
+@Composable
+private fun GlowPicker(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    com.tools.app.ui.OneUiDialog("Background", onDismiss, buttons = listOf("Done" to onDismiss)) {
+        com.tools.app.ui.theme.GlowStyle.entries.forEach { g ->
+            androidx.compose.foundation.layout.Row(
+                Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
+                    .clickable { com.tools.app.ui.theme.Glow.choose(context, g) }
+                    .padding(horizontal = 6.dp, vertical = 11.dp),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            ) {
+                com.tools.app.ui.RadioDot(com.tools.app.ui.theme.Glow.style == g)
+                Text(g.label, fontSize = 16.sp, color = OneUi.colors.text, modifier = Modifier.padding(start = 14.dp))
             }
         }
     }
