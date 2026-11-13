@@ -155,10 +155,9 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val x by androidx.compose.animation.core.animateDpAsState(slot * selected, tween(320, easing = OneUiEasing), label = "tab")
     // Measured from Clock's bar (dark mode, over black): neutral grey pill #212121 at the ends brightening to #272727
     // in the middle; a 60 x 46 dp capsule #3B3B3B -> #3F3F3F; icons #E9E9EC, selected #FCFCFF. No outline.
-    val pillBase = if (c.isDark) Color(0xFF232323).copy(alpha = 0.9f) else Color.White.copy(alpha = 0.9f)
-    val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.03f) else Color.White.copy(alpha = 0.4f)
-    val capsuleEdge = if (c.isDark) Color.White.copy(alpha = 0.105f) else Color.Black.copy(alpha = 0.05f)
-    val capsuleCentre = if (c.isDark) Color.White.copy(alpha = 0.13f) else Color.Black.copy(alpha = 0.035f)
+    // Trying the app's own menu colours: the pill is a menu card, the selected capsule is a pressed menu row.
+    val pillBase = c.card
+    val pressed = if (c.isDark) Color(0x1FFFFFFF) else Color(0x14000000)
     val iconOn = if (c.isDark) Color(0xFFFCFCFF) else Color(0xFF111114)
     val iconOff = if (c.isDark) Color(0xFFE9E9EC) else Color(0xFF3A3A3E)
     Box(modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
@@ -169,15 +168,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .clip(CircleShape)
                 // A very faint hairline, as some One UI apps have (Clock doesn't).
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
-                .drawBehind {
-                    drawRect(pillBase)
-                    // The soft brightening toward the middle of the pill.
-                    drawRect(
-                        androidx.compose.ui.graphics.Brush.radialGradient(
-                            listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f,
-                        ),
-                    )
-                },
+                .drawBehind { drawRect(pillBase) },
             contentAlignment = Alignment.CenterStart,
         ) {
             // The selected capsule, centred on its slot (2 dp wider than the slot on each side), lit softly from the middle.
@@ -186,13 +177,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                     .offset(x = 6.dp + x)
                     .size(width = 60.dp, height = 46.dp)
                     .clip(CircleShape)
-                    .drawBehind {
-                        drawRect(
-                            androidx.compose.ui.graphics.Brush.radialGradient(
-                                listOf(capsuleCentre, capsuleEdge), center = center, radius = size.width * 0.55f,
-                            ),
-                        )
-                    },
+                    .drawBehind { drawRect(pressed) },
             )
             Row(Modifier.padding(horizontal = 8.dp)) {
                 tabs.forEachIndexed { i, tab ->

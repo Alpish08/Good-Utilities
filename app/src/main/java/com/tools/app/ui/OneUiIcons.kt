@@ -165,14 +165,15 @@ object OneUiIcons {
             line(1.62f) { moveTo(3.81f, 16.59f); lineTo(9.06f, 13.62f); lineTo(11.82f, 15.42f); lineTo(16.23f, 11.82f); lineTo(20.01f, 15.24f) }
         }
     }
+    // The outline picture with its frame filled in: same outer edge, corners, sun and hills.
     val TabImagesOn: ImageVector by lazy {
         icon("TabImagesOn") {
             fill(evenOdd = true) {
-                roundRect(3.72f, 3.72f, 20.28f, 20.28f, 3.91f)
-                circle(8.58f, 8.76f, 1.44f)
-                moveTo(5.18f, 15.55f); lineTo(8.91f, 12.96f); lineTo(11.50f, 14.75f); lineTo(15.72f, 10.79f); lineTo(18.48f, 13.29f)
-                lineTo(18.48f, 16.86f); arcTo(1.30f, 1.30f, 0f, false, true, 17.18f, 18.16f); lineTo(6.48f, 18.16f)
-                arcTo(1.30f, 1.30f, 0f, false, true, 5.18f, 16.86f); close()
+                roundRect(2.93f, 2.93f, 21.07f, 21.07f, 3.8f)
+                circle(8.58f, 8.72f, 1.9f)
+                moveTo(4.55f, 17.12f); lineTo(9.06f, 14.57f); lineTo(11.82f, 16.37f); lineTo(16.23f, 12.77f); lineTo(19.45f, 15.68f)
+                lineTo(19.45f, 17.27f); arcTo(2.18f, 2.18f, 0f, false, true, 17.27f, 19.45f); lineTo(6.73f, 19.45f)
+                arcTo(2.18f, 2.18f, 0f, false, true, 4.55f, 17.27f); close()
             }
         }
     }
@@ -190,22 +191,22 @@ object OneUiIcons {
     private fun PathBuilder.diamond(cx: Float, cy: Float, r: Float) {
         moveTo(cx, cy - r); lineTo(cx + r, cy); lineTo(cx, cy + r); lineTo(cx - r, cy); close()
     }
-    // Shapes, traced from One UI's icon: circle, rounded square, triangle, diamond.
-    private fun PathBuilder.shapeTriangle() { moveTo(6.87f, 14.1f); lineTo(10.4f, 20.4f); lineTo(3.35f, 20.4f); close() }
+    // Apps: three rounded squares and a diamond (One UI's "apps & more").
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.62f) { circle(6.87f, 6.69f, 3.88f) }
-            line(1.62f) { roundRect(13.27f, 3.0f, 20.47f, 10.2f, 1.7f) }
-            line(1.62f) { shapeTriangle() }
-            line(1.62f) { diamond(16.96f, 17.04f, 3.7f) }
+            line(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            line(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            line(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            line(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
+    // Filled, each shape 0.4 smaller so the solid shapes keep clear gaps between them.
     val TabMiscOn: ImageVector by lazy {
         icon("TabMiscOn") {
-            solid(1.62f) { circle(6.87f, 6.69f, 3.88f) }
-            solid(1.62f) { roundRect(13.27f, 3.0f, 20.47f, 10.2f, 1.7f) }
-            solid(1.62f) { shapeTriangle() }
-            solid(1.62f) { diamond(16.96f, 17.04f, 3.7f) }
+            solid(1.62f) { roundRect(4.0f, 4.0f, 10.2f, 10.2f, 2.2f) }
+            solid(1.62f) { roundRect(4.0f, 13.8f, 10.2f, 20.0f, 2.2f) }
+            solid(1.62f) { roundRect(13.8f, 13.8f, 20.0f, 20.0f, 2.2f) }
+            solid(1.62f) { diamond(16.9f, 7.1f, 3.8f) }
         }
     }
 
