@@ -254,10 +254,18 @@ fun OneUiScaffold(
                             f(statusTopPx) to solid.copy(alpha = 1f - topFade),
                             f(statusTopPx + fadePx * 1.6f) to solid,
                             // Under a floating bar (search pill etc.) the list keeps going, like Reminder and My Files:
-                            // rows stay visible beside and below the pill, fading out toward the bottom edge.
-                            f(h - bottomCutPx - (if (bottomBar != null) 0f else fadePx * 1.4f)) to solid,
-                            f(h - bottomCutPx) to solid.copy(alpha = if (bottomBar != null) 0.85f else 1f - bottomFade),
-                            1f to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
+                            // rows stay visible beside and below the pill, fading out slowly toward the bottom edge.
+                            *(if (bottomBar != null) arrayOf(
+                                f(h - bottomCutPx - fadePx * 3.5f) to solid,
+                                f(h - bottomCutPx - fadePx * 1.5f) to solid.copy(alpha = 0.85f),
+                                f(h - bottomCutPx) to solid.copy(alpha = 0.6f),
+                                f(h - bottomCutPx * 0.5f) to solid.copy(alpha = 0.3f),
+                                1f to solid.copy(alpha = 0f),
+                            ) else arrayOf(
+                                f(h - bottomCutPx - fadePx * 1.4f) to solid,
+                                f(h - bottomCutPx) to solid.copy(alpha = 1f - bottomFade),
+                                1f to solid.copy(alpha = 1f - bottomFade),
+                            )),
                         ),
                         blendMode = BlendMode.DstIn,
                     )

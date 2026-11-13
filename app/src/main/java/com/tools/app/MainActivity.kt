@@ -110,7 +110,8 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         val move = tween<androidx.compose.ui.unit.IntOffset>(dur, easing = com.tools.app.ui.theme.OneUiEasing)
                         val fade = tween<Float>(dur, easing = com.tools.app.ui.theme.OneUiEasing)
                         if (forward) {
-                            (slideInHorizontally(move) { it } + fadeIn(tween(dur / 2)))
+                            // The new page slides in solid (no fade-in), so the old page never shows through it.
+                            slideInHorizontally(move) { it }
                                 .togetherWith(slideOutHorizontally(move) { -it / 4 } + fadeOut(fade, targetAlpha = 0.4f))
                                 .apply { targetContentZIndex = 1f }
                         } else {

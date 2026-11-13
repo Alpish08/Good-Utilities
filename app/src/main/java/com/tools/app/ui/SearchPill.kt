@@ -72,7 +72,7 @@ fun SearchPill(
         modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.ime.exclude(WindowInsets.navigationBars)),
         contentAlignment = Alignment.Center,
     ) {
-        val short = 230.dp.coerceAtMost(maxWidth)
+        val short = 190.dp.coerceAtMost(maxWidth)
         Row(
             Modifier
                 .width(short + (maxWidth - short) * t)
