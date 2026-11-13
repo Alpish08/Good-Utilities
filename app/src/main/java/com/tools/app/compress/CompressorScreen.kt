@@ -100,8 +100,6 @@ fun CompressorScreen(onBack: () -> Unit) {
         ) {
             if (isVideo) video?.let { VideoHeader(it) } else audio?.let { AudioHeader(it) }
             if (!hasFile) {
-                ColorIcon(Icons.Rounded.Compress, IconColors.Blue, 84.dp, glyph = 0.5f)
-                Spacer(Modifier.height(20.dp))
                 Text(
                     if (isVideo) "Shrink a video" else "Shrink an audio file", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text,
                 )

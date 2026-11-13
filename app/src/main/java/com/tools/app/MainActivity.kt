@@ -97,7 +97,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                 androidx.compose.foundation.layout.Box(
                     androidx.compose.ui.Modifier.fillMaxSize().drawBehind {
                         drawRect(c.background)
-                        if (com.tools.app.ui.theme.Glow.enabled) drawGlow(glowFor(nav.targetState.last()), c.isDark)
+                        if (com.tools.app.ui.theme.Glow.enabled) glowFor(nav.targetState.last())?.let { drawGlow(it, c.isDark) }
                     },
                 ) {
                 rememberTransition(nav, label = "nav").AnimatedContent(
@@ -167,16 +167,9 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         }
     }
 
-    /** Each part of the app has its own glow; pages share their tool's (Home has its own). */
-    private fun glowFor(r: Route): com.tools.app.ui.theme.GlowStyle = when (r) {
-        Route.Music, Route.MusicSettings, Route.YouTubeSignIn, Route.VideoDownloader, Route.AudioMerge, Route.AudioTrim ->
-            com.tools.app.ui.theme.GlowStyle.Media
-        Route.Reader, Route.PdfEditor, Route.Converter, Route.Print, Route.Compressor -> com.tools.app.ui.theme.GlowStyle.Files
-        Route.ColorPicker, Route.Blur, Route.BackgroundRemover -> com.tools.app.ui.theme.GlowStyle.Images
-        Route.AppLock, Route.AppLockPin, Route.GuideAppLock, Route.PrivateDns, Route.ChargeLimit -> com.tools.app.ui.theme.GlowStyle.Device
-        Route.Battery, Route.GuideBattery, Route.ApkExtractor, Route.Japanese, Route.QrCode, Route.Random -> com.tools.app.ui.theme.GlowStyle.Misc
-        Route.Home, Route.About -> com.tools.app.ui.theme.GlowStyle.Home
-    }
+    /** Only the Home page has the glow; tool pages keep the plain One UI background. */
+    private fun glowFor(r: Route): com.tools.app.ui.theme.GlowStyle? =
+        if (r == Route.Home) com.tools.app.ui.theme.GlowStyle.Home else null
 
     companion object {
         const val ACTION_CHARGE_LIMIT = "com.tools.app.CHARGE_LIMIT"

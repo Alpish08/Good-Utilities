@@ -65,7 +65,7 @@ fun AboutScreen(onBack: () -> Unit) {
         Credit("ML Kit", "Japanese text recognition and translation", "https://developers.google.com/ml-kit"),
     )
 
-    ToolPage("", onBack) {
+    ToolPage("About", onBack) {
         BoxWithConstraints(Modifier.weight(1f)) {
             val header = maxHeight * 0.4f
             val list = androidx.compose.foundation.lazy.rememberLazyListState()

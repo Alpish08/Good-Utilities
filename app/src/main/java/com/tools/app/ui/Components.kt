@@ -253,10 +253,10 @@ fun OneUiScaffold(
                             // The list runs right up under the status bar now, fading out just below it.
                             f(statusTopPx) to solid.copy(alpha = 1f - topFade),
                             f(statusTopPx + fadePx * 1.6f) to solid,
-                            // Above a floating bar (search pill etc.) the list always fades out completely before
-                            // reaching it, over a longer stretch, like Reminder's "Add reminder" bar.
-                            f(h - bottomCutPx - fadePx * (if (bottomBar != null) 2.6f else 1.4f)) to solid,
-                            f(h - bottomCutPx) to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
+                            // Under a floating bar (search pill etc.) the list keeps going, like Reminder and My Files:
+                            // rows stay visible beside and below the pill, fading out toward the bottom edge.
+                            f(h - bottomCutPx - (if (bottomBar != null) 0f else fadePx * 1.4f)) to solid,
+                            f(h - bottomCutPx) to solid.copy(alpha = if (bottomBar != null) 0.85f else 1f - bottomFade),
                             1f to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
                         ),
                         blendMode = BlendMode.DstIn,
@@ -905,8 +905,8 @@ fun EmptyState(
 ) {
     val c = OneUi.colors
     Column(modifier.fillMaxSize().padding(32.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-        if (color != null) ColorIcon(icon, color, 84.dp, glyph = 0.5f)
-        else Box(Modifier.size(84.dp).background(c.accentContainer, CircleShape), contentAlignment = Alignment.Center) {
+        // Tool pages don't repeat the Home screen's coloured tool icons; only plain icons (errors) show here.
+        if (color == null) Box(Modifier.size(84.dp).background(c.accentContainer, CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, null, tint = c.accent, modifier = Modifier.size(40.dp))
         }
         Text(title, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 20.dp), textAlign = TextAlign.Center)

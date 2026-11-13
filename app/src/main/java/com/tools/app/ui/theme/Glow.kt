@@ -20,7 +20,7 @@ import androidx.compose.ui.layout.positionInWindow
 
 /**
  * The soft glow behind pages in Samsung's newest apps (Clock, Reminder, Samsung Health): a few large,
- * very blurred colour pools on the page background. Each part of the app has its own colours.
+ * very blurred colour pools on the page background. Only the Home page has one; tool pages stay plain.
  */
 object Glow {
     var enabled by mutableStateOf(true)
@@ -52,40 +52,10 @@ enum class GlowStyle(vararg val pools: Pool) {
         Pool(Color(0xFF3B2A73).copy(alpha = 0.42f), Color(0xFFD9C8FF).copy(alpha = 0.45f), 1.0f, 0.48f, 0.85f),
         Pool(Color(0xFF123F4A).copy(alpha = 0.32f), Color(0xFFBFE8EC).copy(alpha = 0.4f), 0.0f, 0.9f, 0.8f),
     ),
-    /** Media: warm rose and amber (Samsung Health / Music). */
-    Media(
-        Pool(Color(0xFF5A1E3C).copy(alpha = 0.5f), Color(0xFFFFC6D6).copy(alpha = 0.5f), 0.95f, 0.0f, 1.0f),
-        Pool(Color(0xFF5C3312).copy(alpha = 0.42f), Color(0xFFFFDDB8).copy(alpha = 0.5f), 0.05f, 0.55f, 0.85f),
-        Pool(Color(0xFF2E1A4F).copy(alpha = 0.3f), Color(0xFFE5D6FF).copy(alpha = 0.35f), 0.9f, 0.95f, 0.8f),
-    ),
-    /** Files: deep ocean blue and cyan (My Files). */
-    Files(
-        Pool(Color(0xFF0E3557).copy(alpha = 0.6f), Color(0xFFB5DAFF).copy(alpha = 0.55f), 0.85f, 0.02f, 1.05f),
-        Pool(Color(0xFF13305E).copy(alpha = 0.42f), Color(0xFFC4CFFF).copy(alpha = 0.45f), 0.0f, 0.5f, 0.85f),
-        Pool(Color(0xFF0D4448).copy(alpha = 0.32f), Color(0xFFBDEDE6).copy(alpha = 0.4f), 0.95f, 0.92f, 0.8f),
-    ),
-    /** Images: magenta and violet (Gallery). */
-    Images(
-        Pool(Color(0xFF4E1C5E).copy(alpha = 0.55f), Color(0xFFF0C8FF).copy(alpha = 0.5f), 0.15f, 0.02f, 1.0f),
-        Pool(Color(0xFF5E1D45).copy(alpha = 0.4f), Color(0xFFFFC8E4).copy(alpha = 0.45f), 1.0f, 0.5f, 0.85f),
-        Pool(Color(0xFF1E2A66).copy(alpha = 0.3f), Color(0xFFC8D2FF).copy(alpha = 0.38f), 0.05f, 0.95f, 0.8f),
-    ),
-    /** Device: green and teal (Device care). */
-    Device(
-        Pool(Color(0xFF0F4535).copy(alpha = 0.55f), Color(0xFFBFF0D8).copy(alpha = 0.5f), 0.2f, 0.0f, 1.05f),
-        Pool(Color(0xFF103A58).copy(alpha = 0.4f), Color(0xFFBEE0FF).copy(alpha = 0.42f), 1.0f, 0.5f, 0.85f),
-        Pool(Color(0xFF29451A).copy(alpha = 0.28f), Color(0xFFDDF2C2).copy(alpha = 0.38f), 0.0f, 0.95f, 0.8f),
-    ),
-    /** Miscellaneous: amber dusk and purple (Reminder). */
-    Misc(
-        Pool(Color(0xFF4F3B10).copy(alpha = 0.48f), Color(0xFFFFE6A8).copy(alpha = 0.5f), 0.85f, 0.0f, 1.0f),
-        Pool(Color(0xFF34226B).copy(alpha = 0.45f), Color(0xFFDCCBFF).copy(alpha = 0.45f), 0.0f, 0.45f, 0.9f),
-        Pool(Color(0xFF4A1F33).copy(alpha = 0.28f), Color(0xFFFFCFDD).copy(alpha = 0.36f), 1.0f, 0.95f, 0.8f),
-    ),
 }
 
-/** The glow of the page being composed (set per page by the navigator). */
-val LocalGlowStyle = staticCompositionLocalOf { GlowStyle.Home }
+/** The glow of the page being composed (set per page by the navigator); null = no glow (tool pages). */
+val LocalGlowStyle = staticCompositionLocalOf<GlowStyle?> { null }
 
 /**
  * Page background: the plain One UI background plus the page's glow. The glow is pinned to the screen,
@@ -102,7 +72,7 @@ fun Modifier.pageBackground(): Modifier = composed {
         .onGloballyPositioned { val p = it.positionInWindow(); origin.floatValue = p.x; originY.floatValue = p.y }
         .drawBehind {
             drawRect(c.background)
-            if (on) translate(-origin.floatValue, -originY.floatValue) { drawGlow(style, c.isDark) }
+            if (on && style != null) translate(-origin.floatValue, -originY.floatValue) { drawGlow(style, c.isDark) }
         }
 }
 
