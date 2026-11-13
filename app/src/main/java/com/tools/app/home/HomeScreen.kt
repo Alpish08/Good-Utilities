@@ -172,7 +172,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         com.tools.app.ui.PillTab("Files", com.tools.app.ui.OneUiIcons.TabFiles, com.tools.app.ui.OneUiIcons.TabFilesOn),
         com.tools.app.ui.PillTab("Images", com.tools.app.ui.OneUiIcons.TabImages, com.tools.app.ui.OneUiIcons.TabImagesOn),
         com.tools.app.ui.PillTab("Device", com.tools.app.ui.OneUiIcons.TabDevice, com.tools.app.ui.OneUiIcons.TabDeviceOn),
-        com.tools.app.ui.PillTab("Miscellaneous", com.tools.app.ui.OneUiIcons.TabMisc, com.tools.app.ui.OneUiIcons.TabMiscOn),
+        com.tools.app.ui.PillTab("Misc", com.tools.app.ui.OneUiIcons.TabMisc, com.tools.app.ui.OneUiIcons.TabMiscOn),
     )
     var choosingGlow by remember { mutableStateOf(false) }
     if (choosingGlow) GlowPicker(onDismiss = { choosingGlow = false })

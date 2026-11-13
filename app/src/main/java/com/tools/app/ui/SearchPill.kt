@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -147,14 +148,24 @@ fun SearchBar(
 /** One tab of a [TabPill]: outline icon, and the filled one shown while selected. */
 class PillTab(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val selectedIcon: androidx.compose.ui.graphics.vector.ImageVector)
 
+/** The tab pill's faint hairline outline. Off for now; set to true to bring it back. */
+const val TabPillOutline = false
+
+/** Labels under the tab icons (Gallery / Phone / Samsung Health style); false = icon-only like Clock. */
+const val TabPillLabels = true
+
 /**
- * One UI 8.5 icon-only bottom navigation (Clock): a floating 56 dp pill of icons 56 dp apart; the selected tab
- * sits on a lighter 64 × 48 dp capsule that glides between tabs, with a filled icon.
+ * One UI 8.5 bottom navigation: a floating 56 dp pill. With labels (Gallery, Phone, Samsung Health, measured):
+ * tabs 72 dp apart, a 24 dp icon over a 10 sp label, the selected tab on a 79 × 48 dp capsule. Icon-only (Clock):
+ * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
 @Composable
-fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels) {
     val c = OneUi.colors
-    val slot = 56.dp
+    val slot = if (labels) 72.dp else 56.dp
+    val rowPad = if (labels) 7.dp else 8.dp
+    val capsuleW = if (labels) 79.dp else 60.dp
+    val capsuleH = if (labels) 48.dp else 46.dp
     // Colours halfway between Clock's bar and the app's menu cards. The capsule is lit from its centre (a soft glow).
     val pillBase = if (c.isDark) Color(0xFF202022).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
     val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
@@ -181,19 +192,19 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .height(56.dp)
                 .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
                 .clip(CircleShape)
-                // A very faint hairline, as some One UI apps have (Clock doesn't).
-                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
+                // A very faint hairline, as some One UI apps have (Clock doesn't). Toggled by TabPillOutline.
+                .then(if (TabPillOutline) Modifier.border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape) else Modifier)
                 .drawBehind {
                     drawRect(pillBase)
                     drawRect(androidx.compose.ui.graphics.Brush.radialGradient(listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f))
                 },
             contentAlignment = Alignment.CenterStart,
         ) {
-            // The selected (or pressed) capsule, centred on its slot, 2 dp wider than the slot on each side.
+            // The selected (or pressed) capsule, centred on its slot (a little wider than the slot).
             Box(
                 Modifier
-                    .offset(x = 6.dp + slot * shown)
-                    .size(width = 60.dp, height = 46.dp)
+                    .offset(x = rowPad + slot * shown - (capsuleW - slot) / 2)
+                    .size(width = capsuleW, height = capsuleH)
                     .graphicsLayer { scaleX = scale.value; scaleY = scale.value }
                     .clip(CircleShape)
                     .drawBehind {
@@ -207,7 +218,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                         )
                     },
             )
-            Row(Modifier.padding(horizontal = 8.dp)) {
+            Row(Modifier.padding(horizontal = rowPad)) {
                 tabs.forEachIndexed { i, tab ->
                     val on = i == shown
                     Box(
@@ -230,9 +241,24 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                                 })
                             }
                             .semantics { contentDescription = tab.label },
-                        contentAlignment = Alignment.Center,
+                        contentAlignment = if (labels) Alignment.TopCenter else Alignment.Center,
                     ) {
-                        Icon(if (on) tab.selectedIcon else tab.icon, null, tint = if (on) iconOn else iconOff, modifier = Modifier.size(24.dp))
+                        val tint = if (on) iconOn else iconOff
+                        if (!labels) Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.size(24.dp))
+                        else {
+                            Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.padding(top = 7.5.dp).size(24.dp))
+                            androidx.compose.material3.Text(
+                                tab.label,
+                                color = tint,
+                                fontFamily = com.tools.app.ui.theme.SamsungFont,
+                                fontSize = 10.sp,
+                                letterSpacing = 0.sp,
+                                fontWeight = if (on) FontWeight.Bold else FontWeight.SemiBold,
+                                maxLines = 1,
+                                // Baseline 43 dp below the pill's top, as in Phone / Modes and Routines.
+                                modifier = Modifier.paddingFrom(androidx.compose.ui.layout.FirstBaseline, before = 43.dp),
+                            )
+                        }
                     }
                 }
             }
