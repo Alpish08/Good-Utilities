@@ -157,19 +157,22 @@ object OneUiIcons {
     }
     val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.62f) { folderShape() } } }
     val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.62f) { folderShape() } } }
+    // Picture, traced from One UI's gallery icon: frame, sun, two peaks.
     val TabImages: ImageVector by lazy {
         icon("TabImages") {
-            line(1.62f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
-            line(1.62f) { circle(8.7f, 8.9f, 1.6f) }
-            line(1.62f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
+            line(1.62f) { roundRect(3.74f, 3.74f, 20.26f, 20.26f, 2.99f) }
+            line(1.62f) { circle(8.58f, 8.72f, 1.89f) }
+            line(1.62f) { moveTo(3.81f, 16.59f); lineTo(9.06f, 13.62f); lineTo(11.82f, 15.42f); lineTo(16.23f, 11.82f); lineTo(20.01f, 15.24f) }
         }
     }
     val TabImagesOn: ImageVector by lazy {
         icon("TabImagesOn") {
             fill(evenOdd = true) {
-                roundRect(2.7f, 2.7f, 21.3f, 21.3f, 5f)
-                circle(8.7f, 8.9f, 1.7f)
-                moveTo(5.4f, 18.6f); lineTo(5.4f, 17.4f); lineTo(8.4f, 14.6f); lineTo(12.1f, 17.6f); lineTo(15.6f, 14f); lineTo(18.6f, 16.8f); lineTo(18.6f, 18.6f); close()
+                roundRect(3.72f, 3.72f, 20.28f, 20.28f, 3.91f)
+                circle(8.58f, 8.76f, 1.44f)
+                moveTo(5.18f, 15.55f); lineTo(8.91f, 12.96f); lineTo(11.50f, 14.75f); lineTo(15.72f, 10.79f); lineTo(18.48f, 13.29f)
+                lineTo(18.48f, 16.86f); arcTo(1.30f, 1.30f, 0f, false, true, 17.18f, 18.16f); lineTo(6.48f, 18.16f)
+                arcTo(1.30f, 1.30f, 0f, false, true, 5.18f, 16.86f); close()
             }
         }
     }
@@ -184,24 +187,25 @@ object OneUiIcons {
             fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(10.1f, 16.8f, 13.9f, 18.3f, 0.75f) }
         }
     }
-    // Apps: three rounded squares and a diamond (One UI's "apps & more").
     private fun PathBuilder.diamond(cx: Float, cy: Float, r: Float) {
         moveTo(cx, cy - r); lineTo(cx + r, cy); lineTo(cx, cy + r); lineTo(cx - r, cy); close()
     }
+    // Shapes, traced from One UI's icon: circle, rounded square, triangle, diamond.
+    private fun PathBuilder.shapeTriangle() { moveTo(6.87f, 14.1f); lineTo(10.4f, 20.4f); lineTo(3.35f, 20.4f); close() }
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            line(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            line(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            line(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
+            line(1.62f) { circle(6.87f, 6.69f, 3.88f) }
+            line(1.62f) { roundRect(13.27f, 3.0f, 20.47f, 10.2f, 1.7f) }
+            line(1.62f) { shapeTriangle() }
+            line(1.62f) { diamond(16.96f, 17.04f, 3.7f) }
         }
     }
     val TabMiscOn: ImageVector by lazy {
         icon("TabMiscOn") {
-            solid(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            solid(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            solid(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            solid(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
+            solid(1.62f) { circle(6.87f, 6.69f, 3.88f) }
+            solid(1.62f) { roundRect(13.27f, 3.0f, 20.47f, 10.2f, 1.7f) }
+            solid(1.62f) { shapeTriangle() }
+            solid(1.62f) { diamond(16.96f, 17.04f, 3.7f) }
         }
     }
 
