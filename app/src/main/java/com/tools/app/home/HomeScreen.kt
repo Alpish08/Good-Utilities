@@ -13,6 +13,17 @@ import androidx.compose.material.icons.Icons
 import com.tools.app.ui.OneUiIcons
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
+import com.tools.app.ui.collapseHeader
+import kotlinx.coroutines.launch
+import androidx.compose.animation.togetherWith
+import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.Image
+import androidx.compose.material.icons.outlined.Category
+import androidx.compose.material.icons.outlined.PhoneAndroid
+import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.Folder
+import androidx.compose.material.icons.outlined.MusicNote
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +55,8 @@ private data class Tool(val route: Route, val title: String, val summary: String
 /** Home's scroll position, kept by MainActivity so it survives opening a tool. */
 class HomeState {
     val list = LazyListState()
+    /** Selected bottom tab (Media, Files, Images, Device, Miscellaneous). */
+    var tab by androidx.compose.runtime.mutableIntStateOf(0)
 }
 
 @Composable
@@ -123,38 +136,66 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         ),
     )
 
-    // One UI 8.5 floating search pill: type (or say) part of a tool's name or what it does.
+    // Search opens from the toolbar's search button as a full-width bar at the bottom.
     var query by remember { mutableStateOf("") }
-    var searchFocused by remember { mutableStateOf(false) }
+    var searching by remember { mutableStateOf(false) }
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
-    androidx.activity.compose.BackHandler(enabled = query.isNotEmpty() || searchFocused) {
-        query = ""; focusManager.clearFocus()
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    fun closeSearch() {
+        query = ""; searching = false; focusManager.clearFocus()
+        // Back to the tab's list with the title folded, not scrolled past it.
+        scope.launch { kotlinx.coroutines.delay(60); state.list.collapseHeader() }
     }
+    androidx.activity.compose.BackHandler(enabled = searching) { closeSearch() }
     val q = query.trim()
     val matches = if (q.isEmpty()) emptyList() else groups.flatMap { it.second }.filter {
         it.title.contains(q, ignoreCase = true) || it.summary.contains(q, ignoreCase = true)
     }
     // Opening search folds the big title away so the results have room above the keyboard.
-    LaunchedEffect(searchFocused || q.isNotEmpty()) {
-        if ((searchFocused || q.isNotEmpty()) && state.list.firstVisibleItemIndex == 0) state.list.animateScrollToItem(1)
-        else if (q.isNotEmpty() && state.list.firstVisibleItemIndex > 1) state.list.scrollToItem(1)
+    // Re-checked as results change: a short results list first jumps back to the top, then gets room to fold again.
+    LaunchedEffect(searching, q) {
+        if (!searching) return@LaunchedEffect
+        kotlinx.coroutines.delay(60)
+        if (state.list.firstVisibleItemIndex == 0) state.list.collapseHeader()
     }
+
+    // Clock-style icon tabs: one category at a time.
+    val tabs = listOf(
+        com.tools.app.ui.PillTab("Media", Icons.Outlined.MusicNote, Icons.Rounded.MusicNote),
+        com.tools.app.ui.PillTab("Files", Icons.Outlined.Folder, Icons.Rounded.Folder),
+        com.tools.app.ui.PillTab("Images", Icons.Outlined.Image, Icons.Rounded.Image),
+        com.tools.app.ui.PillTab("Device", Icons.Outlined.PhoneAndroid, Icons.Rounded.PhoneAndroid),
+        com.tools.app.ui.PillTab("Miscellaneous", Icons.Outlined.Category, Icons.Rounded.Category),
+    )
 
     OneUiScaffold(
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
         actions = {
+            com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
             OverflowMenu(listOf("About" to { open(Route.About) }))
         },
         bottomBar = {
-            com.tools.app.ui.SearchPill(query, { query = it }, onFocusChange = { searchFocused = it })
+            androidx.compose.animation.AnimatedContent(
+                searching, label = "homeBottom",
+                transitionSpec = {
+                    (androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220)) +
+                        androidx.compose.animation.scaleIn(androidx.compose.animation.core.tween(260), initialScale = 0.92f))
+                        .togetherWith(androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)))
+                        // Don't crop the bars while the area resizes between the tab pill and the search bar.
+                        .using(androidx.compose.animation.SizeTransform(clip = false))
+                },
+            ) { s ->
+                if (s) com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch)
+                else com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it })
+            }
         },
     ) {
-        if (q.isNotEmpty()) {
+        if (searching && q.isNotEmpty()) {
             sectionLabel(if (matches.isEmpty()) "No tools found" else "Results", key = "search-label")
             if (matches.isNotEmpty()) cardList(matches, key = { "found-" + it.route.name }, dividerStart = IconRowDivider) { t ->
-                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { focusManager.clearFocus(); open(t.route) })
+                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { closeSearch(); open(t.route) })
             }
             return@OneUiScaffold
         }
@@ -171,7 +212,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 )
             }
         }
-        for ((label, tools) in groups) {
+        groups.getOrNull(state.tab)?.let { (label, tools) ->
             sectionLabel(label)
             cardList(tools, key = { it.route.name }, dividerStart = IconRowDivider) { t ->
                 ListRow(

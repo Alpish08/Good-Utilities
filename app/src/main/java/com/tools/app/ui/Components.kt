@@ -164,6 +164,7 @@ fun OneUiScaffold(
         val rangePx = with(density) { (headerHeight - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
         val fadePx = with(density) { FadeLength.toPx() }
+        SideEffect { headerRanges[listState] = rangePx.roundToInt() }
         if (!expandedTitle) remember(listState) {
             if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0)
                 listState.requestScrollToItem(0, rangePx.roundToInt())
@@ -313,6 +314,14 @@ fun OneUiScaffold(
 
         if (bottomBar != null) BottomBarHost(Modifier.align(Alignment.BottomCenter).onSizeChanged { bottomBarPx = it.height }, bottomBar)
     }
+}
+
+private val headerRanges = java.util.WeakHashMap<LazyListState, Int>()
+
+/** Scrolls a [OneUiScaffold] list to the point where its big title has just folded into the toolbar. */
+suspend fun LazyListState.collapseHeader() {
+    val range = headerRanges[this] ?: return
+    animateScrollToItem(0, range)
 }
 
 /**
@@ -489,9 +498,28 @@ private fun Toolbar(
             fontSize = 21.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f).padding(start = 2.dp),
         )
-        actions()
+        // One UI 8.5 (Reminder): the action buttons share one capsule chip once content scrolls under them.
+        val chip = LocalToolbarChip.current
+        val chipCol = chipColor(c.isDark)
+        Row(
+            Modifier
+                .height(48.dp)
+                .drawBehind {
+                    val a = chip()
+                    if (a > 0f) drawRoundRect(chipCol, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f), alpha = a)
+                }
+                .padding(horizontal = 5.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            androidx.compose.runtime.CompositionLocalProvider(LocalToolbarChip provides { 0f }, LocalToolbarSlot provides 38.dp) {
+                actions()
+            }
+        }
     }
 }
+
+/** Width of a toolbar button: narrower inside the shared actions capsule. */
+private val LocalToolbarSlot = androidx.compose.runtime.compositionLocalOf { 48.dp }
 
 @Composable
 fun BottomBarHost(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
@@ -765,7 +793,7 @@ fun Chip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
 @Composable
 fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
     Box(
-        Modifier.size(48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
+        Modifier.size(width = LocalToolbarSlot.current, height = 48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
             .clip(CircleShape).clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
