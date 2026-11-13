@@ -113,21 +113,16 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
 
         sectionLabel("Unlock screen")
         card("unlock-method") {
-            val activity = context as? androidx.fragment.app.FragmentActivity
-            fun confirm(title: String, then: () -> Unit) {
-                if (activity == null) { then(); return }
-                confirmIdentity(activity, title, then)
-            }
             ListRow(
                 if (pinSet) "Change Tools PIN" else "Set Tools PIN",
                 summary = if (pinSet) "On · \"Use Tools PIN\" on the fingerprint sheet opens Tools' PIN pad, without the dim"
                 else "Off · locked apps use Samsung's prompt with your phone PIN",
                 summaryColor = if (pinSet) c.accent else null,
-                onClick = { confirm(if (pinSet) "Change Tools PIN" else "Set Tools PIN", onSetPin) },
+                onClick = onSetPin,
             )
             if (pinSet) com.tools.app.ui.CardDivider()
             if (pinSet) ListRow("Remove Tools PIN", summary = "Go back to Samsung's prompt", onClick = {
-                confirm("Remove Tools PIN") { PinStore.clear(context); pinSet = false }
+                PinStore.clear(context); pinSet = false
             })
         }
 
@@ -172,15 +167,18 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
 }
 
 
-/** Asks for your existing fingerprint or phone PIN (Samsung prompt) before sensitive changes. */
+/** Asks for your fingerprint or phone PIN (Samsung's sheet) before opening App lock's settings. */
 fun confirmIdentity(activity: androidx.fragment.app.FragmentActivity, title: String, onOk: () -> Unit) {
+    val kinds = androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK or androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    // No screen lock set up at all: there is nothing to confirm with.
+    if (androidx.biometric.BiometricManager.from(activity).canAuthenticate(kinds) != androidx.biometric.BiometricManager.BIOMETRIC_SUCCESS) { onOk(); return }
     androidx.biometric.BiometricPrompt(activity, activity.mainExecutor, object : androidx.biometric.BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationSucceeded(result: androidx.biometric.BiometricPrompt.AuthenticationResult) = onOk()
     }).authenticate(
         androidx.biometric.BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
             .setSubtitle("Confirm it's you")
-            .setAllowedAuthenticators(androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK or androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+            .setAllowedAuthenticators(kinds)
             .build()
     )
 }

@@ -47,7 +47,11 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        savedInstanceState?.getString("stack")?.let { stack = it }
+        savedInstanceState?.getString("stack")?.let { stack = withoutAppLock(it) }
+        // App lock's settings ask for your fingerprint each time; turning the screen off closes them.
+        androidx.core.content.ContextCompat.registerReceiver(
+            this, screenOff, android.content.IntentFilter(Intent.ACTION_SCREEN_OFF), androidx.core.content.ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         if (savedInstanceState == null) handleShare(intent)
         setContent {
             OneUiTheme {
@@ -133,7 +137,10 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     fun pop() { if (stack == here && s.size > 1) stack = here.substringBeforeLast(',') }
                     androidx.compose.runtime.CompositionLocalProvider(com.tools.app.ui.theme.LocalGlowStyle provides glowFor(s.last())) {
                     when (s.last()) {
-                        Route.Home -> HomeScreen(home, open = ::push)
+                        Route.Home -> HomeScreen(home, open = { r ->
+                            if (r == Route.AppLock) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open App lock") { push(r) }
+                            else push(r)
+                        })
                         Route.Music -> MusicScreen(musicList, onBack = ::pop, onOpenSettings = { push(Route.MusicSettings) })
                         Route.MusicSettings -> MusicSettingsScreen(onBack = ::pop, onSignIn = { push(Route.YouTubeSignIn) })
                         Route.YouTubeSignIn -> com.tools.app.music.YouTubeSignInScreen(onDone = ::pop)
@@ -175,6 +182,18 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     companion object {
         const val ACTION_CHARGE_LIMIT = "com.tools.app.CHARGE_LIMIT"
         const val ACTION_PRIVATE_DNS = "com.tools.app.PRIVATE_DNS"
+    }
+
+    private val screenOff = object : android.content.BroadcastReceiver() {
+        override fun onReceive(context: android.content.Context, intent: Intent) { stack = withoutAppLock(stack) }
+    }
+
+    /** The stack with App lock (and the pages opened from it) closed. */
+    private fun withoutAppLock(s: String) = s.split(',').takeWhile { it != Route.AppLock.name }.joinToString(",")
+
+    override fun onDestroy() {
+        runCatching { unregisterReceiver(screenOff) }
+        super.onDestroy()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
