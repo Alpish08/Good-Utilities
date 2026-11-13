@@ -46,27 +46,31 @@ object OneUiIcons {
     }
 
     /** Settings: One UI's quick-panel gear, solid with six soft teeth and a round hole. */
+    /** One UI's gear: six rounded teeth with curved valleys between them. */
+    private fun PathBuilder.gear(outer: Float = 9.6f, root: Float = 6.7f, topDeg: Float = 12f, baseDeg: Float = 20f) {
+        fun pt(deg: Double, r: Float) = Pair(12f + r * cos(Math.toRadians(deg)).toFloat(), 12f + r * sin(Math.toRadians(deg)).toFloat())
+        for (i in 0 until 6) {
+            val a = i * 60.0 - 90.0
+            val b0 = pt(a - baseDeg, root); val o0 = pt(a - topDeg, outer); val o1 = pt(a + topDeg, outer); val b1 = pt(a + baseDeg, root)
+            if (i == 0) moveTo(b0.first, b0.second) else lineTo(b0.first, b0.second)
+            lineTo(o0.first, o0.second); lineTo(o1.first, o1.second); lineTo(b1.first, b1.second)
+            val nb = pt(a + 60.0 - baseDeg, root)
+            arcTo(root, root, 0f, false, true, nb.first, nb.second)
+        }
+        close()
+    }
+
     val Settings: ImageVector by lazy {
         icon("Settings") {
-            solid(width = 1.2f, evenOdd = true) {
-                val teeth = 8
-                val outer = 9.6f; val root = 7.9f
-                val step = 2 * PI / teeth
-                for (i in 0 until teeth) {
-                    val a = i * step - PI / 2
-                    val pts = listOf(
-                        root to a - step * 0.5, root to a - step * 0.28,
-                        outer to a - step * 0.17, outer to a + step * 0.17,
-                        root to a + step * 0.28,
-                    )
-                    pts.forEachIndexed { j, (r, ang) ->
-                        val x = (12 + r * cos(ang)).toFloat(); val y = (12 + r * sin(ang)).toFloat()
-                        if (i == 0 && j == 0) moveTo(x, y) else lineTo(x, y)
-                    }
-                }
-                close()
-                circle(12f, 12f, 3.6f)
-            }
+            solid(width = 1.4f, evenOdd = true) { gear(); circle(12f, 12f, 3.4f) }
+        }
+    }
+
+    /** Outline gear, with a ring in the middle. */
+    val SettingsOutline: ImageVector by lazy {
+        icon("SettingsOutline") {
+            line(1.4f) { gear(9.5f) }
+            line(1.4f) { circle(12f, 12f, 2.7f) }
         }
     }
 
@@ -141,23 +145,23 @@ object OneUiIcons {
 
     val TabMedia: ImageVector by lazy {
         icon("TabMedia") {
-            line(1.8f) { circle(8.6f, 16.9f, 3.1f) }
-            line(1.8f) { noteFlag() }
+            line(1.35f) { circle(8.6f, 16.9f, 3.1f) }
+            line(1.35f) { noteFlag() }
         }
     }
     val TabMediaOn: ImageVector by lazy {
         icon("TabMediaOn") {
             fill { circle(8.6f, 16.9f, 4.0f) }
-            line(1.8f) { noteFlag() }
+            line(1.35f) { noteFlag() }
         }
     }
-    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.8f) { folderShape() } } }
-    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.8f) { folderShape() } } }
+    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.35f) { folderShape() } } }
+    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.35f) { folderShape() } } }
     val TabImages: ImageVector by lazy {
         icon("TabImages") {
-            line(1.8f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
-            line(1.8f) { circle(8.7f, 8.9f, 1.6f) }
-            line(1.8f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
+            line(1.35f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
+            line(1.35f) { circle(8.7f, 8.9f, 1.6f) }
+            line(1.35f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
         }
     }
     val TabImagesOn: ImageVector by lazy {
@@ -171,8 +175,8 @@ object OneUiIcons {
     }
     val TabDevice: ImageVector by lazy {
         icon("TabDevice") {
-            line(1.8f) { roundRect(6.1f, 2.6f, 17.9f, 21.4f, 3.2f) }
-            line(1.8f) { moveTo(10.7f, 18.1f); lineTo(13.3f, 18.1f) }
+            line(1.35f) { roundRect(6.1f, 2.6f, 17.9f, 21.4f, 3.2f) }
+            line(1.35f) { moveTo(10.7f, 18.1f); lineTo(13.3f, 18.1f) }
         }
     }
     val TabDeviceOn: ImageVector by lazy {
@@ -186,18 +190,18 @@ object OneUiIcons {
     }
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.8f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            line(1.8f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            line(1.8f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            line(1.8f) { diamond(16.9f, 7.1f, 4.0f) }
+            line(1.35f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            line(1.35f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            line(1.35f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            line(1.35f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
     val TabMiscOn: ImageVector by lazy {
         icon("TabMiscOn") {
-            solid(1.8f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            solid(1.8f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            solid(1.8f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            solid(1.8f) { diamond(16.9f, 7.1f, 4.0f) }
+            solid(1.35f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            solid(1.35f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            solid(1.35f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            solid(1.35f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
 
@@ -296,11 +300,18 @@ object OneUiIcons {
         }
     }
 
+    /** One UI's fingerprint: an outer loop that curls into the middle, and three inner ridges. */
     val Fingerprint: ImageVector by lazy {
         icon("Fingerprint") {
-            line(1.8f) { moveTo(4.6f, 15.5f); verticalLineTo(11.5f); arcTo(7.4f, 7.4f, 0f, false, true, 19.4f, 11.5f); verticalLineTo(12.5f) }
-            line(1.8f) { moveTo(7.6f, 20f); curveTo(7.2f, 18.2f, 7.4f, 16f, 7.4f, 13f); verticalLineTo(11.5f); arcTo(4.6f, 4.6f, 0f, false, true, 16.6f, 11.5f); verticalLineTo(14f); curveTo(16.6f, 16.5f, 16.2f, 18.4f, 15.4f, 20f) }
-            line(1.8f) { moveTo(10.2f, 15f); verticalLineTo(11.5f); arcTo(1.8f, 1.8f, 0f, false, true, 13.8f, 11.5f); verticalLineTo(14.5f); curveTo(13.8f, 16.5f, 13.3f, 18f, 12.6f, 19.4f) }
+            line(1.2f) {
+                moveTo(3.1f, 16.9f); arcTo(9.6f, 9.6f, 0f, true, true, 21.6f, 12.2f)
+                curveTo(21.6f, 14.7f, 20.2f, 16.4f, 18.4f, 16.4f); curveTo(16.8f, 16.4f, 15.6f, 15.2f, 15.6f, 13.4f)
+                lineTo(15.6f, 12.8f); curveTo(15.6f, 10.8f, 14f, 9.2f, 12f, 9.2f); curveTo(10f, 9.2f, 8.4f, 10.8f, 8.4f, 12.8f)
+                curveTo(8.4f, 16.4f, 10.6f, 19.4f, 13.8f, 20.6f)
+            }
+            line(1.2f) { moveTo(6.9f, 8.3f); curveTo(8.2f, 6.6f, 10f, 5.7f, 12.1f, 5.7f); curveTo(15.8f, 5.7f, 18.6f, 8.6f, 18.6f, 12.2f) }
+            line(1.2f) { moveTo(5.8f, 11.4f); curveTo(5.6f, 12.1f, 5.6f, 12.7f, 5.6f, 13.4f); curveTo(5.6f, 16.4f, 7f, 19f, 9.4f, 20.6f) }
+            line(1.2f) { moveTo(12f, 12.4f); curveTo(12.1f, 15.8f, 14.4f, 18.9f, 18f, 19.4f) }
         }
     }
 

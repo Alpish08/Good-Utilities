@@ -185,7 +185,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                     ) {
                         Icon(
                             if (on) tab.selectedIcon else tab.icon, null,
-                            tint = if (on) c.text else c.text.copy(alpha = 0.85f),
+                            tint = c.text, // Clock: unselected icons are full white too; only the capsule and fill mark the tab
                             modifier = Modifier.size(25.dp),
                         )
                     }
