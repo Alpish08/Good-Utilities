@@ -185,7 +185,7 @@ object OneUiIcons {
     }
     val TabDeviceOn: ImageVector by lazy {
         icon("TabDeviceOn") {
-            fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(10.1f, 16.8f, 13.9f, 18.3f, 0.75f) }
+            fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(9.99f, 16.69f, 14.01f, 18.31f, 0.81f) }
         }
     }
     private fun PathBuilder.diamond(cx: Float, cy: Float, r: Float) {
