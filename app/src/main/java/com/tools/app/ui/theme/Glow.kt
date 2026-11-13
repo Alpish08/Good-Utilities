@@ -27,12 +27,12 @@ object Glow {
         private set
 
     /** The Home page's chosen glow. */
-    var style by mutableStateOf(GlowStyle.Night)
+    var style by mutableStateOf(GlowStyle.Mist)
         private set
 
     fun choose(context: Context, s: GlowStyle) {
         style = s
-        prefs(context).edit().putString("style", s.name).apply()
+        prefs(context).edit().putString("homeGlow", s.name).apply()
     }
     private var loaded = false
 
@@ -42,7 +42,7 @@ object Glow {
         // The on/off switch was removed; clear any saved "off" so the Home glow always shows.
         prefs(context).edit().remove("glow").apply()
         enabled = true
-        style = runCatching { GlowStyle.valueOf(prefs(context).getString("style", null) ?: "") }.getOrDefault(GlowStyle.Night)
+        style = runCatching { GlowStyle.valueOf(prefs(context).getString("homeGlow", null) ?: "") }.getOrDefault(GlowStyle.Mist)
     }
 
     fun set(context: Context, on: Boolean) {

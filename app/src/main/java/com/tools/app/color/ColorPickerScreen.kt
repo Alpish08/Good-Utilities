@@ -120,7 +120,7 @@ fun ColorPickerScreen(onBack: () -> Unit) {
         }
     }
 
-    ToolPage("Color picker", onBack, actions = { if (bitmap != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage("Color picker", onBack, expandable = bitmap != null, actions = { if (bitmap != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
         val bmp = bitmap; val img = image
         if (bmp == null || img == null) {
             EmptyState(Icons.Rounded.Colorize, IconColors.Pink, "Pick colors from any image", "Drag over the photo to sample a pixel, with a magnifier for precision.", "Choose image", choose)

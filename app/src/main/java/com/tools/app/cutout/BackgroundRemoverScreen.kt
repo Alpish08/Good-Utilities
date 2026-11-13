@@ -142,7 +142,7 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
     }
     val choose = { chooser.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 
-    ToolPage("Background remover", onBack, actions = { if (original != null) ToolbarIcon(OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage("Background remover", onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(OneUiIcons.Gallery, "Choose image", choose) }) {
         val src = original
         if (src == null) {
             EmptyState(Icons.Rounded.AutoFixHigh, IconColors.Teal, "Remove a background", "Pick a photo and the person, pet or object in it is cut out as a transparent PNG.", "Choose image", choose)

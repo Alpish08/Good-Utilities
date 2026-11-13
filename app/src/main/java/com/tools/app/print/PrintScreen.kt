@@ -124,7 +124,7 @@ fun PrintScreen(onBack: () -> Unit) {
     val choosePhotos = { pickPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 
     if (doc.pages.isEmpty()) {
-        ToolPage("Print", onBack) {
+        ToolPage("Print", onBack, expandable = false) {
             if (doc.loading) {
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = c.accent) }
             } else {

@@ -76,7 +76,7 @@ fun MergeScreen(onBack: () -> Unit) {
     val add = { picking = true }
     val running = work is Work.Running
 
-    ToolPage("Audio merger", onBack, actions = { if (clips.isNotEmpty() && !running) ToolbarIcon(OneUiIcons.Add, "Add audio", add) }) {
+    ToolPage("Audio merger", onBack, expandable = clips.isNotEmpty(), actions = { if (clips.isNotEmpty() && !running) ToolbarIcon(OneUiIcons.Add, "Add audio", add) }) {
         if (clips.isEmpty()) {
             EmptyState(
                 Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange, "Merge songs",

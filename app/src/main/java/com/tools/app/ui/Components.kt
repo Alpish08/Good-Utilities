@@ -231,10 +231,11 @@ fun OneUiScaffold(
         // Short lists get invisible bottom room so the header can always collapse all the way.
         val viewportPx = constraints.maxHeight.toFloat()
         var fillerPx by remember { mutableFloatStateOf(0f) }
+        var contentEndPx by remember { mutableStateOf<Float?>(null) }
         // When the list's contents change (e.g. search results → full list), drop the old filler first, so a long
         // list can't keep the short list's extra room and scroll past its end.
         LaunchedEffect(listState) {
-            snapshotFlow { listState.layoutInfo.totalItemsCount }.collect { fillerPx = 0f }
+            snapshotFlow { listState.layoutInfo.totalItemsCount }.collect { fillerPx = 0f; contentEndPx = null }
         }
         if (expanded) LaunchedEffect(listState, rangePx, viewportPx) {
             snapshotFlow {
@@ -245,8 +246,23 @@ fun OneUiScaffold(
                 else null
             }.collect { contentPx ->
                 if (contentPx != null) {
+                    contentEndPx = contentPx
                     val basePad = with(density) { (bottomPad + 20.dp).toPx() }
                     fillerPx = (viewportPx + rangePx - contentPx - basePad).coerceAtLeast(0f)
+                }
+            }
+        }
+        // Pinned toolbar (Home): when everything fits below the folded title, the list stops right there instead of
+        // sliding on under the title.
+        val pinClamp = remember(listState, rangePx, viewportPx) {
+            object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
+                    if (available.y >= 0f || listState.firstVisibleItemIndex != 0) return Offset.Zero
+                    val end = contentEndPx ?: return Offset.Zero
+                    val basePad = with(density) { (bottomPad + 20.dp).toPx() }
+                    if (end - rangePx > viewportPx - basePad) return Offset.Zero // genuinely longer than the screen
+                    val room = (rangePx - listState.firstVisibleItemScrollOffset).coerceAtLeast(0f)
+                    return if (-available.y > room) Offset(0f, available.y + room) else Offset.Zero
                 }
             }
         }
@@ -256,6 +272,7 @@ fun OneUiScaffold(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
+                .then(if (floatingToolbar) Modifier else Modifier.nestedScroll(pinClamp))
                 .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                 .drawWithContent {
                     drawContent()
@@ -345,6 +362,8 @@ fun ToolPage(
     title: String,
     onBack: () -> Unit,
     actions: @Composable RowScope.() -> Unit = {},
+    /** false keeps the title folded (e.g. a tool still waiting for you to pick a file). */
+    expandable: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val c = OneUi.colors
@@ -355,18 +374,21 @@ fun ToolPage(
         val statusTopPx = with(density) { statusTop.toPx() }
         val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
         var extra by remember { mutableFloatStateOf(0f) } // 0 = collapsed … rangePx = expanded
+        val canExpandNow by androidx.compose.runtime.rememberUpdatedState(title.isNotEmpty() && expandable)
         val scope = rememberCoroutineScope()
         fun settle(velocity: Float) {
             val target = when {
+                !canExpandNow -> 0f
                 velocity > 900f -> rangePx
                 velocity < -900f -> 0f
                 else -> if (extra > rangePx / 2f) rangePx else 0f
             }
             scope.launch { animate(extra, target, animationSpec = tween(300, easing = OneUiEasing)) { v, _ -> extra = v } }
         }
-        // A page without a title (About) has nothing to expand.
-        val expandable = title.isNotEmpty()
-        val nested = remember(rangePx) {
+        // A page without a title (About), or one asked not to, has nothing to expand.
+        val canExpand = title.isNotEmpty() && expandable
+        LaunchedEffect(canExpand) { if (!canExpand) extra = 0f }
+        val nested = remember(rangePx, canExpand) {
             object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
                 override fun onPreScroll(available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
                     // Scrolling content up first folds the header away.
@@ -375,7 +397,7 @@ fun ToolPage(
                 }
                 override fun onPostScroll(consumed: Offset, available: Offset, source: androidx.compose.ui.input.nestedscroll.NestedScrollSource): Offset {
                     // Pulling past the top of the content opens it.
-                    if (expandable && available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput) {
+                    if (canExpand && available.y > 0f && source == androidx.compose.ui.input.nestedscroll.NestedScrollSource.UserInput) {
                         val used = minOf(available.y, rangePx - extra); extra += used; return Offset(0f, used)
                     }
                     return Offset.Zero
@@ -386,7 +408,7 @@ fun ToolPage(
                 }
             }
         }
-        val drag = androidx.compose.foundation.gestures.rememberDraggableState { d -> if (expandable) extra = (extra + d).coerceIn(0f, rangePx) }
+        val drag = androidx.compose.foundation.gestures.rememberDraggableState { d -> if (canExpand) extra = (extra + d).coerceIn(0f, rangePx) }
         // A drag anywhere on the page that nothing inside claims (sliders, canvases and scroll areas
         // consume their own) pulls the header open or closed.
         Column(Modifier.fillMaxSize().draggable(drag, androidx.compose.foundation.gestures.Orientation.Vertical, onDragStopped = { v -> settle(v) })) {
@@ -517,7 +539,8 @@ private fun Toolbar(
                 .height(48.dp)
                 .drawBehind {
                     val a = chip()
-                    if (a > 0f) drawRoundRect(chipCol, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f), alpha = a)
+                    // Only when there is at least one button (the row is just its 10 dp padding when empty).
+                    if (a > 0f && size.width > 12.dp.toPx()) drawRoundRect(chipCol, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f), alpha = a)
                 }
                 .padding(horizontal = 5.dp),
             verticalAlignment = Alignment.CenterVertically,

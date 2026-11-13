@@ -1,6 +1,7 @@
 package com.tools.app.home
 
 import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.graphicsLayer
 import com.tools.app.ui.theme.OneUi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -187,18 +188,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))
         },
         bottomBar = {
-            // The two bars cross-fade in place (no resizing container, so neither gets cropped).
+            // The two bars cross-fade in place. Faded per draw (not through an offscreen layer), so the bars,
+            // which sit a few dp outside their own bounds, are never cropped mid-fade.
             androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
-                androidx.compose.animation.AnimatedVisibility(
-                    !searching,
-                    enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220, delayMillis = 60)),
-                    exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)),
-                ) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it }) }
-                androidx.compose.animation.AnimatedVisibility(
-                    searching,
-                    enter = androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(220, delayMillis = 60)),
-                    exit = androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(150)),
-                ) { com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch) }
+                FadeSlot(!searching) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it }) }
+                FadeSlot(searching) { com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch) }
             }
         },
     ) {
@@ -222,22 +216,10 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 )
             }
         }
-        // The selected tab's tools. Switching tabs slides the list a little toward the new tab and cross-fades.
+        // The selected tab's tools (switching tabs swaps them instantly, like Samsung's apps).
         item(key = "tab-content") {
-            androidx.compose.animation.AnimatedContent(
-                state.tab, label = "homeTab",
-                transitionSpec = {
-                    val dir = if (targetState > initialState) 1 else -1
-                    (androidx.compose.animation.slideInHorizontally(androidx.compose.animation.core.tween(320, easing = com.tools.app.ui.theme.OneUiEasing)) { dir * it / 8 } +
-                        androidx.compose.animation.fadeIn(androidx.compose.animation.core.tween(260, delayMillis = 40)))
-                        .togetherWith(
-                            androidx.compose.animation.slideOutHorizontally(androidx.compose.animation.core.tween(320, easing = com.tools.app.ui.theme.OneUiEasing)) { -dir * it / 8 } +
-                                androidx.compose.animation.fadeOut(androidx.compose.animation.core.tween(140)),
-                        )
-                        .using(androidx.compose.animation.SizeTransform(clip = false))
-                },
-                contentAlignment = androidx.compose.ui.Alignment.TopCenter,
-            ) { tab ->
+            run {
+                val tab = state.tab
                 val (label, tools) = groups[tab]
                 androidx.compose.foundation.layout.Column {
                     Text(
@@ -273,4 +255,21 @@ private fun GlowPicker(onDismiss: () -> Unit) {
             }
         }
     }
+}
+
+/** Shows [content] while [visible], fading in and out without clipping it to its bounds. */
+@Composable
+private fun FadeSlot(visible: Boolean, content: @Composable () -> Unit) {
+    val alpha by androidx.compose.animation.core.animateFloatAsState(
+        if (visible) 1f else 0f,
+        if (visible) androidx.compose.animation.core.tween(220, delayMillis = 60) else androidx.compose.animation.core.tween(150),
+        label = "fadeSlot",
+    )
+    if (!visible && alpha == 0f) return
+    androidx.compose.foundation.layout.Box(
+        Modifier.graphicsLayer {
+            this.alpha = alpha
+            compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.ModulateAlpha
+        },
+    ) { content() }
 }

@@ -44,6 +44,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -96,8 +97,14 @@ fun SearchBar(
         current > 0 -> held
         else -> 0
     }
+    // Hidden until the keyboard says where it will end up, so the bar never flashes at the bottom first
+    // (shown anyway after a moment, e.g. with a hardware keyboard).
+    var placed by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) { kotlinx.coroutines.delay(450); placed = true }
+    if (target > 0) placed = true
     Box(
-        modifier.fillMaxWidth().padding(bottom = with(density) { lift.toDp() }),
+        modifier.fillMaxWidth().padding(bottom = with(density) { lift.toDp() })
+            .graphicsLayer { alpha = if (placed) 1f else 0f; compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.ModulateAlpha },
         contentAlignment = Alignment.Center,
     ) {
         Row(
@@ -151,7 +158,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .height(56.dp)
                 .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
                 .clip(CircleShape)
-                .background(if (c.isDark) Color(0xFF262A2C).copy(alpha = 0.96f) else Color.White.copy(alpha = 0.97f))
+                // 40% see-through, like Clock's bar.
+                .background(if (c.isDark) Color(0xFF262A2C).copy(alpha = 0.6f) else Color.White.copy(alpha = 0.6f))
                 .border(0.6.dp, pillEdge(c.isDark), CircleShape)
                 .padding(horizontal = 4.dp),
             contentAlignment = Alignment.CenterStart,

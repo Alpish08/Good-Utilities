@@ -115,7 +115,7 @@ fun PdfEditorScreen(onBack: () -> Unit) {
     val running = export is ExportState.Running
     val loaded = s.pages.isNotEmpty()
     ToolPage(
-        "PDF editor", onBack,
+        "PDF editor", onBack, expandable = loaded,
         actions = {
             if (loaded) {
                 ToolbarIcon(OneUiIcons.Share, "Share") { s.export(context, s.pages.toList(), "edited", share = true) }

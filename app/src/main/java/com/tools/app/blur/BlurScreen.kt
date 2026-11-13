@@ -113,7 +113,7 @@ fun BlurScreen(onBack: () -> Unit) {
         blurred = b; blurredImage = b?.asImageBitmap()
     }
 
-    ToolPage("Image blur", onBack, actions = { if (original != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage("Image blur", onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
         val src = original; val img = originalImage
         if (src == null || img == null) {
             EmptyState(Icons.Rounded.BlurOn, IconColors.Purple, "Blur a photo", "Blur the whole image, or paint over faces, plates and details to hide them.", "Choose image", choose)

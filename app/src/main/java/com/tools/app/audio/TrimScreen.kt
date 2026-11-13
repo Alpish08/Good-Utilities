@@ -95,7 +95,7 @@ fun TrimScreen(onBack: () -> Unit) {
         playhead = -1f
     }
 
-    ToolPage("Audio trimmer", onBack, actions = { if (clip != null && !running) ToolbarIcon(OneUiIcons.Music, "Choose audio", choose) }) {
+    ToolPage("Audio trimmer", onBack, expandable = clip != null, actions = { if (clip != null && !running) ToolbarIcon(OneUiIcons.Music, "Choose audio", choose) }) {
         val cl = clip
         if (cl == null) {
             EmptyState(
