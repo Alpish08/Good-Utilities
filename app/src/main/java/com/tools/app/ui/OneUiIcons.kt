@@ -143,26 +143,29 @@ object OneUiIcons {
     // Shapes after One UI 8.5's system icons: 1.8 strokes, generous corner radii, solid "on" variants.
     private fun PathBuilder.noteFlag() { moveTo(11.7f, 16.6f); lineTo(11.7f, 4.4f); curveTo(14.6f, 4.6f, 16.6f, 6.4f, 16.6f, 9.3f) }
 
+    /** Line weight of the tab bar's outline icons (was 1.62, ~5.3 px; 1.5 is a touch thinner). */
+    private const val TabStroke = 1.5f
+
     val TabMedia: ImageVector by lazy {
         icon("TabMedia") {
-            line(1.62f) { circle(8.6f, 16.9f, 3.1f) }
-            line(1.62f) { noteFlag() }
+            line(TabStroke) { circle(8.6f, 16.9f, 3.1f) }
+            line(TabStroke) { noteFlag() }
         }
     }
     val TabMediaOn: ImageVector by lazy {
         icon("TabMediaOn") {
             fill { circle(8.6f, 16.9f, 4.0f) }
-            line(1.62f) { noteFlag() }
+            line(TabStroke) { noteFlag() }
         }
     }
-    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.62f) { folderShape() } } }
+    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(TabStroke) { folderShape() } } }
     val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.62f) { folderShape() } } }
     // Picture, traced from One UI's gallery icon: frame, sun, two peaks.
     val TabImages: ImageVector by lazy {
         icon("TabImages") {
-            line(1.62f) { roundRect(3.74f, 3.74f, 20.26f, 20.26f, 2.99f) }
-            line(1.62f) { circle(8.58f, 8.72f, 1.89f) }
-            line(1.62f) { moveTo(3.81f, 16.59f); lineTo(9.06f, 13.62f); lineTo(11.82f, 15.42f); lineTo(16.23f, 11.82f); lineTo(20.01f, 15.24f) }
+            line(TabStroke) { roundRect(3.74f, 3.74f, 20.26f, 20.26f, 2.99f) }
+            line(TabStroke) { circle(8.58f, 8.72f, 1.89f) }
+            line(TabStroke) { moveTo(3.81f, 16.59f); lineTo(9.06f, 13.62f); lineTo(11.82f, 15.42f); lineTo(16.23f, 11.82f); lineTo(20.01f, 15.24f) }
         }
     }
     // The outline picture with its frame filled in: same outer edge, corners, sun and hills.
@@ -179,13 +182,13 @@ object OneUiIcons {
     }
     val TabDevice: ImageVector by lazy {
         icon("TabDevice") {
-            line(1.62f) { roundRect(6.6f, 3.4f, 17.4f, 20.6f, 3f) }
-            line(1.62f) { moveTo(10.8f, 17.5f); lineTo(13.2f, 17.5f) }
+            line(TabStroke) { roundRect(6.6f, 3.4f, 17.4f, 20.6f, 3f) }
+            line(TabStroke) { moveTo(10.8f, 17.5f); lineTo(13.2f, 17.5f) }
         }
     }
     val TabDeviceOn: ImageVector by lazy {
         icon("TabDeviceOn") {
-            fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(9.99f, 16.69f, 14.01f, 18.31f, 0.81f) }
+            fill(evenOdd = true) { roundRect(5.9f, 2.7f, 18.1f, 21.3f, 3.6f); roundRect(10.05f, 16.75f, 13.95f, 18.25f, 0.75f) }
         }
     }
     private fun PathBuilder.diamond(cx: Float, cy: Float, r: Float) {
@@ -194,10 +197,10 @@ object OneUiIcons {
     // Apps: three rounded squares and a diamond (One UI's "apps & more").
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.62f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
-            line(1.62f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
-            line(1.62f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
-            line(1.62f) { diamond(16.9f, 7.1f, 4.0f) }
+            line(TabStroke) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            line(TabStroke) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            line(TabStroke) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            line(TabStroke) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
     // Filled, each shape 0.4 smaller so the solid shapes keep clear gaps between them.
