@@ -8,7 +8,6 @@ import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
-import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_WEAK
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
 import androidx.biometric.BiometricPrompt
 import androidx.compose.ui.platform.ComposeView
@@ -39,6 +38,8 @@ class LockActivity : FragmentActivity() {
     private var retryOnFocus = false
     /** Opened from a locked shortcut: unlock first, then launch the app. */
     private var launchAfter = false
+    /** Going Home after a cancel: the cover stays a moment while Android animates the app away. */
+    private var leaving = false
     private var prompt: BiometricPrompt? = null
     private val fallback = Runnable { handOff() }
     private val ui = CustomLockState()
@@ -108,7 +109,7 @@ class LockActivity : FragmentActivity() {
         super.onWindowFocusChanged(hasFocus)
         if (hasFocus && retryOnFocus) { retryOnFocus = false; if (!hasPin || !ui.pinMode) prompt() }
         if (hasFocus && !handedOff) handOff()
-        else if (hasFocus) AppLockService.instance?.hideShield() // back on top after the app covered us
+        else if (hasFocus && !prompting && !unlocking && !leaving) AppLockService.instance?.hideShield() // back on top after the app covered us
     }
 
     /** Our card is really on top: drop the identical cover, then start unlocking. */
@@ -116,10 +117,10 @@ class LockActivity : FragmentActivity() {
         if (handedOff) return
         handedOff = true
         window.decorView.removeCallbacks(fallback)
-        // Focus means our identical card is on screen: swap instantly and ask for the sheet right away.
-        AppLockService.instance?.hideShield()
+        // Focus means our identical card is on screen. The fingerprint sheet keeps the cover over it;
+        // the PIN pad (in this window) needs it gone.
         ui.revealed = true
-        if (!hasPin || !ui.pinMode) prompt()
+        if (!hasPin || !ui.pinMode) prompt() else AppLockService.instance?.hideShield()
     }
 
     private fun load(intent: Intent) {
@@ -141,14 +142,48 @@ class LockActivity : FragmentActivity() {
 
     private fun prompt() {
         if (prompting || unlocking || target.isEmpty() || isFinishing) return
-        prompting = true
-        val info = BiometricPrompt.PromptInfo.Builder().setTitle("Unlock $label")
-        if (hasPin) {
-            // Fingerprint only; the sheet's button leads to the Tools PIN pad.
-            info.setAllowedAuthenticators(BIOMETRIC_STRONG).setNegativeButtonText("Use Tools PIN")
-        } else {
-            info.setAllowedAuthenticators(BIOMETRIC_WEAK or DEVICE_CREDENTIAL)
+        if (!fingerprintReady()) { // no fingerprint enrolled
+            if (hasPin) showPin("Enter your Tools PIN", error = false) else credentialPrompt()
+            return
         }
+        prompting = true
+        // Only Samsung's fingerprint icon shows: the cover stays over its card.
+        AppLockService.instance?.coverPrompt(target)
+        val info = BiometricPrompt.PromptInfo.Builder().setTitle("Unlock $label")
+            .setAllowedAuthenticators(BIOMETRIC_STRONG).setNegativeButtonText("Use PIN")
+        prompt = BiometricPrompt(this, mainExecutor, object : BiometricPrompt.AuthenticationCallback() {
+            override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                prompting = false
+                unlock()
+            }
+
+            override fun onAuthenticationFailed() {
+                AppLockService.instance?.promptFeedback("Fingerprint not recognised")
+            }
+
+            override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                prompting = false
+                // Samsung cancels a sheet requested while One UI is still animating the app open
+                // (we don't have focus yet). That isn't the user backing out: ask again on focus.
+                if (errorCode == BiometricPrompt.ERROR_CANCELED && !hasWindowFocus()) { retryOnFocus = true; return }
+                when (errorCode) {
+                    // "Use PIN": Tools' own pad, or the phone's PIN screen.
+                    BiometricPrompt.ERROR_NEGATIVE_BUTTON ->
+                        if (hasPin) showPin("Enter your Tools PIN", error = false) else credentialPrompt()
+                    BiometricPrompt.ERROR_LOCKOUT, BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
+                        if (hasPin) showPin("Too many attempts. Enter your Tools PIN", error = true) else credentialPrompt()
+                    else -> goHome() // Back / swipe away
+                }
+            }
+        }).also { it.authenticate(info.build()) }
+    }
+
+    /** No Tools PIN: Samsung's own PIN screen for your phone PIN (the cover must not hide it). */
+    private fun credentialPrompt() {
+        if (prompting || unlocking || isFinishing) return
+        prompting = true
+        AppLockService.instance?.hideShield()
+        val info = BiometricPrompt.PromptInfo.Builder().setTitle("Unlock $label").setAllowedAuthenticators(DEVICE_CREDENTIAL)
         prompt = BiometricPrompt(this, mainExecutor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 prompting = false
@@ -157,16 +192,7 @@ class LockActivity : FragmentActivity() {
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                 prompting = false
-                // Samsung cancels a sheet requested while One UI is still animating the app open
-                // (we don't have focus yet). That isn't the user backing out: ask again on focus.
-                if (errorCode == BiometricPrompt.ERROR_CANCELED && !hasWindowFocus()) { retryOnFocus = true; return }
-                if (!hasPin) { goHome(); return }
-                when (errorCode) {
-                    BiometricPrompt.ERROR_NEGATIVE_BUTTON -> showPin("Enter your Tools PIN", error = false)
-                    BiometricPrompt.ERROR_LOCKOUT, BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
-                        showPin("Too many attempts. Enter your Tools PIN", error = true)
-                    else -> goHome() // Back / swipe away
-                }
+                goHome()
             }
         }).also { it.authenticate(info.build()) }
     }
@@ -237,6 +263,7 @@ class LockActivity : FragmentActivity() {
             return
         }
         prompt?.cancelAuthentication()
+        leaving = true
         AppLock.gating = null
         AppLock.onCancelled(target)
         AppLockService.instance?.coverWhileGoingHome(target)
@@ -260,6 +287,8 @@ class LockActivity : FragmentActivity() {
     }
 
     override fun onDestroy() {
+        // Closed any other way while the sheet was up: don't leave the cover behind.
+        if (!unlocking && !leaving) AppLockService.instance?.hideShield(fade = true)
         if (AppLock.gating == target && !unlocking) AppLock.gating = null
         super.onDestroy()
     }

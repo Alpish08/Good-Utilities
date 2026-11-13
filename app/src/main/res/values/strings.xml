@@ -5,7 +5,7 @@
     <string name="video_downloader">Video downloader</string>
     <string name="document_reader">Good Reader</string>
     <string name="app_lock_service">Good Utilities app lock</string>
-    <string name="app_lock_description">Shows a fingerprint, face or PIN check when you open an app you locked in Good Utilities. It only receives the name of the app that comes to the foreground and never reads what is on screen. Nothing leaves your phone.</string>
+    <string name="app_lock_description">Shows a fingerprint, face or PIN check when you open an app you locked in Good Utilities. It only receives the name of the app that comes to the foreground and the name of a Home screen icon you tap, and never reads what is on screen. Nothing leaves your phone.</string>
     <string name="bypass_on">Bypass charging on</string>
     <string name="bypass_off">Bypass charging off</string>
     <string name="bypass_toggle">Toggle bypass charging</string>

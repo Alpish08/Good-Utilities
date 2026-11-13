@@ -93,7 +93,7 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
                 AppLock.setEnabled(on)
             })
         }
-        description("Locked apps ask for your fingerprint, face or PIN when you open them. Good Utilities only sees which app is on screen, never what's in it, and nothing leaves your phone.")
+        description("Locked apps ask for your fingerprint, face or PIN when you open them. Good Utilities only sees which app is on screen and which Home screen icon you tap, never what's in an app, and nothing leaves your phone.")
 
         if (config.enabled && !serviceOn) card("setup") {
             val blocked = AppLock.isToggleOnInSettings(context)

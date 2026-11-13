@@ -99,6 +99,15 @@ object AppLock {
         return expired
     }
 
+    /** Whether opening [pkg] now would ask to unlock, without starting or ending any session. */
+    @Synchronized fun wouldLock(pkg: String): Boolean {
+        val c = _config.value
+        if (!c.enabled || pkg !in c.locked) return false
+        val leftAt = sessions[pkg] ?: return true
+        if (leftAt == 0L) return false
+        return c.relock != Relock.ScreenOff && SystemClock.elapsedRealtime() - leftAt >= c.relock.millis
+    }
+
     /** The user moved to [current]; start relock timers for every other unlocked app. */
     @Synchronized fun onForeground(current: String) {
         val now = SystemClock.elapsedRealtime()

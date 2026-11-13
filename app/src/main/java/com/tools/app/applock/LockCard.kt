@@ -19,14 +19,54 @@ import com.tools.app.R
 
 /**
  * The lock card shown behind Samsung's biometric sheet: an opaque, very dark gradient tinted with
- * the app's icon colour, with the icon, name and "Locked" in the upper third (clear of the sheet).
+ * the app's icon colour (from the top), with the icon, name and "Locked" in the upper third (clear of the sheet).
  * The instant cover and LockActivity build the same card, so the hand-off between them is invisible.
  */
 object LockCard {
     const val FADE_IN_MS = 150L
-    const val FADE_OUT_MS = 300L
+    /** Fade-in when the cover starts at the tap on a Home screen icon (over the launcher's opening animation). */
+    const val TAP_FADE_IN_MS = 220L
+    const val FADE_OUT_MS = 170L
 
     private val tints = HashMap<String, Int>()
+
+    /**
+     * Centre of Samsung's sheet button ("Use PIN") above the screen's bottom edge. Its card is
+     * anchored to the bottom, so the button stays put whatever the title; measured on One UI 8.5.
+     */
+    private const val SHEET_BUTTON_DP = 303f
+
+    /**
+     * While the cover hides Samsung's sheet: "Use PIN" drawn right over Samsung's own (now hidden)
+     * button, so a tap there still reaches it, plus a line for "not recognised". Returns that line.
+     */
+    fun addPromptHints(root: FrameLayout): TextView {
+        val context = root.context
+        val dp = context.resources.displayMetrics.density
+        val sec = Typeface.create("sec", Typeface.NORMAL)
+        val button = TextView(context).apply {
+            text = "Use PIN"
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            typeface = Typeface.create(sec, 600, false)
+            gravity = Gravity.CENTER
+        }
+        root.addView(button, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, (26 * dp).toInt()).apply {
+            gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            bottomMargin = ((SHEET_BUTTON_DP - 13) * dp).toInt()
+        })
+        val status = TextView(context).apply {
+            setTextColor(Color.argb(170, 255, 255, 255))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
+            typeface = Typeface.create(sec, 500, false)
+            gravity = Gravity.CENTER
+        }
+        root.addView(status, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+            gravity = Gravity.BOTTOM
+            bottomMargin = ((SHEET_BUTTON_DP + 40) * dp).toInt()
+        })
+        return status
+    }
 
     /** Dark tint derived from the app icon (cached; ~1 ms the first time). */
     private fun tint(context: Context, pkg: String): Int = tints.getOrPut(pkg) {
@@ -77,7 +117,7 @@ object LockCard {
         val tint = tint(context, pkg)
         return FrameLayout(context).apply {
             background = GradientDrawable(
-                GradientDrawable.Orientation.BOTTOM_TOP, // colour at the bottom, black at the top
+                GradientDrawable.Orientation.TOP_BOTTOM, // colour at the top, black at the bottom
                 intArrayOf(tint, ColorUtils.blendARGB(tint, Color.BLACK, 0.55f), Color.BLACK),
             )
             addView(column, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
