@@ -254,7 +254,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                                 fontFamily = com.tools.app.ui.theme.SamsungFont,
                                 fontSize = 10.sp,
                                 letterSpacing = 0.sp,
-                                fontWeight = if (on) FontWeight.Bold else FontWeight.SemiBold,
+                                fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium,
                                 maxLines = 1,
                                 // Baseline 43 dp below the pill's top, as in Phone / Modes and Routines.
                                 modifier = Modifier.paddingFrom(androidx.compose.ui.layout.FirstBaseline, before = 43.dp),
