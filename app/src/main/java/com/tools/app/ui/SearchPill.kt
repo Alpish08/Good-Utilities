@@ -35,6 +35,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.material3.MaterialTheme
 import com.tools.app.ui.theme.OneUiEasing
 import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.Modifier
@@ -152,14 +155,26 @@ class PillTab(val label: String, val icon: androidx.compose.ui.graphics.vector.I
 fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
     val c = OneUi.colors
     val slot = 56.dp
-    val x by androidx.compose.animation.core.animateDpAsState(slot * selected, tween(320, easing = OneUiEasing), label = "tab")
-    // Measured from Clock's bar (dark mode, over black): neutral grey pill #212121 at the ends brightening to #272727
-    // in the middle; a 60 x 46 dp capsule #3B3B3B -> #3F3F3F; icons #E9E9EC, selected #FCFCFF. No outline.
-    // Trying the app's own menu colours: the pill is a menu card, the selected capsule is a pressed menu row.
-    val pillBase = c.card
-    val pressed = if (c.isDark) Color(0x1FFFFFFF) else Color(0x14000000)
+    // Colours halfway between Clock's bar and the app's menu cards. The capsule is lit from its centre (a soft glow).
+    val pillBase = if (c.isDark) Color(0xFF202022).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
+    val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
+    val restCentre = if (c.isDark) 0.15f else 0.045f
+    val restEdge = if (c.isDark) 0.105f else 0.03f
+    val pressCentre = if (c.isDark) 0.42f else 0.13f
+    val pressEdge = if (c.isDark) 0.31f else 0.09f
+    val tintBase = if (c.isDark) Color.White else Color.Black
     val iconOn = if (c.isDark) Color(0xFFFCFCFF) else Color(0xFF111114)
     val iconOff = if (c.isDark) Color(0xFFE9E9EC) else Color(0xFF3A3A3E)
+
+    // Clock's press, measured frame by frame: the capsule jumps to the touched tab at once (no slide), brightens
+    // strongly and presses in ~4% over 0.2 s while held, then eases back to rest over ~0.35 s on release. A quick tap
+    // flashes bright (peak ~85 ms) and fades.
+    var pressedTab by remember { mutableStateOf<Int?>(null) }
+    val glow = remember { androidx.compose.animation.core.Animatable(0f) }
+    val scale = remember { androidx.compose.animation.core.Animatable(1f) }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val shown = pressedTab ?: selected
+
     Box(modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Box(
             Modifier
@@ -168,24 +183,52 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .clip(CircleShape)
                 // A very faint hairline, as some One UI apps have (Clock doesn't).
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
-                .drawBehind { drawRect(pillBase) },
+                .drawBehind {
+                    drawRect(pillBase)
+                    drawRect(androidx.compose.ui.graphics.Brush.radialGradient(listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f))
+                },
             contentAlignment = Alignment.CenterStart,
         ) {
-            // The selected capsule, centred on its slot (2 dp wider than the slot on each side), lit softly from the middle.
+            // The selected (or pressed) capsule, centred on its slot, 2 dp wider than the slot on each side.
             Box(
                 Modifier
-                    .offset(x = 6.dp + x)
+                    .offset(x = 6.dp + slot * shown)
                     .size(width = 60.dp, height = 46.dp)
+                    .graphicsLayer { scaleX = scale.value; scaleY = scale.value }
                     .clip(CircleShape)
-                    .drawBehind { drawRect(pressed) },
+                    .drawBehind {
+                        val g = glow.value
+                        val centreA = restCentre + (pressCentre - restCentre) * g
+                        val edgeA = restEdge + (pressEdge - restEdge) * g
+                        drawRect(
+                            androidx.compose.ui.graphics.Brush.radialGradient(
+                                listOf(tintBase.copy(alpha = centreA), tintBase.copy(alpha = edgeA)), center = center, radius = size.width * 0.55f,
+                            ),
+                        )
+                    },
             )
             Row(Modifier.padding(horizontal = 8.dp)) {
                 tabs.forEachIndexed { i, tab ->
-                    val on = i == selected
+                    val on = i == shown
                     Box(
                         Modifier
                             .size(width = slot, height = 56.dp)
-                            .clickable(interactionSource = null, indication = null) { onSelect(i) }
+                            .pointerInput(i) {
+                                detectTapGestures(onPress = {
+                                    pressedTab = i
+                                    scope.launch { glow.animateTo(1f, tween(200, easing = OneUiEasing)) }
+                                    scope.launch { scale.animateTo(0.96f, tween(200, easing = OneUiEasing)) }
+                                    val released = tryAwaitRelease()
+                                    if (released) onSelect(i)
+                                    pressedTab = null
+                                    scope.launch {
+                                        // A quick tap still flashes before fading, like Clock's.
+                                        if (glow.value < 0.9f) glow.animateTo(1f, tween(85))
+                                        glow.animateTo(0f, tween(380, easing = OneUiEasing))
+                                    }
+                                    scope.launch { scale.animateTo(1f, tween(350, easing = OneUiEasing)) }
+                                })
+                            }
                             .semantics { contentDescription = tab.label },
                         contentAlignment = Alignment.Center,
                     ) {
