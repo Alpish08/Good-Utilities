@@ -123,12 +123,43 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         ),
     )
 
+    // One UI 8.5 floating search pill: type (or say) part of a tool's name or what it does.
+    var query by remember { mutableStateOf("") }
+    var searchFocused by remember { mutableStateOf(false) }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    androidx.activity.compose.BackHandler(enabled = query.isNotEmpty() || searchFocused) {
+        query = ""; focusManager.clearFocus()
+    }
+    val q = query.trim()
+    val matches = if (q.isEmpty()) emptyList() else groups.flatMap { it.second }.filter {
+        it.title.contains(q, ignoreCase = true) || it.summary.contains(q, ignoreCase = true)
+    }
+    // Searching scrolls back to the results (they replace the whole list).
+    LaunchedEffect(q.isEmpty()) { if (q.isNotEmpty() && state.list.firstVisibleItemIndex > 1) state.list.scrollToItem(1) }
+
     OneUiScaffold(
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
-        actions = { OverflowMenu(listOf("About" to { open(Route.About) })) },
+        actions = {
+            OverflowMenu(listOf(
+                (if (com.tools.app.ui.theme.Glow.enabled) "Turn off glow" else "Turn on glow") to {
+                    com.tools.app.ui.theme.Glow.set(context, !com.tools.app.ui.theme.Glow.enabled)
+                },
+                "About" to { open(Route.About) },
+            ))
+        },
+        bottomBar = {
+            com.tools.app.ui.SearchPill(query, { query = it }, "Search tools", onFocusChange = { searchFocused = it })
+        },
     ) {
+        if (q.isNotEmpty()) {
+            sectionLabel(if (matches.isEmpty()) "No tools found" else "Results", key = "search-label")
+            if (matches.isNotEmpty()) cardList(matches, key = { "found-" + it.route.name }, dividerStart = IconRowDivider) { t ->
+                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { focusManager.clearFocus(); open(t.route) })
+            }
+            return@OneUiScaffold
+        }
         if (!access) {
             card(key = "storage-access") {
                 ListRow(

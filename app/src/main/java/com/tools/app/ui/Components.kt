@@ -100,6 +100,7 @@ import androidx.compose.ui.unit.sp
 import com.tools.app.ui.theme.OneUi
 import androidx.compose.runtime.SideEffect
 import com.tools.app.ui.theme.OneUiEasing
+import com.tools.app.ui.theme.pageBackground
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -107,6 +108,20 @@ import kotlinx.coroutines.flow.filter
 import kotlin.math.roundToInt
 
 private val ToolbarHeight = 64.dp
+
+/**
+ * One UI 8.5: once the list scrolls under the pinned toolbar buttons, each gets a round chip behind it.
+ * 0 = no chip (nothing underneath), 1 = full chip. Read lazily so scrolling doesn't recompose.
+ */
+private val LocalToolbarChip = androidx.compose.runtime.compositionLocalOf<() -> Float> { { 0f } }
+
+/** The round chip behind a toolbar button, shown while content scrolls under it. */
+private fun Modifier.toolbarChip(chip: () -> Float, color: Color, radius: Dp): Modifier = drawBehind {
+    val a = chip()
+    if (a > 0f) drawCircle(color, radius = radius.toPx(), alpha = a)
+}
+
+private fun chipColor(dark: Boolean) = if (dark) Color(0xFF2C2C30) else Color(0xFFE6E6EB)
 val CardMargin = 10.dp
 private val RowPadding = 18.dp
 /** Gap between card groups (each card contributes half). */
@@ -141,11 +156,10 @@ fun OneUiScaffold(
     // (pull down at the top to expand it, like Samsung apps, for one-handed use).
     val expanded = true
 
-    BoxWithConstraints(Modifier.fillMaxSize().background(c.background)) {
+    BoxWithConstraints(Modifier.fillMaxSize().pageBackground()) {
         val headerHeight = (maxHeight * 0.36f).coerceAtLeast(190.dp)
         val rangePx = with(density) { (headerHeight - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
-        val toolbarBottomPx = with(density) { (statusTop + ToolbarHeight).toPx() }
         val fadePx = with(density) { 28.dp.toPx() }
         if (!expandedTitle) remember(listState) {
             if (listState.firstVisibleItemIndex == 0 && listState.firstVisibleItemScrollOffset == 0)
@@ -162,11 +176,27 @@ fun OneUiScaffold(
                 }
             }
         }
+        // One UI 8.5: after the big title has folded away, the small title keeps scrolling up with the list
+        // (instead of pinning) and the buttons stay, each on a round chip. How far past that point we are:
+        val pastPx by remember(rangePx) {
+            derivedStateOf {
+                if (listState.firstVisibleItemIndex > 0) Float.MAX_VALUE
+                else (listState.firstVisibleItemScrollOffset - rangePx).coerceAtLeast(0f)
+            }
+        }
+        val chipFadePx = with(density) { 24.dp.toPx() }
+        val chip = { (pastPx / chipFadePx).coerceIn(0f, 1f) }
         // Snap the header fully open or fully collapsed, but never fight the user at the end of a short list.
         if (expanded) LaunchedEffect(listState, rangePx) {
-            snapshotFlow { listState.isScrollInProgress }.filter { !it }.collect {
+            // Also when the list changes under a still header (e.g. search results replacing a long list).
+            snapshotFlow {
                 val off = listState.firstVisibleItemScrollOffset
-                if (listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx && listState.canScrollForward) {
+                !listState.isScrollInProgress && listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx
+            }.collect { mid ->
+                if (!mid) return@collect
+                kotlinx.coroutines.delay(120) // let the list and its bottom filler settle first
+                val off = listState.firstVisibleItemScrollOffset
+                if (!listState.isScrollInProgress && listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx && listState.canScrollForward) {
                     listState.animateScrollToItem(0, if (off > rangePx / 2) rangePx.roundToInt() else 0)
                 }
             }
@@ -215,8 +245,9 @@ fun OneUiScaffold(
                     drawRect(
                         Brush.verticalGradient(
                             0f to Color.Transparent,
-                            f(toolbarBottomPx) to solid.copy(alpha = 1f - topFade),
-                            f(toolbarBottomPx + fadePx) to solid,
+                            // The list runs right up under the status bar now, fading out just below it.
+                            f(statusTopPx) to solid.copy(alpha = 1f - topFade),
+                            f(statusTopPx + fadePx * 1.6f) to solid,
                             f(h - bottomCutPx - fadePx * 1.4f) to solid,
                             f(h - bottomCutPx) to solid.copy(alpha = 1f - bottomFade),
                             1f to solid.copy(alpha = if (bottomBar != null) 0f else 1f - bottomFade),
@@ -237,18 +268,30 @@ fun OneUiScaffold(
 
         // Like Samsung apps: while the title is expanded, the back / action buttons sit at the bottom of the
         // header, just above the first card, and ride up with the list until they pin to the top.
-        Toolbar(
-            title = if (expanded) "" else title, onBack = onBack, actions = actions,
-            modifier = if (expanded) Modifier.graphicsLayer { translationY = rangePx - headerScroll } else Modifier,
-        )
+        androidx.compose.runtime.CompositionLocalProvider(LocalToolbarChip provides chip) {
+            Toolbar(
+                title = if (expanded) "" else title, onBack = onBack, actions = actions,
+                modifier = if (expanded) Modifier.graphicsLayer { translationY = rangePx - headerScroll } else Modifier,
+            )
+        }
 
+        val widthPx = constraints.maxWidth.toFloat()
         val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
-        ExpandingTitle(
-            title, subtitle, hasBack = onBack != null, widthPx = constraints.maxWidth.toFloat(),
-            t = { headerScroll / rangePx },
-            // Expanded: centred in the space above the buttons. Collapsed: on the toolbar's centre line.
-            centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx) },
-        )
+        // The collapsed title scrolls away with the list, fading before it reaches the status bar.
+        Box(
+            Modifier.fillMaxSize().graphicsLayer {
+                val p = pastPx.coerceAtMost(toolbarHalfPx * 4f)
+                translationY = -p
+                alpha = (1f - p / toolbarHalfPx).coerceIn(0f, 1f)
+            },
+        ) {
+            ExpandingTitle(
+                title, subtitle, hasBack = onBack != null, widthPx = widthPx,
+                t = { headerScroll / rangePx },
+                // Expanded: centred in the space above the buttons. Collapsed: on the toolbar's centre line.
+                centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx) },
+            )
+        }
 
         if (bottomBar != null) BottomBarHost(Modifier.align(Alignment.BottomCenter).onSizeChanged { bottomBarPx = it.height }, bottomBar)
     }
@@ -269,7 +312,7 @@ fun ToolPage(
     val c = OneUi.colors
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    BoxWithConstraints(Modifier.fillMaxSize().background(c.background)) {
+    BoxWithConstraints(Modifier.fillMaxSize().pageBackground()) {
         val rangePx = with(density) { ((maxHeight * 0.36f).coerceAtLeast(190.dp) - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
         val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
@@ -413,7 +456,11 @@ private fun Toolbar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBack != null) {
-            Box(Modifier.size(52.dp).clip(CircleShape).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
+            Box(
+                Modifier.size(52.dp).toolbarChip(LocalToolbarChip.current, chipColor(c.isDark), 23.dp)
+                    .clip(CircleShape).clickable(onClick = onBack),
+                contentAlignment = Alignment.Center,
+            ) {
                 Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
             }
         } else Spacer(Modifier.width(20.dp))
@@ -697,7 +744,11 @@ fun Chip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
 
 @Composable
 fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
-    Box(Modifier.size(48.dp).clip(CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+    Box(
+        Modifier.size(48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
+            .clip(CircleShape).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
         Icon(icon, description, tint = OneUi.colors.text, modifier = Modifier.size(24.dp))
     }
 }

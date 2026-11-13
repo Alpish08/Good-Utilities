@@ -105,6 +105,8 @@ object OneUi {
 @Composable
 fun OneUiTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
+    val ctx = androidx.compose.ui.platform.LocalContext.current
+    androidx.compose.runtime.remember { Glow.load(ctx) }
     val c = if (dark) Dark else Light
     val scheme = if (dark) darkColorScheme(primary = c.accent, background = c.background, surface = c.card, onSurface = c.text)
     else lightColorScheme(primary = c.accent, background = c.background, surface = c.card, onSurface = c.text)
