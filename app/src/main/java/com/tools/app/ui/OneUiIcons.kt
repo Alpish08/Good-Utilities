@@ -48,18 +48,16 @@ object OneUiIcons {
     /** Settings: One UI's quick-panel gear, solid with six soft teeth and a round hole. */
     val Settings: ImageVector by lazy {
         icon("Settings") {
-            // Drawn with a thin round-joined outline (solid) so the tooth corners come out rounded.
             solid(width = 1.2f, evenOdd = true) {
-                val teeth = 6
-                val outer = 9.0f; val root = 7.1f
+                val teeth = 8
+                val outer = 9.6f; val root = 7.9f
                 val step = 2 * PI / teeth
                 for (i in 0 until teeth) {
                     val a = i * step - PI / 2
-                    // valley → rise → flat top → fall (the tooth is wider at its base)
                     val pts = listOf(
-                        root to a - step * 0.5, root to a - step * 0.30,
-                        outer to a - step * 0.19, outer to a + step * 0.19,
-                        root to a + step * 0.30,
+                        root to a - step * 0.5, root to a - step * 0.28,
+                        outer to a - step * 0.17, outer to a + step * 0.17,
+                        root to a + step * 0.28,
                     )
                     pts.forEachIndexed { j, (r, ang) ->
                         val x = (12 + r * cos(ang)).toFloat(); val y = (12 + r * sin(ang)).toFloat()
@@ -67,7 +65,7 @@ object OneUiIcons {
                     }
                 }
                 close()
-                circle(12f, 12f, 4.3f)
+                circle(12f, 12f, 3.6f)
             }
         }
     }
@@ -75,60 +73,40 @@ object OneUiIcons {
     /** Copy: two overlapping rounded sheets. */
     val Copy: ImageVector by lazy {
         icon("Copy") {
-            line {
-                moveTo(10.5f, 8f); horizontalLineTo(17f); arcTo(2.5f, 2.5f, 0f, false, true, 19.5f, 10.5f)
-                verticalLineTo(18f); arcTo(2.5f, 2.5f, 0f, false, true, 17f, 20.5f); horizontalLineTo(10.5f)
-                arcTo(2.5f, 2.5f, 0f, false, true, 8f, 18f); verticalLineTo(10.5f); arcTo(2.5f, 2.5f, 0f, false, true, 10.5f, 8f); close()
-            }
-            line {
-                // The back sheet: only its top and left edges show, tucked behind the front one.
-                moveTo(15.5f, 8f); verticalLineTo(6f); arcTo(2.5f, 2.5f, 0f, false, false, 13f, 3.5f); horizontalLineTo(6.5f)
-                arcTo(2.5f, 2.5f, 0f, false, false, 4f, 6f); verticalLineTo(13f); arcTo(2.5f, 2.5f, 0f, false, false, 6.5f, 15.5f); horizontalLineTo(8f)
-            }
+            line(1.8f) { roundRect(8.5f, 8.5f, 19.5f, 19.5f, 3f) }
+            line(1.8f) { moveTo(15.5f, 8.5f); verticalLineTo(7f); arcTo(3f, 3f, 0f, false, false, 12.5f, 4f); horizontalLineTo(7f); arcTo(3f, 3f, 0f, false, false, 4f, 7f); verticalLineTo(12.5f); arcTo(3f, 3f, 0f, false, false, 7f, 15.5f); horizontalLineTo(8.5f) }
         }
     }
 
     /** Gallery / photo: rounded frame, hills and a sun. */
-    val Gallery: ImageVector by lazy {
-        icon("Gallery") {
-            line {
-                moveTo(7f, 3.5f); lineTo(17f, 3.5f)
-                arcTo(3.5f, 3.5f, 0f, false, true, 20.5f, 7f); lineTo(20.5f, 17f)
-                arcTo(3.5f, 3.5f, 0f, false, true, 17f, 20.5f); lineTo(7f, 20.5f)
-                arcTo(3.5f, 3.5f, 0f, false, true, 3.5f, 17f); lineTo(3.5f, 7f)
-                arcTo(3.5f, 3.5f, 0f, false, true, 7f, 3.5f); close()
-            }
-            line { moveTo(4f, 17.2f); lineTo(9f, 12.2f); lineTo(13.2f, 16.4f); lineTo(15.4f, 14.2f); lineTo(20f, 18.8f) }
-            line { circle(15.6f, 8.6f, 1.7f) }
-        }
-    }
+    /** Same picture as the Images tab. */
+    val Gallery: ImageVector get() = TabImages
 
     /** "More options": three vertical dots. */
     val More: ImageVector by lazy {
         icon("More") {
-            fill { circle(12f, 5.2f, 1.75f) }
-            fill { circle(12f, 12f, 1.75f) }
-            fill { circle(12f, 18.8f, 1.75f) }
+            fill { circle(12f, 5f, 1.9f) }
+            fill { circle(12f, 12f, 1.9f) }
+            fill { circle(12f, 19f, 1.9f) }
         }
     }
 
     /** Opens in a browser: box with an arrow leaving its corner. */
     val OpenExternal: ImageVector by lazy {
         icon("OpenExternal") {
-            line { moveTo(19.5f, 13.5f); lineTo(19.5f, 17f); arcTo(3f, 3f, 0f, false, true, 16.5f, 20f); lineTo(7f, 20f)
-                arcTo(3f, 3f, 0f, false, true, 4f, 17f); lineTo(4f, 7.5f); arcTo(3f, 3f, 0f, false, true, 7f, 4.5f); lineTo(10.5f, 4.5f) }
-            line { moveTo(14f, 4f); lineTo(20f, 4f); lineTo(20f, 10f) }
-            line { moveTo(19.6f, 4.4f); lineTo(11.5f, 12.5f) }
+            line(1.8f) { moveTo(19.5f, 13.5f); lineTo(19.5f, 17f); arcTo(3f, 3f, 0f, false, true, 16.5f, 20f); lineTo(7f, 20f); arcTo(3f, 3f, 0f, false, true, 4f, 17f); lineTo(4f, 7.5f); arcTo(3f, 3f, 0f, false, true, 7f, 4.5f); lineTo(10.5f, 4.5f) }
+            line(1.8f) { moveTo(14f, 4f); lineTo(20f, 4f); lineTo(20f, 10f) }
+            line(1.8f) { moveTo(19.6f, 4.4f); lineTo(11.5f, 12.5f) }
         }
     }
 
     /** Music file: a beamed note. */
     val Music: ImageVector by lazy {
         icon("Music") {
-            line { moveTo(9f, 17.5f); lineTo(9f, 5.8f); lineTo(19f, 3.8f); lineTo(19f, 15.5f) }
-            line { moveTo(9f, 9.3f); lineTo(19f, 7.3f) }
-            line { circle(6.6f, 17.5f, 2.4f) }
-            line { circle(16.6f, 15.5f, 2.4f) }
+            line(1.8f) { moveTo(9f, 17.5f); lineTo(9f, 5.8f); lineTo(19f, 3.8f); lineTo(19f, 15.5f) }
+            line(1.8f) { moveTo(9f, 9.3f); lineTo(19f, 7.3f) }
+            line(1.8f) { circle(6.6f, 17.5f, 2.4f) }
+            line(1.8f) { circle(16.6f, 15.5f, 2.4f) }
         }
     }
 
@@ -136,8 +114,8 @@ object OneUiIcons {
 
     val Search: ImageVector by lazy {
         icon("Search") {
-            line(1.6f) { moveTo(3.9f, 10.5f); arcTo(6.6f, 6.6f, 0f, true, true, 17.1f, 10.5f); arcTo(6.6f, 6.6f, 0f, true, true, 3.9f, 10.5f); close() }
-            line(1.6f) { moveTo(15.4f, 15.4f); lineTo(20f, 20f) }
+            line(1.8f) { circle(10.5f, 10.5f, 6.5f) }
+            line(1.8f) { moveTo(15.4f, 15.4f); lineTo(20f, 20f) }
         }
     }
 
@@ -151,186 +129,194 @@ object OneUiIcons {
     }
 
     private fun PathBuilder.folderShape() {
-        moveTo(3.4f, 7.2f); arcTo(2.2f, 2.2f, 0f, false, true, 5.6f, 5f); lineTo(9.4f, 5f)
-        arcTo(1.4f, 1.4f, 0f, false, true, 10.4f, 5.4f); lineTo(12f, 7.2f); lineTo(18.4f, 7.2f)
-        arcTo(2.2f, 2.2f, 0f, false, true, 20.6f, 9.4f); lineTo(20.6f, 16.8f)
-        arcTo(2.2f, 2.2f, 0f, false, true, 18.4f, 19f); lineTo(5.6f, 19f)
-        arcTo(2.2f, 2.2f, 0f, false, true, 3.4f, 16.8f); close()
+        moveTo(3.2f, 7.4f); arcTo(2.6f, 2.6f, 0f, false, true, 5.8f, 4.8f); lineTo(9.1f, 4.8f)
+        arcTo(1.8f, 1.8f, 0f, false, true, 10.4f, 5.4f); lineTo(12.1f, 7.2f); lineTo(18.2f, 7.2f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 20.8f, 9.8f); lineTo(20.8f, 16.6f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 18.2f, 19.2f); lineTo(5.8f, 19.2f)
+        arcTo(2.6f, 2.6f, 0f, false, true, 3.2f, 16.6f); close()
     }
+
+    // Shapes after One UI 8.5's system icons: 1.8 strokes, generous corner radii, solid "on" variants.
+    private fun PathBuilder.noteFlag() { moveTo(11.7f, 16.6f); lineTo(11.7f, 4.4f); curveTo(14.6f, 4.6f, 16.6f, 6.4f, 16.6f, 9.3f) }
 
     val TabMedia: ImageVector by lazy {
         icon("TabMedia") {
-            line(1.6f) { circle(9.2f, 16.6f, 2.9f) }
-            line(1.6f) { moveTo(12.1f, 16.6f); lineTo(12.1f, 4.2f); curveTo(13.2f, 6.6f, 17.2f, 6.9f, 17.6f, 9.6f) }
+            line(1.8f) { circle(8.6f, 16.9f, 3.1f) }
+            line(1.8f) { noteFlag() }
         }
     }
     val TabMediaOn: ImageVector by lazy {
         icon("TabMediaOn") {
-            fill { circle(9.2f, 16.6f, 3.3f) }
-            line(1.8f) { moveTo(12.1f, 16.6f); lineTo(12.1f, 4.2f); curveTo(13.2f, 6.6f, 17.2f, 6.9f, 17.6f, 9.6f) }
+            fill { circle(8.6f, 16.9f, 4.0f) }
+            line(1.8f) { noteFlag() }
         }
     }
-    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.6f) { folderShape() } } }
-    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.2f) { folderShape() } } }
+    val TabFiles: ImageVector by lazy { icon("TabFiles") { line(1.8f) { folderShape() } } }
+    val TabFilesOn: ImageVector by lazy { icon("TabFilesOn") { solid(1.8f) { folderShape() } } }
     val TabImages: ImageVector by lazy {
         icon("TabImages") {
-            line(1.6f) { roundRect(3.6f, 4.6f, 20.4f, 19.4f, 3f) }
-            line(1.6f) { circle(9f, 9.6f, 1.5f) }
-            line(1.6f) { moveTo(4.2f, 17.4f); lineTo(9.4f, 12.6f); lineTo(13f, 15.8f); lineTo(15.6f, 13.6f); lineTo(19.8f, 17.4f) }
+            line(1.8f) { roundRect(3.6f, 3.6f, 20.4f, 20.4f, 4.2f) }
+            line(1.8f) { circle(8.7f, 8.9f, 1.6f) }
+            line(1.8f) { moveTo(3.9f, 17.2f); lineTo(8.4f, 12.9f); lineTo(12.1f, 15.9f); lineTo(15.6f, 12.3f); lineTo(20.1f, 16.3f) }
         }
     }
     val TabImagesOn: ImageVector by lazy {
         icon("TabImagesOn") {
             fill(evenOdd = true) {
-                roundRect(3f, 4f, 21f, 20f, 3.4f)
-                circle(9f, 9.6f, 1.7f)
-                moveTo(5.6f, 17.6f); lineTo(9.4f, 13.8f); lineTo(12.9f, 16.8f); lineTo(15.6f, 14.6f); lineTo(18.6f, 17.6f); close()
+                roundRect(2.7f, 2.7f, 21.3f, 21.3f, 5f)
+                circle(8.7f, 8.9f, 1.7f)
+                moveTo(5.4f, 18.6f); lineTo(5.4f, 17.4f); lineTo(8.4f, 14.6f); lineTo(12.1f, 17.6f); lineTo(15.6f, 14f); lineTo(18.6f, 16.8f); lineTo(18.6f, 18.6f); close()
             }
         }
     }
     val TabDevice: ImageVector by lazy {
         icon("TabDevice") {
-            line(1.6f) { roundRect(6.4f, 2.8f, 17.6f, 21.2f, 2.8f) }
-            line(1.6f) { moveTo(10.6f, 18.2f); lineTo(13.4f, 18.2f) }
+            line(1.8f) { roundRect(6.1f, 2.6f, 17.9f, 21.4f, 3.2f) }
+            line(1.8f) { moveTo(10.7f, 18.1f); lineTo(13.3f, 18.1f) }
         }
     }
     val TabDeviceOn: ImageVector by lazy {
         icon("TabDeviceOn") {
-            fill(evenOdd = true) { roundRect(5.8f, 2.2f, 18.2f, 21.8f, 3.2f); roundRect(10.2f, 17.4f, 13.8f, 19f, 0.8f) }
+            fill(evenOdd = true) { roundRect(5.2f, 1.7f, 18.8f, 22.3f, 4f); roundRect(9.9f, 17.2f, 14.1f, 19f, 0.9f) }
         }
+    }
+    // Apps: three rounded squares and a diamond (One UI's "apps & more").
+    private fun PathBuilder.diamond(cx: Float, cy: Float, r: Float) {
+        moveTo(cx, cy - r); lineTo(cx + r, cy); lineTo(cx, cy + r); lineTo(cx - r, cy); close()
     }
     val TabMisc: ImageVector by lazy {
         icon("TabMisc") {
-            line(1.6f) { moveTo(12f, 3.6f); lineTo(16.3f, 10.4f); lineTo(7.7f, 10.4f); close() }
-            line(1.6f) { circle(7.6f, 16.6f, 3.4f) }
-            line(1.6f) { roundRect(13.4f, 13.2f, 20.2f, 20f, 1.6f) }
+            line(1.8f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            line(1.8f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            line(1.8f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            line(1.8f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
     val TabMiscOn: ImageVector by lazy {
         icon("TabMiscOn") {
-            solid(1.2f) { moveTo(12f, 3.2f); lineTo(16.6f, 10.6f); lineTo(7.4f, 10.6f); close() }
-            fill { circle(7.6f, 16.6f, 3.8f) }
-            solid(1.2f) { roundRect(13.2f, 13f, 20.4f, 20.2f, 1.8f) }
+            solid(1.8f) { roundRect(3.8f, 3.8f, 10.4f, 10.4f, 2.4f) }
+            solid(1.8f) { roundRect(3.8f, 13.6f, 10.4f, 20.2f, 2.4f) }
+            solid(1.8f) { roundRect(13.6f, 13.6f, 20.2f, 20.2f, 2.4f) }
+            solid(1.8f) { diamond(16.9f, 7.1f, 4.0f) }
         }
     }
 
     /** One UI's mic (My Files search): solid capsule, cradle, stem and a base line. */
     val Mic: ImageVector by lazy {
         icon("Mic") {
-            fill {
-                moveTo(9.3f, 5.2f); arcTo(2.7f, 2.7f, 0f, false, true, 14.7f, 5.2f); lineTo(14.7f, 10.8f)
-                arcTo(2.7f, 2.7f, 0f, false, true, 9.3f, 10.8f); close()
-            }
-            line(1.6f) { moveTo(6f, 11f); arcTo(6f, 6f, 0f, false, false, 18f, 11f) }
-            line(1.6f) { moveTo(12f, 17f); lineTo(12f, 20.2f); moveTo(7.6f, 20.6f); lineTo(16.4f, 20.6f) }
+            fill { roundRect(9.2f, 3f, 14.8f, 13.4f, 2.8f) }
+            line(1.8f) { moveTo(5.8f, 11f); arcTo(6.2f, 6.2f, 0f, false, false, 18.2f, 11f) }
+            line(1.8f) { moveTo(12f, 17.2f); verticalLineTo(20.5f) }
         }
     }
 
     val Close: ImageVector by lazy {
         icon("Close") {
-            line(1.6f) { moveTo(6f, 6f); lineTo(18f, 18f); moveTo(18f, 6f); lineTo(6f, 18f) }
+            line(1.8f) { moveTo(6.5f, 6.5f); lineTo(17.5f, 17.5f); moveTo(17.5f, 6.5f); lineTo(6.5f, 17.5f) }
         }
     }
 
     val Check: ImageVector by lazy {
         icon("Check") {
-            line(1.6f) { moveTo(5f, 12.8f); lineTo(9.8f, 17.6f); lineTo(19f, 7.2f) }
+            line(1.8f) { moveTo(5f, 12.5f); lineTo(10f, 17.5f); lineTo(19f, 7f) }
         }
     }
 
     val CheckCircle: ImageVector by lazy {
         icon("CheckCircle") {
-            line(1.6f) { moveTo(2.8f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 21.2f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 2.8f, 12f); close() }
-            line(1.6f) { moveTo(7.9f, 12.4f); lineTo(10.8f, 15.3f); lineTo(16.3f, 9.2f) }
+            line(1.8f) { circle(12f, 12f, 9f) }
+            line(1.8f) { moveTo(7.9f, 12.4f); lineTo(10.8f, 15.3f); lineTo(16.3f, 9.2f) }
         }
     }
 
     val Add: ImageVector by lazy {
         icon("Add") {
-            line(1.6f) { moveTo(12f, 5f); verticalLineTo(19f); moveTo(5f, 12f); horizontalLineTo(19f) }
+            line(1.8f) { moveTo(12f, 5f); verticalLineTo(19f); moveTo(5f, 12f); horizontalLineTo(19f) }
         }
     }
 
     val Share: ImageVector by lazy {
         icon("Share") {
-            line(1.6f) { moveTo(4f, 12f); arcTo(2.5f, 2.5f, 0f, true, true, 9f, 12f); arcTo(2.5f, 2.5f, 0f, true, true, 4f, 12f); close(); moveTo(15f, 6f); arcTo(2.5f, 2.5f, 0f, true, true, 20f, 6f); arcTo(2.5f, 2.5f, 0f, true, true, 15f, 6f); close(); moveTo(15f, 18f); arcTo(2.5f, 2.5f, 0f, true, true, 20f, 18f); arcTo(2.5f, 2.5f, 0f, true, true, 15f, 18f); close() }
-            line(1.6f) { moveTo(8.7f, 10.8f); lineTo(15.3f, 7.2f); moveTo(8.7f, 13.2f); lineTo(15.3f, 16.8f) }
+            fill { circle(6.5f, 12f, 2.4f) }
+            fill { circle(17.5f, 6f, 2.4f) }
+            fill { circle(17.5f, 18f, 2.4f) }
+            line(1.8f) { moveTo(6.5f, 12f); lineTo(17.5f, 6f); moveTo(6.5f, 12f); lineTo(17.5f, 18f) }
         }
     }
 
     val Download: ImageVector by lazy {
         icon("Download") {
-            line(1.6f) { moveTo(4.5f, 14f); verticalLineTo(16.5f); arcTo(3f, 3f, 0f, false, false, 7.5f, 19.5f); horizontalLineTo(16.5f); arcTo(3f, 3f, 0f, false, false, 19.5f, 16.5f); verticalLineTo(14f) }
-            line(1.6f) { moveTo(12f, 4f); verticalLineTo(15f) }
-            line(1.6f) { moveTo(7.8f, 10.8f); lineTo(12f, 15f); lineTo(16.2f, 10.8f) }
+            line(1.8f) { moveTo(4.5f, 14f); verticalLineTo(16.5f); arcTo(3f, 3f, 0f, false, false, 7.5f, 19.5f); horizontalLineTo(16.5f); arcTo(3f, 3f, 0f, false, false, 19.5f, 16.5f); verticalLineTo(14f) }
+            line(1.8f) { moveTo(12f, 4f); verticalLineTo(15f) }
+            line(1.8f) { moveTo(7.8f, 10.8f); lineTo(12f, 15f); lineTo(16.2f, 10.8f) }
         }
     }
 
     val Schedule: ImageVector by lazy {
         icon("Schedule") {
-            line(1.6f) { moveTo(2.8f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 21.2f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 2.8f, 12f); close() }
-            line(1.6f) { moveTo(12f, 6.8f); verticalLineTo(12f); lineTo(15.5f, 14.2f) }
+            line(1.8f) { circle(12f, 12f, 9f) }
+            line(1.8f) { moveTo(12f, 6.8f); verticalLineTo(12f); lineTo(15.5f, 14.2f) }
         }
     }
 
     val PlayArrow: ImageVector by lazy {
         icon("PlayArrow") {
-            line(1.6f) { moveTo(8.2f, 5.8f); verticalLineTo(18.2f); lineTo(18.6f, 12f); close() }
+            solid(1.8f) { moveTo(8.2f, 6f); verticalLineTo(18f); lineTo(18.4f, 12f); close() }
         }
     }
 
     val Pause: ImageVector by lazy {
         icon("Pause") {
-            line(2.4f) { moveTo(8.6f, 6.2f); verticalLineTo(17.8f); moveTo(15.4f, 6.2f); verticalLineTo(17.8f) }
+            line(3f) { moveTo(8.6f, 6.8f); verticalLineTo(17.2f); moveTo(15.4f, 6.8f); verticalLineTo(17.2f) }
         }
     }
 
     val ChevronUp: ImageVector by lazy {
         icon("ChevronUp") {
-            line(1.6f) { moveTo(6.5f, 14.5f); lineTo(12f, 9f); lineTo(17.5f, 14.5f) }
+            line(1.8f) { moveTo(6f, 14.5f); lineTo(12f, 8.5f); lineTo(18f, 14.5f) }
         }
     }
 
     val ChevronDown: ImageVector by lazy {
         icon("ChevronDown") {
-            line(1.6f) { moveTo(6.5f, 9.5f); lineTo(12f, 15f); lineTo(17.5f, 9.5f) }
+            line(1.8f) { moveTo(6f, 9.5f); lineTo(12f, 15.5f); lineTo(18f, 9.5f) }
         }
     }
 
     val ArrowBack: ImageVector by lazy {
         icon("ArrowBack") {
-            line(1.6f) { moveTo(14.5f, 4.8f); lineTo(7.3f, 12f); lineTo(14.5f, 19.2f) }
+            line(1.8f) { moveTo(15f, 5f); lineTo(8f, 12f); lineTo(15f, 19f) }
         }
     }
 
     val Backspace: ImageVector by lazy {
         icon("Backspace") {
-            line(1.6f) { moveTo(9f, 5.5f); horizontalLineTo(18.5f); arcTo(2.5f, 2.5f, 0f, false, true, 21f, 8f); verticalLineTo(16f); arcTo(2.5f, 2.5f, 0f, false, true, 18.5f, 18.5f); horizontalLineTo(9f); lineTo(3.5f, 12f); close() }
-            line(1.6f) { moveTo(12.9f, 9.9f); lineTo(17.1f, 14.1f); moveTo(17.1f, 9.9f); lineTo(12.9f, 14.1f) }
+            line(1.8f) { moveTo(9f, 5.5f); horizontalLineTo(18.5f); arcTo(2.5f, 2.5f, 0f, false, true, 21f, 8f); verticalLineTo(16f); arcTo(2.5f, 2.5f, 0f, false, true, 18.5f, 18.5f); horizontalLineTo(9f); lineTo(3.5f, 12f); close() }
+            line(1.8f) { moveTo(12.9f, 9.9f); lineTo(17.1f, 14.1f); moveTo(17.1f, 9.9f); lineTo(12.9f, 14.1f) }
         }
     }
 
     val Fingerprint: ImageVector by lazy {
         icon("Fingerprint") {
-            line(1.6f) { moveTo(4.6f, 15.5f); verticalLineTo(11.5f); arcTo(7.4f, 7.4f, 0f, false, true, 19.4f, 11.5f); verticalLineTo(12.5f) }
-            line(1.6f) { moveTo(7.6f, 20f); curveTo(7.2f, 18.2f, 7.4f, 16f, 7.4f, 13f); verticalLineTo(11.5f); arcTo(4.6f, 4.6f, 0f, false, true, 16.6f, 11.5f); verticalLineTo(14f); curveTo(16.6f, 16.5f, 16.2f, 18.4f, 15.4f, 20f) }
-            line(1.6f) { moveTo(10.2f, 15f); verticalLineTo(11.5f); arcTo(1.8f, 1.8f, 0f, false, true, 13.8f, 11.5f); verticalLineTo(14.5f); curveTo(13.8f, 16.5f, 13.3f, 18f, 12.6f, 19.4f) }
+            line(1.8f) { moveTo(4.6f, 15.5f); verticalLineTo(11.5f); arcTo(7.4f, 7.4f, 0f, false, true, 19.4f, 11.5f); verticalLineTo(12.5f) }
+            line(1.8f) { moveTo(7.6f, 20f); curveTo(7.2f, 18.2f, 7.4f, 16f, 7.4f, 13f); verticalLineTo(11.5f); arcTo(4.6f, 4.6f, 0f, false, true, 16.6f, 11.5f); verticalLineTo(14f); curveTo(16.6f, 16.5f, 16.2f, 18.4f, 15.4f, 20f) }
+            line(1.8f) { moveTo(10.2f, 15f); verticalLineTo(11.5f); arcTo(1.8f, 1.8f, 0f, false, true, 13.8f, 11.5f); verticalLineTo(14.5f); curveTo(13.8f, 16.5f, 13.3f, 18f, 12.6f, 19.4f) }
         }
     }
 
     val Lock: ImageVector by lazy {
         icon("Lock") {
-            line(1.6f) { moveTo(8f, 10.5f); horizontalLineTo(16f); arcTo(3f, 3f, 0f, false, true, 19f, 13.5f); verticalLineTo(17.5f); arcTo(3f, 3f, 0f, false, true, 16f, 20.5f); horizontalLineTo(8f); arcTo(3f, 3f, 0f, false, true, 5f, 17.5f); verticalLineTo(13.5f); arcTo(3f, 3f, 0f, false, true, 8f, 10.5f); close() }
-            line(1.6f) { moveTo(8.5f, 10.5f); verticalLineTo(8f); arcTo(3.5f, 3.5f, 0f, false, true, 15.5f, 8f); verticalLineTo(10.5f) }
-            fill { moveTo(10.85f, 15.5f); arcTo(1.15f, 1.15f, 0f, true, true, 13.15f, 15.5f); arcTo(1.15f, 1.15f, 0f, true, true, 10.85f, 15.5f); close() }
+            line(1.8f) { roundRect(5f, 10.5f, 19f, 20.5f, 3.4f) }
+            line(1.8f) { moveTo(8.3f, 10.5f); verticalLineTo(8f); arcTo(3.7f, 3.7f, 0f, false, true, 15.7f, 8f); verticalLineTo(10.5f) }
+            fill { circle(12f, 15.5f, 1.3f) }
         }
     }
 
     val ContentPaste: ImageVector by lazy {
         icon("ContentPaste") {
-            line(1.6f) { moveTo(8.6f, 4.6f); horizontalLineTo(8f); arcTo(3.2f, 3.2f, 0f, false, false, 4.8f, 7.8f); verticalLineTo(17.6f); arcTo(3.2f, 3.2f, 0f, false, false, 8f, 20.8f); horizontalLineTo(16f); arcTo(3.2f, 3.2f, 0f, false, false, 19.2f, 17.6f); verticalLineTo(7.8f); arcTo(3.2f, 3.2f, 0f, false, false, 16f, 4.6f); horizontalLineTo(15.4f) }
-            line(1.6f) { moveTo(10.1f, 2.9f); horizontalLineTo(13.9f); arcTo(1.5f, 1.5f, 0f, false, true, 15.4f, 4.4f); verticalLineTo(4.8f); arcTo(1.5f, 1.5f, 0f, false, true, 13.9f, 6.3f); horizontalLineTo(10.1f); arcTo(1.5f, 1.5f, 0f, false, true, 8.6f, 4.8f); verticalLineTo(4.4f); arcTo(1.5f, 1.5f, 0f, false, true, 10.1f, 2.9f); close() }
-            line(1.6f) { moveTo(8.6f, 11.5f); horizontalLineTo(15.4f); moveTo(8.6f, 15.5f); horizontalLineTo(13f) }
+            line(1.8f) { moveTo(8.6f, 4.8f); horizontalLineTo(8f); arcTo(3.2f, 3.2f, 0f, false, false, 4.8f, 8f); verticalLineTo(17.6f); arcTo(3.2f, 3.2f, 0f, false, false, 8f, 20.8f); horizontalLineTo(16f); arcTo(3.2f, 3.2f, 0f, false, false, 19.2f, 17.6f); verticalLineTo(8f); arcTo(3.2f, 3.2f, 0f, false, false, 16f, 4.8f); horizontalLineTo(15.4f) }
+            line(1.8f) { roundRect(8.6f, 2.9f, 15.4f, 6.5f, 1.6f) }
+            line(1.8f) { moveTo(8.6f, 12f); horizontalLineTo(15.4f); moveTo(8.6f, 15.8f); horizontalLineTo(13f) }
         }
     }
 
@@ -350,36 +336,36 @@ object OneUiIcons {
 
     val Folder: ImageVector by lazy {
         icon("Folder") {
-            line(1.6f) { moveTo(3.5f, 17f); verticalLineTo(7f); arcTo(2.5f, 2.5f, 0f, false, true, 6f, 4.5f); horizontalLineTo(9.6f); curveTo(10.3f, 4.5f, 10.9f, 4.8f, 11.3f, 5.3f); lineTo(12.4f, 6.7f); curveTo(12.8f, 7.2f, 13.4f, 7.5f, 14f, 7.5f); horizontalLineTo(18f); arcTo(2.5f, 2.5f, 0f, false, true, 20.5f, 10f); verticalLineTo(17f); arcTo(3f, 3f, 0f, false, true, 17.5f, 20f); horizontalLineTo(6.5f); arcTo(3f, 3f, 0f, false, true, 3.5f, 17f); close() }
+            line(1.8f) { folderShape() }
         }
     }
 
     val ErrorOutline: ImageVector by lazy {
         icon("ErrorOutline") {
-            line(1.6f) { moveTo(2.8f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 21.2f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 2.8f, 12f); close() }
-            line(1.6f) { moveTo(12f, 7.2f); verticalLineTo(13f) }
-            fill { moveTo(10.9f, 16.4f); arcTo(1.1f, 1.1f, 0f, true, true, 13.1f, 16.4f); arcTo(1.1f, 1.1f, 0f, true, true, 10.9f, 16.4f); close() }
+            line(1.8f) { circle(12f, 12f, 9f) }
+            line(1.8f) { moveTo(12f, 7.4f); verticalLineTo(13f) }
+            fill { circle(12f, 16.6f, 1.2f) }
         }
     }
 
     val Bolt: ImageVector by lazy {
         icon("Bolt") {
-            line(1.6f) { moveTo(13f, 3.2f); lineTo(5.8f, 13.4f); horizontalLineTo(11.4f); lineTo(10.6f, 20.8f); lineTo(18.2f, 10.4f); horizontalLineTo(12.6f); close() }
+            line(1.8f) { moveTo(13f, 3.2f); lineTo(5.8f, 13.4f); horizontalLineTo(11.4f); lineTo(10.6f, 20.8f); lineTo(18.2f, 10.4f); horizontalLineTo(12.6f); close() }
         }
     }
 
     val Globe: ImageVector by lazy {
         icon("Globe") {
-            line(1.6f) { moveTo(2.8f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 21.2f, 12f); arcTo(9.2f, 9.2f, 0f, true, true, 2.8f, 12f); close() }
-            line(1.6f) { moveTo(2.8f, 12f); horizontalLineTo(21.2f) }
-            line(1.6f) { moveTo(12f, 2.8f); curveTo(8.4f, 6f, 8.4f, 18f, 12f, 21.2f); moveTo(12f, 2.8f); curveTo(15.6f, 6f, 15.6f, 18f, 12f, 21.2f) }
+            line(1.8f) { circle(12f, 12f, 9f) }
+            line(1.8f) { moveTo(3f, 12f); horizontalLineTo(21f) }
+            line(1.8f) { moveTo(12f, 3f); curveTo(8.2f, 6.4f, 8.2f, 17.6f, 12f, 21f); moveTo(12f, 3f); curveTo(15.8f, 6.4f, 15.8f, 17.6f, 12f, 21f) }
         }
     }
 
     val MusicNote: ImageVector by lazy {
         icon("MusicNote") {
-            line(1.6f) { moveTo(5.1f, 17.4f); arcTo(2.7f, 2.7f, 0f, true, true, 10.5f, 17.4f); arcTo(2.7f, 2.7f, 0f, true, true, 5.1f, 17.4f); close() }
-            line(1.6f) { moveTo(10.5f, 17.2f); verticalLineTo(5f); curveTo(13f, 6.2f, 16.5f, 6.8f, 17.5f, 10f) }
+            line(1.8f) { circle(8f, 17.4f, 2.8f) }
+            line(1.8f) { moveTo(10.8f, 17.2f); verticalLineTo(4.8f); curveTo(13.4f, 6f, 17f, 6.6f, 17.8f, 10.2f) }
         }
     }
 

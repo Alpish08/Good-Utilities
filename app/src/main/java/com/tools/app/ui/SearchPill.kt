@@ -160,7 +160,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                 .clip(CircleShape)
                 // 40% see-through, like Clock's bar.
                 .background(if (c.isDark) Color(0xFF262A2C).copy(alpha = 0.6f) else Color.White.copy(alpha = 0.6f))
-                .border(0.6.dp, pillEdge(c.isDark), CircleShape)
+                // Faint hairline and highlight, to sit quietly on the see-through pill.
+                .border(0.6.dp, if (c.isDark) Color.White.copy(alpha = 0.06f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .padding(horizontal = 4.dp),
             contentAlignment = Alignment.CenterStart,
         ) {
@@ -170,7 +171,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                     .offset(x = x)
                     .size(width = 64.dp, height = 48.dp)
                     .clip(CircleShape)
-                    .background(if (c.isDark) Color.White.copy(alpha = 0.13f) else Color.Black.copy(alpha = 0.07f)),
+                    .background(if (c.isDark) Color.White.copy(alpha = 0.085f) else Color.Black.copy(alpha = 0.05f)),
             )
             Row(Modifier.padding(horizontal = 4.dp)) {
                 tabs.forEachIndexed { i, tab ->
