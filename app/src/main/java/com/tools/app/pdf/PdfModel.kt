@@ -391,6 +391,12 @@ object PdfSession {
             for (a in annots) when (a) {
                 is Annot.Stroke -> {
                     if (a.pts.isEmpty()) continue
+                    val alpha = AColor.alpha(a.color)
+                    // Marker strokes are see-through.
+                    if (alpha < 255) {
+                        cs.saveGraphicsState()
+                        cs.setGraphicsStateParameters(com.tom_roush.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState().apply { strokingAlphaConstant = alpha / 255f })
+                    }
                     cs.setStrokingColor(AColor.red(a.color), AColor.green(a.color), AColor.blue(a.color))
                     cs.setLineWidth((a.width * baseW).coerceAtLeast(0.3f))
                     cs.setLineCapStyle(1); cs.setLineJoinStyle(1)
@@ -399,6 +405,7 @@ object PdfSession {
                     if (a.pts.size == 1) cs.lineTo(first.first + 0.05f, first.second)
                     for (i in 1 until a.pts.size) { val q = map(a.pts[i]); cs.lineTo(q.first, q.second) }
                     cs.stroke()
+                    if (alpha < 255) cs.restoreGraphicsState()
                 }
                 is Annot.Label -> {
                     val size = (a.size * baseW).coerceAtLeast(4f)

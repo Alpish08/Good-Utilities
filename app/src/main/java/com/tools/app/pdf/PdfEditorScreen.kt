@@ -104,11 +104,18 @@ fun PdfEditorScreen(onBack: () -> Unit) {
 
     val editItem = editing?.let { id -> s.pages.firstOrNull { it.id == id } }
     if (editItem != null) {
-        PdfAnnotateScreen(
-            editItem, s.pages.indexOf(editItem) + 1,
-            onCancel = { editing = null },
-            onDone = { s.setAnnots(editItem.id, it); editing = null },
-        )
+        val idx = s.pages.indexOf(editItem)
+        androidx.compose.runtime.key(editItem.id) {
+            PdfAnnotateScreen(
+                editItem, idx + 1, s.pages.size,
+                onCancel = { editing = null },
+                onDone = { s.setAnnots(editItem.id, it); editing = null },
+                onGo = { annots, delta ->
+                    s.setAnnots(editItem.id, annots)
+                    s.pages.getOrNull(idx + delta)?.let { editing = it.id }
+                },
+            )
+        }
         return
     }
 
@@ -129,10 +136,11 @@ fun PdfEditorScreen(onBack: () -> Unit) {
         if (!loaded) {
             Column(Modifier.weight(1f)) {
                 EmptyState(
-                    Icons.Rounded.PictureAsPdf, IconColors.Red, "Edit a PDF",
-                    "Reorder, rotate, split and merge pages, sign them, mark them up and add a password.",
+                    Icons.Rounded.PictureAsPdf, IconColors.Red, "Edit or create a PDF",
+                    "Reorder, rotate, split and merge pages, sign them, mark them up and add a password. Or turn photos into a PDF and draw on them.",
                     if (s.busy != null) "Opening…" else "Open PDF",
                     { if (s.busy == null) openOne.launch(pdfMime) },
+                    secondary = "Create from images" to { if (s.busy == null) pickImages.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
                 )
             }
             s.notice?.let { Text(it.text, color = if (it.error) c.error else c.success, fontSize = 14.sp, modifier = Modifier.padding(24.dp, 8.dp)) }

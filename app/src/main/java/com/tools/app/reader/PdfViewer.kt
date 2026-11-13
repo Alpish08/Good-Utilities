@@ -601,6 +601,7 @@ private fun ContinuousPages(
 // Single page (horizontal pager)
 // ---------------------------------------------------------------------------------------------
 
+@OptIn(FlowPreview::class)
 @Composable
 private fun SinglePages(
     doc: PdfDoc, where: Where, night: Boolean, search: SearchState, jump: Jump?,
@@ -609,12 +610,14 @@ private fun SinglePages(
 ) {
     val pager = rememberPagerState(initialPage = where.first.coerceIn(0, doc.pageCount - 1)) { doc.pageCount }
     val density = LocalDensity.current
+    // Swiping to the next page pauses while the current one is zoomed in (one finger pans it instead).
+    var zoomed by remember { mutableStateOf(false) }
     LaunchedEffect(jump) { jump?.let { pager.scrollToPage(it.page) } }
     LaunchedEffect(pager) { snapshotFlow { pager.currentPage }.collect { where.page = it; where.first = it; where.frac = 0f } }
     LaunchedEffect(pager) { snapshotFlow { pager.isScrollInProgress }.collect { onScrolling(it) } }
     HorizontalPager(
-        pager, Modifier.fillMaxSize().pointerInput(Unit) { detectTapGestures(onTap = { onTap() }) },
-        pageSpacing = 12.dp, beyondViewportPageCount = 1,
+        pager, Modifier.fillMaxSize(),
+        pageSpacing = 12.dp, beyondViewportPageCount = 1, userScrollEnabled = !zoomed,
     ) { i ->
         BoxWithConstraints(Modifier.fillMaxSize().padding(top = topPad, bottom = bottomPad), contentAlignment = Alignment.Center) {
             val ar = doc.pageW(i) / doc.pageH(i)
@@ -622,7 +625,122 @@ private fun SinglePages(
             val w = if (fitWidth) maxWidth else maxHeight * ar
             val wPx = with(density) { w.roundToPx() }
             val hPx = (wPx / ar).roundToInt()
-            PageCanvas(doc, i, wPx, hPx, night, null, search.byPage[i], search.current, null, Modifier.size(w, with(density) { hPx.toDp() }))
+            val bw = constraints.maxWidth.toFloat()
+            val bh = constraints.maxHeight.toFloat()
+            // The page's rectangle inside this box before zooming.
+            val px0 = (bw - wPx) / 2f
+            val py0 = (bh - hPx) / 2f
+            val zs = remember(i) { ZoomState(1f) }
+            var ty by remember(i) { mutableFloatStateOf(0f) }
+            var tile by remember(i) { mutableStateOf<Tile?>(null) }
+            val scope = rememberCoroutineScope()
+
+            /** Centres the page while it's smaller than the screen, otherwise keeps its edges on screen. */
+            fun clampAxis(t: Float, z: Float, start: Float, len: Float, box: Float): Float {
+                val scaled = len * z
+                return if (scaled <= box) (box - scaled) / 2f - start * z
+                else t.coerceIn(box - (start + len) * z, -start * z)
+            }
+            fun set(z: Float, tx: Float, tyNew: Float) {
+                zs.z = z
+                zs.tx = clampAxis(tx, z, px0, wPx.toFloat(), bw)
+                ty = clampAxis(tyNew, z, py0, hPx.toFloat(), bh)
+            }
+            /** Keeps the page point under [prev] under [now] while the zoom becomes [newZoom]. */
+            fun transformBy(prev: Offset, now: Offset, newZoom: Float) {
+                val old = zs.z
+                val nz = newZoom.coerceIn(1f, MAX_ZOOM)
+                val lx = (prev.x - zs.tx) / old
+                val ly = (prev.y - ty) / old
+                set(nz, now.x - lx * nz, now.y - ly * nz)
+            }
+
+            // Leaving the page resets its zoom.
+            LaunchedEffect(pager, i) {
+                snapshotFlow { pager.currentPage }.collect { if (it != i && zs.z != 1f) { set(1f, 0f, 0f); tile = null } }
+            }
+            LaunchedEffect(pager, i) {
+                snapshotFlow { pager.currentPage == i && zs.z > 1.01f }.collect { if (pager.currentPage == i) zoomed = it }
+            }
+            // Sharp text: once the zoom settles, render the visible part of the page at full zoom.
+            LaunchedEffect(doc, i, wPx) {
+                snapshotFlow { Triple(zs.z, zs.tx, ty) }.debounce(170).collectLatest { (z, tx, tyv) ->
+                    if (z < 1.15f) { tile = null; return@collectLatest }
+                    // Visible screen area in page-canvas pixels.
+                    val l0 = ((0f - tx) / z - px0).coerceIn(0f, wPx.toFloat())
+                    val r0 = ((bw - tx) / z - px0).coerceIn(0f, wPx.toFloat())
+                    val t0 = ((0f - tyv) / z - py0).coerceIn(0f, hPx.toFloat())
+                    val b0 = ((bh - tyv) / z - py0).coerceIn(0f, hPx.toFloat())
+                    if (r0 - l0 < 8f || b0 - t0 < 8f) return@collectLatest
+                    val l = l0.toInt(); val t = t0.toInt()
+                    val rw = ceil(r0).toInt() - l; val rh = ceil(b0).toInt() - t
+                    var f = 1f
+                    val px = rw * z * rh * z
+                    if (px > 14_000_000f) f = sqrt(14_000_000f / px)
+                    val sc = z * f
+                    val bmp = doc.tile(i, wPx * sc / doc.pageW(i), (l * sc).roundToInt(), (t * sc).roundToInt(), (rw * sc).roundToInt(), (rh * sc).roundToInt())
+                        ?: return@collectLatest
+                    ensureActive()
+                    tile = Tile(bmp.asImageBitmap(), l, t, rw, rh)
+                }
+            }
+
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    // Pinch zoom, and one-finger pan while zoomed; seen before the pager so it can't turn pages meanwhile.
+                    .pointerInput(wPx, hPx) {
+                        awaitEachGesture {
+                            awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+                            var pinching = false
+                            do {
+                                val ev = awaitPointerEvent(PointerEventPass.Initial)
+                                val down = ev.changes.count { it.pressed }
+                                if (down >= 2) {
+                                    pinching = true
+                                    val zc = ev.calculateZoom()
+                                    val prev = ev.calculateCentroid(useCurrent = false)
+                                    val now = ev.calculateCentroid()
+                                    if (prev.isSpecified && now.isSpecified) transformBy(prev, now, zs.z * zc)
+                                    ev.changes.forEach { if (it.positionChanged()) it.consume() }
+                                } else if (!pinching && down == 1 && zs.z > 1.01f) {
+                                    val ch = ev.changes.first { it.pressed }
+                                    val d = ch.position - ch.previousPosition
+                                    if (d != Offset.Zero) { set(zs.z, zs.tx + d.x, ty + d.y); ch.consume() }
+                                }
+                            } while (ev.changes.any { it.pressed })
+                            if (zs.z < 1.03f && zs.z != 1f) set(1f, 0f, 0f)
+                        }
+                    }
+                    .pointerInput(wPx, hPx) {
+                        detectTapGestures(
+                            onTap = { onTap() },
+                            onDoubleTap = { off ->
+                                scope.launch {
+                                    val from = zs.z
+                                    val to = if (from > 1.3f) 1f else 2.5f
+                                    Animatable(0f).animateTo(1f, tween(300, easing = OneUiEasing)) {
+                                        transformBy(off, off, from + (to - from) * value)
+                                    }
+                                }
+                            },
+                        )
+                    },
+                contentAlignment = Alignment.Center,
+            ) {
+                PageCanvas(
+                    doc, i, wPx, hPx, night, tile, search.byPage[i], search.current, null,
+                    Modifier
+                        .size(w, with(density) { hPx.toDp() })
+                        .graphicsLayer {
+                            // Scale about the box's top-left: move the page so its own corner sits at (px0, py0)·z + t.
+                            transformOrigin = TransformOrigin(0f, 0f)
+                            scaleX = zs.z; scaleY = zs.z
+                            translationX = zs.tx + px0 * zs.z - px0
+                            translationY = ty + py0 * zs.z - py0
+                        },
+                )
+            }
         }
     }
 }
