@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.indication
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -831,12 +832,20 @@ fun Chip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
 
 @Composable
 fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
+    val slot = LocalToolbarSlot.current
+    val source = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Box(
-        Modifier.size(width = LocalToolbarSlot.current, height = 48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
-            .clip(CircleShape).clickable(onClick = onClick),
+        Modifier.size(width = slot, height = 48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
+            .clickable(source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(icon, description, tint = OneUi.colors.text, modifier = Modifier.size(24.dp))
+        // The press highlight is a true circle even when the slot is narrower than it is tall (buttons sharing a chip).
+        Box(
+            Modifier.size(minOf(slot, 48.dp)).clip(CircleShape).indication(source, LocalIndication.current),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, description, tint = OneUi.colors.text, modifier = Modifier.size(24.dp))
+        }
     }
 }
 
