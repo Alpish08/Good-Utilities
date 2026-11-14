@@ -167,8 +167,9 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val rowPad = if (labels) 7.dp else 8.dp
     val capsuleW = if (labels) 70.dp else 60.dp
     val capsuleH = if (labels) 48.dp else 46.dp
-    // Colours halfway between Clock's bar and the app's menu cards. The capsule is lit from its centre (a soft glow).
-    val pillBase = if (c.isDark) Color(0xFF202022).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
+    // The capsule is lit from its centre (a soft glow).
+    // Neutral grey like Clock's bar (~#232323 at the edge, #262626 at the centre with the glow below).
+    val pillBase = if (c.isDark) Color(0xFF292929).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
     val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
     val restCentre = if (c.isDark) 0.15f else 0.045f
     val restEdge = if (c.isDark) 0.105f else 0.03f
