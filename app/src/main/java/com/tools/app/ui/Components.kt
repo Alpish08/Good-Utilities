@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
@@ -1047,7 +1048,8 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
             // which shifted it in landscape (side navigation bar / cutout), so opt out of both.
             val screenW = view.rootView.width
             val anchorRight = anchor.right
-            val anchorTop = anchor.top
+            // On a short (landscape) screen, start higher so at least a few items fit; the rest scroll.
+            val anchorTop = anchor.top.coerceAtMost(view.rootView.height - with(density) { 220.dp.toPx() }).coerceAtLeast(0f)
             window.attributes = window.attributes.apply {
                 x = (screenW - anchorRight).toInt().coerceAtLeast(0) - with(density) { 4.dp.roundToPx() }
                 y = anchorTop.toInt() - with(density) { 6.dp.roundToPx() }
@@ -1078,9 +1080,16 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
                     drawImage(snap, topLeft = androidx.compose.ui.geometry.Offset(origin.x - onScreen.x, origin.y - onScreen.y))
                 }
             }
+            // Never taller than the space below the button: long menus (the PDF reader's) scroll in landscape.
+            val rootH = view.rootView.height
+            val maxH = with(density) {
+                (rootH - anchor.top.coerceAtMost(rootH - 220.dp.toPx()).coerceAtLeast(0f)).toDp() - 36.dp
+            }
             Column(
                 Modifier
                     .background(if (snap != null) c.popup.copy(alpha = if (c.isDark) 0.74f else 0.8f) else c.popup)
+                    .heightIn(max = maxH)
+                    .verticalScroll(androidx.compose.foundation.rememberScrollState())
                     .padding(5.dp)
                     .widthIn(min = 150.dp)
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
