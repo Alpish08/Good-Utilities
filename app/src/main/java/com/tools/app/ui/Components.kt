@@ -1042,12 +1042,19 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
             window ?: return@SideEffect
             window.setGravity(android.view.Gravity.TOP or android.view.Gravity.END)
             window.setLayout(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+            // Place it in the app window's coordinates (a dialog is laid out in its parent's frame, also in a
+            // pop-up window). A dialog window is normally kept clear of the system bars and the camera cutout,
+            // which shifted it in landscape (side navigation bar / cutout), so opt out of both.
+            val screenW = view.rootView.width
+            val anchorRight = anchor.right
+            val anchorTop = anchor.top
             window.attributes = window.attributes.apply {
-                // anchor is in the activity window, which is edge to edge (screen coordinates); 10dp is shadow room.
-                x = (view.width - anchor.right).toInt() - with(density) { 4.dp.roundToPx() }
-                y = anchor.top.toInt() - with(density) { 6.dp.roundToPx() }
+                x = (screenW - anchorRight).toInt().coerceAtLeast(0) - with(density) { 4.dp.roundToPx() }
+                y = anchorTop.toInt() - with(density) { 6.dp.roundToPx() }
                 flags = flags or android.view.WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
                 dimAmount = 0f
+                layoutInDisplayCutoutMode = android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                if (android.os.Build.VERSION.SDK_INT >= 30) fitInsetsTypes = 0
             }
             window.clearFlags(android.view.WindowManager.LayoutParams.FLAG_DIM_BEHIND)
             window.setBackgroundDrawable(android.graphics.drawable.ColorDrawable(android.graphics.Color.TRANSPARENT))
