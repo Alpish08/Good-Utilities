@@ -39,6 +39,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.navigationBars
@@ -524,12 +525,16 @@ private fun Toolbar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (onBack != null) {
+            val backSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
             Box(
                 Modifier.size(52.dp).toolbarChip(LocalToolbarChip.current, chipColor(c.isDark), 23.dp)
-                    .clip(CircleShape).clickable(onClick = onBack),
+                    .clickable(backSource, indication = null, onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
+                // Press highlight the same 46 dp circle as the floating chip.
+                Box(Modifier.size(46.dp).clip(CircleShape).indication(backSource, LocalIndication.current), contentAlignment = Alignment.Center) {
+                    Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
+                }
             }
         } else Spacer(Modifier.width(20.dp))
         Text(
@@ -839,9 +844,10 @@ fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
             .clickable(source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        // The press highlight is a true circle even when the slot is narrower than it is tall (buttons sharing a chip).
+        // The press highlight matches the floating chip: inside the shared capsule, a circle as tall as the capsule
+        // (48 dp, wider than the 38 dp slot, so the end buttons reach the capsule's ends); on its own, the 46 dp chip.
         Box(
-            Modifier.size(minOf(slot, 48.dp)).clip(CircleShape).indication(source, LocalIndication.current),
+            Modifier.requiredSize(if (slot < 48.dp) 48.dp else 46.dp).clip(CircleShape).indication(source, LocalIndication.current),
             contentAlignment = Alignment.Center,
         ) {
             Icon(icon, description, tint = OneUi.colors.text, modifier = Modifier.size(24.dp))
