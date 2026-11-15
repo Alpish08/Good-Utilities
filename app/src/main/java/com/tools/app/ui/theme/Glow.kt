@@ -58,6 +58,11 @@ class Pool(val dark: Color, val light: Color, val x: Float, val y: Float, val r:
 
 /** The Home page's glow choices, back-to-front colour pools. Pick one from Home's menu → Background. */
 enum class GlowStyle(val label: String, vararg val pools: Pool) {
+    /** A single faint blue wash at the top, barely there. */
+    Mist(
+        "Mist",
+        Pool(Color(0xFF1C2B4A).copy(alpha = 0.5f), Color(0xFFCAD6F2).copy(alpha = 0.5f), 0.5f, 0.0f, 1.2f),
+    ),
     /** Night-sky navy and violet with a little teal (Clock / Timer). */
     Night(
         "Night sky",
@@ -106,11 +111,6 @@ enum class GlowStyle(val label: String, vararg val pools: Pool) {
         Pool(Color(0xFF0F4535).copy(alpha = 0.55f), Color(0xFFBFF0D8).copy(alpha = 0.5f), 0.2f, 0.0f, 1.05f),
         Pool(Color(0xFF103A58).copy(alpha = 0.4f), Color(0xFFBEE0FF).copy(alpha = 0.42f), 1.0f, 0.5f, 0.85f),
         Pool(Color(0xFF29451A).copy(alpha = 0.28f), Color(0xFFDDF2C2).copy(alpha = 0.38f), 0.0f, 0.95f, 0.8f),
-    ),
-    /** A single faint blue wash at the top, barely there. */
-    Mist(
-        "Mist",
-        Pool(Color(0xFF1C2B4A).copy(alpha = 0.5f), Color(0xFFCAD6F2).copy(alpha = 0.5f), 0.5f, 0.0f, 1.2f),
     ),
 }
 

@@ -1,6 +1,7 @@
 package com.tools.app.battery
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
@@ -27,11 +28,19 @@ class BypassActionActivity : Activity() {
         } else if (mode == 1) {
             val level = BypassTileService.currentLevel(this).coerceIn(ChargeLimit.MIN_LIMIT, 100)
             ChargeLimit.apply(this, level)
-            Toast.makeText(this, "Bypass charging on · holding at $level%", Toast.LENGTH_SHORT).show()
+            toastOn(this, level)
         } else {
             ChargeLimit.restore(this)
-            Toast.makeText(this, "Bypass charging off", Toast.LENGTH_SHORT).show()
+            toastOff(this)
         }
         finish()
+    }
+
+    companion object {
+        fun toastOn(context: Context, level: Int) =
+            Toast.makeText(context, "Bypass charging on · holding at $level%", Toast.LENGTH_SHORT).show()
+
+        fun toastOff(context: Context) =
+            Toast.makeText(context, "Bypass charging off", Toast.LENGTH_SHORT).show()
     }
 }

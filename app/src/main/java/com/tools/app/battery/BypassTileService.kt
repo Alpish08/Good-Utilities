@@ -26,8 +26,14 @@ class BypassTileService : TileService() {
             openApp()
             return
         }
-        if (ChargeLimit.activeLimit(this) != null) ChargeLimit.restore(this)
-        else ChargeLimit.apply(this, currentLevel(this).coerceIn(ChargeLimit.MIN_LIMIT, 100))
+        if (ChargeLimit.activeLimit(this) != null) {
+            ChargeLimit.restore(this)
+            BypassActionActivity.toastOff(this)
+        } else {
+            val level = currentLevel(this).coerceIn(ChargeLimit.MIN_LIMIT, 100)
+            ChargeLimit.apply(this, level)
+            BypassActionActivity.toastOn(this, level)
+        }
         render()
     }
 
