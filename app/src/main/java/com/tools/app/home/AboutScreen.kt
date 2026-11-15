@@ -19,6 +19,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,6 +49,7 @@ fun AboutScreen(onBack: () -> Unit) {
     val c = OneUi.colors
     val icon = remember { context.packageManager.getApplicationIcon(context.packageName).toBitmap(256, 256).asImageBitmap() }
     val version = remember { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
+    var crashes by androidx.compose.runtime.remember { androidx.compose.runtime.mutableIntStateOf(com.tools.app.CrashLog.count(context)) }
     val open = { url: String -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 
     val developers = listOf(
@@ -92,6 +95,21 @@ fun AboutScreen(onBack: () -> Unit) {
                         leading = { Avatar(d.image!!, d.imageBg) },
                         trailing = { Icon(OneUiIcons.OpenExternal, null, tint = c.textSecondary, modifier = Modifier.size(20.dp)) },
                         onClick = { open(d.url) },
+                    )
+                }
+                sectionLabel("Diagnostics")
+                cardList(listOf(Unit), key = { "crash-log" }) {
+                    val n = crashes
+                    ListRow(
+                        "Crash log",
+                        summary = if (n == 0) "No crashes recorded"
+                        else "$n crash${if (n == 1) "" else "es"} · last on ${com.tools.app.CrashLog.lastTime(context)}",
+                        trailing = if (n == 0) null else ({
+                            androidx.compose.material3.TextButton(onClick = { com.tools.app.CrashLog.clear(context); crashes = 0 }) {
+                                Text("Clear", color = c.accent, fontSize = 15.sp)
+                            }
+                        }),
+                        onClick = if (n == 0) null else ({ com.tools.app.CrashLog.share(context) }),
                     )
                 }
                 sectionLabel("Open source")

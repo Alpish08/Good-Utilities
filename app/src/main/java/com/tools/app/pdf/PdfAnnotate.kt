@@ -91,9 +91,6 @@ private enum class Tool(val label: String) { Pen("Pen"), Marker("Marker"), Erase
 
 private fun norm(d: Int) = ((d % 360) + 360) % 360
 
-/** S Pen in use: once seen, fingers stop drawing (palm rejection) and pan/zoom instead. Kept for the session. */
-private var penSeen by mutableStateOf(false)
-
 @Composable
 fun PdfAnnotateScreen(
     item: PageItem, pageNumber: Int, pageCount: Int,
@@ -196,7 +193,7 @@ fun PdfAnnotateScreen(
         Box(
             Modifier
                 .weight(1f).fillMaxWidth().clipToBounds().padding(12.dp)
-                // Two fingers pinch-zoom and pan; with the S Pen in use, one finger pans too.
+                // Fingers never draw: two pinch-zoom and pan, one pans a zoomed page.
                 .pointerInput(canvas) {
                     awaitEachGesture {
                         awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
@@ -212,7 +209,7 @@ fun PdfAnnotateScreen(
                                 val now = ev.calculateCentroid()
                                 if (prev.isSpecified && now.isSpecified) transformBy(prev, now, z * zc)
                                 ev.changes.forEach { if (it.positionChanged()) it.consume() }
-                            } else if (!pinching && penSeen && fingers.size == 1 && ev.changes.none { it.type == PointerType.Stylus && it.pressed }) {
+                            } else if (!pinching && fingers.size == 1 && ev.changes.none { it.type == PointerType.Stylus && it.pressed }) {
                                 val ch = fingers[0]
                                 val dd = ch.position - ch.previousPosition
                                 if (dd != Offset.Zero && z > 1f) { t = clampT(t + dd, z); ch.consume() }
@@ -245,9 +242,9 @@ fun PdfAnnotateScreen(
                             if (!drawing) return@pointerInput
                             awaitEachGesture {
                                 val down = awaitFirstDown(requireUnconsumed = false)
-                                val pen = down.type == PointerType.Stylus
-                                if (pen) penSeen = true
-                                if (penSeen && !pen) return@awaitEachGesture // palm or finger while using the S Pen
+                                // S Pen only: fingers and palms pan and zoom instead.
+                                if (down.type != PointerType.Stylus) return@awaitEachGesture
+                                val pen = true
                                 // The S Pen's side button erases while held.
                                 var erasing = tool == Tool.Eraser || (pen && currentEvent.buttons.isSecondaryPressed)
                                 var erased = false
