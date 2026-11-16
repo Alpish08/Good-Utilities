@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.SystemClock
 import android.content.IntentFilter
 import android.graphics.PixelFormat
 import android.os.Build
@@ -30,6 +31,8 @@ class AppLockService : AccessibilityService() {
     private var keyboards: Set<String> = emptySet()
     /** The app in the foreground as far as we know (the last non-overlay window that opened). */
     private var lastApp: String? = null
+    /** Recent foreground apps with when they came up (elapsedRealtime), newest last; for [returnToApp]. */
+    private val history = ArrayDeque<Pair<String, Long>>()
     /** Home screen apps (launchers); taps there may be on a locked app's icon. */
     private var launchers: Set<String> = emptySet()
     /** Locked apps' names, longest first ("Samsung Notes" before "Notes"). */
@@ -46,6 +49,7 @@ class AppLockService : AccessibilityService() {
                     if (AppLock.gating == null && AppLock.needsLock(pkg)) gate(pkg)
                 }
                 AppLock.ACTION_RELOAD -> AppLock.reload()
+                ACTION_RETURN -> returnToApp(intent.getLongExtra(EXTRA_AT, SystemClock.elapsedRealtime()))
             }
         }
     }
@@ -63,7 +67,9 @@ class AppLockService : AccessibilityService() {
             IntentFilter(Intent.ACTION_SCREEN_OFF).apply { addAction(Intent.ACTION_USER_PRESENT) },
             ContextCompat.RECEIVER_EXPORTED,
         )
-        ContextCompat.registerReceiver(this, receiver, IntentFilter(AppLock.ACTION_RELOAD), ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(
+            this, receiver, IntentFilter(AppLock.ACTION_RELOAD).apply { addAction(ACTION_RETURN) }, ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         // "Read Japanese" tile: screenshot on request (explicit, non-exported broadcast from this app only).
         ContextCompat.registerReceiver(this, captureReceiver, IntentFilter(com.tools.app.japanese.JapaneseCapture.ACTION_CAPTURE), ContextCompat.RECEIVER_NOT_EXPORTED)
         keyboards = getSystemService(InputMethodManager::class.java).inputMethodList.map { it.packageName }.toSet()
@@ -93,6 +99,8 @@ class AppLockService : AccessibilityService() {
         // Overlays that sit on top of an app shouldn't count as leaving it.
         if (pkg == packageName || pkg in IGNORED || pkg in keyboards) return
         lastApp = pkg
+        history.addLast(pkg to SystemClock.elapsedRealtime())
+        while (history.size > 12) history.removeFirst()
         tapped?.let { t ->
             // The tapped app is opening (its cover is already fading in), or something else came up instead.
             if (pkg == t || pkg !in launchers) { tapped = null; main.removeCallbacks(tapTimeout) }
@@ -125,6 +133,23 @@ class AppLockService : AccessibilityService() {
             return
         }
         gate(pkg)
+    }
+
+    /**
+     * A Routines action ([com.tools.app.battery.BypassActionActivity]) started at [at] may have been launched with
+     * "return to Home", which drops you out of the app you were in. Once Home has come up, reopen that app.
+     */
+    private fun returnToApp(at: Long) {
+        // The app that was in front when the action started. Home showing up just around then is the action's doing.
+        val before = history.lastOrNull { (pkg, t) -> t < at && !(pkg in launchers && at - t < 2500) }?.first ?: return
+        if (before in launchers) return // you were on the Home screen anyway
+        main.postDelayed({
+            if (lastApp !in launchers) return@postDelayed // Home didn't take over: nothing to undo
+            val launch = packageManager.getLaunchIntentForPackage(before) ?: return@postDelayed
+            runCatching {
+                startActivity(launch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED))
+            }
+        }, 350)
     }
 
     /** App whose Home screen icon was just tapped and whose cover is fading in, until its window shows up. */
@@ -266,6 +291,9 @@ class AppLockService : AccessibilityService() {
     companion object {
         /** Running instance (same ":lock" process as LockActivity). */
         @Volatile var instance: AppLockService? = null
+
+        const val ACTION_RETURN = "com.tools.app.applock.RETURN_TO_APP"
+        const val EXTRA_AT = "at"
 
         private val IGNORED = setOf(
             "android",

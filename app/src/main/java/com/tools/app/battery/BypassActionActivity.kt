@@ -16,6 +16,7 @@ import com.tools.app.MainActivity
 class BypassActionActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val started = android.os.SystemClock.elapsedRealtime()
         val name = intent.component?.className.orEmpty()
         val action = intent.action.orEmpty()
         val mode = when {
@@ -32,6 +33,14 @@ class BypassActionActivity : Activity() {
         } else {
             ChargeLimit.restore(this)
             toastOff(this)
+        }
+        // Routines can launch this with "return to Home" set, which drops whatever app was open and shows the Home
+        // screen. App lock's service knows which app that was and reopens it.
+        if (intent.flags and Intent.FLAG_ACTIVITY_TASK_ON_HOME != 0) {
+            sendBroadcast(
+                Intent(com.tools.app.applock.AppLockService.ACTION_RETURN).setPackage(packageName)
+                    .putExtra(com.tools.app.applock.AppLockService.EXTRA_AT, started),
+            )
         }
         finish()
     }
