@@ -34,14 +34,12 @@ class BypassActionActivity : Activity() {
             ChargeLimit.restore(this)
             toastOff(this)
         }
-        // Routines can launch this with "return to Home" set, which drops whatever app was open and shows the Home
-        // screen. App lock's service knows which app that was and reopens it.
-        if (intent.flags and Intent.FLAG_ACTIVITY_TASK_ON_HOME != 0) {
-            sendBroadcast(
-                Intent(com.tools.app.applock.AppLockService.ACTION_RETURN).setPackage(packageName)
-                    .putExtra(com.tools.app.applock.AppLockService.EXTRA_AT, started),
-            )
-        }
+        // Routines launches this in a way that drops whatever app was open and shows the Home screen (with "return to
+        // Home", or through a shortcut). App lock's service knows which app that was and reopens it if Home took over.
+        sendBroadcast(
+            Intent(com.tools.app.applock.AppLockService.ACTION_RETURN).setPackage(packageName)
+                .putExtra(com.tools.app.applock.AppLockService.EXTRA_AT, started),
+        )
         finish()
     }
 
