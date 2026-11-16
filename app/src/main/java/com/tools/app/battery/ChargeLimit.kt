@@ -67,13 +67,13 @@ object ChargeLimit {
         val cr = context.contentResolver
         val applied = p.getInt("limit", -1)
         val now = read(context)
-        // Only roll back if Samsung's values are still ours; if the user changed Battery protection
-        // in Settings meanwhile, respect that choice.
-        val stillOurs = now.mode == MODE_MAXIMUM && now.threshold == applied
-        if (p.contains("backupMode") && stillOurs) {
-            p.getInt("backupThreshold", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_THRESHOLD, it) }
-            p.getInt("backupRecharge", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_RECHARGE, it) }
-            p.getInt("backupMode", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_MODE, it) }
+        // Roll back each value that is still the one Tools wrote; anything changed since (in Samsung's Battery
+        // settings, or by a routine switching the mode) is your choice and stays. Checking them one by one matters:
+        // a mode change alone leaves the stop / resume levels at the bypass level (e.g. Basic resuming at 46%).
+        if (p.contains("backupMode") && applied > 0) {
+            if (now.threshold == applied) p.getInt("backupThreshold", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_THRESHOLD, it) }
+            if (now.recharge == applied) p.getInt("backupRecharge", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_RECHARGE, it) }
+            if (now.mode == MODE_MAXIMUM) p.getInt("backupMode", -1).takeIf { it >= 0 }?.let { Settings.Global.putInt(cr, KEY_MODE, it) }
         }
         p.edit().remove("backupMode").remove("backupThreshold").remove("backupRecharge").remove("limit").apply()
         BypassTileService.refresh(context)
