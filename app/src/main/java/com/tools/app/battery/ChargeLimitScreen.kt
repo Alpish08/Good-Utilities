@@ -70,6 +70,10 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
     var active by remember { mutableStateOf(ChargeLimit.activeLimit(context)) }
     var limit by remember { mutableFloatStateOf((ChargeLimit.activeLimit(context) ?: ChargeLimit.lastLimit(context)).toFloat()) }
     var error by remember { mutableStateOf<String?>(null) }
+    var autoEnabled by remember { mutableStateOf(AutoBypass.enabled(context)) }
+    var autoOn by remember { mutableIntStateOf(AutoBypass.onAt(context)) }
+    var autoOff by remember { mutableIntStateOf(AutoBypass.offAt(context)) }
+    var autoNight by remember { mutableStateOf(AutoBypass.skipNight(context)) }
 
     DisposableEffect(Unit) {
         val receiver = object : android.content.BroadcastReceiver() {
@@ -197,6 +201,39 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             )
         }
 
+        sectionLabel("Auto bypass when hot")
+        card("auto") {
+            Column {
+                ListRow(
+                    "Auto bypass when hot",
+                    summary = "While plugged in, run from the charger once the battery reaches ${autoOn}°C. " +
+                        "Charging resumes when it cools to ${autoOff}°C or you unplug.",
+                    trailing = { com.tools.app.ui.OneUiSwitch(autoEnabled) },
+                    onClick = { autoEnabled = !autoEnabled; AutoBypass.setEnabled(context, autoEnabled) },
+                    enabled = canWrite,
+                )
+                if (autoEnabled) {
+                    TempChips("Turn on at", AutoBypass.ON_CHOICES, autoOn) {
+                        AutoBypass.setOnAt(context, it); autoOn = AutoBypass.onAt(context); autoOff = AutoBypass.offAt(context)
+                    }
+                    TempChips("Turn off when cooled to", AutoBypass.OFF_CHOICES.filter { it < autoOn }, autoOff) {
+                        AutoBypass.setOffAt(context, it); autoOff = AutoBypass.offAt(context)
+                    }
+                    ListRow(
+                        "Skip at night",
+                        summary = "Leaves ${AutoBypass.NIGHT_LABEL} to your Night routine's slow charging",
+                        trailing = { com.tools.app.ui.OneUiSwitch(autoNight) },
+                        onClick = { autoNight = !autoNight; AutoBypass.setSkipNight(context, autoNight) },
+                    )
+                }
+            }
+        }
+        description(
+            "Uses App lock's background service to watch the battery, so App lock needs to stay switched on. " +
+                "Bypass charging you turn on yourself is never turned off by this.",
+            key = "auto-note",
+        )
+
         sectionLabel("Samsung setting right now")
         card("samsung") {
             ListRow(
@@ -223,6 +260,18 @@ private fun LevelBar(level: Int, limit: Int?, charging: Boolean, modifier: Modif
                 Box(Modifier.width(3.dp).height(14.dp).background(if (c.isDark) Color.White else Color.Black))
                 Box(Modifier.weight((100 - limit).coerceIn(1, 99).toFloat()))
             }
+        }
+    }
+}
+
+/** A row of temperature chips (°C). */
+@Composable
+private fun TempChips(title: String, choices: List<Int>, selected: Int, onPick: (Int) -> Unit) {
+    val c = OneUi.colors
+    Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 6.dp, bottom = 12.dp)) {
+        Text(title, fontSize = 15.sp, color = c.text)
+        Row(Modifier.fillMaxWidth().padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            choices.forEach { t -> Chip("$t°C", selected = t == selected, onClick = { onPick(t) }) }
         }
     }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Modes and Routines actions (read by Samsung's Routines app; see RoutineSdkContentProvider). -->
+<actions>
+    <action
+        category="other_apps"
+        description="@string/routine_bypass_description"
+        icon="@drawable/ic_shortcut_bypass"
+        label="@string/routine_bypass_label"
+        tag="bypass_charging">
+        <configuration targetUi="\@template/TOGGLE">
+            <parameters>
+                <parameter key="bypass_charging" type="BOOLEAN" />
+            </parameters>
+        </configuration>
+    </action>
+</actions>

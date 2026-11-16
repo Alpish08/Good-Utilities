@@ -9,6 +9,8 @@
     <string name="bypass_on">Bypass charging on</string>
     <string name="bypass_off">Bypass charging off</string>
     <string name="bypass_toggle">Toggle bypass charging</string>
+    <string name="routine_bypass_label">Bypass charging</string>
+    <string name="routine_bypass_description">Run straight from the charger, holding the battery at its current level</string>
     <string name="qr_code">QR code</string>
     <string name="spacer_widget">Spacer</string>
     <string name="spacer_widget_description">Invisible empty space, any size. Taps do nothing; swipes still move the home screen.</string>

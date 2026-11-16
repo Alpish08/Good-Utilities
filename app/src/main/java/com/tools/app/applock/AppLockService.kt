@@ -54,6 +54,31 @@ class AppLockService : AccessibilityService() {
         }
     }
 
+    /** Auto bypass when hot: forwards battery updates to the main process while the feature is on. */
+    private var lastPlugged = false
+    private var lastTemp = Int.MIN_VALUE
+    private var lastSent = 0L
+    private val batteryReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val plugged = intent.getIntExtra(android.os.BatteryManager.EXTRA_PLUGGED, 0) != 0
+            val temp = intent.getIntExtra(android.os.BatteryManager.EXTRA_TEMPERATURE, 0)
+            val now = SystemClock.elapsedRealtime()
+            val changed = plugged != lastPlugged
+            // Unplugged and already reported: nothing to do. Plugged in: report real changes, or every 5 minutes
+            // (so the night window and the cool-down hold are checked even when the temperature sits still).
+            val worth = changed || (plugged && (kotlin.math.abs(temp - lastTemp) >= 3 || now - lastSent >= 5 * 60_000L))
+            lastPlugged = plugged
+            if (!worth || !com.tools.app.battery.AutoBypass.flagFile(context).exists()) return
+            lastTemp = temp; lastSent = now
+            sendBroadcast(
+                Intent(com.tools.app.battery.AutoBypass.ACTION_BATTERY)
+                    .setClassName(packageName, "com.tools.app.battery.AutoBypass\$Receiver")
+                    .putExtra(com.tools.app.battery.AutoBypass.EXTRA_PLUGGED, plugged)
+                    .putExtra(com.tools.app.battery.AutoBypass.EXTRA_TEMP, temp),
+            )
+        }
+    }
+
     private val captureReceiver by lazy { com.tools.app.japanese.JapaneseCapture.Receiver(this) }
 
     override fun onCreate() {
@@ -72,6 +97,7 @@ class AppLockService : AccessibilityService() {
         )
         // "Read Japanese" tile: screenshot on request (explicit, non-exported broadcast from this app only).
         ContextCompat.registerReceiver(this, captureReceiver, IntentFilter(com.tools.app.japanese.JapaneseCapture.ACTION_CAPTURE), ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(this, batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED), ContextCompat.RECEIVER_NOT_EXPORTED)
         keyboards = getSystemService(InputMethodManager::class.java).inputMethodList.map { it.packageName }.toSet()
         launchers = packageManager.queryIntentActivities(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), 0)
             .map { it.activityInfo.packageName }.toSet() - packageName
@@ -284,6 +310,7 @@ class AppLockService : AccessibilityService() {
         if (instance === this) instance = null
         runCatching { unregisterReceiver(receiver) }
         runCatching { unregisterReceiver(captureReceiver) }
+        runCatching { unregisterReceiver(batteryReceiver) }
         scope.cancel()
         super.onDestroy()
     }
