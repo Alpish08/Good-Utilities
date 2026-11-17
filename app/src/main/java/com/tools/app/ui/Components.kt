@@ -1299,7 +1299,7 @@ fun rememberFadeIn(key: Any?): Float {
  * One UI's soft fade at the edges of a scrolling list, for lists outside [OneUiScaffold]. Each edge
  * only fades while there is more content beyond it, and eases in and out as you scroll.
  */
-fun Modifier.fadingEdges(state: LazyListState, horizontal: Boolean = false, length: Dp = FadeLength): Modifier = composed {
+fun Modifier.fadingEdges(state: androidx.compose.foundation.gestures.ScrollableState, horizontal: Boolean = false, length: Dp = FadeLength): Modifier = composed {
     val start by animateFloatAsState(if (state.canScrollBackward) 1f else 0f, tween(200), label = "fadeStart")
     val end by animateFloatAsState(if (state.canScrollForward) 1f else 0f, tween(200), label = "fadeEnd")
     this

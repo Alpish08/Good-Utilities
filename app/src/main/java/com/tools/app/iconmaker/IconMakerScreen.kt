@@ -10,6 +10,8 @@ import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import com.tools.app.ui.fadingEdges
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,7 +85,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
-private enum class Backdrop(val label: String) { Keep("Keep"), Colour("Remove colour"), Subject("Cut out") }
+private enum class Backdrop(val label: String) { Keep("Keep"), Colour("Color"), Subject("Cut out") }
 
 private fun prefs(c: Context) = c.getSharedPreferences("iconmaker", Context.MODE_PRIVATE)
 
@@ -280,7 +282,7 @@ private fun PackCard(packs: List<IconPack>?, pack: String?, baseName: String?, o
     val c = OneUi.colors
     Column(Modifier.padding(horizontal = CardMargin, vertical = 6.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card)) {
         ListRow("Icon pack", summary = packs?.firstOrNull { it.pkg == pack }?.label ?: "Loading…", onClick = onPack)
-        ListRow("Base icon", summary = baseName ?: "Choose the pack's empty tile", onClick = onBase)
+        ListRow("Base icon", summary = baseName?.let { "\"$it\"" } ?: "Choose the pack's empty tile", onClick = onBase)
     }
 }
 
@@ -330,7 +332,8 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
     val thumbs = remember(pkg) { android.util.LruCache<String, Bitmap>(120) }
     OneUiDialog("Base icon", onDismiss, buttons = listOf("Cancel" to onDismiss)) {
         Row(
-            Modifier.fillMaxWidth().clip(CircleShape).background(c.tonal).padding(horizontal = 16.dp, vertical = 12.dp),
+            Modifier.fillMaxWidth().clip(CircleShape).background(com.tools.app.ui.pillColor(c.isDark))
+                .border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape).padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(OneUiIcons.Search, null, tint = c.textSecondary, modifier = Modifier.size(20.dp))
@@ -353,7 +356,9 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
         }
         if (all == null) Text("Loading…", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
         else if (shown.isEmpty()) Text("No icons match", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
-        else LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.padding(top = 12.dp).heightIn(max = 380.dp)) {
+        else {
+            val grid = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
+            LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.padding(top = 12.dp).heightIn(max = 380.dp).fadingEdges(grid), state = grid) {
             items(shown, key = { it }) { name ->
                 val thumb by produceState(thumbs.get(name), name) {
                     if (value == null) value = withContext(Dispatchers.IO) { IconPacks.load(context, pkg, name)?.let { b ->
@@ -371,6 +376,7 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
                     Text(name, fontSize = 11.sp, color = c.textSecondary, maxLines = 1, modifier = Modifier.padding(top = 4.dp))
                 }
             }
+        }
         }
     }
 }

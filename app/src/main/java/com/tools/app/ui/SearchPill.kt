@@ -58,7 +58,7 @@ import com.tools.app.ui.theme.OneUi
 
 /** My Files' search pill: #313131 with a hairline #3A3A3D edge (sampled from One UI 8.5). */
 fun pillColor(dark: Boolean) = if (dark) Color(0xFF313131) else Color.White
-private fun pillEdge(dark: Boolean) = if (dark) Color(0xFF3A3A3D) else Color(0x14000000)
+fun pillEdge(dark: Boolean) = if (dark) Color(0xFF3A3A3D) else Color(0x14000000)
 
 /**
  * One UI 8.5 search bar, opened from the toolbar's search button: a full-width rounded bar at the bottom
