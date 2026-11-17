@@ -156,14 +156,14 @@ const val TabPillLabels = true
 
 /**
  * One UI 8.5 bottom navigation: a floating 56 dp pill. With labels (Gallery, Phone, Samsung Health, measured):
- * a 22 dp icon over a 10 sp label, tabs 63 dp apart (Phone uses 72; five tabs need it tighter), the selected tab on a 70 × 48 dp capsule. Icon-only (Clock):
+ * a 22 dp icon over a 10 sp label, tabs 66 dp apart (Phone uses 72; five tabs need it tighter), the selected tab on a 70 × 48 dp capsule. Icon-only (Clock):
  * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
 @Composable
 fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels) {
     val c = OneUi.colors
     // Labelled tabs a little closer than Phone's 72 dp, so five fit in a shorter pill.
-    val slot = if (labels) 63.dp else 56.dp
+    val slot = if (labels) 66.dp else 56.dp
     val rowPad = if (labels) 7.dp else 8.dp
     val capsuleW = if (labels) 70.dp else 60.dp
     val capsuleH = if (labels) 48.dp else 46.dp
