@@ -188,8 +188,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val shown = pressedTab ?: selected
 
-    // 10 dp above the screen edge (Clock 8, My Files 16).
-    Box(modifier.fillMaxWidth().offset(y = 2.dp), contentAlignment = Alignment.Center) {
+    // 8 dp above the screen edge (Clock 8, My Files 16).
+    Box(modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Box(
             Modifier
                 .height(56.dp)
