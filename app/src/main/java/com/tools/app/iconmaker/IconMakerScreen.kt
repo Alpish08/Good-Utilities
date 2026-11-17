@@ -52,6 +52,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.FilterQuality
@@ -328,12 +329,15 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
     val context = LocalContext.current
     val c = OneUi.colors
     var query by remember { mutableStateOf("") }
+    val focus = remember { androidx.compose.ui.focus.FocusRequester() }
     val names by produceState<List<String>?>(null, pkg) { value = withContext(Dispatchers.IO) { IconPacks.drawableNames(context, pkg) } }
     val thumbs = remember(pkg) { android.util.LruCache<String, Bitmap>(120) }
     OneUiDialog("Base icon", onDismiss, buttons = listOf("Cancel" to onDismiss)) {
         Row(
             Modifier.fillMaxWidth().clip(CircleShape).background(com.tools.app.ui.pillColor(c.isDark))
-                .border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape).padding(horizontal = 16.dp, vertical = 12.dp),
+                .border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
+                .clickable(interactionSource = null, indication = null) { focus.requestFocus() }
+                .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(OneUiIcons.Search, null, tint = c.textSecondary, modifier = Modifier.size(20.dp))
@@ -343,6 +347,7 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
                     query, { query = it }, singleLine = true,
                     textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 16.sp, color = c.text),
                     cursorBrush = SolidColor(c.accent),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
                 )
             }
         }
