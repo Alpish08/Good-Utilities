@@ -38,7 +38,7 @@ import com.tools.app.music.MusicScreen
 import com.tools.app.music.MusicSettingsScreen
 import com.tools.app.ui.theme.OneUiTheme
 
-enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor }
+enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker }
 
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
@@ -166,6 +166,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.AudioMerge -> com.tools.app.audio.MergeScreen(onBack = ::pop)
                         Route.AudioTrim -> com.tools.app.audio.TrimScreen(onBack = ::pop)
                         Route.BackgroundRemover -> com.tools.app.cutout.BackgroundRemoverScreen(onBack = ::pop)
+                        Route.IconMaker -> com.tools.app.iconmaker.IconMakerScreen(onBack = ::pop)
                         Route.ApkExtractor -> com.tools.app.apk.ApkScreen(onBack = ::pop)
                     }
                     }

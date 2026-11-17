@@ -24,6 +24,7 @@ object Storage {
         APKs("APKs"),         // APK extractor
         Documents("Documents"), // PDF editor, converted documents
         Videos("Videos"),     // Compressed / converted video
+        Icons("Icons"),       // Icon maker
     }
 
     class NoAccess : Exception("Allow \"All files access\" for Good Utilities to save into Internal Storage/$ROOT")

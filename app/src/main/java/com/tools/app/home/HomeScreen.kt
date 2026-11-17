@@ -112,6 +112,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             Tool(Route.ColorPicker, "Color picker", "Sample any pixel, get HEX, RGB and palette", Icons.Rounded.Colorize, IconColors.Pink),
             Tool(Route.Blur, "Image blur", "Blur a whole photo or brush over details", Icons.Rounded.BlurOn, IconColors.Purple),
             Tool(Route.BackgroundRemover, "Background remover", "Cut out people, pets and objects as PNG", Icons.Rounded.AutoFixHigh, IconColors.Teal),
+            Tool(Route.IconMaker, "Icon maker", "Put any logo on your icon pack's empty tile", Icons.Rounded.Category, IconColors.Orange),
         ),
         "Device" to listOf(
             Tool(
