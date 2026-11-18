@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Press highlight for a widget tab: the app's capsule, shown only while pressed. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android" android:exitFadeDuration="350">
+    <item android:state_pressed="true">
+        <inset android:insetLeft="-3.5dp" android:insetRight="-3.5dp" android:insetTop="4dp" android:insetBottom="4dp">
+            <shape android:shape="rectangle">
+                <corners android:radius="24dp" />
+                <solid android:color="@color/widget_tab_pressed" />
+            </shape>
+        </inset>
+    </item>
+    <item android:drawable="@android:color/transparent" />
+</selector>

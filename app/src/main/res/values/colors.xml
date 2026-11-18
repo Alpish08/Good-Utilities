@@ -1,4 +1,8 @@
 <resources>
     <color name="shortcut_bypass">#FF4CB848</color>
     <color name="shortcut_bypass_off">#FF8A8A8A</color>
+    <color name="widget_pill">#E0FFFFFF</color>
+    <color name="widget_pill_edge">#0D000000</color>
+    <color name="widget_tab">#FF4A4A4F</color>
+    <color name="widget_tab_pressed">#1A000000</color>
 </resources>

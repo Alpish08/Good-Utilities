@@ -43,6 +43,8 @@ enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, Vide
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
     private var stack by mutableStateOf("Home")
+    /** Tab the Tabs widget asked for, applied once Home is composed (-1 = none). */
+    private var pendingTab by mutableStateOf(-1)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -57,6 +59,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
             OneUiTheme {
                 val routes = stack.split(',').map(Route::valueOf)
                 val home = remember { com.tools.app.home.HomeState() }
+                LaunchedEffect(pendingTab) { if (pendingTab >= 0) { home.tab = pendingTab; pendingTab = -1 } }
                 val musicList = rememberLazyListState()
                 // Predictive back: the back swipe scrubs the same page transition, so the page
                 // follows your finger and the previous one peeks in from the left. Let go to finish,
@@ -182,6 +185,9 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
 
     companion object {
         const val ACTION_CHARGE_LIMIT = "com.tools.app.CHARGE_LIMIT"
+        /** From the Tabs widget: open Home on tab [EXTRA_TAB]. */
+        const val ACTION_OPEN_TAB = "com.tools.app.OPEN_TAB"
+        const val EXTRA_TAB = "tab"
         const val ACTION_PRIVATE_DNS = "com.tools.app.PRIVATE_DNS"
     }
 
@@ -208,6 +214,11 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     }
 
     private fun handleShare(intent: Intent?) {
+        if (intent?.action == ACTION_OPEN_TAB) {
+            stack = "Home"
+            pendingTab = intent.getIntExtra(EXTRA_TAB, 0).coerceIn(0, 4)
+            return
+        }
         if (intent?.action == ACTION_PRIVATE_DNS) { stack = "Home,PrivateDns"; return }
         if (intent?.action == "android.service.quicksettings.action.QS_TILE_PREFERENCES") {
             @Suppress("DEPRECATION")

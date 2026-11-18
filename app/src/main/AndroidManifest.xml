@@ -97,6 +97,17 @@
             <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_spacer" />
         </receiver>
 
+        <!-- Tabs: the app's bottom tab pill as a 4x1 widget; each tab opens the app on it -->
+        <receiver
+            android:name=".widget.TabsWidget"
+            android:exported="false"
+            android:label="@string/tabs_widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider" android:resource="@xml/widget_tabs" />
+        </receiver>
+
         <!-- Samsung battery health from sync-battery.sh; only senders with DUMP (adb's shell) may send. -->
         <receiver
             android:name=".battery.SamsungBatterySync"
