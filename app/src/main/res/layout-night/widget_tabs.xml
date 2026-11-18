@@ -32,35 +32,30 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/widget_tab_press"
                 android:contentDescription="Media" />
             <FrameLayout
                 android:id="@+id/tab1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/widget_tab_press"
                 android:contentDescription="Files" />
             <FrameLayout
                 android:id="@+id/tab2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/widget_tab_press"
                 android:contentDescription="Images" />
             <FrameLayout
                 android:id="@+id/tab3"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/widget_tab_press"
                 android:contentDescription="Device" />
             <FrameLayout
                 android:id="@+id/tab4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:background="@drawable/widget_tab_press"
                 android:contentDescription="Misc" />
         </LinearLayout>
     </FrameLayout>
