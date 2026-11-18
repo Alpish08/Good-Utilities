@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Good Utilities' tab pill as a widget: one drawn image (this is the dark-mode copy of layout/widget_tabs.xml) scaled to fit the
+     widget, with five tap areas on top. TabsWidget sizes the pill to the space the Home screen gives it. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/pill"
+        android:layout_width="344dp"
+        android:layout_height="56dp"
+        android:layout_gravity="center">
+        <ImageView
+            android:id="@+id/pill_dark"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:visibility="visible" />
+        <ImageView
+            android:id="@+id/pill_light"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:importantForAccessibility="no"
+            android:scaleType="fitXY"
+            android:visibility="gone" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+            <FrameLayout
+                android:id="@+id/tab0"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_tab_press"
+                android:contentDescription="Media" />
+            <FrameLayout
+                android:id="@+id/tab1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_tab_press"
+                android:contentDescription="Files" />
+            <FrameLayout
+                android:id="@+id/tab2"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_tab_press"
+                android:contentDescription="Images" />
+            <FrameLayout
+                android:id="@+id/tab3"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_tab_press"
+                android:contentDescription="Device" />
+            <FrameLayout
+                android:id="@+id/tab4"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/widget_tab_press"
+                android:contentDescription="Misc" />
+        </LinearLayout>
+    </FrameLayout>
+</FrameLayout>

@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="widget_pill">#DB292929</color>
-    <color name="widget_pill_edge">#0DFFFFFF</color>
-    <color name="widget_tab">#FFD9D9DD</color>
     <color name="widget_tab_pressed">#40FFFFFF</color>
 </resources>
