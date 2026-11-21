@@ -1,11 +1,11 @@
 # Good Utilities
 
 A collection of everyday tools for Android, designed to look and feel like Samsung's own One UI 8.5 apps:
-expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, My Files' floating
+expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, floating
 search pill, compact One UI buttons and spinners, One UI sliders and switches, predictive back, and full dark mode.
 
 Home lists every tool by category, over a soft colour wash you can change from ⋮ → Background (Midnight, Amethyst,
-Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as toggles:
+Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as filters:
 tap a tab to show only its tools, tap it again to see everything. Search opens as a frosted bar above the keyboard.
 
 Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 and newer (arm64).
@@ -89,7 +89,7 @@ segmentation, ZXing, ARSCLib, apksig and Haze (the blur behind the tab bar).
 ## App icon
 
 The app icon is **drawer alt 01** from [OneDark 3D](https://play.google.com/store/apps/details?id=com.eatos.onedark3d) by
-**Eatos**, used with credit. Eatos makes the greatest icon packs for One UI: every icon is drawn to sit perfectly next to
+**Eatos**, used with credit. Eatos makes the best icon packs for One UI: every icon is drawn to sit perfectly next to
 Samsung's own, with alternates for almost everything. The full collection is worth every cent:
 
 - [OneDark 3D](https://play.google.com/store/apps/details?id=com.eatos.onedark3d)
