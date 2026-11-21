@@ -167,8 +167,8 @@ private fun LinkCard(s: AppState) {
     val focus = LocalFocusManager.current
     val busy = s.phase == Phase.Downloading
     RoundCard {
-        Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 16.dp)) {
-            Text("Song or playlist link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent)
+        Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
+            Text("Song or playlist link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicTextField(
                     value = s.link,
@@ -193,15 +193,6 @@ private fun LinkCard(s: AppState) {
                     val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                     if (!text.isNullOrBlank()) { focus.clearFocus(); MusicDownloader.fetch(text) }
                 }
-            }
-            // Paste lives in the field (above); Fetch is a compact One UI button at the end.
-            Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
-                PillButton(
-                    if (s.phase == Phase.Fetching) "Fetching…" else "Fetch",
-                    enabled = s.link.isNotBlank() && s.phase != Phase.Fetching && !busy,
-                    modifier = Modifier.widthIn(min = 108.dp),
-                    onClick = { focus.clearFocus(); MusicDownloader.fetch(s.link) },
-                )
             }
         }
     }

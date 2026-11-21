@@ -130,8 +130,7 @@ fun ApkScreen(onBack: () -> Unit) {
     val shown = apps.orEmpty().filter { q.isEmpty() || it.label.contains(q, ignoreCase = true) || it.packageName.contains(q, ignoreCase = true) }
     OneUiScaffold(
         title = "APK extractor", onBack = onBack, listState = listState,
-        actions = { com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search apps") { searching = true } },
-        bottomBar = if (searching) { { com.tools.app.ui.SearchBar(query, { query = it }, onClose = closeSearch, placeholder = "Search apps") } } else null,
+        bottomBar = { com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true }, onClose = closeSearch) },
     ) {
         if (!searching) {
         description("Save apps as APK files in ${ApkTools.FOLDER}. Split apps and bundle files are merged into one APK you can install anywhere.")

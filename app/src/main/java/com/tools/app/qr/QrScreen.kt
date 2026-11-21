@@ -88,7 +88,7 @@ fun QrScreen(onBack: () -> Unit) {
         item(key = "input") {
             RoundCard {
                 Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
-                    Text("Link or text", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent)
+                    Text("Link or text", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
                     Row(verticalAlignment = Alignment.Top) {
                         BasicTextField(
                             value = text,

@@ -152,8 +152,8 @@ private fun LinkCard(s: VState) {
     val focus = LocalFocusManager.current
     val busy = s.phase == VPhase.Downloading
     RoundCard {
-        Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 16.dp)) {
-            Text("Video link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent)
+        Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
+            Text("Video link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicTextField(
                     value = s.link,
@@ -178,15 +178,6 @@ private fun LinkCard(s: VState) {
                     val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                     if (!text.isNullOrBlank()) { focus.clearFocus(); VideoDownloader.fetch(text) }
                 }
-            }
-            // Paste lives in the field (above); Fetch is a compact One UI button at the end.
-            Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
-                PillButton(
-                    if (s.phase == VPhase.Fetching) "Fetching…" else "Fetch",
-                    enabled = s.link.isNotBlank() && s.phase != VPhase.Fetching && !busy,
-                    modifier = Modifier.widthIn(min = 108.dp),
-                    onClick = { focus.clearFocus(); VideoDownloader.fetch(s.link) },
-                )
             }
         }
     }

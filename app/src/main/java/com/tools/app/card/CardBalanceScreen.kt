@@ -47,6 +47,9 @@ import com.tools.app.ui.OneUiDialog
 import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
+import androidx.compose.material3.Icon
+import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.widthIn
 import com.tools.app.ui.RadioDot
 import com.tools.app.ui.card
@@ -141,35 +144,42 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         }
 
         card("balance") {
-            Column(Modifier.padding(horizontal = 22.dp, vertical = 20.dp)) {
-                Text(CardStore.format(card.balanceCents), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = c.text, letterSpacing = 0.sp)
-                Text(card.name, fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
+            Row(Modifier.padding(start = 22.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
+                    Text(CardStore.format(card.balanceCents), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = c.text, letterSpacing = 0.sp, maxLines = 1)
+                    Text(card.name, fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp), maxLines = 1)
+                }
+                // Quick switcher: the other cards are one tap away (or adding the second one).
+                val many = state.cards.size > 1
+                Column(
+                    Modifier.padding(start = 10.dp).size(width = 84.dp, height = 76.dp).clip(RoundedCornerShape(20.dp)).background(c.tonal)
+                        .clickable { dialog = if (many) Dialog.Switch else Dialog.Add },
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Icon(if (many) androidx.compose.material.icons.Icons.Rounded.CreditCard else com.tools.app.ui.OneUiIcons.Add, null, tint = c.text, modifier = Modifier.size(24.dp))
+                    Text(if (many) "Cards" else "Add card", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(top = 4.dp))
+                }
             }
         }
 
         card("entry") {
-            Column(Modifier.padding(16.dp)) {
+            Column(Modifier.padding(14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ModeButton("−", selected = spend) { spend = true }
-                    ModeButton("+", selected = !spend, modifier = Modifier.padding(start = 8.dp)) { spend = false }
+                    ModeButton("+", selected = !spend, modifier = Modifier.padding(start = 6.dp)) { spend = false }
                     MoneyField(
                         amount, { if (CardStore.acceptable(it)) amount = it },
-                        Modifier.padding(start = 12.dp).weight(1f),
+                        Modifier.padding(start = 10.dp).weight(1f),
                         onDone = ::logIt, focus = amountFocus,
                     )
-                }
-                PlainField(
-                    note, { note = it.take(60) }, "Note (optional)",
-                    Modifier.padding(top = 10.dp).fillMaxWidth(), onDone = ::logIt,
-                )
-                // A compact button at the end, like One UI's card actions, rather than a full-width slab.
-                Box(Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.CenterEnd) {
                     PillButton(
                         "Log", onClick = ::logIt,
                         enabled = (CardStore.parse(amount) ?: 0L) > 0L,
-                        modifier = Modifier.widthIn(min = 108.dp),
+                        modifier = Modifier.padding(start = 10.dp),
                     )
                 }
+                NoteField(note, { note = it.take(120) }, Modifier.padding(top = 10.dp).fillMaxWidth(), onDone = ::logIt)
             }
         }
 
@@ -319,12 +329,12 @@ private fun SetupCard(onCreate: (String, Long) -> Unit) {
 private fun ModeButton(sign: String, selected: Boolean, modifier: Modifier = Modifier, popup: Boolean = false, onClick: () -> Unit) {
     val c = OneUi.colors
     Box(
-        modifier.size(48.dp).clip(CircleShape)
+        modifier.size(44.dp).clip(CircleShape)
             .then(if (selected) Modifier.background(c.accent) else Modifier.fieldBackground(popup))
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
-        Text(sign, fontSize = 26.sp, fontWeight = FontWeight.SemiBold, color = if (selected) Color.White else c.text, letterSpacing = 0.sp)
+        Text(sign, fontSize = 24.sp, fontWeight = FontWeight.SemiBold, color = if (selected) Color.White else c.text, letterSpacing = 0.sp)
     }
 }
 
@@ -336,17 +346,17 @@ private fun MoneyField(
 ) {
     val c = OneUi.colors
     Row(
-        modifier.height(48.dp).clip(CircleShape).fieldBackground(popup)
+        modifier.height(44.dp).clip(CircleShape).fieldBackground(popup)
             .clickable(interactionSource = null, indication = null) { focus.requestFocus() }
-            .padding(start = 18.dp, end = 18.dp),
+            .padding(start = 16.dp, end = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text("$", fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, modifier = Modifier.padding(end = 8.dp))
+        Text("$", fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, modifier = Modifier.padding(end = 6.dp))
         Box(Modifier.weight(1f)) {
-            if (value.isEmpty()) Text("0.00", fontSize = 20.sp, color = c.textSecondary)
+            if (value.isEmpty()) Text("0.00", fontSize = 19.sp, color = c.textSecondary)
             BasicTextField(
                 value, onChange, singleLine = true,
-                textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 20.sp, fontWeight = FontWeight.SemiBold, color = c.text),
+                textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 19.sp, fontWeight = FontWeight.SemiBold, color = c.text),
                 cursorBrush = SolidColor(c.accent),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { onDone?.invoke() }),
@@ -379,6 +389,29 @@ private fun PlainField(
                 imeAction = ImeAction.Done,
             ),
             keyboardActions = KeyboardActions(onDone = { onDone?.invoke() }),
+            modifier = Modifier.fillMaxWidth().focusRequester(focus),
+        )
+    }
+}
+
+/** The entry card's note: a roomy rounded box (a few lines), placeholder at the top. */
+@Composable
+private fun NoteField(value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, onDone: () -> Unit) {
+    val c = OneUi.colors
+    val focus = remember { FocusRequester() }
+    Box(
+        modifier.heightIn(min = 92.dp).clip(RoundedCornerShape(22.dp)).fieldBackground(false)
+            .clickable(interactionSource = null, indication = null) { focus.requestFocus() }
+            .padding(horizontal = 18.dp, vertical = 13.dp),
+        contentAlignment = Alignment.TopStart,
+    ) {
+        if (value.isEmpty()) Text("Note (optional)", fontSize = 16.sp, color = c.textSecondary)
+        BasicTextField(
+            value, onChange, maxLines = 4,
+            textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 16.sp, color = c.text),
+            cursorBrush = SolidColor(c.accent),
+            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(onDone = { onDone() }),
             modifier = Modifier.fillMaxWidth().focusRequester(focus),
         )
     }

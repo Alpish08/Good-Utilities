@@ -95,6 +95,8 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
     var granted by remember { mutableStateOf(ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED) }
     var songs by remember { mutableStateOf<List<Song>?>(null) }
     var query by remember { mutableStateOf("") }
+    var searching by remember { mutableStateOf(false) }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val chosen = remember { mutableStateListOf<Uri>() }
 
     val files = rememberLauncherForActivityResult(com.tools.app.ui.FilesPickMultiple()) { uris ->
@@ -108,7 +110,7 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
     LaunchedEffect(granted) { if (granted) songs = loadSongs(context) else ask.launch(permission) }
 
     Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)) {
-        BackHandler(onBack = onDismiss)
+        BackHandler(onBack = { if (searching) { query = ""; searching = false; focusManager.clearFocus() } else onDismiss() })
         val q = query.trim()
         val shown = songs.orEmpty().filter { q.isEmpty() || it.title.contains(q, true) || it.subtitle.contains(q, true) }
         OneUiScaffold(
@@ -117,31 +119,20 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
             expandedTitle = false,
             actions = {
                 Text(
-                    "Files", fontSize = 16.sp, color = c.accent,
+                    "Files", fontSize = 16.sp, color = c.text,
                     modifier = Modifier.clip(CircleShape).clickable(onClick = browse).padding(horizontal = 12.dp, vertical = 8.dp),
                 )
+                // The chosen songs are added from the toolbar, so the bottom stays My Files' search pill.
+                if (multiple && chosen.isNotEmpty()) Text(
+                    "Add ${chosen.size}", fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = c.accent,
+                    modifier = Modifier.clip(CircleShape).clickable { onPicked(chosen.toList()) }.padding(horizontal = 12.dp, vertical = 8.dp),
+                )
             },
-            bottomBar = if (multiple && chosen.isNotEmpty()) ({
-                PillButton("Add ${chosen.size}", onClick = { onPicked(chosen.toList()) }, modifier = Modifier.fillMaxWidth())
-            }) else null,
+            bottomBar = {
+                com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true },
+                    onClose = { query = ""; searching = false; focusManager.clearFocus() })
+            },
         ) {
-            item(key = "search") {
-                Row(
-                    Modifier.padding(horizontal = CardMargin, vertical = 6.dp).fillMaxWidth().height(48.dp)
-                        .clip(CircleShape).background(c.card).padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(OneUiIcons.Search, null, tint = c.textSecondary, modifier = Modifier.padding(end = 10.dp))
-                    Box(Modifier.weight(1f)) {
-                        if (query.isEmpty()) Text("Search", fontSize = 16.sp, color = c.textSecondary)
-                        BasicTextField(
-                            query, { query = it }, singleLine = true,
-                            textStyle = TextStyle(fontSize = 16.sp, color = c.text, fontFamily = SamsungFont),
-                            cursorBrush = SolidColor(c.accent), modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-                }
-            }
             when {
                 !granted -> description("Allow access to music to list your songs here, or tap Files to browse.", key = "perm")
                 songs == null -> description("Loading songs…", key = "loading")

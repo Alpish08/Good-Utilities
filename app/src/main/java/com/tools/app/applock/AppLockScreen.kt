@@ -102,10 +102,9 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
     OneUiScaffold(
         title = "App lock", onBack = onBack, listState = listState,
         actions = {
-            com.tools.app.ui.ToolbarIcon(OneUiIcons.Search, "Search apps") { searching = true }
             com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide))
         },
-        bottomBar = if (searching) { { com.tools.app.ui.SearchBar(query, { query = it }, onClose = closeSearch, placeholder = "Search apps") } } else null,
+        bottomBar = { com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true }, onClose = closeSearch) },
     ) {
         if (!searching) {
         item("master") {

@@ -289,3 +289,72 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
         }
     }
 }
+
+/**
+ * My Files' resting search: a short frosted "Search" pill floating at the bottom of the page. Tapping it opens the
+ * full [SearchBar] above the keyboard; the two cross-fade in place.
+ */
+@Composable
+fun PageSearch(
+    searching: Boolean,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onOpen: () -> Unit,
+    onClose: () -> Unit,
+    label: String = "Search",
+) {
+    Box(contentAlignment = Alignment.BottomCenter) {
+        SearchFade(!searching) { SearchPillButton(label, onOpen) }
+        SearchFade(searching) { SearchBar(query, onQueryChange, onClose, placeholder = label) }
+    }
+}
+
+@Composable
+private fun SearchFade(visible: Boolean, content: @Composable () -> Unit) {
+    val alpha by androidx.compose.animation.core.animateFloatAsState(
+        if (visible) 1f else 0f,
+        if (visible) tween(220, delayMillis = 60) else tween(150),
+        label = "searchFade",
+    )
+    if (!visible && alpha == 0f) return
+    Box(Modifier.graphicsLayer { this.alpha = alpha; compositingStrategy = androidx.compose.ui.graphics.CompositingStrategy.ModulateAlpha }) { content() }
+}
+
+/** The short resting pill (My Files: ~245 × 52 dp, search icon and grey label). Frosted like the tab pill. */
+@Composable
+fun SearchPillButton(label: String, onClick: () -> Unit) {
+    val c = OneUi.colors
+    val base = if (c.isDark) Color(0xFF292929).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)
+    val hint = if (c.isDark) Color(0xFFD9D9DD) else Color(0xFF4A4A4F)
+    Box(Modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
+        Row(
+            Modifier
+                .width(240.dp)
+                .height(52.dp)
+                .shadow(
+                    12.dp, CircleShape,
+                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
+                )
+                .clip(CircleShape)
+                .then(
+                    LocalHazeState.current?.let { haze ->
+                        Modifier.hazeBlur(
+                            dev.chrisbanes.haze.HazeInput.Sources(haze),
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                        )
+                    } ?: Modifier,
+                )
+                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
+                .drawBehind { drawRect(base) }
+                .clickable(onClick = onClick)
+                .semantics { contentDescription = label },
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
+        ) {
+            Icon(OneUiIcons.Search, null, tint = hint, modifier = Modifier.size(23.dp))
+            Spacer(Modifier.width(8.dp))
+            Text(label, fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = hint, maxLines = 1)
+        }
+    }
+}
