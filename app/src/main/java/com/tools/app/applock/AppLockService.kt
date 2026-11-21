@@ -42,7 +42,13 @@ class AppLockService : AccessibilityService() {
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
-                Intent.ACTION_SCREEN_OFF -> AppLock.onScreenOff()
+                Intent.ACTION_SCREEN_OFF -> {
+                    // Locking the phone on the lock page counts as backing out of it, app and all: the cover is an
+                    // accessibility overlay, which Android keeps drawing over the lock screen, so it has to go now.
+                    val asking = AppLock.gating != null || shield != null
+                    AppLock.onScreenOff()
+                    if (asking) leaveLock()
+                }
                 // Unlocking the phone shows the app you were in again without any "app opened"
                 // event, so check it here: the screen-off above already ended its unlock.
                 Intent.ACTION_USER_PRESENT -> lastApp?.let { pkg ->
@@ -294,6 +300,19 @@ class AppLockService : AccessibilityService() {
         if (fade) v.animate().alpha(0f).setDuration(LockCard.FADE_OUT_MS).setInterpolator(DecelerateInterpolator())
             .withEndAction { remove() }.start()
         else remove()
+    }
+
+    /** The phone was locked on the lock page: close it and its cover, and leave the locked app for Home. */
+    private fun leaveLock() {
+        LockActivity.dismissQuietly()
+        hideShield()
+        // Waking the phone then shows Home; without this, unlocking would land back in the app and ask again.
+        lastApp = null
+        tapped = null
+        main.removeCallbacks(tapTimeout)
+        runCatching {
+            startActivity(Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
     }
 
     /** Cancelled: keep the app covered while Android animates it closing, then fade to Home. */
