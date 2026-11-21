@@ -38,7 +38,7 @@ import com.tools.app.music.MusicScreen
 import com.tools.app.music.MusicSettingsScreen
 import com.tools.app.ui.theme.OneUiTheme
 
-enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker }
+enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker, CardBalance }
 
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
@@ -170,6 +170,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.AudioTrim -> com.tools.app.audio.TrimScreen(onBack = ::pop)
                         Route.BackgroundRemover -> com.tools.app.cutout.BackgroundRemoverScreen(onBack = ::pop)
                         Route.IconMaker -> com.tools.app.iconmaker.IconMakerScreen(onBack = ::pop)
+                        Route.CardBalance -> com.tools.app.card.CardBalanceScreen(onBack = ::pop)
                         Route.ApkExtractor -> com.tools.app.apk.ApkScreen(onBack = ::pop)
                     }
                     }
@@ -188,6 +189,9 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         /** From the Tabs widget: open Home on tab [EXTRA_TAB]. */
         const val ACTION_OPEN_TAB = "com.tools.app.OPEN_TAB"
         const val EXTRA_TAB = "tab"
+        /** From the Card balance widget: open Card balance, optionally ready to log ([EXTRA_MODE] "minus" / "plus"). */
+        const val ACTION_CARD = "com.tools.app.CARD_BALANCE"
+        const val EXTRA_MODE = "mode"
         const val ACTION_PRIVATE_DNS = "com.tools.app.PRIVATE_DNS"
     }
 
@@ -214,6 +218,14 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     }
 
     private fun handleShare(intent: Intent?) {
+        if (intent?.action == ACTION_CARD) {
+            stack = "Home,CardBalance"
+            when (intent.getStringExtra(EXTRA_MODE)) {
+                "minus" -> com.tools.app.card.CardStore.pendingMode.value = true
+                "plus" -> com.tools.app.card.CardStore.pendingMode.value = false
+            }
+            return
+        }
         if (intent?.action == ACTION_OPEN_TAB) {
             stack = "Home"
             pendingTab = intent.getIntExtra(EXTRA_TAB, 0).coerceIn(0, 4)

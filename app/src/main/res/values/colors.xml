@@ -1,4 +1,9 @@
 <resources>
     <color name="shortcut_bypass">#FF4CB848</color>
     <color name="shortcut_bypass_off">#FF8A8A8A</color>
+    <color name="widget_card_bg">#F5FFFFFF</color>
+    <color name="widget_card_text">#FF111114</color>
+    <color name="widget_card_sub">#FF86868B</color>
+    <color name="widget_card_button">#FFEDEDF0</color>
+    <color name="widget_card_plus">#FF2E9E4C</color>
 </resources>

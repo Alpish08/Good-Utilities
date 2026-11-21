@@ -1,5 +1,7 @@
 package com.tools.app.home
 
+import androidx.compose.material.icons.rounded.CreditCard
+
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.graphicsLayer
 import com.tools.app.ui.theme.OneUi
@@ -72,6 +74,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     val lock by AppLock.config.collectAsState()
     val music by MusicDownloader.state.collectAsState()
     val limit = ChargeLimit.activeLimit(context)
+    remember { com.tools.app.card.CardStore.load(context) }
+    val cards by com.tools.app.card.CardStore.state.collectAsState()
     // Battery health for the Miscellaneous row (Samsung's figures when Good Utilities may read them).
     var battery by remember { mutableStateOf<com.tools.app.battery.BatterySnapshot?>(null) }
     LaunchedEffect(Unit) {
@@ -130,12 +134,17 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 limit?.let { "Stops charging at $it%" } ?: "Custom battery protection and bypass charging",
                 Icons.Rounded.BatteryChargingFull, IconColors.Green,
             ),
-        ),
-        "Miscellaneous" to listOf(
             Tool(
                 Route.Battery, "Battery",
                 battery?.let { b -> b.healthPercent?.let { "Health ${if (b.healthIsSamsung) "" else "≈ "}$it%" + (b.totalCycles?.let { c -> " · $c cycles" } ?: "") } } ?: "Health, temperature and charging speed",
                 Icons.Rounded.BatteryStd, IconColors.Green,
+            ),
+        ),
+        "Miscellaneous" to listOf(
+            Tool(
+                Route.CardBalance, "Card balance",
+                cards.current?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Your share of a shared card",
+                Icons.Rounded.CreditCard, IconColors.Blue,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
             Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red),
