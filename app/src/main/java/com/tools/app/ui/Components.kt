@@ -1,6 +1,7 @@
 package com.tools.app.ui
 
 import dev.chrisbanes.haze.hazeSource
+import dev.chrisbanes.haze.blur.hazeBlur
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -149,6 +150,34 @@ private fun centredCircle(radius: Dp) = object : Shape {
     }
 }
 
+/** The ⋮ menu's frosted look, shared by floating buttons, popups and the PDF page indicator. */
+val MenuBlurRadius = 28.dp
+fun menuTint(popup: Color, dark: Boolean) = popup.copy(alpha = if (dark) 0.74f else 0.8f)
+
+/**
+ * A frosted background like the ⋮ menu's: live blur of the page list behind it ([LocalHazeState]) under the menu's
+ * grey; plain chip grey where nothing is captured. [alpha] fades it (the floating chips appear as content scrolls).
+ */
+@Composable
+fun FrostBackground(modifier: Modifier, shape: Shape, alpha: () -> Float = { 1f }) {
+    val c = OneUi.colors
+    val haze = LocalHazeState.current
+    Box(
+        modifier
+            .graphicsLayer { this.alpha = alpha() }
+            .clip(shape)
+            .then(
+                haze?.let {
+                    Modifier.hazeBlur(
+                        dev.chrisbanes.haze.HazeInput.Sources(it),
+                        dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(MenuBlurRadius); noiseFactor(0f); backgroundColor(c.background) },
+                    )
+                } ?: Modifier,
+            )
+            .background(if (haze != null) menuTint(c.popup, c.isDark) else chipColor(c.isDark)),
+    )
+}
+
 /** #222222, as opaque as the search pill. */
 fun chipColor(dark: Boolean) = if (dark) Color(0xFF222222) else Color(0xFFE6E6EB)
 val CardMargin = 10.dp
@@ -186,6 +215,17 @@ fun OneUiScaffold(
     fadeUnderBottomBar: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
+    // Every page's list is captured for live blur: the floating buttons (and Home's tab pill) frost what scrolls under them.
+    if (LocalHazeState.current == null) {
+        val haze = remember { dev.chrisbanes.haze.HazeState() }
+        androidx.compose.runtime.CompositionLocalProvider(LocalHazeState provides haze) {
+            OneUiScaffold(
+                title, subtitle, onBack, actions, bottomBar, listState, expandedTitle, bottomInset,
+                floatingToolbar, fadeUnderBottomBar, content,
+            )
+        }
+        return
+    }
     val c = OneUi.colors
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -554,10 +594,10 @@ private fun Toolbar(
             val backSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
             Box(
                 Modifier.size(52.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), c.isDark)
-                    .toolbarChip(LocalToolbarChip.current, chipColor(c.isDark), 23.dp)
                     .clickable(backSource, indication = null, onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
+                FrostBackground(Modifier.size(46.dp), CircleShape, LocalToolbarChip.current)
                 // Press highlight the same 46 dp circle as the floating chip.
                 Box(Modifier.size(46.dp).clip(CircleShape).indication(backSource, LocalIndication.current), contentAlignment = Alignment.Center) {
                     Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
@@ -573,22 +613,19 @@ private fun Toolbar(
         val chip = LocalToolbarChip.current
         var hasActions by remember { mutableStateOf(false) }
         val emptyRowPx = with(LocalDensity.current) { 12.dp.toPx() }
-        val chipCol = chipColor(c.isDark)
-        Row(
-            Modifier
-                .height(48.dp)
-                .chipShadow({ if (hasActions) chip() else 0f }, CircleShape, c.isDark)
-                .drawBehind {
-                    val a = chip()
-                    // Only when there is at least one button (the row is just its 10 dp padding when empty).
-                    if (a > 0f && size.width > 12.dp.toPx()) drawRoundRect(chipCol, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f), alpha = a)
+        Box(Modifier.height(48.dp).chipShadow({ if (hasActions) chip() else 0f }, CircleShape, c.isDark)) {
+            // Only when there is at least one button (the row is just its 10 dp padding when empty).
+            if (hasActions) FrostBackground(Modifier.matchParentSize(), CircleShape, chip)
+            Row(
+                Modifier
+                    .height(48.dp)
+                    .onSizeChanged { hasActions = it.width > emptyRowPx }
+                    .padding(horizontal = 5.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                androidx.compose.runtime.CompositionLocalProvider(LocalToolbarChip provides { 0f }, LocalToolbarSlot provides 38.dp) {
+                    actions()
                 }
-                .onSizeChanged { hasActions = it.width > emptyRowPx }
-                .padding(horizontal = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            androidx.compose.runtime.CompositionLocalProvider(LocalToolbarChip provides { 0f }, LocalToolbarSlot provides 38.dp) {
-                actions()
             }
         }
     }
@@ -1282,6 +1319,24 @@ fun OneUiDialog(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val c = OneUi.colors
+    // Like the ⋮ menu: a snapshot of the page behind, blurred under the menu's grey. The popup waits for it
+    // (a few ms) so it doesn't switch from solid to frosted as it slides in.
+    val pageView = LocalView.current
+    var snap by remember { mutableStateOf<androidx.compose.ui.graphics.ImageBitmap?>(null) }
+    var ready by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        val window = pageView.context.findActivityWindow()
+        if (window != null && pageView.width > 0 && android.os.Build.VERSION.SDK_INT >= 31) {
+            val bmp = android.graphics.Bitmap.createBitmap(pageView.width, pageView.height, android.graphics.Bitmap.Config.ARGB_8888)
+            android.view.PixelCopy.request(window, bmp, { r ->
+                if (r == android.view.PixelCopy.SUCCESS) snap = bmp.asImageBitmap()
+                ready = true
+            }, android.os.Handler(android.os.Looper.getMainLooper()))
+            kotlinx.coroutines.delay(200)
+        }
+        ready = true
+    }
+    if (!ready) return
     androidx.compose.ui.window.Dialog(
         onDismissRequest = { if (dismissible) onDismiss() },
         properties = androidx.compose.ui.window.DialogProperties(
@@ -1296,11 +1351,19 @@ fun OneUiDialog(
                     androidx.compose.animation.fadeIn(tween(200)) +
                     androidx.compose.animation.scaleIn(tween(340, easing = OneUiEasing), initialScale = 0.94f),
             ) {
+            var onScreen by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+            val shot = snap
+            Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(28.dp)).onGloballyPositioned { onScreen = it.positionOnScreen() }) {
+            if (shot != null) {
+                androidx.compose.foundation.Canvas(Modifier.matchParentSize().blur(MenuBlurRadius, androidx.compose.ui.draw.BlurredEdgeTreatment.Rectangle)) {
+                    val origin = pageView.locationOnScreen()
+                    drawImage(shot, topLeft = androidx.compose.ui.geometry.Offset(origin.x - onScreen.x, origin.y - onScreen.y))
+                }
+            }
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(28.dp))
-                    .background(c.popup)
+                    .background(if (shot != null) menuTint(c.popup, c.isDark) else c.popup)
                     .padding(top = 24.dp, bottom = 10.dp),
             ) {
                 Text(title, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(horizontal = 24.dp))
@@ -1314,6 +1377,7 @@ fun OneUiDialog(
                         ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.accent) }
                     }
                 }
+            }
             }
             }
         }

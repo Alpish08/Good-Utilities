@@ -359,7 +359,9 @@ internal fun PdfViewer(
         ) {
             Text(
                 "${where.page + 1} / $count", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-                modifier = Modifier.clip(CircleShape).background(com.tools.app.ui.chipColor(c.isDark)).padding(horizontal = 13.dp, vertical = 6.dp),
+                modifier = Modifier.clip(CircleShape)
+                    .then(blurBehind(haze, c.background, com.tools.app.ui.MenuBlurRadius))
+                    .background(com.tools.app.ui.menuTint(c.popup, c.isDark)).padding(horizontal = 13.dp, vertical = 6.dp),
             )
         }
 

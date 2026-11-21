@@ -250,7 +250,7 @@ fun printPdf(ctx: Context, doc: PdfDoc) {
 internal fun frostedBar(dark: Boolean) = if (dark) Color(0xFF2B2B2D).copy(alpha = 0.6f) else Color(0xFFF1F1F3).copy(alpha = 0.68f)
 
 /** Blurs what [haze] captured (the pages) behind this bar, over [backing] so nothing sharp shows through. */
-internal fun blurBehind(haze: dev.chrisbanes.haze.HazeState, backing: Color): Modifier = Modifier.hazeBlur(
+internal fun blurBehind(haze: dev.chrisbanes.haze.HazeState, backing: Color, radius: androidx.compose.ui.unit.Dp = 24.dp): Modifier = Modifier.hazeBlur(
     dev.chrisbanes.haze.HazeInput.Sources(haze),
-    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(24.dp); noiseFactor(0f); backgroundColor(backing) },
+    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(radius); noiseFactor(0f); backgroundColor(backing) },
 )
