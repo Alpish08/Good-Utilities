@@ -348,12 +348,13 @@ fun SearchPillButton(label: String, onClick: () -> Unit) {
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .drawBehind { drawRect(base) }
                 .clickable(onClick = onClick)
-                .semantics { contentDescription = label },
+                .semantics { contentDescription = label }
+                // Laid out like the full search bar (icon and label from the left), just shorter.
+                .padding(start = 17.dp, end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center,
         ) {
-            Icon(OneUiIcons.Search, null, tint = hint, modifier = Modifier.size(23.dp))
-            Spacer(Modifier.width(8.dp))
+            Icon(OneUiIcons.Search, null, tint = hint, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(6.dp))
             Text(label, fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = hint, maxLines = 1)
         }
     }
