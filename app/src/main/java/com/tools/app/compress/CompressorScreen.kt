@@ -64,21 +64,29 @@ fun CompressorScreen(onBack: () -> Unit) {
     val context = LocalContext.current
     val c = OneUi.colors
     val jobs = CompressJobs
-    val isVideo = jobs.mode.intValue == 0
+    val mode = jobs.mode.intValue
+    val isVideo = mode == 0
+    val isPhoto = mode == 2
     val video by jobs.video
     val audio by jobs.audio
+    val photos by jobs.photos
     val vWork by jobs.videoWork.collectAsState()
     val aWork by jobs.audioWork.collectAsState()
-    val work = if (isVideo) vWork else aWork
+    val pWork by jobs.photoWork.collectAsState()
+    val work = when (mode) { 0 -> vWork; 1 -> aWork; else -> pWork }
     val running = work is CWork.Running
     val loading by jobs.loading
     val pickError by jobs.pickError
     var pickingAudio by remember { mutableStateOf(false) }
 
     val videoPicker = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { it?.let { u -> jobs.pickVideo(context, u) } }
+    val photoPicker = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPickMultiple()) { jobs.pickPhotos(context, it) }
     val choose = {
-        if (isVideo) videoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
-        else pickingAudio = true
+        when (mode) {
+            0 -> videoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.VideoOnly))
+            2 -> photoPicker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+            else -> pickingAudio = true
+        }
     }
     if (pickingAudio) AudioPicker(
         multiple = false,
@@ -86,39 +94,49 @@ fun CompressorScreen(onBack: () -> Unit) {
         onDismiss = { pickingAudio = false },
     )
 
-    val hasFile = if (isVideo) video != null else audio != null
+    val hasFile = when (mode) { 0 -> video != null; 1 -> audio != null; else -> photos != null }
+    val noun = when (mode) { 0 -> "video"; 1 -> "audio"; else -> "photos" }
 
     ToolPage(
-        "Compressor", onBack,
-        actions = { if (hasFile && !running) ToolbarIcon(if (isVideo) OneUiIcons.Gallery else OneUiIcons.Music, if (isVideo) "Choose video" else "Choose audio", choose) },
+        "Compressor", onBack, expandable = false,
+        actions = { if (hasFile && !running) ToolbarIcon(if (mode == 1) OneUiIcons.Music else OneUiIcons.Gallery, "Choose $noun", choose) },
     ) {
-        // Top 40%: the picked file.
+        // Top ~40%: the picked file.
         Column(
-            Modifier.weight(0.4f).fillMaxWidth().padding(horizontal = 28.dp),
+            Modifier.weight(0.385f).fillMaxWidth().padding(horizontal = 28.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (isVideo) video?.let { VideoHeader(it) } else audio?.let { AudioHeader(it) }
+            when (mode) {
+                0 -> video?.let { VideoHeader(it) }
+                1 -> audio?.let { AudioHeader(it) }
+                else -> photos?.let { PhotoHeader(it) }
+            }
             if (!hasFile) {
                 Text(
-                    if (isVideo) "Shrink a video" else "Shrink an audio file", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text,
+                    when (mode) { 0 -> "Shrink a video"; 1 -> "Shrink an audio file"; else -> "Shrink photos" },
+                    fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text,
                 )
                 Text(
-                    if (isVideo) "Re-encode with the phone's hardware encoder to make big videos much smaller." else "Convert to MP3, AAC or Opus at a lower bitrate.",
+                    when (mode) {
+                        0 -> "Re-encode with the phone's hardware encoder to make big videos much smaller."
+                        1 -> "Convert to MP3, AAC or Opus at a lower bitrate."
+                        else -> "Smaller photos for sites with upload limits: resized, as JPEG, without location data."
+                    },
                     fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
                 )
                 PillButton(
-                    if (loading) "Opening…" else if (isVideo) "Choose video" else "Choose audio", onClick = choose, enabled = !loading,
+                    if (loading) "Opening…" else "Choose $noun", onClick = choose, enabled = !loading,
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
             pickError?.let { Text(it, fontSize = 14.sp, color = c.error, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp)) }
         }
 
-        // Bottom 60%: mode + options + action.
+        // Bottom ~60% (a little more, so the video options fit without scrolling): mode + options + action.
         Column(
             Modifier
-                .weight(0.6f)
+                .weight(0.615f)
                 .padding(horizontal = CardMargin, vertical = 6.dp)
                 .fillMaxWidth()
                 .clip(OneUi.CardShape)
@@ -127,18 +145,22 @@ fun CompressorScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(Modifier.weight(1f)) {
-                SegmentedControl(listOf("Video", "Audio"), jobs.mode.intValue, { if (!running) jobs.mode.intValue = it })
+                SegmentedControl(listOf("Video", "Audio", "Photo"), jobs.mode.intValue, { if (!running) jobs.mode.intValue = it })
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (isVideo) VideoOptions(video, !running) else AudioOptions(audio, !running)
+                    when (mode) {
+                        0 -> VideoOptions(video, !running)
+                        1 -> AudioOptions(audio, !running)
+                        else -> PhotoOptions(photos, !running)
+                    }
                 }
             }
             Column {
-                Status(work, onCancel = if (isVideo) jobs::cancelVideo else jobs::cancelAudio)
+                Status(work, onCancel = when (mode) { 0 -> jobs::cancelVideo; 1 -> jobs::cancelAudio; else -> jobs::cancelPhotos })
                 PillButton(
                     if (running) "Compressing…" else "Compress",
                     enabled = hasFile && !running,
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
-                    onClick = { if (isVideo) jobs.startVideo(context) else jobs.startAudio(context) },
+                    onClick = { when (mode) { 0 -> jobs.startVideo(context); 1 -> jobs.startAudio(context); else -> jobs.startPhotos(context) } },
                 )
             }
         }
@@ -197,6 +219,52 @@ private fun VideoOptions(v: VideoSource?, enabled: Boolean) {
     SwitchRow("Remove audio", jobs.removeAudio.value) { if (enabled) { jobs.removeAudio.value = it; jobs.resetDone() } }
     if (v != null) Estimate(jobs.estimateVideoBytes(v), v.sizeBytes)
     else Text("Choose a video to see the estimated size.", fontSize = 13.sp, color = c.textSecondary)
+}
+
+@Composable
+private fun PhotoHeader(p: PhotoSource) {
+    val c = OneUi.colors
+    val first = p.items.first()
+    Box(Modifier.height(130.dp).aspectRatio((first.width.toFloat() / first.height.coerceAtLeast(1)).coerceIn(0.6f, 1.9f)).clip(RoundedCornerShape(16.dp)).background(c.tonal)) {
+        p.thumb?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
+    }
+    Text(
+        if (p.items.size == 1) first.name else "${p.items.size} photos",
+        fontSize = 17.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 10.dp),
+    )
+    Text(
+        (if (p.items.size == 1) "${first.width}×${first.height} · " else "") + size(p.totalBytes),
+        fontSize = 13.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 2.dp),
+    )
+}
+
+@Composable
+private fun PhotoOptions(p: PhotoSource?, enabled: Boolean) {
+    val jobs = CompressJobs
+    val c = OneUi.colors
+    OptionLabel("Longest side (px)")
+    ChipRow {
+        PhotoSizes.forEach { (px, label) ->
+            Chip(label, jobs.photoSide.intValue == px, { if (enabled) { jobs.photoSide.intValue = px; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
+        }
+    }
+    OptionLabel("Quality")
+    ChipRow {
+        QualityLabels.forEachIndexed { i, label ->
+            Chip(label, jobs.photoQuality.intValue == i, { if (enabled) { jobs.photoQuality.intValue = i; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
+        }
+    }
+    OptionLabel("Max file size")
+    ChipRow {
+        PhotoLimits.forEach { (kb, label) ->
+            Chip(label, jobs.photoLimit.intValue == kb, { if (enabled) { jobs.photoLimit.intValue = kb; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
+        }
+    }
+    Text(
+        if (p == null) "Choose photos to compress. Saved as JPEG; location and camera details are removed."
+        else "Saved as JPEG to ${Storage.label(Storage.Folder.Pictures, "Compressed")}. Location and camera details are removed.",
+        fontSize = 13.sp, color = c.textSecondary,
+    )
 }
 
 @Composable
@@ -277,14 +345,16 @@ private fun Status(work: CWork, onCancel: () -> Unit) {
                     "${size(work.before)} → ${size(work.after)}" + if (saved > 0) " · saved $saved%" else "",
                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.success,
                 )
-                Text("Saved to ${Storage.label(work.folder)} · ${work.fileName}", fontSize = 12.sp, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text("Saved to ${Storage.label(work.folder, work.sub)} · ${work.fileName}", fontSize = 12.sp, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
-            work.shareUri?.let { uri ->
+            val uris = work.shareUris.ifEmpty { listOfNotNull(work.shareUri) }
+            if (uris.isNotEmpty()) {
                 Text(
                     "Share", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                     modifier = Modifier.clip(CircleShape).clickable {
-                        val send = Intent(Intent.ACTION_SEND).setType(work.mime).putExtra(Intent.EXTRA_STREAM, uri)
-                            .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        val send = if (uris.size == 1) Intent(Intent.ACTION_SEND).setType(work.mime).putExtra(Intent.EXTRA_STREAM, uris.first())
+                        else Intent(Intent.ACTION_SEND_MULTIPLE).setType(work.mime).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
+                        send.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                         context.startActivity(Intent.createChooser(send, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                     }.padding(horizontal = 12.dp, vertical = 6.dp),
                 )

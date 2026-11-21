@@ -49,7 +49,11 @@ import kotlin.math.sqrt
 sealed interface CWork {
     data object Idle : CWork
     data class Running(val progress: Float, val note: String? = null) : CWork
-    data class Done(val fileName: String, val folder: Storage.Folder, val before: Long, val after: Long, val shareUri: Uri?, val mime: String) : CWork
+    data class Done(
+        val fileName: String, val folder: Storage.Folder, val before: Long, val after: Long, val shareUri: Uri?, val mime: String,
+        /** Several files (photos): shared together. */
+        val shareUris: List<Uri> = emptyList(), val sub: String? = null,
+    ) : CWork
     data class Failed(val message: String) : CWork
 }
 
@@ -77,7 +81,7 @@ object CompressJobs {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val main = Handler(Looper.getMainLooper())
 
-    val mode = mutableIntStateOf(0) // 0 video, 1 audio
+    val mode = mutableIntStateOf(0) // 0 video, 1 audio, 2 photo
     val loading = mutableStateOf(false)
     val pickError = mutableStateOf<String?>(null)
 
@@ -106,6 +110,66 @@ object CompressJobs {
     private fun hevcEncoderAvailable(): Boolean = runCatching {
         MediaCodecList(MediaCodecList.REGULAR_CODECS).codecInfos.any { it.isEncoder && it.supportedTypes.any { t -> t.equals(MimeTypes.VIDEO_H265, true) } }
     }.getOrDefault(false)
+
+    // --- Photo
+    val photos = mutableStateOf<PhotoSource?>(null)
+    val photoSide = mutableIntStateOf(2048)
+    val photoQuality = mutableIntStateOf(1)
+    val photoLimit = mutableIntStateOf(0)
+    private val _photoWork = MutableStateFlow<CWork>(CWork.Idle)
+    val photoWork: StateFlow<CWork> = _photoWork.asStateFlow()
+    private var photoJob: Job? = null
+
+    fun pickPhotos(context: Context, uris: List<Uri>) {
+        if (uris.isEmpty() || _photoWork.value is CWork.Running) return
+        val app = context.applicationContext
+        loading.value = true; pickError.value = null
+        scope.launch {
+            try {
+                val items = withContext(Dispatchers.IO) { uris.map { PhotoCompress.read(app, it) } }
+                val thumb = withContext(Dispatchers.IO) { PhotoCompress.thumb(app, items.first().uri) }
+                photos.value = PhotoSource(items, thumb); _photoWork.value = CWork.Idle
+            } catch (e: Exception) {
+                pickError.value = e.message ?: "Couldn't open those photos"
+            }
+            loading.value = false
+        }
+    }
+
+    fun startPhotos(context: Context) {
+        val p = photos.value ?: return
+        if (_photoWork.value is CWork.Running) return
+        val app = context.applicationContext
+        val side = photoSide.intValue; val q = PhotoQualities[photoQuality.intValue]; val limit = photoLimit.intValue
+        photoJob = scope.launch {
+            _photoWork.value = CWork.Running(0f)
+            _photoWork.value = try {
+                var after = 0L
+                val names = ArrayList<String>(); val uris = ArrayList<Uri>()
+                p.items.forEachIndexed { i, item ->
+                    val bytes = withContext(Dispatchers.Default) { PhotoCompress.encode(app, item, side, q, limit) }
+                    val saved = withContext(Dispatchers.IO) {
+                        Storage.save(app, Storage.Folder.Pictures, "Compressed", "${item.name}.jpg") { it.write(bytes) }
+                    }
+                    after += bytes.size; names += saved
+                    scan(app, java.io.File(Storage.dir(Storage.Folder.Pictures, "Compressed"), saved))?.let { uris += it }
+                    _photoWork.value = CWork.Running((i + 1f) / p.items.size, "Compressing ${i + 1} of ${p.items.size}…")
+                }
+                CWork.Done(
+                    if (names.size == 1) names.first() else "${names.size} photos", Storage.Folder.Pictures, p.totalBytes, after,
+                    uris.singleOrNull(), "image/jpeg", shareUris = uris, sub = "Compressed",
+                )
+            } catch (e: CancellationException) {
+                CWork.Idle
+            } catch (e: OutOfMemoryError) {
+                CWork.Failed("Not enough memory for a photo this large. Choose a smaller size.")
+            } catch (e: Exception) {
+                CWork.Failed(friendly(e))
+            }
+        }
+    }
+
+    fun cancelPhotos() { photoJob?.cancel(); _photoWork.value = CWork.Idle }
 
     // ---------- Estimates
 
@@ -347,6 +411,7 @@ object CompressJobs {
     fun resetDone() {
         if (_videoWork.value !is CWork.Running) _videoWork.value = CWork.Idle
         if (_audioWork.value !is CWork.Running) _audioWork.value = CWork.Idle
+        if (_photoWork.value !is CWork.Running) _photoWork.value = CWork.Idle
     }
 
     // ---------- Helpers

@@ -281,7 +281,13 @@ fun OneUiScaffold(
                 if (!listState.isScrollInProgress && listState.firstVisibleItemIndex == 0 && off > 0 && off < rangePx && listState.canScrollForward) {
                     // Glide the rest of the way with One UI's curve (animateScrollToItem's default spring is abrupt).
                     val target = if (off > rangePx / 2) rangePx else 0f
-                    listState.animateScrollBy(target - off, tween(300, easing = OneUiEasing))
+                    // A touch or a list change can interrupt the glide: that only ends this glide. Letting the
+                    // cancellation escape would end the whole snapping loop, and the page would never snap again.
+                    try {
+                        listState.animateScrollBy(target - off, tween(300, easing = OneUiEasing))
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        if (!kotlinx.coroutines.currentCoroutineContext()[kotlinx.coroutines.Job]!!.isActive) throw e
+                    }
                 }
             }
         }
@@ -1374,7 +1380,7 @@ fun OneUiDialog(
                         Box(
                             Modifier.weight(1f).height(46.dp).clip(CircleShape).clickable(onClick = action),
                             contentAlignment = Alignment.Center,
-                        ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.accent) }
+                        ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text) }
                     }
                 }
             }
