@@ -224,7 +224,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             OneUiDialog("Add card", { dialog = null }, buttons = listOf("Cancel" to { dialog = null }, "Add" to {
                 CardStore.addCard(context, name, CardStore.parse(start) ?: 0L, primary); dialog = null
             })) {
-                com.tools.app.ui.SegmentedControl(listOf("Primary", "Secondary"), if (primary) 0 else 1, { primary = it == 0 })
+                com.tools.app.ui.SegmentedControl(listOf("Primary", "Secondary"), if (primary) 0 else 1, { primary = it == 0 }, popup = true)
                 Text(
                     if (primary) "Shown on Home and in the widget" else "Open it from Switch card",
                     fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp, bottom = 14.dp),

@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import dev.chrisbanes.haze.hazeSource
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -277,6 +278,8 @@ fun OneUiScaffold(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
+                // Home: what scrolls under the tab pill is what the pill blurs.
+                .then(LocalHazeState.current?.let { Modifier.hazeSource(it) } ?: Modifier)
                 .then(if (floatingToolbar) Modifier else Modifier.nestedScroll(pinClamp))
                 .graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
                 .drawWithContent {
@@ -952,9 +955,14 @@ fun OneUiSlider(
 
 /** Two- or three-way pill switcher; the selection pill glides between options like One UI's tabs. */
 @Composable
-fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier) {
+fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, popup: Boolean = false) {
     val c = OneUi.colors
-    BoxWithConstraints(modifier.fillMaxWidth().height(42.dp).clip(CircleShape).background(c.tonal).padding(3.dp)) {
+    // In popups the track takes the Home search bar's grey (the tonal fill looks purple on the popup's grey).
+    BoxWithConstraints(
+        modifier.fillMaxWidth().height(42.dp).clip(CircleShape)
+            .then(if (popup) Modifier.background(pillColor(c.isDark)).border(0.6.dp, pillEdge(c.isDark), CircleShape) else Modifier.background(c.tonal))
+            .padding(3.dp),
+    ) {
         val segment = maxWidth / options.size
         val x by androidx.compose.animation.core.animateDpAsState(segment * selected, tween(320, easing = OneUiEasing), label = "segment")
         Box(

@@ -11,8 +11,8 @@ android {
         applicationId = "com.tools.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 74
-        versionName = "2.6.1"
+        versionCode = 75
+        versionName = "2.7"
         // S24 Ultra (and every modern phone) is arm64; keeps the bundled Python/FFmpeg small.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -72,6 +72,8 @@ dependencies {
     implementation("androidx.palette:palette-ktx:1.0.0")
     implementation("com.google.zxing:core:3.5.3")
     implementation("io.coil-kt.coil3:coil-compose:3.6.3")
+    implementation("dev.chrisbanes.haze:haze:2.1.0") // blur behind the Home tab pill
+    implementation("dev.chrisbanes.haze:haze-blur:2.1.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.6.3")
 
     // Background remover: ML Kit model served by Play services (unbundled, ~no APK cost).

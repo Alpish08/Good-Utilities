@@ -64,8 +64,8 @@ private data class Tool(val route: Route, val title: String, val summary: String
 /** Home's scroll position, kept by MainActivity so it survives opening a tool. */
 class HomeState {
     val list = LazyListState()
-    /** Selected bottom tab (Media, Files, Images, Device, Miscellaneous). */
-    var tab by androidx.compose.runtime.mutableIntStateOf(0)
+    /** Selected bottom tab (Media, Files, Images, Device, Miscellaneous); -1 = none, every tool shows. */
+    var tab by androidx.compose.runtime.mutableIntStateOf(-1)
 }
 
 @Composable
@@ -186,15 +186,18 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     )
     var choosingGlow by remember { mutableStateOf(false) }
     if (choosingGlow) GlowPicker(onDismiss = { choosingGlow = false })
+    val haze = remember { dev.chrisbanes.haze.HazeState() }
 
+    androidx.compose.runtime.CompositionLocalProvider(com.tools.app.ui.LocalHazeState provides haze) {
     OneUiScaffold(
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
         // Home keeps the classic pinned toolbar; floating buttons are for sub-pages.
         floatingToolbar = false,
-        // Tool rows stay fully visible beside the tab bar; the fade under the bar is only for search.
-        fadeUnderBottomBar = searching,
+        // One tab's tools stay fully visible beside the tab bar; the full list (no tab chosen) and search fade out
+        // toward the bottom like the earlier versions.
+        fadeUnderBottomBar = searching || state.tab < 0,
         actions = {
             com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
             OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))
@@ -203,7 +206,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             // The two bars cross-fade in place. Faded per draw (not through an offscreen layer), so the bars,
             // which sit a few dp outside their own bounds, are never cropped mid-fade.
             androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
-                FadeSlot(!searching) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = it }) }
+                // The tabs are toggles: tap one to show only its tools, tap it again to see everything.
+                FadeSlot(!searching) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = if (state.tab == it) -1 else it }) }
                 FadeSlot(searching) { com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch) }
             }
         },
@@ -228,6 +232,16 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 )
             }
         }
+        // No tab chosen: every group, one card each.
+        if (state.tab < 0) {
+            groups.forEach { (label, tools) ->
+                sectionLabel(label, key = "all-$label")
+                cardList(tools, key = { "all-" + it.route.name }, dividerStart = IconRowDivider) { t ->
+                    ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) })
+                }
+            }
+            return@OneUiScaffold
+        }
         // The selected tab's tools (switching tabs swaps them instantly, like Samsung's apps).
         item(key = "tab-content") {
             run {
@@ -247,6 +261,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 }
             }
         }
+    }
     }
 }
 

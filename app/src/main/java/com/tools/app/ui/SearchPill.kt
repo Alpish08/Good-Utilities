@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import dev.chrisbanes.haze.blur.hazeBlur
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.offset
@@ -159,6 +160,10 @@ const val TabPillLabels = true
  * a 22 dp icon over a 10 sp label, tabs 66 dp apart (Phone uses 72; five tabs need it tighter), the selected tab on a 73 × 48 dp capsule (7 dp wider than the slot). Icon-only (Clock):
  * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
+/** Set by Home: the list the tab pill blurs behind itself. */
+val LocalHazeState = androidx.compose.runtime.staticCompositionLocalOf<dev.chrisbanes.haze.HazeState?> { null }
+
+/** [selected] -1 = no tab chosen (Home shows every tool); tapping the selected tab again clears it. */
 @Composable
 fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels) {
     val c = OneUi.colors
@@ -169,7 +174,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val capsuleH = if (labels) 48.dp else 46.dp
     // The capsule is lit from its centre (a soft glow).
     // Neutral grey like Clock's bar (~#232323 at the edge, #262626 at the centre with the glow below).
-    val pillBase = if (c.isDark) Color(0xFF292929).copy(alpha = 0.86f) else Color.White.copy(alpha = 0.88f)
+    // A little more see-through than before, so the blur shows (Clock's neutral grey on top of it).
+    val pillBase = if (c.isDark) Color(0xFF292929).copy(alpha = 0.72f) else Color.White.copy(alpha = 0.74f)
     val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
     val restCentre = if (c.isDark) 0.15f else 0.045f
     val restEdge = if (c.isDark) 0.105f else 0.03f
@@ -193,8 +199,21 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
         Box(
             Modifier
                 .height(56.dp)
-                .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
+                // A soft drop shadow, and the tools scrolling underneath blurred through the pill.
+                .shadow(
+                    12.dp, CircleShape,
+                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
+                )
                 .clip(CircleShape)
+                .then(
+                    LocalHazeState.current?.let { haze ->
+                        Modifier.hazeBlur(
+                            dev.chrisbanes.haze.HazeInput.Sources(haze),
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                        )
+                    } ?: Modifier,
+                )
                 // A very faint hairline, as some One UI apps have (Clock doesn't). Toggled by TabPillOutline.
                 .then(if (TabPillOutline) Modifier.border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape) else Modifier)
                 .drawBehind {
@@ -206,7 +225,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
             // The selected (or pressed) capsule, centred on its slot (a little wider than the slot).
             Box(
                 Modifier
-                    .offset(x = rowPad + slot * shown - (capsuleW - slot) / 2)
+                    .offset(x = rowPad + slot * shown.coerceAtLeast(0) - (capsuleW - slot) / 2)
+                    .graphicsLayer { alpha = if (shown < 0) 0f else 1f }
                     .size(width = capsuleW, height = capsuleH)
                     .graphicsLayer { scaleX = scale.value; scaleY = scale.value }
                     .clip(CircleShape)
