@@ -118,10 +118,23 @@ fun SearchBar(
                 .offset(y = (-6).dp)
                 .fillMaxWidth()
                 .height(53.dp)
-                .shadow(if (c.isDark) 0.dp else 10.dp, CircleShape, ambientColor = Color(0x22000000), spotColor = Color(0x22000000))
+                // Same frosted look as the short resting pill (and the tab pill): see-through grey over a live blur.
+                .shadow(
+                    12.dp, CircleShape,
+                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
+                )
                 .clip(CircleShape)
-                .background(pillColor(c.isDark))
-                .border(0.6.dp, pillEdge(c.isDark), CircleShape)
+                .then(
+                    LocalHazeState.current?.let { haze ->
+                        Modifier.hazeBlur(
+                            dev.chrisbanes.haze.HazeInput.Sources(haze),
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                        )
+                    } ?: Modifier,
+                )
+                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
+                .drawBehind { drawRect(searchPillBase(c.isDark)) }
                 .clickable(interactionSource = null, indication = null) { focus.requestFocus() }
                 .padding(start = 17.dp, end = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -324,8 +337,8 @@ private fun SearchFade(visible: Boolean, content: @Composable () -> Unit) {
 @Composable
 fun SearchPillButton(label: String, onClick: () -> Unit) {
     val c = OneUi.colors
-    val base = if (c.isDark) Color(0xFF292929).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)
-    val hint = if (c.isDark) Color(0xFFD9D9DD) else Color(0xFF4A4A4F)
+    val base = searchPillBase(c.isDark)
+    val hint = if (c.isDark) Color(0xFFA3A3A7) else Color(0xFF8A8A8F)
     Box(Modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Row(
             Modifier
@@ -359,3 +372,6 @@ fun SearchPillButton(label: String, onClick: () -> Unit) {
         }
     }
 }
+
+/** The search pills' see-through grey (the tab pill's base), laid over the live blur. */
+fun searchPillBase(dark: Boolean) = if (dark) Color(0xFF292929).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)

@@ -47,6 +47,7 @@ import com.tools.app.ui.OneUiDialog
 import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.material3.Icon
@@ -146,8 +147,14 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         }
 
         card("balance") {
-            // The switcher fills the card's height, so its gap to the card's edge is 12 dp on the top, right and bottom alike.
-            Row(Modifier.height(androidx.compose.foundation.layout.IntrinsicSize.Min).padding(start = 22.dp, end = 12.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            // The switcher keeps its size; its right gap matches the space above and below it (measured from the card).
+            val density = androidx.compose.ui.platform.LocalDensity.current
+            var rowH by remember { mutableStateOf(0.dp) }
+            val sideGap = ((rowH - 76.dp) / 2).coerceAtLeast(12.dp)
+            Row(
+                Modifier.onSizeChanged { rowH = with(density) { it.height.toDp() } }.padding(start = 22.dp, end = sideGap, top = 12.dp, bottom = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
                     Text(CardStore.format(card.balanceCents), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = c.text, letterSpacing = 0.sp, maxLines = 1)
                     Text(card.name, fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp), maxLines = 1)
@@ -155,7 +162,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                 // Quick switcher: the other cards are one tap away (or adding the second one).
                 val many = state.cards.size > 1
                 Column(
-                    Modifier.padding(start = 10.dp).width(84.dp).fillMaxHeight().clip(RoundedCornerShape(20.dp)).background(c.tonal)
+                    Modifier.padding(start = 10.dp).size(width = 84.dp, height = 76.dp).clip(RoundedCornerShape(20.dp)).background(c.tonal)
                         .clickable { dialog = if (many) Dialog.Switch else Dialog.Add },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
