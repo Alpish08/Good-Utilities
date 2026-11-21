@@ -93,6 +93,10 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -124,6 +128,25 @@ private val LocalToolbarChip = androidx.compose.runtime.compositionLocalOf<() ->
 private fun Modifier.toolbarChip(chip: () -> Float, color: Color, radius: Dp): Modifier = drawBehind {
     val a = chip()
     if (a > 0f) drawCircle(color, radius = radius.toPx(), alpha = a)
+}
+
+/** A soft drop shadow under a floating chip, fading in and out with it ([chip] 0..1). [shape] is the chip's outline. */
+private fun Modifier.chipShadow(chip: () -> Float, shape: Shape, dark: Boolean): Modifier = graphicsLayer {
+    val a = chip()
+    shadowElevation = 8.dp.toPx() * a
+    this.shape = shape
+    clip = false
+    ambientShadowColor = if (dark) Color(0x99000000) else Color(0x33000000)
+    spotShadowColor = if (dark) Color(0xCC000000) else Color(0x40000000)
+}
+
+/** A circle of [radius] centred in the box (the chip drawn by [toolbarChip]). */
+private fun centredCircle(radius: Dp) = object : Shape {
+    override fun createOutline(size: androidx.compose.ui.geometry.Size, layoutDirection: LayoutDirection, density: Density): Outline {
+        val r = with(density) { radius.toPx() }
+        val c = androidx.compose.ui.geometry.Offset(size.width / 2f, size.height / 2f)
+        return Outline.Rounded(androidx.compose.ui.geometry.RoundRect(androidx.compose.ui.geometry.Rect(c, r), androidx.compose.ui.geometry.CornerRadius(r)))
+    }
 }
 
 /** #222222, as opaque as the search pill. */
@@ -530,7 +553,8 @@ private fun Toolbar(
         if (onBack != null) {
             val backSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
             Box(
-                Modifier.size(52.dp).toolbarChip(LocalToolbarChip.current, chipColor(c.isDark), 23.dp)
+                Modifier.size(52.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), c.isDark)
+                    .toolbarChip(LocalToolbarChip.current, chipColor(c.isDark), 23.dp)
                     .clickable(backSource, indication = null, onClick = onBack),
                 contentAlignment = Alignment.Center,
             ) {
@@ -547,15 +571,19 @@ private fun Toolbar(
         )
         // One UI 8.5 (Reminder): the action buttons share one capsule chip once content scrolls under them.
         val chip = LocalToolbarChip.current
+        var hasActions by remember { mutableStateOf(false) }
+        val emptyRowPx = with(LocalDensity.current) { 12.dp.toPx() }
         val chipCol = chipColor(c.isDark)
         Row(
             Modifier
                 .height(48.dp)
+                .chipShadow({ if (hasActions) chip() else 0f }, CircleShape, c.isDark)
                 .drawBehind {
                     val a = chip()
                     // Only when there is at least one button (the row is just its 10 dp padding when empty).
                     if (a > 0f && size.width > 12.dp.toPx()) drawRoundRect(chipCol, cornerRadius = androidx.compose.ui.geometry.CornerRadius(size.height / 2f), alpha = a)
                 }
+                .onSizeChanged { hasActions = it.width > emptyRowPx }
                 .padding(horizontal = 5.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -843,7 +871,8 @@ fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
     val slot = LocalToolbarSlot.current
     val source = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
     Box(
-        Modifier.size(width = slot, height = 48.dp).toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
+        Modifier.size(width = slot, height = 48.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), OneUi.colors.isDark)
+            .toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
             .clickable(source, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center,
     ) {
@@ -1090,7 +1119,11 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
         Box(
             Modifier
                 .padding(10.dp) // room for the shadow
-                .shadow(12.dp, shape, ambientColor = Color.Black.copy(alpha = 0.3f))
+                .shadow(
+                    12.dp, shape,
+                    ambientColor = Color.Black.copy(alpha = if (OneUi.colors.isDark) 0.6f else 0.3f),
+                    spotColor = Color.Black.copy(alpha = if (OneUi.colors.isDark) 0.8f else 0.35f),
+                )
                 .clip(shape)
                 .onGloballyPositioned { onScreen = it.positionOnScreen() },
         ) {
