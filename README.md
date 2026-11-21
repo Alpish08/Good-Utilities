@@ -1,28 +1,28 @@
 # Good Utilities
 
 A collection of everyday tools for Android, designed to look and feel like Samsung's own One UI 8.5 apps:
-expanding titles, floating toolbar buttons, frosted menus, a blurred bottom tab bar, One UI sliders and switches,
-predictive back, and full dark mode.
+expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, My Files' floating
+search pill, compact One UI buttons and spinners, One UI sliders and switches, predictive back, and full dark mode.
 
 Home lists every tool by category. The bottom tab bar (Media, Files, Images, Device, Misc) works as toggles:
-tap a tab to show only its tools, tap it again to see everything.
+tap a tab to show only its tools, tap it again to see everything. Search opens as a frosted bar above the keyboard.
 
 Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 and newer (arm64).
 
 ## Tools
 
 **Media**
-- **Music downloader**: YouTube songs and playlists to MP3 with cover art and tags. Downloads in parallel and keeps running in the background.
+- **Music downloader**: YouTube songs and playlists to MP3 with cover art and tags. Downloads in parallel and keeps running in the background. Paste a link (or share it from YouTube) and press Enter.
 - **Video downloader**: YouTube, TikTok, Instagram, X, Reddit and more. Choose the quality, a format that plays everywhere (H.264 MP4), or audio only.
 - **Audio merger**: join songs into one MP3 with a crossfade.
 - **Audio trimmer**: cut a song without losing quality.
 
 **Files**
-- **Document reader (Good Reader)**: a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, and it remembers your page.
+- **Document reader (Good Reader)**: a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, rotate to landscape, a frosted header and page indicator over the pages, and it remembers your page.
 - **PDF editor**: merge, split, reorder, rotate, sign, annotate and password-protect PDFs, or create a PDF from images. Drawing with the S Pen: 20 colours, 5 brush sizes, marker, eraser (or hold the pen's button), undo and redo, pinch zoom.
 - **File converter**: images, documents, audio and video (PNG, JPG, WebP, PDF, DOCX, TXT, MP3, WAV, FLAC, M4A, MP4, WebM, GIF…).
 - **Print**: prints straight to network printers over IPP (AirPrint / Mopria / IPP Everywhere) with a live preview, page picker, two-sided printing and toner levels. No system print screen involved.
-- **Compressor**: shrink videos with the phone's hardware encoder (H.264 / HEVC) and audio files (MP3 / AAC / Opus).
+- **Compressor**: shrink videos with the phone's hardware encoder (H.264 / HEVC), audio files (MP3 / AAC / Opus), and photos (smaller dimensions, a quality level, or a size limit for websites that reject large uploads).
 
 **Images**
 - **Color picker**: sample any pixel from a photo and get HEX, RGB and a palette.
@@ -31,14 +31,14 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 - **Icon maker**: put any logo on an installed icon pack's empty tile (its folder icon) for apps the pack doesn't cover. Remove a flat background or cut out the subject, make it white, round it into a circle, set the size and nudge the position; saves a PNG at the pack's own resolution.
 
 **Device**
-- **App lock**: lock apps with fingerprint or PIN. The cover fades in the moment you tap a locked app's icon, with only the fingerprint icon showing over it; the App lock page itself asks for your fingerprint or phone PIN.
+- **App lock**: lock apps with fingerprint or PIN (Authy and other apps that hide their windows from accessibility included). The cover fades in the moment you tap a locked app's icon, with only the fingerprint icon showing over it; the App lock page itself asks for your fingerprint or phone PIN.
 - **Private DNS**: switch the system DNS provider, with a Quick Settings tile.
 - **Charge limit**: custom battery protection and bypass charging (run straight from the charger), with a Quick Settings tile and Bypass on / off / toggle actions for Modes and Routines. **Auto bypass when hot** turns bypass on while plugged in once the battery reaches a chosen temperature and off again when it cools or you unplug, optionally skipping night charging (12 AM – 7:30 AM).
 - **Battery info**: Samsung's own battery health and lifetime cycle count (synced from a Mac with `sync-battery.sh`, since Android doesn't let apps read them), plus temperature and charging speed.
 
 **Miscellaneous**
-- **Card balance**: keep track of your own share of a shared card in exact cents. Type an amount, choose − or +, tap Log; the payment history shows the balance after each entry. Several cards (one primary), all kept on the phone.
-- **APK extractor**: save installed apps as APKs, merging split bundles into one installable file.
+- **Card balance**: keep track of your own share of a shared card in exact cents. Choose − or +, type an amount and an optional note, tap Log; the payment history shows the balance after each entry. Several cards (one primary) with a quick switcher beside the balance, all kept on the phone.
+- **APK extractor**: save installed apps as APKs, merging split bundles into one installable file. Search apps from the bottom pill.
 - **Japanese reader**: reads Japanese on your screen (Quick Settings tile), in photos or the camera: furigana, word meanings (JMdict, offline), sentence translation (on-device) and a saved-words list with flashcards.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
 - **Random**: numbers in any range, or roll dice (d4 to d20) with One UI animations.
