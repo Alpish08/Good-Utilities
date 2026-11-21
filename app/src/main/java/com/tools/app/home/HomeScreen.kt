@@ -1,5 +1,7 @@
 package com.tools.app.home
 
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
 import androidx.compose.material.icons.rounded.CreditCard
 
 import androidx.compose.material3.Text
@@ -279,7 +281,13 @@ private fun GlowPicker(onDismiss: () -> Unit) {
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             ) {
                 com.tools.app.ui.RadioDot(com.tools.app.ui.theme.Glow.style == g)
-                Text(g.label, fontSize = 16.sp, color = OneUi.colors.text, modifier = Modifier.padding(start = 14.dp))
+                Text(g.label, fontSize = 16.sp, color = OneUi.colors.text, modifier = Modifier.padding(start = 14.dp).weight(1f))
+                // A swatch of the colour, at full strength so the choices are easy to tell apart.
+                val sw = if (OneUi.colors.isDark) g.swatch.dark else g.swatch.light
+                androidx.compose.foundation.layout.Box(
+                    Modifier.padding(end = 4.dp).size(22.dp).clip(androidx.compose.foundation.shape.CircleShape)
+                        .background(sw.copy(alpha = 1f)),
+                )
             }
         }
     }

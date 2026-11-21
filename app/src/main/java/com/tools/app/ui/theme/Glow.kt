@@ -27,7 +27,7 @@ object Glow {
         private set
 
     /** The Home page's chosen glow. */
-    var style by mutableStateOf(GlowStyle.Mist)
+    var style by mutableStateOf(GlowStyle.Midnight)
         private set
 
     fun choose(context: Context, s: GlowStyle) {
@@ -42,7 +42,8 @@ object Glow {
         // The on/off switch was removed; clear any saved "off" so the Home glow always shows.
         prefs(context).edit().remove("glow").apply()
         enabled = true
-        style = runCatching { GlowStyle.valueOf(prefs(context).getString("homeGlow", null) ?: "") }.getOrDefault(GlowStyle.Mist)
+        // Older versions saved styles that are gone now (Mist became Midnight); anything unknown falls back to it.
+        style = runCatching { GlowStyle.valueOf(prefs(context).getString("homeGlow", null) ?: "") }.getOrDefault(GlowStyle.Midnight)
     }
 
     fun set(context: Context, on: Boolean) {
@@ -56,63 +57,34 @@ object Glow {
 /** One colour pool: centre and radius as fractions of the screen width / height. */
 class Pool(val dark: Color, val light: Color, val x: Float, val y: Float, val r: Float)
 
-/** The Home page's glow choices, back-to-front colour pools. Pick one from Home's menu → Background. */
+/**
+ * The Home page's background colours: all the same soft wash at the top of the page (the former "Mist"),
+ * each in its own colour. Pick one from Home's menu → Background.
+ */
 enum class GlowStyle(val label: String, vararg val pools: Pool) {
-    /** A single faint blue wash at the top, barely there. */
-    Mist(
-        "Mist",
-        Pool(Color(0xFF1C2B4A).copy(alpha = 0.5f), Color(0xFFCAD6F2).copy(alpha = 0.5f), 0.5f, 0.0f, 1.2f),
-    ),
-    /** Night-sky navy and violet with a little teal (Clock / Timer). */
-    Night(
-        "Night sky",
-        Pool(Color(0xFF1A2C5E).copy(alpha = 0.55f), Color(0xFFB8CBFF).copy(alpha = 0.55f), 0.2f, 0.02f, 1.05f),
-        Pool(Color(0xFF3B2A73).copy(alpha = 0.42f), Color(0xFFD9C8FF).copy(alpha = 0.45f), 1.0f, 0.48f, 0.85f),
-        Pool(Color(0xFF123F4A).copy(alpha = 0.32f), Color(0xFFBFE8EC).copy(alpha = 0.4f), 0.0f, 0.9f, 0.8f),
-    ),
-    /** Deep violet with a soft lilac halo in the middle (Reminder). */
-    Lilac(
-        "Lilac",
-        Pool(Color(0xFF2E2260).copy(alpha = 0.55f), Color(0xFFD2C6FF).copy(alpha = 0.5f), 0.5f, 0.38f, 1.0f),
-        Pool(Color(0xFF1C1F4A).copy(alpha = 0.45f), Color(0xFFC8D0FF).copy(alpha = 0.4f), 0.0f, 0.0f, 0.9f),
-        Pool(Color(0xFF3A1F4E).copy(alpha = 0.3f), Color(0xFFEBCFF5).copy(alpha = 0.35f), 1.0f, 1.0f, 0.8f),
-    ),
-    /** Navy at the top fading into a warm amber glow low down (Samsung Health). */
-    Sunset(
-        "Sunset",
-        Pool(Color(0xFF15295A).copy(alpha = 0.6f), Color(0xFFBDD0FF).copy(alpha = 0.55f), 0.5f, 0.0f, 1.1f),
-        Pool(Color(0xFF6A3A0E).copy(alpha = 0.42f), Color(0xFFFFD8A8).copy(alpha = 0.55f), 0.25f, 0.72f, 0.9f),
-        Pool(Color(0xFF4A1E2E).copy(alpha = 0.25f), Color(0xFFFFCBD8).copy(alpha = 0.35f), 1.0f, 0.95f, 0.7f),
-    ),
-    /** Teal-green rising from the bottom under a dark blue top (Clock, alarm tab). */
-    Aurora(
-        "Aurora",
-        Pool(Color(0xFF13274F).copy(alpha = 0.5f), Color(0xFFC4D4FF).copy(alpha = 0.5f), 0.7f, 0.0f, 1.0f),
-        Pool(Color(0xFF0E4A44).copy(alpha = 0.45f), Color(0xFFBDEFE3).copy(alpha = 0.5f), 0.1f, 0.95f, 1.0f),
-        Pool(Color(0xFF1B3D2A).copy(alpha = 0.3f), Color(0xFFD5F2C9).copy(alpha = 0.35f), 0.95f, 0.75f, 0.7f),
-    ),
-    /** Ocean blue and cyan. */
-    Ocean(
-        "Ocean",
-        Pool(Color(0xFF0E3557).copy(alpha = 0.6f), Color(0xFFB5DAFF).copy(alpha = 0.55f), 0.85f, 0.02f, 1.05f),
-        Pool(Color(0xFF13305E).copy(alpha = 0.42f), Color(0xFFC4CFFF).copy(alpha = 0.45f), 0.0f, 0.5f, 0.85f),
-        Pool(Color(0xFF0D4448).copy(alpha = 0.32f), Color(0xFFBDEDE6).copy(alpha = 0.4f), 0.95f, 0.92f, 0.8f),
-    ),
-    /** Rose and amber. */
-    Rose(
-        "Rose",
-        Pool(Color(0xFF5A1E3C).copy(alpha = 0.5f), Color(0xFFFFC6D6).copy(alpha = 0.5f), 0.95f, 0.0f, 1.0f),
-        Pool(Color(0xFF5C3312).copy(alpha = 0.42f), Color(0xFFFFDDB8).copy(alpha = 0.5f), 0.05f, 0.55f, 0.85f),
-        Pool(Color(0xFF2E1A4F).copy(alpha = 0.3f), Color(0xFFE5D6FF).copy(alpha = 0.35f), 0.9f, 0.95f, 0.8f),
-    ),
-    /** Forest green and teal. */
-    Forest(
-        "Forest",
-        Pool(Color(0xFF0F4535).copy(alpha = 0.55f), Color(0xFFBFF0D8).copy(alpha = 0.5f), 0.2f, 0.0f, 1.05f),
-        Pool(Color(0xFF103A58).copy(alpha = 0.4f), Color(0xFFBEE0FF).copy(alpha = 0.42f), 1.0f, 0.5f, 0.85f),
-        Pool(Color(0xFF29451A).copy(alpha = 0.28f), Color(0xFFDDF2C2).copy(alpha = 0.38f), 0.0f, 0.95f, 0.8f),
-    ),
+    /** Deep indigo (the original Mist). */
+    Midnight("Midnight", wash(0xFF1C2B4A, 0xFFCAD6F2)),
+    /** Violet, like dusk turning to night. */
+    Amethyst("Amethyst", wash(0xFF2E2152, 0xFFDCCCF7)),
+    /** Blue-green, clear shallow water. */
+    Lagoon("Lagoon", wash(0xFF123F45, 0xFFC2E8E6)),
+    /** Soft green. */
+    Moss("Moss", wash(0xFF1E3A22, 0xFFCFE8C9)),
+    /** Warm amber, a fire burning low. */
+    Ember("Ember", wash(0xFF4A2A12, 0xFFF7D6B8, 0.45f)),
+    /** Dusty rose. */
+    Rosewood("Rosewood", wash(0xFF4A1D33, 0xFFF5C9D8, 0.45f)),
+    /** No colour, just a lighter grey at the top. */
+    Graphite("Graphite", wash(0xFF2C2C30, 0xFFD9D9DE)),
+    ;
+
+    /** The colour shown on the picker's swatch. */
+    val swatch get() = pools.first()
 }
+
+/** The one wash every background shares: centred at the top, wider than the screen. */
+private fun wash(dark: Long, light: Long, alpha: Float = 0.5f) =
+    Pool(Color(dark).copy(alpha = alpha), Color(light).copy(alpha = alpha), 0.5f, 0.0f, 1.2f)
 
 /** The glow of the page being composed (set per page by the navigator); null = no glow (tool pages). */
 val LocalGlowStyle = staticCompositionLocalOf<GlowStyle?> { null }
