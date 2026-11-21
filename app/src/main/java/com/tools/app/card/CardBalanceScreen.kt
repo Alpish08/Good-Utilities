@@ -49,6 +49,7 @@ import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
 import com.tools.app.ui.RadioDot
 import com.tools.app.ui.card
+import com.tools.app.ui.collapseHeader
 import com.tools.app.ui.cardList
 import com.tools.app.ui.description
 import com.tools.app.ui.sectionLabel
@@ -111,8 +112,14 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         amount = ""; note = ""
     }
 
+    // The keyboard (amount or note) folds the big title away, so the entry row and history stay in view above it.
+    val list = androidx.compose.foundation.lazy.rememberLazyListState()
+    LaunchedEffect(imeShown.value) {
+        if (imeShown.value && list.firstVisibleItemIndex == 0) list.collapseHeader()
+    }
+
     OneUiScaffold(
-        title = "Card balance", onBack = onBack,
+        title = "Card balance", onBack = onBack, listState = list,
         actions = {
             if (card != null) OverflowMenu(
                 buildList {
