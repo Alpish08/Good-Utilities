@@ -193,8 +193,9 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
-        // Home keeps the classic pinned toolbar; floating buttons are for sub-pages.
-        floatingToolbar = false,
+        // With no tab chosen (every tool), the title scrolls away and the buttons float, like sub-pages; inside a
+        // tab, and while searching, Home keeps the classic pinned toolbar.
+        floatingToolbar = state.tab < 0 && !searching,
         // One tab's tools stay fully visible beside the tab bar; the full list (no tab chosen) and search fade out
         // toward the bottom like the earlier versions.
         fadeUnderBottomBar = searching || state.tab < 0,
