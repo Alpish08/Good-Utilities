@@ -11,7 +11,7 @@ import com.tools.app.MainActivity
 import com.tools.app.R
 
 /**
- * Card balance widget (2×4): the last-used card's balance and name, its three newest entries, and − / + buttons that
+ * Card balance widget (2×4): the primary card's balance and name, its three newest entries, and − / + buttons that
  * open Card balance in that mode with the amount box ready (widgets can't hold a text box themselves).
  */
 class CardWidget : AppWidgetProvider() {
@@ -22,7 +22,7 @@ class CardWidget : AppWidgetProvider() {
 
     private fun views(context: Context): RemoteViews {
         val v = RemoteViews(context.packageName, R.layout.widget_card)
-        val card = CardStore.load(context).current
+        val card = CardStore.load(context).primary
         v.setTextViewText(R.id.balance, card?.let { CardStore.format(it.balanceCents) } ?: "Card balance")
         v.setTextViewText(R.id.name, card?.name ?: "Tap to set up a card")
         val recent = card?.entries?.sortedByDescending { it.time }?.take(3).orEmpty()
@@ -34,7 +34,7 @@ class CardWidget : AppWidgetProvider() {
             v.setViewVisibility(row, if (e == null) View.GONE else View.VISIBLE)
             if (e != null) {
                 v.setTextViewText(notes[i], e.note.ifBlank { if (e.cents < 0) "Purchase" else "Added" })
-                v.setTextViewText(amounts[i], CardStore.format(e.cents, sign = true))
+                v.setTextViewText(amounts[i], if (e.cents < 0) CardStore.format(-e.cents) else CardStore.format(e.cents, sign = true))
                 v.setTextColor(amounts[i], context.getColor(if (e.cents > 0) R.color.widget_card_plus else R.color.widget_card_text))
             }
         }

@@ -75,6 +75,7 @@ object IconColors {
     val Blue = SamsungBlue
     val Purple = Color(0xFF7B5CF5)
     val Pink = Color(0xFFEC4F86)
+    val Gray = Color(0xFF8A8A90)
 }
 
 /** Samsung's system UI font family ("sec" = SamsungOne or the font chosen in Settings). */

@@ -146,6 +146,20 @@ object OneUiIcons {
     /** Line weight of the tab bar's outline icons (was 1.62, ~5.3 px; 1.5 is a touch thinner). */
     private const val TabStroke = 1.5f
 
+    /** Battery info: Material's rounded battery with an "i" cut out (like the bolt in Charge limit's icon). */
+    val BatteryInfo: ImageVector by lazy {
+        ImageVector.Builder("BatteryInfo", 24.dp, 24.dp, 24f, 24f).addPath(
+            pathData = androidx.compose.ui.graphics.vector.addPathNodes(
+                "M15.67,4H14V3c0-0.55-0.45-1-1-1h-2c-0.55,0-1,0.45-1,1v1H8.33C7.6,4 7,4.6 7,5.33v15.33C7,21.4 7.6,22 8.34,22h7.33" +
+                    "c0.74,0 1.34-0.6 1.34-1.33V5.33C17,4.6 16.4,4 15.67,4z" +
+                    "M12,7.35a1.25,1.25 0 1,0 0.001,0z" +
+                    "M10.95,10.9h2.1v7.6h-2.1z",
+            ),
+            fill = androidx.compose.ui.graphics.SolidColor(androidx.compose.ui.graphics.Color.Black),
+            pathFillType = androidx.compose.ui.graphics.PathFillType.EvenOdd,
+        ).build()
+    }
+
     val TabMedia: ImageVector by lazy {
         icon("TabMedia") {
             line(TabStroke) { circle(8.6f, 16.9f, 3.1f) }

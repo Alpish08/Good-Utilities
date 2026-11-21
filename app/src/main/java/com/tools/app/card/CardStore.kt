@@ -15,12 +15,14 @@ import java.util.UUID
 /** One logged amount: [cents] is negative for money spent, positive for money added. */
 data class Entry(val id: String, val cents: Long, val note: String, val time: Long)
 
-data class Card(val id: String, val name: String, val startCents: Long, val entries: List<Entry>) {
+data class Card(val id: String, val name: String, val startCents: Long, val entries: List<Entry>, val primary: Boolean = false) {
     val balanceCents get() = startCents + entries.sumOf { it.cents }
 }
 
 data class Cards(val cards: List<Card> = emptyList(), val currentId: String? = null) {
     val current get() = cards.firstOrNull { it.id == currentId } ?: cards.firstOrNull()
+    /** The card shown on Home and in the widget: the one marked primary (older data: the first card). */
+    val primary get() = cards.firstOrNull { it.primary } ?: cards.firstOrNull()
 }
 
 /**
@@ -58,6 +60,7 @@ object CardStore {
                         val e = es.getJSONObject(j)
                         Entry(e.getString("id"), e.getLong("cents"), e.optString("note"), e.getLong("time"))
                     },
+                    c.optBoolean("primary", false),
                 )
             },
             o.optString("current").ifBlank { null },
@@ -68,7 +71,7 @@ object CardStore {
         _state.value = s
         val o = JSONObject().put("current", s.currentId ?: "").put("cards", JSONArray().apply {
             s.cards.forEach { c ->
-                put(JSONObject().put("id", c.id).put("name", c.name).put("start", c.startCents).put("entries", JSONArray().apply {
+                put(JSONObject().put("id", c.id).put("name", c.name).put("start", c.startCents).put("primary", c.primary).put("entries", JSONArray().apply {
                     c.entries.forEach { e -> put(JSONObject().put("id", e.id).put("cents", e.cents).put("note", e.note).put("time", e.time)) }
                 }))
             }
@@ -87,9 +90,17 @@ object CardStore {
         s.copy(cards = s.cards.map { if (it.id == cur.id) f(it) else it }, currentId = cur.id)
     }
 
-    fun addCard(context: Context, name: String, startCents: Long) = update(context) { s ->
-        val card = Card(UUID.randomUUID().toString(), name.trim().ifBlank { "Card" }, startCents, emptyList())
-        s.copy(cards = s.cards + card, currentId = card.id)
+    /** Adds a card and switches to it. The first card is always primary; a new primary takes over from the old one. */
+    fun addCard(context: Context, name: String, startCents: Long, primary: Boolean = true) = update(context) { s ->
+        val isPrimary = primary || s.cards.isEmpty()
+        val card = Card(UUID.randomUUID().toString(), name.trim().ifBlank { "Card" }, startCents, emptyList(), isPrimary)
+        val others = if (isPrimary) s.cards.map { it.copy(primary = false) } else s.cards
+        s.copy(cards = others + card, currentId = card.id)
+    }
+
+    fun makePrimary(context: Context) = update(context) { s ->
+        val cur = s.current ?: return@update s
+        s.copy(cards = s.cards.map { it.copy(primary = it.id == cur.id) }, currentId = cur.id)
     }
 
     fun switchTo(context: Context, id: String) = update(context) { it.copy(currentId = id) }

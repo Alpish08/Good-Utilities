@@ -135,15 +135,15 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 Icons.Rounded.BatteryChargingFull, IconColors.Green,
             ),
             Tool(
-                Route.Battery, "Battery",
+                Route.Battery, "Battery info",
                 battery?.let { b -> b.healthPercent?.let { "Health ${if (b.healthIsSamsung) "" else "≈ "}$it%" + (b.totalCycles?.let { c -> " · $c cycles" } ?: "") } } ?: "Health, temperature and charging speed",
-                Icons.Rounded.BatteryStd, IconColors.Green,
+                com.tools.app.ui.OneUiIcons.BatteryInfo, IconColors.Gray,
             ),
         ),
         "Miscellaneous" to listOf(
             Tool(
                 Route.CardBalance, "Card balance",
-                cards.current?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Your share of a shared card",
+                cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Your share of a shared card",
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
