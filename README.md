@@ -86,11 +86,11 @@ Kotlin and Jetpack Compose with a custom One UI component library (`ui/Component
 Uses yt-dlp and FFmpeg (via youtubedl-android), Media3 Transformer, PdfBox-Android, ML Kit subject
 segmentation, ZXing, ARSCLib, apksig and Haze (the blur behind the tab bar).
 
-## App icon
+## Credit
 
-The app icon is **drawer alt 01** from [OneDark 3D](https://play.google.com/store/apps/details?id=com.eatos.onedark3d) by
-**Eatos**, used with credit. Eatos makes the best icon packs for One UI: every icon is drawn to sit perfectly next to
-Samsung's own, with alternates for almost everything. The full collection is worth every cent:
+The app icon is **drawer alt 01** from [OneDark 3D](https://play.google.com/store/apps/details?id=com.eatos.onedark3d) made by
+**Eatos**. Eatos makes the best icon packs for One UI: every icon is drawn to sit perfectly next to
+Samsung's own, with alternates for almost everything. The full collection is worth every cent, so check them out:
 
 - [OneDark 3D](https://play.google.com/store/apps/details?id=com.eatos.onedark3d)
 - [OnePro Dark](https://play.google.com/store/apps/details?id=com.eatos.onedarkpro)
