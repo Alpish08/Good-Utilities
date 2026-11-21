@@ -23,7 +23,7 @@ import com.tools.app.ui.OneUiIcons
 /**
  * "Tabs": the app's bottom tab pill as a 4×1 home-screen widget; each tab opens Good Utilities on that tab.
  *
- * The pill is drawn as one image with the app's exact proportions (5 tabs × 66 dp + 7 dp padding, 56 dp tall, 22.3 dp
+ * The pill is drawn as one image with the app's exact proportions (5 tabs × 63 dp + 7 dp padding, 56 dp tall, 22.3 dp
  * icons, 10 sp labels) and scaled to fill the space the Home screen gives the widget. One UI draws widgets smaller
  * than apps (hsResizeRatio), so a fixed-size layout looked shrunken; filling the width brings it back to about the
  * app's own size. Five transparent tap areas sit on top.
@@ -85,7 +85,7 @@ class TabsWidget : AppWidgetProvider() {
         }
         val iconPx = (22.3f * K).toInt()
         TABS.forEachIndexed { i, (label, icon) ->
-            val cx = (7f + 66f * i + 33f) * K
+            val cx = (7f + 63f * i + 31.5f) * K
             c.drawBitmap(VectorBitmap.render(icon(), iconPx), cx - iconPx / 2f, 8.35f * K, iconPaint)
             c.drawText(label, cx, 43f * K, text)
         }
@@ -93,7 +93,7 @@ class TabsWidget : AppWidgetProvider() {
     }
 
     private companion object {
-        const val W = 7f + 66f * 5 + 7f
+        const val W = 7f + 63f * 5 + 7f
         const val H = 56f
         const val K = 4f
         val TABS = listOf(
