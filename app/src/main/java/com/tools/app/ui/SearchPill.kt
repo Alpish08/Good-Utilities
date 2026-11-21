@@ -176,7 +176,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     // Neutral grey like Clock's bar (~#232323 at the edge, #262626 at the centre with the glow below).
     // A little more see-through than before, so the blur shows (Clock's neutral grey on top of it).
     // Dark: a lighter grey at the same see-through level, so the pill keeps its brightness over a dark page.
-    val pillBase = if (c.isDark) Color(0xFF4A4A4C).copy(alpha = 0.5f) else Color.White.copy(alpha = 0.55f)
+    val pillBase = if (c.isDark) Color(0xFF3E3E40).copy(alpha = 0.5f) else Color.White.copy(alpha = 0.55f)
     val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
     val restCentre = if (c.isDark) 0.15f else 0.045f
     val restEdge = if (c.isDark) 0.105f else 0.03f
