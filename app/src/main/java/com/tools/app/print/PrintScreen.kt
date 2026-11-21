@@ -126,7 +126,7 @@ fun PrintScreen(onBack: () -> Unit) {
     if (doc.pages.isEmpty()) {
         ToolPage("Print", onBack, expandable = false) {
             if (doc.loading) {
-                Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { CircularProgressIndicator(color = c.accent) }
+                Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner(color = c.accent) }
             } else {
                 Box(Modifier.weight(1f)) {
                     EmptyState(
@@ -264,7 +264,7 @@ private fun Sheet(index: Int, pg: PrintPage, sw: Float, sh: Float, opts: PrintOp
                 )
             }
         }
-        if (bmp == null) CircularProgressIndicator(Modifier.align(Alignment.Center).size(26.dp), color = c.accent, strokeWidth = 2.5.dp)
+        if (bmp == null) com.tools.app.ui.OneUiSpinner(Modifier.align(Alignment.Center).size(26.dp), color = c.accent, strokeWidth = 2.5.dp)
         Box(
             Modifier.align(Alignment.TopEnd).padding(4.dp).size(40.dp).clip(CircleShape).clickable { PrintSession.togglePage(index) },
             contentAlignment = Alignment.Center,
@@ -472,7 +472,7 @@ private fun JobCard(job: JobState) {
             when (job.phase) {
                 JobPhase.Done -> Icon(OneUiIcons.CheckCircle, null, tint = c.success, modifier = Modifier.size(22.dp).padding(end = 0.dp))
                 JobPhase.Failed -> Icon(OneUiIcons.ErrorOutline, null, tint = c.error, modifier = Modifier.size(22.dp))
-                else -> CircularProgressIndicator(Modifier.size(20.dp), color = c.accent, strokeWidth = 2.5.dp)
+                else -> com.tools.app.ui.OneUiSpinner(Modifier.size(20.dp), color = c.accent, strokeWidth = 2.5.dp)
             }
             Spacer(Modifier.width(12.dp))
             Text(
@@ -519,7 +519,7 @@ private fun PrinterPicker(found: List<FoundPrinter>, current: PrinterState, onCl
             }
             Row(Modifier.fillMaxWidth().padding(vertical = 12.dp, horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                 if (scanning) {
-                    CircularProgressIndicator(Modifier.size(18.dp), color = c.accent, strokeWidth = 2.dp)
+                    com.tools.app.ui.OneUiSpinner(Modifier.size(18.dp), color = c.accent, strokeWidth = 2.dp)
                     Spacer(Modifier.width(12.dp))
                     Text(if (found.isEmpty()) "Looking for printers…" else "Still looking…", fontSize = 14.sp, color = c.textSecondary)
                 } else {
@@ -570,7 +570,7 @@ private fun AddByIp(state: AddState, onClose: () -> Unit, onAdded: () -> Unit) {
         OneUiField(ip, { ip = it }, "192.168.1.50", error = state is AddState.Failed, keyboardType = KeyboardType.Uri)
         if (state is AddState.Failed) Text(state.message, fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp))
         if (state is AddState.Trying) Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.size(16.dp), color = c.accent, strokeWidth = 2.dp)
+            com.tools.app.ui.OneUiSpinner(Modifier.size(16.dp), color = c.accent, strokeWidth = 2.dp)
             Spacer(Modifier.width(10.dp))
             Text("Contacting the printer…", fontSize = 13.sp, color = c.textSecondary)
         }

@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -105,9 +106,11 @@ fun AboutScreen(onBack: () -> Unit) {
                         summary = if (n == 0) "No crashes recorded"
                         else "$n crash${if (n == 1) "" else "es"} · last on ${com.tools.app.CrashLog.lastTime(context)}",
                         trailing = if (n == 0) null else ({
-                            androidx.compose.material3.TextButton(onClick = { com.tools.app.CrashLog.clear(context); crashes = 0 }) {
-                                Text("Clear", color = c.accent, fontSize = 15.sp)
-                            }
+                            Text(
+                                "Clear", color = c.accent, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.clip(CircleShape).clickable { com.tools.app.CrashLog.clear(context); crashes = 0 }
+                                    .padding(horizontal = 14.dp, vertical = 10.dp),
+                            )
                         }),
                         onClick = if (n == 0) null else ({ com.tools.app.CrashLog.share(context) }),
                     )

@@ -137,7 +137,7 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
     when (val s = stage) {
         is Stage.Loading -> ToolPage("", onClose) {
             Column(Modifier.fillMaxSize(), verticalArrangement = androidx.compose.foundation.layout.Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                CircularProgressIndicator(color = OneUi.colors.accent, modifier = Modifier.size(40.dp))
+                com.tools.app.ui.OneUiSpinner(color = OneUi.colors.accent, modifier = Modifier.size(40.dp))
                 Text(s.message, fontSize = 15.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 18.dp))
             }
         }

@@ -98,7 +98,7 @@ fun CompressorScreen(onBack: () -> Unit) {
     val noun = when (mode) { 0 -> "video"; 1 -> "audio"; else -> "photos" }
 
     ToolPage(
-        "Compressor", onBack, expandable = false,
+        "Compressor", onBack,
         actions = { if (hasFile && !running) ToolbarIcon(if (mode == 1) OneUiIcons.Music else OneUiIcons.Gallery, "Choose $noun", choose) },
     ) {
         // Top ~40%: the picked file.

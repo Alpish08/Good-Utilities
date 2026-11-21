@@ -86,7 +86,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
                 ListRow(
                     "Preparing download engine",
                     summary = "Unpacking yt-dlp and FFmpeg. Only happens on first launch.",
-                    trailing = { CircularProgressIndicator(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
+                    trailing = { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
                 )
             }
             is EngineState.Failed -> card("engine") {
@@ -101,7 +101,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
                 ListRow(
                     "Reading link…",
                     summary = s.link,
-                    leading = { CircularProgressIndicator(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
+                    leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
                 )
             }
 

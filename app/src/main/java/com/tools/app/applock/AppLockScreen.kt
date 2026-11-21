@@ -147,7 +147,7 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
         }
         val list = apps
         if (list == null) item("loading") {
-            Box(Modifier.padding(32.dp).size(32.dp)) { CircularProgressIndicator(color = c.accent) }
+            Box(Modifier.padding(32.dp).size(32.dp)) { com.tools.app.ui.OneUiSpinner(color = c.accent) }
         } else {
             val shown = list
                 .filter { query.isBlank() || it.label.contains(query, ignoreCase = true) }

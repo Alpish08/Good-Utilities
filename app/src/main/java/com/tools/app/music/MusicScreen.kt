@@ -96,7 +96,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
                 ListRow(
                     "Preparing download engine",
                     summary = "Unpacking yt-dlp and FFmpeg. Only happens on first launch.",
-                    trailing = { CircularProgressIndicator(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
+                    trailing = { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
                 )
             }
             is EngineState.Failed -> card("engine") {
@@ -111,7 +111,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
                 ListRow(
                     "Reading link…",
                     summary = s.link,
-                    leading = { CircularProgressIndicator(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
+                    leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
                 )
             }
 
@@ -302,10 +302,10 @@ private fun StatusIndicator(st: TrackState) {
     val m = Modifier.size(26.dp)
     when (st.status) {
         Status.Queued -> Icon(OneUiIcons.Schedule, "Waiting", tint = c.textSecondary.copy(alpha = 0.6f), modifier = m)
-        Status.Downloading -> CircularProgressIndicator(
+        Status.Downloading -> com.tools.app.ui.OneUiSpinner(
             progress = { st.progress }, modifier = m, color = c.accent, trackColor = c.divider, strokeWidth = 3.dp,
         )
-        Status.Converting -> CircularProgressIndicator(m, color = c.accent, trackColor = c.divider, strokeWidth = 3.dp)
+        Status.Converting -> com.tools.app.ui.OneUiSpinner(m, color = c.accent, trackColor = c.divider, strokeWidth = 3.dp)
         Status.Done -> Icon(OneUiIcons.CheckCircle, "Saved", tint = c.accent, modifier = m)
         Status.Skipped -> Icon(OneUiIcons.CheckCircle, "Already downloaded", tint = c.textSecondary, modifier = m)
         Status.Failed -> Icon(OneUiIcons.ErrorOutline, "Failed", tint = c.error, modifier = m)

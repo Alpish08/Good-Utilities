@@ -195,13 +195,13 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                 Modifier.padding(horizontal = CardMargin, vertical = 10.dp).fillMaxWidth().height(180.dp)
                     .clip(OneUi.CardShape).background(OneUi.colors.card),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(Modifier.size(24.dp), strokeWidth = 2.dp) }
+            ) { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), strokeWidth = 2.dp) }
         }
 
         val st = state
         when {
             st is OcrState.Reading -> card("status") {
-                ListRow("Reading text…", leading = { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp) })
+                ListRow("Reading text…", leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(22.dp), strokeWidth = 2.dp) })
             }
             st is OcrState.Failed -> card("status") { ListRow("Couldn't read this image", summary = st.message, summaryColor = OneUi.colors.error) }
             o != null && o.lines.isEmpty() -> description("No Japanese text found in this picture.", key = "status")
@@ -217,7 +217,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
             // Words first (what you look up most), then the sentence translation.
             val list = infos
             sectionLabel("Words")
-            if (list == null) card("wordsLoading") { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { CircularProgressIndicator(Modifier.size(22.dp), strokeWidth = 2.dp) } }
+            if (list == null) card("wordsLoading") { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner(Modifier.size(22.dp), strokeWidth = 2.dp) } }
             else {
                 val rows = buildList {
                     list.filter { it.word.isWord && !it.word.isParticle }.forEach { add(WordItem("w${it.idx}", it, null)) }
@@ -378,7 +378,7 @@ private fun TranslationBody(model: ModelState, tr: TrState) {
             Text(if (model.wifiOnly) "Downloading the translation model (about 30 MB), waiting for Wi-Fi if needed…" else "Downloading the translation model (about 30 MB)…", fontSize = 14.sp, color = c.text)
             Spacer(Modifier.height(10.dp))
             // ML Kit gives no byte progress, so this is indeterminate.
-            androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape), color = c.accent, trackColor = c.sliderTrack)
+            com.tools.app.ui.ThinProgressIndeterminate(color = c.accent)
             if (model.wifiOnly) {
                 Text("Use mobile data instead", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(top = 10.dp, bottom = 4.dp))
             }
@@ -388,7 +388,7 @@ private fun TranslationBody(model: ModelState, tr: TrState) {
             Text("Try again", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(JpPrefs.wifiOnly) }.padding(vertical = 8.dp))
         }
         model !is ModelState.Ready || tr is TrState.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(10.dp))
+            com.tools.app.ui.OneUiSpinner(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(10.dp))
             Text(if (model is ModelState.Ready) "Translating…" else "Preparing…", color = c.textSecondary, fontSize = 14.sp)
         }
         tr is TrState.Failed -> Text(tr.message, fontSize = 14.sp, color = c.error)

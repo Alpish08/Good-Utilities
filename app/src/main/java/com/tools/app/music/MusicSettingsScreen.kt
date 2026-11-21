@@ -93,7 +93,7 @@ fun MusicSettingsScreen(onBack: () -> Unit, onSignIn: () -> Unit) {
                 enabled = engine is EngineState.Ready,
                 onClick = MusicDownloader::updateEngine,
                 trailing = if (engine == EngineState.Updating) {
-                    { CircularProgressIndicator(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) }
+                    { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) }
                 } else null,
             )
         }

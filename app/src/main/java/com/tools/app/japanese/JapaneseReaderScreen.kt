@@ -202,7 +202,7 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
                 is ModelState.Downloading -> Column(Modifier.padding(18.dp)) {
                     Text("Downloading the translation model…", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
                     Spacer(Modifier.height(10.dp))
-                    androidx.compose.material3.LinearProgressIndicator(Modifier.fillMaxWidth().clip(CircleShape), color = OneUi.colors.accent, trackColor = OneUi.colors.sliderTrack)
+                    com.tools.app.ui.ThinProgressIndeterminate(color = OneUi.colors.accent)
                     Spacer(Modifier.height(6.dp))
                     Text(if (m.wifiOnly) "About 30 MB. Waiting for Wi-Fi if you're not on it." else "About 30 MB, over any network.", fontSize = 13.sp, color = OneUi.colors.textSecondary)
                     if (m.wifiOnly) Text("Use mobile data instead", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(vertical = 8.dp))

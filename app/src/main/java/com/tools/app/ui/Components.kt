@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import androidx.compose.animation.core.animateFloat
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.blur.hazeBlur
 import androidx.compose.ui.layout.layout
@@ -939,6 +940,47 @@ fun ThinProgress(progress: Float, modifier: Modifier = Modifier, color: Color = 
     }
 }
 
+/** A thin bar with a short segment gliding across it, for waits with no known progress. */
+@Composable
+fun ThinProgressIndeterminate(modifier: Modifier = Modifier, color: Color = OneUi.colors.accent, height: Dp = 4.dp) {
+    val c = OneUi.colors
+    val t by androidx.compose.animation.core.rememberInfiniteTransition(label = "thinIndeterminate").animateFloat(
+        0f, 1f, androidx.compose.animation.core.infiniteRepeatable(tween(1300, easing = OneUiEasing)), label = "slide",
+    )
+    Box(modifier.fillMaxWidth().height(height).clip(CircleShape).background(c.sliderTrack).drawBehind {
+        val seg = size.width * 0.32f
+        val x = -seg + (size.width + seg) * t
+        drawRoundRect(color, androidx.compose.ui.geometry.Offset(x, 0f), androidx.compose.ui.geometry.Size(seg, size.height),
+            androidx.compose.ui.geometry.CornerRadius(size.height / 2f))
+    })
+}
+
+/**
+ * One UI's loading ring: a thin, round-capped arc turning steadily over a faint track (Samsung's spinner), instead of
+ * Material's. With [progress] it fills clockwise from the top instead.
+ */
+@Composable
+fun OneUiSpinner(
+    modifier: Modifier = Modifier,
+    color: Color = OneUi.colors.accent,
+    strokeWidth: Dp = 3.dp,
+    trackColor: Color = color.copy(alpha = 0.16f),
+    progress: (() -> Float)? = null,
+) {
+    val turn = if (progress == null) androidx.compose.animation.core.rememberInfiniteTransition(label = "spinner").animateFloat(
+        0f, 360f, androidx.compose.animation.core.infiniteRepeatable(tween(900, easing = androidx.compose.animation.core.LinearEasing)), label = "turn",
+    ) else null
+    androidx.compose.foundation.Canvas(modifier.size(40.dp)) {
+        val w = strokeWidth.toPx()
+        val box = androidx.compose.ui.geometry.Size(size.minDimension - w, size.minDimension - w)
+        val tl = androidx.compose.ui.geometry.Offset((size.width - box.width) / 2f, (size.height - box.height) / 2f)
+        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(w, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+        drawArc(trackColor, 0f, 360f, false, tl, box, style = stroke)
+        if (progress != null) drawArc(color, -90f, 360f * progress().coerceIn(0f, 1f), false, tl, box, style = stroke)
+        else drawArc(color, (turn?.value ?: 0f) - 90f, 100f, false, tl, box, style = stroke)
+    }
+}
+
 private val SliderIdleTrack = 14.dp
 private val SliderHeldTrack = 22.dp
 private val SliderThumb = 22.dp
@@ -1377,10 +1419,13 @@ fun OneUiDialog(
                 if (buttons.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp).padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                     buttons.forEachIndexed { i, (label, action) ->
                         if (i > 0) Box(Modifier.width(1.dp).height(18.dp).background(c.divider))
-                        Box(
-                            Modifier.weight(1f).height(46.dp).clip(CircleShape).clickable(onClick = action),
-                            contentAlignment = Alignment.Center,
-                        ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text) }
+                        // The press highlight is a centred capsule about 3/4 of the button's share, not the full width.
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                            Box(
+                                Modifier.fillMaxWidth(0.75f).height(46.dp).clip(CircleShape).clickable(onClick = action),
+                                contentAlignment = Alignment.Center,
+                            ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1) }
+                        }
                     }
                 }
             }
