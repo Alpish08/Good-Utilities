@@ -189,7 +189,8 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                         modifier = Modifier.padding(start = 10.dp),
                     )
                 }
-                NoteField(note, { note = it.take(120) }, Modifier.padding(top = 10.dp).fillMaxWidth(), onDone = ::logIt)
+                // The gap above the note matches the card's 14 dp bottom edge (the card grows to fit).
+                NoteField(note, { note = it.take(120) }, Modifier.padding(top = 14.dp).fillMaxWidth(), onDone = ::logIt)
             }
         }
 

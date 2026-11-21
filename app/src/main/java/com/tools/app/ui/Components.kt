@@ -1420,10 +1420,11 @@ fun OneUiDialog(
                 if (buttons.isNotEmpty()) Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp).padding(top = 14.dp), verticalAlignment = Alignment.CenterVertically) {
                     buttons.forEachIndexed { i, (label, action) ->
                         if (i > 0) Box(Modifier.width(1.dp).height(18.dp).background(c.divider))
-                        // The press highlight is a centred capsule half the button's share (2/3 of the earlier 3/4), not the full width.
+                        // A lone button's press highlight is a centred capsule half the width (2/3 of the earlier 3/4);
+                        // side-by-side buttons each highlight their full share.
                         Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                             Box(
-                                Modifier.fillMaxWidth(0.5f).height(46.dp).clip(CircleShape).clickable(onClick = action),
+                                Modifier.fillMaxWidth(if (buttons.size == 1) 0.5f else 1f).height(46.dp).clip(CircleShape).clickable(onClick = action),
                                 contentAlignment = Alignment.Center,
                             ) { Text(label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1) }
                         }
