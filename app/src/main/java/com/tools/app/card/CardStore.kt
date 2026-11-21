@@ -26,7 +26,7 @@ data class Cards(val cards: List<Card> = emptyList(), val currentId: String? = n
 }
 
 /**
- * Card balance: your own share of shared cards, in exact cents (no floating-point drift). Kept in a small private
+ * Card balance: expenses and payments per card, in exact cents (no floating-point drift). Kept in a small private
  * JSON file; every change also refreshes the widget.
  */
 object CardStore {

@@ -69,7 +69,7 @@ import java.util.Locale
 
 private enum class Dialog { Switch, Add, Rename, Start, Delete }
 
-/** Card balance: your own share of a shared card. Type an amount, choose − or +, tap Log. */
+/** Card balance: manage expenses and track payments. Choose − or +, type an amount, tap Log. */
 @OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun CardBalanceScreen(onBack: () -> Unit) {
@@ -142,7 +142,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
     ) {
         if (card == null) {
             card("setup") { SetupCard(onCreate = { name, start -> CardStore.addCard(context, name, start) }) }
-            description("Keep track of how much of a shared card's money is yours. Everything stays on this phone.")
+            description("Manage your spending: log purchases and deposits, see your balance, and look back through your payment history. Everything stays on this phone.")
             return@OneUiScaffold
         }
 

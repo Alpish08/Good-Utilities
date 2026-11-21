@@ -145,7 +145,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         "Miscellaneous" to listOf(
             Tool(
                 Route.CardBalance, "Card balance",
-                cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Your share of a shared card",
+                cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Track expenses and payments",
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
             Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
