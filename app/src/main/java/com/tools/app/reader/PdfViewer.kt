@@ -358,10 +358,11 @@ internal fun PdfViewer(
             exit = fadeOut(tween(260)) + scaleOut(tween(260), 0.9f),
         ) {
             Text(
-                "${where.page + 1} / $count", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                "${where.page + 1} / $count", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                // Same frost as the header: its grey, opacity and blur.
                 modifier = Modifier.clip(CircleShape)
-                    .then(blurBehind(haze, c.background, com.tools.app.ui.MenuBlurRadius))
-                    .background(com.tools.app.ui.menuTint(c.popup, c.isDark)).padding(horizontal = 13.dp, vertical = 6.dp),
+                    .then(blurBehind(haze, c.background))
+                    .background(frostedBar(c.isDark)).padding(horizontal = 11.dp, vertical = 4.5.dp),
             )
         }
 
