@@ -52,6 +52,13 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 Everything the app creates is saved in **Internal Storage/Good Utilities/** (Music, Videos, Audio, Pictures, Documents, APKs, Icons).
 If the app ever crashes, About → Crash log keeps the details so they can be shared.
 
+## Future plans
+
+- **More One UI widgets**: new utility widgets drawn to match Samsung's own (Clock, Weather, Battery), for quick
+  glances and one-tap actions from the home screen.
+- **New everyday tools**: more small, focused utilities for things that otherwise need an ad-filled app from the store.
+- **Landscape mode**: fixing layouts that don't fit or scale properly in landscape.
+
 ## Building
 
 Requirements: Android Studio (its bundled JDK), Android SDK 37.
