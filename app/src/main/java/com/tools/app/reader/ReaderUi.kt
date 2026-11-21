@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import androidx.compose.ui.graphics.Color
+import dev.chrisbanes.haze.blur.hazeBlur
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -71,11 +73,19 @@ fun Context.findActivity(): Activity? {
 
 /** One UI toolbar (back, title, actions), drawn translucent so pages scroll under it. */
 @Composable
-internal fun ReaderBar(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, alpha: Float = 0.94f, actions: @Composable RowScope.() -> Unit) {
+internal fun ReaderBar(
+    title: String, onBack: () -> Unit, modifier: Modifier = Modifier, alpha: Float = 0.94f,
+    /** PDF pages: the bar turns a see-through grey and blurs the pages scrolling under it. */
+    haze: dev.chrisbanes.haze.HazeState? = null,
+    actions: @Composable RowScope.() -> Unit,
+) {
     val c = OneUi.colors
     val top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val fill = if (haze != null) frostedBar(c.isDark) else c.background.copy(alpha = alpha)
     Row(
-        modifier.fillMaxWidth().background(c.background.copy(alpha = alpha)).padding(top = top).height(BarHeight).padding(start = 4.dp, end = 8.dp),
+        modifier.fillMaxWidth()
+            .then(haze?.let { blurBehind(it, c.background) } ?: Modifier)
+            .background(fill).padding(top = top).height(BarHeight).padding(start = 4.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(52.dp).clip(CircleShape).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
@@ -236,3 +246,11 @@ fun printPdf(ctx: Context, doc: PdfDoc) {
     pm.print(name, adapter, PrintAttributes.Builder().build())
 }
 
+/** The PDF reader's bars: a neutral grey, see-through enough for the blur behind it to show. */
+internal fun frostedBar(dark: Boolean) = if (dark) Color(0xFF2B2B2D).copy(alpha = 0.6f) else Color(0xFFF1F1F3).copy(alpha = 0.68f)
+
+/** Blurs what [haze] captured (the pages) behind this bar, over [backing] so nothing sharp shows through. */
+internal fun blurBehind(haze: dev.chrisbanes.haze.HazeState, backing: Color): Modifier = Modifier.hazeBlur(
+    dev.chrisbanes.haze.HazeInput.Sources(haze),
+    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(24.dp); noiseFactor(0f); backgroundColor(backing) },
+)

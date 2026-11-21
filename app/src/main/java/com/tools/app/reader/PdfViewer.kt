@@ -1,5 +1,6 @@
 package com.tools.app.reader
 
+import dev.chrisbanes.haze.hazeSource
 import android.content.Intent
 import android.graphics.RectF
 import android.widget.Toast
@@ -231,6 +232,7 @@ internal fun PdfViewer(
         jump = Jump(h.page, h.rects.firstOrNull()?.top)
     }
 
+    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
     BoxWithConstraints(Modifier.fillMaxSize().background(c.background)) {
         val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
         val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
@@ -246,6 +248,9 @@ internal fun PdfViewer(
 
         val toggleBars = { selection = null; bars = !bars }
         var pressY by remember { mutableStateOf(0f) }
+        // The pages, captured so the top bar can blur them.
+        val haze = remember { dev.chrisbanes.haze.HazeState() }
+        Box(Modifier.fillMaxSize().hazeSource(haze)) {
         if (settings.continuous) {
             ContinuousPages(
                 doc, zoom, listState, where, settings.night, search, selection, jump, topPad, bottomPad,
@@ -260,6 +265,7 @@ internal fun PdfViewer(
             )
         } else {
             SinglePages(doc, where, settings.night, search, jump, topPad, bottomPad, onScrolling = { scrolling = it }, onTap = toggleBars)
+        }
         }
 
         // ---- top bar ----
@@ -280,7 +286,7 @@ internal fun PdfViewer(
                     onPrev = { step(-1) }, onNext = { step(1) }, onClose = { search.active = false },
                 )
             } else {
-                ReaderBar(doc.info.name, onBack) {
+                ReaderBar(doc.info.name, onBack, haze = haze) {
                     ToolbarIcon(OneUiIcons.Search, "Search") { search.active = true; bars = true }
                     val items = buildList<Pair<String, () -> Unit>> {
                         add("Go to page" to { dialog = Dlg.GoTo })
@@ -288,6 +294,12 @@ internal fun PdfViewer(
                         add((if (settings.night) "Turn off night mode" else "Night mode") to { settings.changeNight(!settings.night) })
                         add((if (settings.keepOn) "Allow screen to turn off" else "Keep screen on") to { settings.changeKeepOn(!settings.keepOn) })
                         add((if (settings.continuous) "Single page" else "Continuous scroll") to { settings.changeContinuous(!settings.continuous) })
+                        add((if (landscape) "Rotate to portrait" else "Rotate to landscape") to {
+                            // Only this screen: the phone's own auto-rotate setting is left alone.
+                            ctx.findActivity()?.requestedOrientation =
+                                if (landscape) android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+                        })
                         if (!advancedPdf) add("Copy page text" to {
                             scope.launch {
                                 val t = doc.pageText(where.page).trim()
@@ -346,8 +358,8 @@ internal fun PdfViewer(
             exit = fadeOut(tween(260)) + scaleOut(tween(260), 0.9f),
         ) {
             Text(
-                "${where.page + 1} / $count", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = Color.White,
-                modifier = Modifier.clip(CircleShape).background(Color(0xCC262626)).padding(horizontal = 18.dp, vertical = 9.dp),
+                "${where.page + 1} / $count", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                modifier = Modifier.clip(CircleShape).background(com.tools.app.ui.chipColor(c.isDark)).padding(horizontal = 13.dp, vertical = 6.dp),
             )
         }
 

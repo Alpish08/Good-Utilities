@@ -150,7 +150,7 @@ private fun centredCircle(radius: Dp) = object : Shape {
 }
 
 /** #222222, as opaque as the search pill. */
-private fun chipColor(dark: Boolean) = if (dark) Color(0xFF222222) else Color(0xFFE6E6EB)
+fun chipColor(dark: Boolean) = if (dark) Color(0xFF222222) else Color(0xFFE6E6EB)
 val CardMargin = 10.dp
 /** How far lists fade out at the top and bottom edges. */
 val FadeLength = 38.dp
