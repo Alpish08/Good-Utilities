@@ -51,6 +51,7 @@ import com.tools.app.ui.ListRow
 import com.tools.app.ui.OneUiDialog
 import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.cardList
+import com.tools.app.ui.collapseHeader
 import com.tools.app.ui.description
 import com.tools.app.ui.theme.OneUi
 import kotlinx.coroutines.CoroutineScope
@@ -113,8 +114,26 @@ fun ApkScreen(onBack: () -> Unit) {
         if (uri != null) { selected = null; ApkJob.runFile(context, uri) }
     }
 
-    val shown = apps.orEmpty()
-    OneUiScaffold(title = "APK extractor", onBack = onBack) {
+    // Search opens from the toolbar as Home's floating bottom pill; while it's open only the apps are listed.
+    var query by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf("") }
+    var searching by androidx.compose.runtime.saveable.rememberSaveable { mutableStateOf(false) }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val closeSearch: () -> Unit = {
+        query = ""; searching = false; focusManager.clearFocus()
+        scope.launch { kotlinx.coroutines.delay(60); listState.collapseHeader() }
+    }
+    androidx.activity.compose.BackHandler(enabled = searching) { closeSearch() }
+
+    val q = query.trim()
+    val shown = apps.orEmpty().filter { q.isEmpty() || it.label.contains(q, ignoreCase = true) || it.packageName.contains(q, ignoreCase = true) }
+    OneUiScaffold(
+        title = "APK extractor", onBack = onBack, listState = listState,
+        actions = { com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search apps") { searching = true } },
+        bottomBar = if (searching) { { com.tools.app.ui.SearchBar(query, { query = it }, onClose = closeSearch, placeholder = "Search apps") } } else null,
+    ) {
+        if (!searching) {
         description("Save apps as APK files in ${ApkTools.FOLDER}. Split apps and bundle files are merged into one APK you can install anywhere.")
         cardList(listOf(Unit), key = { "bundle-file" }) {
             ListRow(
@@ -123,7 +142,8 @@ fun ApkScreen(onBack: () -> Unit) {
                 onClick = { if (job !is ApkJob.State.Running) { ApkJob.state.value = ApkJob.State.Idle; bundlePicker.launch(arrayOf("*/*")) } },
             )
         }
-        sectionLabel("Installed apps")
+        }
+        sectionLabel(if (searching && q.isNotEmpty() && shown.isEmpty()) "No apps found" else "Installed apps", key = "apps-label")
         if (apps == null) description("Loading apps…", key = "loading")
         cardList(shown, key = { it.packageName }, dividerStart = IconRowDivider + 12.dp) { app ->
             ListRow(

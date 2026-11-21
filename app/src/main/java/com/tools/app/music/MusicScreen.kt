@@ -1,5 +1,6 @@
 package com.tools.app.music
 
+import androidx.compose.foundation.layout.widthIn
 import com.tools.app.ui.OneUiIcons
 import android.Manifest
 import android.content.ClipboardManager
@@ -187,24 +188,18 @@ private fun LinkCard(s: AppState) {
                     },
                 )
                 if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, "Clear") { MusicDownloader.reset() }
+                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
+                    val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
+                    val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
+                    if (!text.isNullOrBlank()) { focus.clearFocus(); MusicDownloader.fetch(text) }
+                }
             }
-            Row(
-                Modifier.fillMaxWidth().padding(top = 6.dp, end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
+            // Paste lives in the field (above); Fetch is a compact One UI button at the end.
+            Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
                 PillButton(
-                    "Paste", tonal = true, icon = OneUiIcons.ContentPaste, height = 46.dp, enabled = !busy,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
-                        val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
-                        if (!text.isNullOrBlank()) { focus.clearFocus(); MusicDownloader.fetch(text) }
-                    },
-                )
-                PillButton(
-                    if (s.phase == Phase.Fetching) "Fetching…" else "Fetch", height = 46.dp,
+                    if (s.phase == Phase.Fetching) "Fetching…" else "Fetch",
                     enabled = s.link.isNotBlank() && s.phase != Phase.Fetching && !busy,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.widthIn(min = 108.dp),
                     onClick = { focus.clearFocus(); MusicDownloader.fetch(s.link) },
                 )
             }

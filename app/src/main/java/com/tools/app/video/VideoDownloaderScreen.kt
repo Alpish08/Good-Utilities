@@ -1,5 +1,6 @@
 package com.tools.app.video
 
+import androidx.compose.foundation.layout.widthIn
 import android.content.ClipboardManager
 import android.content.Intent
 import android.widget.Toast
@@ -77,7 +78,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
             )
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                 val c = LocalContext.current
-                PillButton("Open settings", onClick = { c.startActivity(Storage.accessIntent(c)) }, height = 46.dp, modifier = Modifier.fillMaxWidth())
+                PillButton("Open settings", onClick = { c.startActivity(Storage.accessIntent(c)) }, modifier = Modifier.fillMaxWidth())
             }
         }
 
@@ -172,21 +173,18 @@ private fun LinkCard(s: VState) {
                     },
                 )
                 if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, "Clear") { VideoDownloader.reset() }
+                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
+                    val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
+                    val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
+                    if (!text.isNullOrBlank()) { focus.clearFocus(); VideoDownloader.fetch(text) }
+                }
             }
-            Row(Modifier.fillMaxWidth().padding(top = 6.dp, end = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // Paste lives in the field (above); Fetch is a compact One UI button at the end.
+            Box(Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp), contentAlignment = Alignment.CenterEnd) {
                 PillButton(
-                    "Paste", tonal = true, icon = OneUiIcons.ContentPaste, height = 46.dp, enabled = !busy,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
-                        val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
-                        if (!text.isNullOrBlank()) { focus.clearFocus(); VideoDownloader.fetch(text) }
-                    },
-                )
-                PillButton(
-                    if (s.phase == VPhase.Fetching) "Fetching…" else "Fetch", height = 46.dp,
+                    if (s.phase == VPhase.Fetching) "Fetching…" else "Fetch",
                     enabled = s.link.isNotBlank() && s.phase != VPhase.Fetching && !busy,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.widthIn(min = 108.dp),
                     onClick = { focus.clearFocus(); VideoDownloader.fetch(s.link) },
                 )
             }
@@ -321,12 +319,12 @@ private fun FinishedCard(s: VState) {
         )
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val uris = s.saved.mapNotNull { it.uri }
-            if (s.saved.size == 1 && uris.size == 1) PillButton("Open", tonal = true, icon = OneUiIcons.PlayArrow, height = 46.dp, modifier = Modifier.weight(1f), onClick = {
+            if (s.saved.size == 1 && uris.size == 1) PillButton("Open", tonal = true, icon = OneUiIcons.PlayArrow, modifier = Modifier.weight(1f), onClick = {
                 val f = s.saved[0]
                 val intent = Intent(Intent.ACTION_VIEW).setDataAndType(f.uri, f.mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
                 runCatching { context.startActivity(intent) }.onFailure { Toast.makeText(context, "No app can open this file", Toast.LENGTH_SHORT).show() }
             })
-            if (uris.isNotEmpty()) PillButton("Share", tonal = true, icon = OneUiIcons.Share, height = 46.dp, modifier = Modifier.weight(1f), onClick = {
+            if (uris.isNotEmpty()) PillButton("Share", tonal = true, icon = OneUiIcons.Share, modifier = Modifier.weight(1f), onClick = {
                 val mime = s.saved.map { it.mime.substringBefore('/') }.distinct().singleOrNull()?.let { "$it/*" } ?: "*/*"
                 val intent = if (uris.size == 1) Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, uris[0])
                 else Intent(Intent.ACTION_SEND_MULTIPLE).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))

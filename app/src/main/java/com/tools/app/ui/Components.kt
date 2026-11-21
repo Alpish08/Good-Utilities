@@ -864,7 +864,8 @@ fun PillButton(
     enabled: Boolean = true,
     tonal: Boolean = false,
     icon: ImageVector? = null,
-    height: Dp = 52.dp,
+    // One UI's buttons are compact: 44 dp, not Material's tall 52.
+    height: Dp = 44.dp,
 ) {
     val c = OneUi.colors
     val bg by animateColorAsState(if (tonal) c.tonal else c.accent, label = "pillBg")
@@ -880,15 +881,15 @@ fun PillButton(
             .background(bg)
             .clickable(source, LocalIndication.current, enabled = enabled, onClick = onClick)
             .graphicsLayer { alpha = if (enabled) 1f else 0.4f }
-            .padding(horizontal = 20.dp),
+            .padding(horizontal = 22.dp),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (icon != null) {
-            Icon(icon, null, tint = fg, modifier = Modifier.size(20.dp))
-            Spacer(Modifier.width(8.dp))
+            Icon(icon, null, tint = fg, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(7.dp))
         }
-        Text(text, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = fg, maxLines = 1)
+        Text(text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = fg, maxLines = 1)
     }
 }
 

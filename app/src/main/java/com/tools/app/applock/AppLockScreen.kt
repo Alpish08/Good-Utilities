@@ -53,6 +53,8 @@ import com.tools.app.ui.theme.OneUi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
+import com.tools.app.ui.collapseHeader
 
 private class AppEntry(val pkg: String, val label: String, val icon: ImageBitmap)
 
@@ -86,7 +88,26 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
     val openAccessibility = { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)) }
     val active = config.enabled && serviceOn
 
-    OneUiScaffold(title = "App lock", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide)) }) {
+    // Search opens from the toolbar as Home's floating bottom pill; while it's open only the apps are listed.
+    var searching by rememberSaveable { mutableStateOf(false) }
+    val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
+    val closeSearch: () -> Unit = {
+        query = ""; searching = false; focusManager.clearFocus()
+        scope.launch { delay(60); listState.collapseHeader() }
+    }
+    androidx.activity.compose.BackHandler(enabled = searching) { closeSearch() }
+
+    OneUiScaffold(
+        title = "App lock", onBack = onBack, listState = listState,
+        actions = {
+            com.tools.app.ui.ToolbarIcon(OneUiIcons.Search, "Search apps") { searching = true }
+            com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide))
+        },
+        bottomBar = if (searching) { { com.tools.app.ui.SearchBar(query, { query = it }, onClose = closeSearch, placeholder = "Search apps") } } else null,
+    ) {
+        if (!searching) {
         item("master") {
             MasterSwitchCard(active, onCheckedChange = { on ->
                 if (on && !serviceOn) openAccessibility()
@@ -131,20 +152,10 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
             ListRow(r.label, leading = { RadioDot(config.relock == r) }, onClick = { AppLock.setRelock(r) })
         }
 
+        }
         sectionLabel("Apps", key = "apps-label", trailing = {
             Text("${config.locked.size} locked", fontSize = 14.sp, color = c.textSecondary)
         })
-        item("search") {
-            RoundCard {
-                Row(Modifier.padding(horizontal = 18.dp, vertical = 14.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Icon(OneUiIcons.Search, null, tint = c.textSecondary, modifier = Modifier.size(22.dp))
-                    Box(Modifier.padding(start = 12.dp).weight(1f)) {
-                        if (query.isEmpty()) Text("Search apps", fontSize = 16.sp, color = c.textSecondary)
-                        BasicTextField(query, { query = it }, singleLine = true, textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 16.sp, color = c.text), cursorBrush = SolidColor(c.accent))
-                    }
-                }
-            }
-        }
         val list = apps
         if (list == null) item("loading") {
             Box(Modifier.padding(32.dp).size(32.dp)) { com.tools.app.ui.OneUiSpinner(color = c.accent) }

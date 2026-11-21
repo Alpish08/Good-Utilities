@@ -87,7 +87,7 @@ fun QrScreen(onBack: () -> Unit) {
     ) {
         item(key = "input") {
             RoundCard {
-                Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 16.dp)) {
+                Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
                     Text("Link or text", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent)
                     Row(verticalAlignment = Alignment.Top) {
                         BasicTextField(
@@ -105,16 +105,12 @@ fun QrScreen(onBack: () -> Unit) {
                             },
                         )
                         if (text.isNotEmpty()) ToolbarIcon(OneUiIcons.Close, "Clear") { text = "" }
-                    }
-                    PillButton(
-                        "Paste", tonal = true, icon = OneUiIcons.ContentPaste, height = 46.dp,
-                        modifier = Modifier.fillMaxWidth().padding(top = 6.dp, end = 6.dp),
-                        onClick = {
+                        else ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
                             val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
                             val t = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                             if (!t.isNullOrBlank()) { focus.clearFocus(); text = t.trim() }
-                        },
-                    )
+                        }
+                    }
                 }
             }
         }

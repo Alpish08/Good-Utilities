@@ -100,11 +100,11 @@ class QrActivity : ComponentActivity() {
                                 textAlign = TextAlign.Center, modifier = Modifier.padding(top = 14.dp),
                             )
                             qr?.let { qr -> Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                PillButton("Save", tonal = true, height = 48.dp, modifier = Modifier.weight(1f), onClick = {
+                                PillButton("Save", tonal = true, modifier = Modifier.weight(1f), onClick = {
                                     val r = runCatching { com.tools.app.ui.Images.saveJpeg(this@QrActivity, QrCode.padded(qr), "qr_${System.currentTimeMillis()}") }
                                     Toast.makeText(this@QrActivity, if (r.isSuccess) "Saved to ${com.tools.app.ui.Images.FOLDER}" else r.exceptionOrNull()?.message ?: "Couldn't save", Toast.LENGTH_SHORT).show()
                                 })
-                                PillButton("Share", height = 48.dp, modifier = Modifier.weight(1f), onClick = { QrCode.share(this@QrActivity, QrCode.padded(qr)) })
+                                PillButton("Share", modifier = Modifier.weight(1f), onClick = { QrCode.share(this@QrActivity, QrCode.padded(qr)) })
                             } }
                         }
                     }

@@ -47,6 +47,7 @@ import com.tools.app.ui.OneUiDialog
 import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
+import androidx.compose.foundation.layout.widthIn
 import com.tools.app.ui.RadioDot
 import com.tools.app.ui.card
 import com.tools.app.ui.collapseHeader
@@ -161,11 +162,14 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     note, { note = it.take(60) }, "Note (optional)",
                     Modifier.padding(top = 10.dp).fillMaxWidth(), onDone = ::logIt,
                 )
-                PillButton(
-                    "Log", onClick = ::logIt,
-                    enabled = (CardStore.parse(amount) ?: 0L) > 0L,
-                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
-                )
+                // A compact button at the end, like One UI's card actions, rather than a full-width slab.
+                Box(Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.CenterEnd) {
+                    PillButton(
+                        "Log", onClick = ::logIt,
+                        enabled = (CardStore.parse(amount) ?: 0L) > 0L,
+                        modifier = Modifier.widthIn(min = 108.dp),
+                    )
+                }
             }
         }
 
