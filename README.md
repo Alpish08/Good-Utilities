@@ -40,7 +40,7 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 
 **Miscellaneous**
 - **Card balance**: manage your expenses and track payments in exact cents. Choose − or +, type an amount and an optional note, tap Log; the payment history shows the balance after each entry. Several cards (one primary) with a quick switcher beside the balance, all kept on the phone.
-- **Briefs**: your newsletters and articles from one Gmail label, as clean, readable pages. It opens in its own window (called One Mail in recent apps). Each email is reformatted in One UI's type with real dark mode, tracking pixels and "view in browser / unsubscribe" clutter removed, images off until you allow a sender, adjustable text size, reading time, a contents list for long digests, short data tables (like market prices) kept on one line, read aloud, and the next brief at the end. It syncs over IMAP with a Gmail app password (kept encrypted) only while it's open: no background activity, no notifications. Opening a brief marks it read in Gmail; nothing else changes there.
+- **Briefs**: your newsletters and articles from one Gmail label, as clean, readable pages, grouped into Today, Yesterday and Past. It opens in its own window (called One Mail in recent apps). Each email is reformatted in One UI's type with real dark mode (or "Show in light" for newsletters made for white), with tracking pixels, repeated titles and "view in browser / unsubscribe / forwarded" clutter removed. Images stay off until you allow a sender. Adjustable text size, reading time, a contents list for long digests, short data tables (like market prices) kept on one line, read aloud, and the next brief at the end. It keeps the 80 newest emails by date and syncs over IMAP with a Gmail app password (kept encrypted) only while it's open: no background activity, no notifications. Opening a brief marks it read in Gmail; nothing else changes there.
 - **Japanese reader**: reads Japanese on your screen (Quick Settings tile), in photos or the camera: furigana, word meanings (JMdict, offline), sentence translation (on-device) and a saved-words list with flashcards.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
 - **Random**: numbers in any range, or roll dice (d4 to d20) with One UI animations.
@@ -59,6 +59,10 @@ If the app ever crashes, About → Crash log keeps the details so they can be sh
   glances and one-tap actions from the home screen.
 - **New everyday tools**: more small, focused utilities for things that otherwise need an ad-filled app from the store.
 - **Landscape mode**: fixing layouts that don't fit or scale properly in landscape.
+
+## Changes
+
+See [CHANGELOG.md](CHANGELOG.md) for what changed in each version.
 
 ## Building
 
