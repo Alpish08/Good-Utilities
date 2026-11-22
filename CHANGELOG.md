@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.8 — 2026-11-22
+- Briefs: tapping a pill or link no longer flashes a blue rectangle; pills brighten slightly while pressed.
+
 ## 2.8.7 — 2026-11-22
 - Briefs: the "Reading aloud · Stop" pill is frosted like the header and the Next pill.
 

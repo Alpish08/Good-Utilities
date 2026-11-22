@@ -537,6 +537,7 @@ private fun page(
     val imageNote = if (!showImages && a.images > 0) " · <a href=\"gu://images\">Show ${a.images} image${if (a.images == 1) "" else "s"}</a>" else ""
     return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 :root{color-scheme:${if (c.isDark) "dark" else "light"}}
+*{-webkit-tap-highlight-color:transparent}a:focus{outline:none}
 html,body{margin:0;background:${hex(c.background)}}
 body{padding:${topDp.toInt() + 14}px 24px 150px;color:${hex(c.text)};font-family:sec,SamsungOne,sans-serif;font-size:17px;line-height:1.62;overflow-wrap:anywhere}
 a{color:${hex(c.accent)};text-decoration:none}
@@ -558,6 +559,7 @@ pre,code{white-space:pre-wrap;font-size:.9em}
  opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:opacity .22s,transform .3s cubic-bezier(.22,.25,0,1)}
 .gu-pill.on,body.speaking .gu-tts{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
 body.speaking #gu-next{opacity:0;pointer-events:none}
+.gu-pill:active{filter:brightness(1.35)}a:not(.gu-pill):active{opacity:.6}
 </style></head><body>
 <div class="gu-bar"></div>
 <h1 class="gu-title">${esc(plainTitle(b.subject))}</h1>
