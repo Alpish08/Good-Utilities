@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.7 — 2026-11-22
+- Briefs: the "Reading aloud · Stop" pill is frosted like the header and the Next pill.
+
 ## 2.8.6 — 2026-11-22
 - Briefs: the sync button turns once when pressed.
 - Briefs: no emoji anywhere: list, header, article title and text, and read-aloud.

@@ -413,6 +413,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                             val url = request.url
                             when {
                                 url.scheme == "gu" && url.host == "next" -> latestNext.value?.let { onOpenLatest.value(it.uid) }
+                                url.scheme == "gu" && url.host == "stop" -> speech.stop()
                                 url.scheme == "gu" -> showImages = true
                                 url.scheme == "http" || url.scheme == "https" -> runCatching {
                                     androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(ctx, url)
@@ -423,6 +424,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                         }
 
                         override fun onPageFinished(view: WebView, url: String?) {
+                            view.evaluateJavascript("document.body.classList.toggle('speaking',${speech.speaking})", null)
                             // Back where you left off.
                             val saved = prefs.getFloat("pos_$uid", 0f)
                             if (saved > 0f) view.postDelayed({
@@ -488,11 +490,10 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
             bar()
         }
 
-        // Bottom: reading aloud, or the next brief once you reach the end.
-        Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 16.dp, start = 24.dp, end = 24.dp)) {
-            when {
-                speech.speaking -> FloatingPill("Reading aloud · Stop", onClick = speech::stop)
-            }
+        // The bottom pills ("Reading aloud · Stop", "Next: …") are drawn by the page itself, frosted like the header;
+        // tell it when reading aloud starts and stops.
+        LaunchedEffect(speech.speaking, web) {
+            web?.evaluateJavascript("document.body&&document.body.classList.toggle('speaking',${speech.speaking})", null)
         }
     }
 
@@ -514,18 +515,6 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                 }.padding(horizontal = 6.dp, vertical = 11.dp),
             )
         }
-    }
-}
-
-@Composable
-private fun FloatingPill(text: String, onClick: () -> Unit) {
-    val c = OneUi.colors
-    Row(
-        Modifier.shadow(10.dp, CircleShape, ambientColor = Color(0x66000000), spotColor = Color(0x88000000))
-            .clip(CircleShape).background(c.popup).clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 13.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }
 
@@ -563,17 +552,19 @@ blockquote{margin:1em 0;padding-left:14px;border-left:3px solid ${hex(c.accent)}
 ul,ol{padding-left:1.3em}li{margin:.3em 0}
 pre,code{white-space:pre-wrap;font-size:.9em}
 .gu-bar{position:fixed;top:0;left:0;right:0;height:${topDp.toInt()}px;z-index:9;background:$frost;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
-.gu-next{position:fixed;left:50%;bottom:${bottomDp.toInt() + 16}px;z-index:9;max-width:calc(100% - 48px);box-sizing:border-box;padding:13px 20px;border-radius:999px;
+.gu-pill{position:fixed;left:50%;bottom:${bottomDp.toInt() + 16}px;z-index:9;max-width:calc(100% - 48px);box-sizing:border-box;padding:13px 20px;border-radius:999px;
  background:$frost;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);box-shadow:0 6px 18px rgba(0,0,0,.35);
  color:${hex(pillText)};font-size:15px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
  opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:opacity .22s,transform .3s cubic-bezier(.22,.25,0,1)}
-.gu-next.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+.gu-pill.on,body.speaking .gu-tts{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
+body.speaking #gu-next{opacity:0;pointer-events:none}
 </style></head><body>
 <div class="gu-bar"></div>
 <h1 class="gu-title">${esc(plainTitle(b.subject))}</h1>
 <div class="gu-meta">${esc(plainTitle(b.sender))} · $date · ${b.minutes} min read$imageNote</div>
 ${a.html}
-${if (next != null) """<a id="gu-next" class="gu-next" href="gu://next">Next: ${esc(next)}</a>
+<a class="gu-pill gu-tts" href="gu://stop">Reading aloud · Stop</a>
+${if (next != null) """<a id="gu-next" class="gu-pill" href="gu://next">Next: ${esc(next)}</a>
 <script>(function(){var n=document.getElementById('gu-next');function u(){var d=document.documentElement;n.classList.toggle('on',window.innerHeight+window.scrollY>=d.scrollHeight-60);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();</script>""" else ""}
 </body></html>"""
 }
