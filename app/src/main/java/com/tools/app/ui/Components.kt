@@ -119,7 +119,7 @@ import kotlinx.coroutines.flow.filter
 import androidx.compose.foundation.gestures.animateScrollBy
 import kotlin.math.roundToInt
 
-private val ToolbarHeight = 64.dp
+internal val ToolbarHeight = 64.dp
 
 /**
  * One UI 8.5: once the list scrolls under the pinned toolbar buttons, each gets a round chip behind it.

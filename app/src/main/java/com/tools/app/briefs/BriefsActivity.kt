@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -239,6 +240,7 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
     var pulled by remember { mutableStateOf(false) }
     LaunchedEffect(syncing) { if (!syncing) pulled = false }
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    val list = androidx.compose.foundation.lazy.rememberLazyListState()
     androidx.compose.material3.pulltorefresh.PullToRefreshBox(
         isRefreshing = pulled && syncing,
         onRefresh = { pulled = true; Briefs.sync(context) },
@@ -247,7 +249,15 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
             val shown = pulled && syncing
             val f = if (shown) 1f else pull.distanceFraction.coerceIn(0f, 1f)
             if (f > 0f) Box(
-                Modifier.align(Alignment.TopCenter).padding(top = statusTop + 18.dp)
+                Modifier.align(Alignment.TopCenter)
+                    // Just below the back / ⋮ buttons, over the first cards: they sit at the bottom of the title
+                    // header while it's open and pin to the top once it folds.
+                    .offset {
+                        val header = list.layoutInfo.visibleItemsInfo.firstOrNull { it.key == "__header" }
+                        val pinned = (statusTop + com.tools.app.ui.ToolbarHeight).roundToPx()
+                        val toolbarBottom = maxOf(header?.let { it.offset + it.size } ?: 0, pinned)
+                        androidx.compose.ui.unit.IntOffset(0, toolbarBottom + 10.dp.roundToPx())
+                    }
                     .graphicsLayer {
                         // Follows your finger in, growing and fading up, then stays while it syncs.
                         alpha = f
@@ -260,6 +270,7 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
     ) {
         OneUiScaffold(
             title = "Briefs",
+            listState = list,
             subtitle = when {
                 syncing -> "Syncing…"
                 unread > 0 -> "$unread unread"

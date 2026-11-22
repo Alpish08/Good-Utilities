@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.8.4 — 2026-11-22
-- Briefs: pull down to refresh, with Samsung's four-dot loading animation above the title.
+- Briefs: pull down to refresh, with Samsung's four-dot loading animation just below the back and ⋮ buttons, over the first cards.
 
 ## 2.8.3 — 2026-11-22
 - Tab bar: the selected highlight is centred on its tab to the pixel, with an even 4 dp gap on every side (it used to drift left toward Misc).
