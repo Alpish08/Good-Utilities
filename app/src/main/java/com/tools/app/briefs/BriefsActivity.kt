@@ -257,13 +257,21 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
                 key = "empty",
             )
         }
-        val days = items.groupBy { dayLabel(it.date) }
-        days.forEach { (day, briefs) ->
-            sectionLabel(day, key = "day-$day")
+        // Three cards: Today, Yesterday and Past (the past ones show their date).
+        val groups = items.groupBy { b ->
+            when (dayKey(b.date)) {
+                dayKey(System.currentTimeMillis()) -> "Today"
+                dayKey(System.currentTimeMillis() - 86_400_000L) -> "Yesterday"
+                else -> "Past"
+            }
+        }
+        listOf("Today", "Yesterday", "Past").forEach { group ->
+            val briefs = groups[group] ?: return@forEach
+            sectionLabel(group, key = "group-$group")
             cardList(briefs, key = { it.uid }) { b ->
                 ListRow(
                     plainTitle(b.subject),
-                    summary = "${b.sender} · ${b.minutes} min read",
+                    summary = listOfNotNull(b.sender, if (group == "Past") shortDate(b.date) else null, "${b.minutes} min read").joinToString(" · "),
                     // Unread briefs get the accent dot at the end, like Samsung Email.
                     trailing = if (b.seen) null else ({ Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent)) }),
                     onClick = { onOpen(b.uid) },
@@ -332,12 +340,6 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
         }
     }
     LaunchedEffect(uid) { Briefs.markRead(context, uid) }
-    val window = (context as? android.app.Activity)?.window
-    DisposableEffect(lightPage, c.isDark) {
-        val ctrl = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, it.decorView) }
-        ctrl?.isAppearanceLightStatusBars = lightPage || !c.isDark
-        onDispose { ctrl?.isAppearanceLightStatusBars = !c.isDark }
-    }
     var progress by remember(uid) { mutableFloatStateOf(0f) }   // only for the "Next" pill at the end
     var web by remember { mutableStateOf<WebView?>(null) }
     var sizing by remember { mutableStateOf(false) }
@@ -396,7 +398,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                     w.tag = key
                     val colours = if (lightPage && c.isDark) com.tools.app.ui.theme.OneUiLightColors else c
                     w.setBackgroundColor(colours.background.toArgb())
-                    w.loadDataWithBaseURL(null, page(a, brief, colours, topDp, showImages), "text/html", "utf-8", null)
+                    w.loadDataWithBaseURL(null, page(a, brief, colours, topDp, showImages, frost = frost(c)), "text/html", "utf-8", null)
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -427,8 +429,8 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                     })
                 }
             }
-            // Over a light page, the header's text and icons go dark too (and so do the status bar icons).
-            if (lightPage && c.isDark) com.tools.app.ui.theme.OneUiLight(bar) else bar()
+            // The header keeps the app's own (dark) frosted look over a light page, like the PDF viewer over white pages.
+            bar()
         }
 
         // Bottom: reading aloud, or the next brief once you reach the end.
@@ -481,7 +483,7 @@ private fun frost(c: OneUiColors): String {
     return "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${"%.2f".format(java.util.Locale.US, f.alpha)})"
 }
 
-private fun page(a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean): String {
+private fun page(a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean, frost: String = frost(c)): String {
     fun hex(color: Color) = String.format("#%06X", color.toArgb() and 0xFFFFFF)
     fun esc(s: String) = org.jsoup.nodes.Entities.escape(s)
     val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(Date(b.date))
@@ -502,7 +504,7 @@ hr{border:0;border-top:1px solid ${hex(c.divider)};margin:1.6em 0}
 blockquote{margin:1em 0;padding-left:14px;border-left:3px solid ${hex(c.accent)};color:${hex(c.textSecondary)}}
 ul,ol{padding-left:1.3em}li{margin:.3em 0}
 pre,code{white-space:pre-wrap;font-size:.9em}
-.gu-bar{position:fixed;top:0;left:0;right:0;height:${topDp.toInt()}px;z-index:9;background:${frost(c)};-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+.gu-bar{position:fixed;top:0;left:0;right:0;height:${topDp.toInt()}px;z-index:9;background:$frost;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 </style></head><body>
 <div class="gu-bar"></div>
 <h1 class="gu-title">${esc(b.subject)}</h1>
@@ -592,6 +594,11 @@ private fun dayLabel(t: Long): String = when (dayKey(t)) {
         Locale.getDefault(),
     ).format(Date(t))
 }
+
+private fun shortDate(t: Long): String = SimpleDateFormat(
+    if (Calendar.getInstance().apply { timeInMillis = t }.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) "MMM d" else "MMM d, yyyy",
+    Locale.getDefault(),
+).format(Date(t))
 
 private fun timeAgo(t: Long): String {
     val m = (System.currentTimeMillis() - t) / 60_000

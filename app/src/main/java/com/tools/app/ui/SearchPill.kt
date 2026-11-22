@@ -1,5 +1,7 @@
 package com.tools.app.ui
 
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import dev.chrisbanes.haze.blur.hazeBlur
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.isImeVisible
@@ -182,7 +184,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val c = OneUi.colors
     // Labelled tabs a little closer than Phone's 72 dp, so five fit in a shorter pill.
     val slot = if (labels) 63.dp else 56.dp
-    val rowPad = if (labels) 7.dp else 8.dp
+    // 7.5 dp: the selected capsule then clears the pill's ends by 4 dp, the same as above and below it ((56 − 48) / 2).
+    val rowPad = if (labels) 7.5.dp else 8.dp
     val capsuleW = if (labels) 70.dp else 60.dp
     val capsuleH = if (labels) 48.dp else 46.dp
     // The capsule is lit from its centre (a soft glow).
@@ -207,11 +210,15 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
     val scale = remember { androidx.compose.animation.core.Animatable(1f) }
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     val shown = pressedTab ?: selected
+    // Where the pill and each tab really are (window x), so the capsule lines up with its tab to the pixel.
+    var pillX by remember { mutableStateOf(0f) }
+    val slotCentres = remember { androidx.compose.runtime.mutableStateMapOf<Int, Float>() }
 
     // 8 dp above the screen edge (Clock 8, My Files 16).
     Box(modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Box(
             Modifier
+                .onGloballyPositioned { pillX = it.positionInRoot().x }
                 .height(56.dp)
                 // A soft drop shadow, and the tools scrolling underneath blurred through the pill.
                 .shadow(
@@ -239,7 +246,13 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
             // The selected (or pressed) capsule, centred on its slot (a little wider than the slot).
             Box(
                 Modifier
-                    .offset(x = rowPad + slot * shown.coerceAtLeast(0) - (capsuleW - slot) / 2)
+                    // Centred on the tab as actually laid out: each slot is rounded to whole pixels (63 dp = 220.5 px), so
+                    // "slot × index" drifted up to 4 px left by the last tab.
+                    .offset {
+                        val i = shown.coerceAtLeast(0)
+                        val centre = slotCentres[i]?.minus(pillX) ?: (rowPad + slot * i + slot / 2).toPx()
+                        androidx.compose.ui.unit.IntOffset(kotlin.math.round(centre - capsuleW.toPx() / 2).toInt(), 0)
+                    }
                     .graphicsLayer { alpha = if (shown < 0) 0f else 1f }
                     .size(width = capsuleW, height = capsuleH)
                     .graphicsLayer { scaleX = scale.value; scaleY = scale.value }
@@ -261,6 +274,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                     Box(
                         Modifier
                             .size(width = slot, height = 56.dp)
+                            .onGloballyPositioned { slotCentres[i] = it.positionInRoot().x + it.size.width / 2f }
                             .pointerInput(i) {
                                 detectTapGestures(onPress = {
                                     pressedTab = i
