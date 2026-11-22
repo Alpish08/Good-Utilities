@@ -110,11 +110,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         ),
         "Files" to listOf(
             Tool(Route.Reader, "Document reader", "PDFs, Word files and text, One UI style", Icons.AutoMirrored.Rounded.MenuBook, IconColors.Orange),
-            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Blue),
             Tool(Route.PdfEditor, "PDF editor", "Merge, split, reorder, sign and annotate PDFs", Icons.Rounded.PictureAsPdf, IconColors.Red),
             Tool(Route.Converter, "File converter", "Images, documents, audio and video", Icons.Rounded.SwapHoriz, IconColors.Teal),
             Tool(Route.Print, "Print", "Print PDFs, photos and documents", Icons.Rounded.Print, IconColors.Blue),
-            Tool(Route.Compressor, "Compressor", "Shrink videos and audio files", Icons.Rounded.Compress, IconColors.Blue),
+            Tool(Route.Compressor, "Compressor", "Shrink videos, audio and photos", Icons.Rounded.Compress, IconColors.Blue),
+            Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
         ),
         "Images" to listOf(
             Tool(Route.ColorPicker, "Color picker", "Sample any pixel, get HEX, RGB and palette", Icons.Rounded.Colorize, IconColors.Pink),
@@ -150,7 +150,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Track expenses and payments",
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
-            Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
+            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Blue),
             Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red),
             Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
             Tool(Route.Random, "Random", "Numbers in any range, or roll some dice", Icons.Rounded.Casino, IconColors.Purple),
@@ -197,12 +197,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
-        // With no tab chosen (every tool), the title scrolls away and the buttons float, like sub-pages; inside a
-        // tab, and while searching, Home keeps the classic pinned toolbar.
-        floatingToolbar = state.tab < 0 && !searching,
-        // One tab's tools stay fully visible beside the tab bar; the full list (no tab chosen) and search fade out
-        // toward the bottom like the earlier versions.
-        fadeUnderBottomBar = searching || state.tab < 0,
+        // The title scrolls away and the buttons float on shadowed chips, in every tab and with no tab chosen;
+        // only search keeps the classic pinned toolbar.
+        floatingToolbar = !searching,
+        // The list fades out toward the tab bar everywhere.
+        fadeUnderBottomBar = true,
         actions = {
             com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
             OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))

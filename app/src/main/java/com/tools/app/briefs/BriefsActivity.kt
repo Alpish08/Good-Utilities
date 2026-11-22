@@ -22,6 +22,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,8 +43,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.List
-import androidx.compose.material.icons.rounded.FormatSize
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -86,7 +85,6 @@ import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.OneUiSlider
 import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
-import com.tools.app.ui.ThinProgress
 import com.tools.app.ui.ToolbarIcon
 import com.tools.app.ui.card
 import com.tools.app.ui.cardList
@@ -152,7 +150,7 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
     val scope = rememberCoroutineScope()
     var email by rememberSaveable { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var label by rememberSaveable { mutableStateOf("Reading") }
+    var label by rememberSaveable { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     val ready = email.contains('@') && password.isNotBlank() && label.isNotBlank() && !busy
@@ -172,7 +170,7 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
             Column(Modifier.padding(16.dp)) {
                 Field(email, { email = it }, "Gmail address", keyboard = KeyboardType.Email)
                 Field(password, { password = it }, "App password", password = true, modifier = Modifier.padding(top = 10.dp))
-                Field(label, { label = it }, "Label", modifier = Modifier.padding(top = 10.dp), onDone = ::connect)
+                Field(label, { label = it }, "Gmail label", modifier = Modifier.padding(top = 10.dp), onDone = ::connect)
                 error?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp)) }
                 Box(Modifier.fillMaxWidth().padding(top = 14.dp), contentAlignment = Alignment.CenterEnd) {
                     PillButton(if (busy) "Connecting…" else "Connect", onClick = ::connect, enabled = ready)
@@ -194,9 +192,19 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
 private fun Field(
     value: String, onChange: (String) -> Unit, hint: String, modifier: Modifier = Modifier,
     password: Boolean = false, keyboard: KeyboardType = KeyboardType.Text, onDone: () -> Unit = {},
+    /** In a popup: the search bar's grey and hairline, like the other popups' text boxes. */
+    popup: Boolean = false,
 ) {
     val c = OneUi.colors
-    Box(modifier.fillMaxWidth().height(48.dp).clip(CircleShape).background(c.tonal).padding(horizontal = 18.dp), contentAlignment = Alignment.CenterStart) {
+    Box(
+        modifier.fillMaxWidth().height(48.dp).clip(CircleShape)
+            .then(
+                if (popup) Modifier.background(com.tools.app.ui.pillColor(c.isDark)).border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
+                else Modifier.background(c.tonal),
+            )
+            .padding(horizontal = 18.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
         if (value.isEmpty()) Text(hint, fontSize = 16.sp, color = c.textSecondary)
         BasicTextField(
             value, onChange, singleLine = true,
@@ -294,7 +302,7 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
                 },
             ),
         ) {
-            Field(label, { label = it }, "Label")
+            Field(label, { label = it }, "Gmail label", popup = true)
             problem?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(top = 10.dp)) }
         }
     }
@@ -321,10 +329,12 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
     var scale by remember { mutableFloatStateOf(prefs.getFloat("scale", 1f)) }
     var showImages by remember(uid) { mutableStateOf(brief.address in prefs.getStringSet("imageSenders", emptySet())!!) }
     val article by produceState<Article?>(null, uid, showImages) {
-        value = withContext(Dispatchers.Default) { BriefHtml.article(Briefs.body(context, uid), showImages) }
+        value = withContext(Dispatchers.Default) {
+            BriefHtml.article(Briefs.body(context, uid), showImages)
+        }
     }
     LaunchedEffect(uid) { Briefs.markRead(context, uid) }
-    var progress by remember(uid) { mutableFloatStateOf(0f) }
+    var progress by remember(uid) { mutableFloatStateOf(0f) }   // only for the "Next" pill at the end
     var web by remember { mutableStateOf<WebView?>(null) }
     var sizing by remember { mutableStateOf(false) }
     var contents by remember { mutableStateOf(false) }
@@ -375,7 +385,9 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
             },
             update = { w ->
                 w.settings.textZoom = (scale * 100).toInt()
-                val key = "$uid-$showImages-${c.isDark}"
+                // Keyed on the article itself: it's rebuilt a moment after the images switch flips, and loading on
+                // the flip alone showed the old version and then skipped the new one.
+                val key = "${System.identityHashCode(a)}-${c.isDark}"
                 if (w.tag != key) {
                     w.tag = key
                     w.loadDataWithBaseURL(null, page(a, brief, c, topDp, showImages), "text/html", "utf-8", null)
@@ -385,25 +397,25 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
         )
 
         Column(Modifier.align(Alignment.TopCenter)) {
-            ReaderBar(brief.sender, onBack = onBack) {
-                ToolbarIcon(Icons.Rounded.FormatSize, "Text size") { sizing = true }
-                if ((a?.headings?.size ?: 0) >= 3) ToolbarIcon(Icons.AutoMirrored.Rounded.List, "Contents") { contents = true }
+            // No fill of its own: the page draws the frosted strip under it (see page()), as the PDF reader's header.
+            ReaderBar(brief.sender, onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
                 OverflowMenu(buildList {
+                    if ((a?.headings?.size ?: 0) >= 3) add("Contents" to { contents = true })
+                    add("Text size" to { sizing = true })
                     add((if (speech.speaking) "Stop reading" else "Read aloud") to {
                         if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(brief.subject) + it.paragraphs) }
                     })
                     if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
                     val senders = prefs.getStringSet("imageSenders", emptySet())!!
                     if (brief.address.isNotEmpty()) {
-                        if (brief.address in senders) add("Don't load images from this sender" to {
+                        if (brief.address in senders) add("Stop always showing images" to {
                             prefs.edit().putStringSet("imageSenders", senders - brief.address).apply(); showImages = false
-                        }) else if ((a?.images ?: 0) > 0) add("Always show images from this sender" to {
+                        }) else if ((a?.images ?: 0) > 0) add("Always show images" to {
                             prefs.edit().putStringSet("imageSenders", senders + brief.address).apply(); showImages = true
                         })
                     }
                 })
             }
-            ThinProgress(progress, height = 2.5.dp, modifier = Modifier.padding(horizontal = 0.dp))
         }
 
         // Bottom: reading aloud, or the next brief once you reach the end.
@@ -449,6 +461,13 @@ private fun FloatingPill(text: String, onClick: () -> Unit) {
 }
 
 /** The article page: the cleaned email in One UI's font and colours, headed by its subject and details. */
+/** The PDF reader header's see-through grey, as CSS. */
+private fun frost(c: OneUiColors): String {
+    val f = com.tools.app.reader.frostedBar(c.isDark)
+    val argb = f.toArgb()
+    return "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${"%.2f".format(java.util.Locale.US, f.alpha)})"
+}
+
 private fun page(a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean): String {
     fun hex(color: Color) = String.format("#%06X", color.toArgb() and 0xFFFFFF)
     fun esc(s: String) = org.jsoup.nodes.Entities.escape(s)
@@ -470,7 +489,9 @@ hr{border:0;border-top:1px solid ${hex(c.divider)};margin:1.6em 0}
 blockquote{margin:1em 0;padding-left:14px;border-left:3px solid ${hex(c.accent)};color:${hex(c.textSecondary)}}
 ul,ol{padding-left:1.3em}li{margin:.3em 0}
 pre,code{white-space:pre-wrap;font-size:.9em}
+.gu-bar{position:fixed;top:0;left:0;right:0;height:${topDp.toInt()}px;z-index:9;background:${frost(c)};-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
 </style></head><body>
+<div class="gu-bar"></div>
 <h1 class="gu-title">${esc(b.subject)}</h1>
 <div class="gu-meta">${esc(b.sender)} · $date · ${b.minutes} min read$imageNote</div>
 ${a.html}

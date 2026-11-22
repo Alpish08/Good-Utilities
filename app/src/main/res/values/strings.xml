@@ -3,7 +3,7 @@
     <string name="music_downloader">Music downloader</string>
     <string name="print">Print</string>
     <string name="video_downloader">Video downloader</string>
-    <string name="document_reader">Good Reader</string>
+    <string name="document_reader">One Viewer</string>
     <string name="app_lock_service">Good Utilities app lock</string>
     <string name="app_lock_description">Shows a fingerprint, face or PIN check when you open an app you locked in Good Utilities. It only receives the name of the app that comes to the foreground and the name of a Home screen icon you tap, and never reads what is on screen. Nothing leaves your phone.</string>
     <string name="bypass_on">Bypass charging on</string>
@@ -19,5 +19,5 @@
     <string name="tabs_widget_description">Good Utilities\' tab bar. Tap a tab to open the app on it.</string>
     <string name="spacer_widget_description">Invisible empty space, any size. Taps do nothing; swipes still move the home screen.</string>
     <string name="read_japanese">Japanese reader</string>
-    <string name="briefs">Briefs</string>
+    <string name="briefs">One Mail</string>
 </resources>

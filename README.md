@@ -2,7 +2,7 @@
 
 A collection of everyday tools for Android, designed to look and feel like Samsung's own One UI 8.5 apps:
 expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, floating
-search pill, compact One UI buttons and spinners, One UI sliders and switches, predictive back, and full dark mode.
+search pill, compact One UI buttons, Samsung's own four-dot loading animation, One UI sliders and switches, predictive back, and full dark mode.
 
 Home lists every tool by category, over a soft colour wash you can change from ⋮ → Background (Midnight, Amethyst,
 Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as filters:
@@ -19,12 +19,12 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 - **Audio trimmer**: cut a song without losing quality.
 
 **Files**
-- **Document reader (Good Reader)**: a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, rotate to landscape, a frosted header and page indicator over the pages, and it remembers your page.
-- **Briefs**: your newsletters and articles from one Gmail label, as clean, readable pages, with its own launcher icon. Each email is reformatted in One UI's type with real dark mode, tracking pixels and "view in browser / unsubscribe" clutter removed, images off until you allow a sender, adjustable text size, reading time and progress, a contents list for long digests, read aloud, and the next brief at the end. It syncs over IMAP with a Gmail app password (kept encrypted) only while it's open: no background activity, no notifications. Opening a brief marks it read in Gmail; nothing else changes there.
+- **Document reader (One Viewer)**: a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, rotate to landscape, a frosted header and page indicator over the pages, and it remembers your page.
 - **PDF editor**: merge, split, reorder, rotate, sign, annotate and password-protect PDFs, or create a PDF from images. Drawing with the S Pen: 20 colours, 5 brush sizes, marker, eraser (or hold the pen's button), undo and redo, pinch zoom.
 - **File converter**: images, documents, audio and video (PNG, JPG, WebP, PDF, DOCX, TXT, MP3, WAV, FLAC, M4A, MP4, WebM, GIF…).
 - **Print**: prints straight to network printers over IPP (AirPrint / Mopria / IPP Everywhere) with a live preview, page picker, two-sided printing and toner levels. No system print screen involved.
 - **Compressor**: shrink videos with the phone's hardware encoder (H.264 / HEVC), audio files (MP3 / AAC / Opus), and photos (smaller dimensions, a quality level, or a size limit for websites that reject large uploads).
+- **APK extractor**: save installed apps as APKs, merging split bundles into one installable file. Search apps from the bottom pill.
 
 **Images**
 - **Color picker**: sample any pixel from a photo and get HEX, RGB and a palette.
@@ -40,7 +40,7 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 
 **Miscellaneous**
 - **Card balance**: manage your expenses and track payments in exact cents. Choose − or +, type an amount and an optional note, tap Log; the payment history shows the balance after each entry. Several cards (one primary) with a quick switcher beside the balance, all kept on the phone.
-- **APK extractor**: save installed apps as APKs, merging split bundles into one installable file. Search apps from the bottom pill.
+- **Briefs**: your newsletters and articles from one Gmail label, as clean, readable pages. It opens in its own window (called One Mail in recent apps). Each email is reformatted in One UI's type with real dark mode, tracking pixels and "view in browser / unsubscribe" clutter removed, images off until you allow a sender, adjustable text size, reading time, a contents list for long digests, short data tables (like market prices) kept on one line, read aloud, and the next brief at the end. It syncs over IMAP with a Gmail app password (kept encrypted) only while it's open: no background activity, no notifications. Opening a brief marks it read in Gmail; nothing else changes there.
 - **Japanese reader**: reads Japanese on your screen (Quick Settings tile), in photos or the camera: furigana, word meanings (JMdict, offline), sentence translation (on-device) and a saved-words list with flashcards.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
 - **Random**: numbers in any range, or roll dice (d4 to d20) with One UI animations.

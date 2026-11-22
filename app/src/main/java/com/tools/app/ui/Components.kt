@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.animation.core.animateFloat
 import dev.chrisbanes.haze.hazeSource
 import dev.chrisbanes.haze.blur.hazeBlur
@@ -957,8 +958,9 @@ fun ThinProgressIndeterminate(modifier: Modifier = Modifier, color: Color = OneU
 }
 
 /**
- * One UI's loading ring: a thin, round-capped arc turning steadily over a faint track (Samsung's spinner), instead of
- * Material's. With [progress] it fills clockwise from the top instead.
+ * One UI's loading animation (Samsung's sesl_progress, rebuilt from its own timings and curves): four gradient dots on a
+ * circle, spinning two turns every 2 s. Each cycle they draw in to the centre while the group swells to twice its size
+ * and fades to 45 %, then spring back out and rest. With [progress] it's a ring filling clockwise from the top instead.
  */
 @Composable
 fun OneUiSpinner(
@@ -968,18 +970,86 @@ fun OneUiSpinner(
     trackColor: Color = color.copy(alpha = 0.16f),
     progress: (() -> Float)? = null,
 ) {
-    val turn = if (progress == null) androidx.compose.animation.core.rememberInfiniteTransition(label = "spinner").animateFloat(
-        0f, 360f, androidx.compose.animation.core.infiniteRepeatable(tween(900, easing = androidx.compose.animation.core.LinearEasing)), label = "turn",
-    ) else null
-    androidx.compose.foundation.Canvas(modifier.size(40.dp)) {
-        val w = strokeWidth.toPx()
-        val box = androidx.compose.ui.geometry.Size(size.minDimension - w, size.minDimension - w)
-        val tl = androidx.compose.ui.geometry.Offset((size.width - box.width) / 2f, (size.height - box.height) / 2f)
-        val stroke = androidx.compose.ui.graphics.drawscope.Stroke(w, cap = androidx.compose.ui.graphics.StrokeCap.Round)
-        drawArc(trackColor, 0f, 360f, false, tl, box, style = stroke)
-        if (progress != null) drawArc(color, -90f, 360f * progress().coerceIn(0f, 1f), false, tl, box, style = stroke)
-        else drawArc(color, (turn?.value ?: 0f) - 90f, 100f, false, tl, box, style = stroke)
+    if (progress != null) {
+        androidx.compose.foundation.Canvas(modifier.size(40.dp)) {
+            val w = strokeWidth.toPx()
+            val box = androidx.compose.ui.geometry.Size(size.minDimension - w, size.minDimension - w)
+            val tl = androidx.compose.ui.geometry.Offset((size.width - box.width) / 2f, (size.height - box.height) / 2f)
+            val stroke = androidx.compose.ui.graphics.drawscope.Stroke(w, cap = androidx.compose.ui.graphics.StrokeCap.Round)
+            drawArc(trackColor, 0f, 360f, false, tl, box, style = stroke)
+            drawArc(color, -90f, 360f * progress().coerceIn(0f, 1f), false, tl, box, style = stroke)
+        }
+        return
     }
+    val time = androidx.compose.animation.core.rememberInfiniteTransition(label = "seslProgress").animateFloat(
+        0f, 2000f, androidx.compose.animation.core.infiniteRepeatable(tween(2000, easing = androidx.compose.animation.core.LinearEasing)), label = "t",
+    )
+    androidx.compose.foundation.Canvas(modifier.size(40.dp)) {
+        val t = time.value
+        val f = SeslDots.frame(t)
+        // Samsung's art is 240 units across (shown at 0.4 × in a 96-unit box); scale that to this canvas.
+        val unit = size.minDimension / 240f
+        val c = center
+        rotate(720f * t / 2000f, c) {
+            SeslDots.dots.forEachIndexed { i, colours ->
+                val angle = Math.toRadians(180.0 + 90.0 * i)   // left, top, right, bottom
+                val dist = f.distance * f.scale * unit
+                val dot = androidx.compose.ui.geometry.Offset(c.x + dist * kotlin.math.cos(angle).toFloat(), c.y + dist * kotlin.math.sin(angle).toFloat())
+                val r = 28f * 0.95f * f.scale * unit
+                drawCircle(
+                    androidx.compose.ui.graphics.Brush.linearGradient(
+                        *colours, start = dot - androidx.compose.ui.geometry.Offset(r, r), end = dot + androidx.compose.ui.geometry.Offset(r, r),
+                    ),
+                    radius = r, center = dot, alpha = f.alpha,
+                )
+            }
+        }
+    }
+}
+
+/** Timings, curves and colours from Samsung's sesl_progress animated vector. */
+private object SeslDots {
+    class Frame(val distance: Float, val scale: Float, val alpha: Float)
+
+    private val inward = androidx.compose.animation.core.CubicBezierEasing(0.497f, 0f, 0.833f, 0.571f)
+    private val gather = androidx.compose.animation.core.CubicBezierEasing(0.344f, 0.83f, 0.605f, 1f)
+    private val outward = androidx.compose.animation.core.CubicBezierEasing(0.117f, 0.126f, 0.312f, 1f)
+    private val swell = androidx.compose.animation.core.CubicBezierEasing(0.499f, 0f, 0.765f, 1f)
+    private val shrink = androidx.compose.animation.core.CubicBezierEasing(0.091f, 0f, 0f, 1f)
+    private val fade = androidx.compose.animation.core.CubicBezierEasing(0.497f, 0.763f, 0.605f, 1f)
+
+    private fun bez(p0: Float, p1: Float, p2: Float, p3: Float, u: Float): Float {
+        val v = 1 - u
+        return v * v * v * p0 + 3 * v * v * u * p1 + 3 * v * u * u * p2 + u * u * u * p3
+    }
+
+    /** A dot's left edge along its path (Samsung's x for the left dot); its centre is 28.25 further, the middle at 120. */
+    fun frame(t: Float): Frame {
+        val edge: Float; val scale: Float; val alpha: Float
+        when {
+            t < 633f -> { edge = bez(7.75f, 15.083f, 38.583f, 51.75f, inward.transform(t / 633f)); scale = 1f; alpha = 1f }
+            t < 1099f -> {
+                val u = (t - 633f) / 466f
+                edge = bez(51.75f, 64.917f, 94.083f, 86.75f, gather.transform(u))
+                scale = 1f + swell.transform(u); alpha = 1f - 0.55f * fade.transform(u)
+            }
+            t < 1799f -> {
+                val u = (t - 1099f) / 700f
+                edge = bez(86.75f, 79.417f, 20.917f, 7.75f, outward.transform(u))
+                scale = 2f - shrink.transform(u); alpha = 0.45f + 0.55f * fade.transform(u)
+            }
+            else -> { edge = 7.75f; scale = 1f; alpha = 1f }
+        }
+        return Frame(120f - (edge + 28.25f), scale, alpha)
+    }
+
+    /** Each dot's gradient (left, top, right, bottom), Samsung's green-teal-blue. */
+    val dots: List<Array<Pair<Float, Color>>> = listOf(
+        arrayOf(0f to Color(0xE63DCC87), 0.25f to Color(0xE63BA3C3), 0.5f to Color(0xE6387AFF), 0.806f to Color(0xB7398AE8), 1f to Color(0x993BA3C3)),
+        arrayOf(0f to Color(0x993BA3C3), 0.612f to Color(0x993CB3AC), 1f to Color(0x993DCC87)),
+        arrayOf(0f to Color(0x99387AFF), 0.612f to Color(0xC83A92DB), 1f to Color(0xE63CB9A2)),
+        arrayOf(0f to Color(0xE63DCC87), 0.612f to Color(0xE63DC591), 1f to Color(0xE63CB9A2)),
+    )
 }
 
 private val SliderIdleTrack = 14.dp

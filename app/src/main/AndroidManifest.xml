@@ -167,22 +167,18 @@
             </intent-filter>
         </activity>
 
-        <!-- Briefs: Gmail newsletters as readable articles, with its own launcher icon and task -->
+        <!-- Briefs: Gmail newsletters as readable articles. Opened from Home only (no launcher icon), in its own task,
+             where Recents names it "One Mail". -->
         <activity
             android:name=".briefs.BriefsActivity"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/briefs"
             android:icon="@mipmap/ic_briefs"
             android:roundIcon="@mipmap/ic_briefs"
             android:taskAffinity="com.tools.app.briefs"
             android:launchMode="singleTask"
             android:theme="@style/Theme.Tools"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode" />
 
         <!-- Share any text/link → QR code sheet -->
         <activity

@@ -74,7 +74,7 @@ fun openInReader(ctx: Context, uri: Uri, kind: Kind) {
     )
 }
 
-/** Library page: open a file, recents, files saved by Good Utilities, and how to make Good Reader the default. */
+/** Library page: open a file, recents, files saved by Good Utilities, and how to make One Viewer the default. */
 @Composable
 fun ReaderHomeScreen(onBack: () -> Unit) {
     val ctx = LocalContext.current
@@ -121,7 +121,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         card("default") {
             ListRow(
                 "Make it your default",
-                summary = "Open any PDF in My Files, choose Good Reader, then tap \"Always\".",
+                summary = "Open any PDF in My Files, choose One Viewer, then tap \"Always\".",
             )
         }
 
@@ -160,7 +160,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
             "Can't open file", { broken = null },
             listOf("Cancel" to { broken = null }, "Remove" to { ReaderStore.remove(ctx, r.uri); recents = ReaderStore.recents(ctx); broken = null }),
         ) {
-            Text("\"${r.name}\" was moved or deleted, or Good Reader no longer has access to it. Remove it from recents?", fontSize = 14.5.sp, color = OneUi.colors.textSecondary)
+            Text("\"${r.name}\" was moved or deleted, or One Viewer no longer has access to it. Remove it from recents?", fontSize = 14.5.sp, color = OneUi.colors.textSecondary)
         }
     }
 }

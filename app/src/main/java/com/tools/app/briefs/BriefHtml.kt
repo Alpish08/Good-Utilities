@@ -64,6 +64,25 @@ object BriefHtml {
         }
         doc.select("p, div, td, span").filter { it.ownText().length < 300 && boilerplate.containsMatchIn(it.ownText()) && it.select("a").isEmpty() }
             .forEach { it.remove() }
+        // Tiny tables of a few short values (a market price stacked in its own table) become one line.
+        doc.select("table").filter { it.select("table").size == 1 }.forEach { t ->
+            val cells = t.select("td, th").filter { it.text().isNotBlank() }
+            if (cells.size in 2..6 && t.select("p, ul, ol").isEmpty() && t.select("img").all(::isIcon) && cells.all { it.text().length <= 40 }) {
+                t.replaceWith(Element("p").text(cells.joinToString(" · ") { it.text().trim() }))
+            }
+        }
+        // Small data rows (market prices, scores…) stay on one line: "Nasdaq · 11,361.85 · +0.35%".
+        doc.select("tr").forEach { tr ->
+            val cells = tr.children().filter { it.tagName() == "td" || it.tagName() == "th" }
+            // Judged by text, not markup: each cell may wrap its value in a <p> or a little badge table.
+            if (tr.parent() != null && cells.size >= 2 && tr.text().length <= 120 &&
+                cells.all { c -> c.select("ul, ol, h1, h2, h3").isEmpty() && c.select("img").all(::isIcon) && c.text().length <= 40 } &&
+                cells.count { it.text().isNotBlank() } >= 2
+            ) {
+                val line = cells.map { it.text().trim() }.filter { it.isNotEmpty() }.joinToString(" · ")
+                tr.replaceWith(Element("p").text(line))
+            }
+        }
         // Layout tables become plain blocks.
         doc.select("td, th").forEach { it.tagName("div") }
         doc.select("table, tbody, thead, tfoot, tr, center, font, colgroup, col").forEach { it.unwrap() }
@@ -79,6 +98,15 @@ object BriefHtml {
         }
         doc.select("a[href^=javascript]").forEach { it.unwrap() }
         return doc
+    }
+
+    /** A small inline icon (an up/down arrow beside a price), at most 40 px by its own size attributes. */
+    private fun isIcon(img: Element): Boolean {
+        val w = img.attr("width").filter(Char::isDigit).toIntOrNull()
+        val h = img.attr("height").filter(Char::isDigit).toIntOrNull()
+        val style = Regex("(?i)(?:^|;)\\s*(?:width|height)\\s*:\\s*(\\d+)px").findAll(img.attr("style")).map { it.groupValues[1].toInt() }.toList()
+        val sizes = listOfNotNull(w, h) + style
+        return sizes.isNotEmpty() && sizes.all { it <= 40 }
     }
 
     /** Drops elements left with nothing to show (repeatedly, as emptying one can empty its parent). */

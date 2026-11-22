@@ -106,6 +106,10 @@ object Briefs {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var loaded = false
+    /** Bumped when the cache is cleared, so a sync that started before that can't write its stale list back. */
+    @Volatile private var generation = 0
+    /** A sync asked for while one was running: run again right after it. */
+    @Volatile private var again = false
 
     private fun dir(c: Context) = File(c.filesDir, "briefs").apply { mkdirs() }
     private fun index(c: Context) = File(dir(c), "index.json")
@@ -152,17 +156,18 @@ object Briefs {
 
     fun sync(c: Context) {
         val ctx = c.applicationContext
-        if (syncing.value) return
+        if (syncing.value) { again = true; return }
         val account = BriefsAccount.get(ctx) ?: return
         syncing.value = true
         scope.launch {
             try {
-                pull(ctx, account)
+                pull(ctx, account, generation)
                 error.value = null
             } catch (e: Throwable) {
                 error.value = message(e)
             } finally {
                 syncing.value = false
+                if (again) { again = false; sync(ctx) }
             }
         }
     }
@@ -188,6 +193,7 @@ object Briefs {
 
     /** Forgets the synced emails (e.g. after switching labels); the account stays. */
     fun clearCache(c: Context) {
+        generation++
         dir(c).deleteRecursively()
         prefs(c).edit().clear().apply()
         list.value = emptyList()
@@ -196,6 +202,7 @@ object Briefs {
     }
 
     fun signOut(c: Context) {
+        generation++
         BriefsAccount.clear(c)
         dir(c).deleteRecursively()
         prefs(c).edit().clear().apply()
@@ -204,7 +211,7 @@ object Briefs {
         lastSync = 0
     }
 
-    private fun pull(c: Context, account: Account) {
+    private fun pull(c: Context, account: Account, gen: Int) {
         connect(account).use { store ->
             val f = store.getFolder(account.label) as IMAPFolder
             if (!f.exists()) throw NoLabel(account.label)
@@ -221,8 +228,11 @@ object Briefs {
                 val items = msgs.mapNotNull { m ->
                     val uid = f.getUID(m)
                     val seen = m.isSet(Flags.Flag.SEEN)
-                    known[uid]?.copy(seen = seen) ?: runCatching { fetch(c, m, uid, seen) }.getOrNull()
+                    // A brief whose saved copy went missing is downloaded again.
+                    known[uid]?.takeIf { File(dir(c), "$uid.html").exists() }?.copy(seen = seen)
+                        ?: runCatching { fetch(c, m, uid, seen) }.getOrNull()
                 }.sortedByDescending { it.date }
+                if (gen != generation) return   // cleared (label changed, signed out) while this ran
                 // Emails that lost the label (or fell off the end) go from the phone too.
                 val keep = items.map { "${it.uid}.html" }.toSet() + "index.json"
                 dir(c).listFiles()?.forEach { if (it.name !in keep) it.delete() }
