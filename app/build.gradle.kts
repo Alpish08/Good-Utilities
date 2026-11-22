@@ -11,8 +11,8 @@ android {
         applicationId = "com.tools.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 96
-        versionName = "2.7.21"
+        versionCode = 97
+        versionName = "2.8"
         // S24 Ultra (and every modern phone) is arm64; keeps the bundled Python/FFmpeg small.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -53,7 +53,7 @@ android {
     packaging {
         jniLibs { useLegacyPackaging = true }
         // Kuromoji's two jars both ship these license notes.
-        resources { pickFirsts += setOf("META-INF/CONTRIBUTORS.md", "META-INF/LICENSE.md", "META-INF/NOTICE.md", "META-INF/LICENSE", "META-INF/NOTICE") }
+        resources { pickFirsts += setOf("META-INF/CONTRIBUTORS.md", "META-INF/LICENSE.md", "META-INF/NOTICE.md", "META-INF/LICENSE", "META-INF/NOTICE", "META-INF/javamail.providers", "META-INF/javamail.default.providers", "META-INF/javamail.default.address.map", "META-INF/mailcap", "META-INF/LICENSE.txt", "META-INF/NOTICE.txt") }
     }
 }
 
@@ -71,6 +71,11 @@ dependencies {
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
     implementation("com.google.zxing:core:3.5.3")
+    // Briefs: Gmail over IMAP (app password), newsletter clean-up, links in a Custom Tab.
+    implementation("com.sun.mail:android-mail:1.6.7")
+    implementation("com.sun.mail:android-activation:1.6.7")
+    implementation("org.jsoup:jsoup:1.18.1")
+    implementation("androidx.browser:browser:1.8.0")
     implementation("io.coil-kt.coil3:coil-compose:3.6.3")
     implementation("dev.chrisbanes.haze:haze:2.1.0") // blur behind the Home tab pill
     implementation("dev.chrisbanes.haze:haze-blur:2.1.0")

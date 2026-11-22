@@ -1,0 +1,555 @@
+package com.tools.app.briefs
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.List
+import androidx.compose.material.icons.rounded.FormatSize
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.tools.app.reader.ReaderBar
+import com.tools.app.ui.ListRow
+import com.tools.app.ui.OneUiDialog
+import com.tools.app.ui.OneUiIcons
+import com.tools.app.ui.OneUiScaffold
+import com.tools.app.ui.OneUiSlider
+import com.tools.app.ui.OverflowMenu
+import com.tools.app.ui.PillButton
+import com.tools.app.ui.ThinProgress
+import com.tools.app.ui.ToolbarIcon
+import com.tools.app.ui.card
+import com.tools.app.ui.cardList
+import com.tools.app.ui.description
+import com.tools.app.ui.sectionLabel
+import com.tools.app.ui.theme.OneUi
+import com.tools.app.ui.theme.OneUiColors
+import com.tools.app.ui.theme.OneUiTheme
+import com.tools.app.ui.theme.SamsungFont
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+
+/** Briefs, opened from its own launcher icon or from Home; it lives in its own task like the Document reader. */
+class BriefsActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+        Briefs.load(this)
+        setContent { OneUiTheme { BriefsRoot(onClose = ::finish) } }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // The only time Briefs syncs: when you open it (at most once a minute).
+        if (BriefsAccount.get(this) != null && System.currentTimeMillis() - Briefs.lastSync > 60_000) Briefs.sync(this)
+    }
+}
+
+@Composable
+private fun BriefsRoot(onClose: () -> Unit) {
+    val context = LocalContext.current
+    var hasAccount by remember { mutableStateOf(BriefsAccount.get(context) != null) }
+    var open by rememberSaveable { mutableStateOf<Long?>(null) }
+    BackHandler(enabled = open != null) { open = null }
+    AnimatedContent(
+        open,
+        transitionSpec = {
+            if (targetState != null) (slideInHorizontally(tween(320)) { it / 3 } + fadeIn(tween(220))) togetherWith fadeOut(tween(160))
+            else fadeIn(tween(220)) togetherWith (slideOutHorizontally(tween(280)) { it / 3 } + fadeOut(tween(200)))
+        },
+        label = "briefs",
+    ) { id ->
+        when {
+            id != null -> ArticleScreen(id, onBack = { open = null }, onOpen = { open = it })
+            hasAccount -> BriefList(onOpen = { open = it }, onBack = onClose, onSignedOut = { hasAccount = false })
+            else -> Setup(onBack = onClose, onDone = { hasAccount = true; Briefs.sync(context) })
+        }
+    }
+}
+
+// ---------------------------------------------------------------- setup
+
+@Composable
+private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
+    val context = LocalContext.current
+    val c = OneUi.colors
+    val scope = rememberCoroutineScope()
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var label by rememberSaveable { mutableStateOf("Reading") }
+    var busy by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
+    val ready = email.contains('@') && password.isNotBlank() && label.isNotBlank() && !busy
+    fun connect() {
+        if (!ready) return
+        val a = Account(email.trim(), password.replace(" ", ""), label.trim())
+        busy = true; error = null
+        scope.launch {
+            val e = Briefs.test(a)
+            busy = false
+            if (e == null) { BriefsAccount.save(context, a); onDone() } else error = e
+        }
+    }
+    OneUiScaffold(title = "Briefs", onBack = onBack) {
+        description("Your newsletters and articles from one Gmail label, as clean, readable pages. Briefs only syncs while it's open: nothing runs in the background and there are no notifications.")
+        card("form") {
+            Column(Modifier.padding(16.dp)) {
+                Field(email, { email = it }, "Gmail address", keyboard = KeyboardType.Email)
+                Field(password, { password = it }, "App password", password = true, modifier = Modifier.padding(top = 10.dp))
+                Field(label, { label = it }, "Label", modifier = Modifier.padding(top = 10.dp), onDone = ::connect)
+                error?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp)) }
+                Box(Modifier.fillMaxWidth().padding(top = 14.dp), contentAlignment = Alignment.CenterEnd) {
+                    PillButton(if (busy) "Connecting…" else "Connect", onClick = ::connect, enabled = ready)
+                }
+            }
+        }
+        card("app-password") {
+            ListRow(
+                "Make an app password",
+                summary = "Google Account › Security › 2-Step Verification › App passwords. Briefs keeps it encrypted on this phone.",
+                onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://myaccount.google.com/apppasswords"))) },
+            )
+        }
+        description("Tip: in Gmail, make a filter for your newsletters' senders that applies the label, so new briefs show up here on their own.", key = "tip")
+    }
+}
+
+@Composable
+private fun Field(
+    value: String, onChange: (String) -> Unit, hint: String, modifier: Modifier = Modifier,
+    password: Boolean = false, keyboard: KeyboardType = KeyboardType.Text, onDone: () -> Unit = {},
+) {
+    val c = OneUi.colors
+    Box(modifier.fillMaxWidth().height(48.dp).clip(CircleShape).background(c.tonal).padding(horizontal = 18.dp), contentAlignment = Alignment.CenterStart) {
+        if (value.isEmpty()) Text(hint, fontSize = 16.sp, color = c.textSecondary)
+        BasicTextField(
+            value, onChange, singleLine = true,
+            textStyle = TextStyle(fontFamily = SamsungFont, fontSize = 16.sp, color = c.text),
+            cursorBrush = SolidColor(c.accent),
+            visualTransformation = if (password) PasswordVisualTransformation() else VisualTransformation.None,
+            keyboardOptions = KeyboardOptions(keyboardType = if (password) KeyboardType.Password else keyboard, autoCorrectEnabled = false),
+            keyboardActions = androidx.compose.foundation.text.KeyboardActions(onDone = { onDone() }),
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+// ---------------------------------------------------------------- list
+
+@Composable
+private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: () -> Unit) {
+    val context = LocalContext.current
+    val c = OneUi.colors
+    val items by Briefs.list.collectAsState()
+    val syncing by Briefs.syncing.collectAsState()
+    val error by Briefs.error.collectAsState()
+    var account by remember { mutableStateOf(BriefsAccount.get(context)) }
+    var changingLabel by remember { mutableStateOf(false) }
+    var signingOut by remember { mutableStateOf(false) }
+    val unread = items.count { !it.seen }
+
+    OneUiScaffold(
+        title = "Briefs",
+        subtitle = when {
+            syncing -> "Syncing…"
+            unread > 0 -> "$unread unread"
+            items.isNotEmpty() -> "All caught up"
+            else -> null
+        },
+        onBack = onBack,
+        actions = {
+            ToolbarIcon(OneUiIcons.Refresh, "Sync") { Briefs.sync(context) }
+            OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
+        },
+    ) {
+        error?.let { e ->
+            card("error") { ListRow("Couldn't sync", summary = e, summaryColor = c.error, onClick = { Briefs.sync(context) }) }
+        }
+        if (items.isEmpty()) {
+            if (syncing) item("loading") {
+                Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner() }
+            } else description(
+                "Nothing under \"${account?.label}\" yet. Label an email in Gmail and it shows up here the next time you open Briefs.",
+                key = "empty",
+            )
+        }
+        val days = items.groupBy { dayLabel(it.date) }
+        days.forEach { (day, briefs) ->
+            sectionLabel(day, key = "day-$day")
+            cardList(briefs, key = { it.uid }) { b ->
+                ListRow(
+                    b.subject,
+                    summary = "${b.sender} · ${b.minutes} min read",
+                    leading = {
+                        // Unread briefs get the accent dot, like Samsung Email.
+                        Box(Modifier.width(10.dp), contentAlignment = Alignment.Center) {
+                            if (!b.seen) Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent))
+                        }
+                    },
+                    onClick = { onOpen(b.uid) },
+                )
+            }
+        }
+        if (items.isNotEmpty() && Briefs.lastSync > 0) description("Synced ${timeAgo(Briefs.lastSync)} · ${account?.email}", key = "synced")
+    }
+
+    if (changingLabel) {
+        var label by remember { mutableStateOf(account?.label.orEmpty()) }
+        var busy by remember { mutableStateOf(false) }
+        var problem by remember { mutableStateOf<String?>(null) }
+        val scope = rememberCoroutineScope()
+        OneUiDialog(
+            "Gmail label", onDismiss = { changingLabel = false },
+            buttons = listOf(
+                "Cancel" to { changingLabel = false },
+                (if (busy) "Checking…" else "Save") to {
+                    val a = account?.copy(label = label.trim())
+                    if (a != null && a.label.isNotEmpty() && !busy) {
+                        busy = true
+                        scope.launch {
+                            val e = Briefs.test(a)
+                            busy = false
+                            if (e == null) {
+                                BriefsAccount.save(context, a); account = a; changingLabel = false
+                                Briefs.clearCache(context); Briefs.sync(context)
+                            } else problem = e
+                        }
+                    }
+                },
+            ),
+        ) {
+            Field(label, { label = it }, "Label")
+            problem?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(top = 10.dp)) }
+        }
+    }
+    if (signingOut) OneUiDialog(
+        "Sign out?", onDismiss = { signingOut = false },
+        buttons = listOf("Cancel" to { signingOut = false }, "Sign out" to { signingOut = false; Briefs.signOut(context); onSignedOut() }),
+    ) {
+        Text("Briefs forgets the app password and removes the synced emails from this phone. Nothing changes in Gmail.", fontSize = 15.sp, color = c.textSecondary)
+    }
+}
+
+// ---------------------------------------------------------------- article
+
+@SuppressLint("SetJavaScriptEnabled")
+@Composable
+private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit) {
+    val context = LocalContext.current
+    val c = OneUi.colors
+    val items by Briefs.list.collectAsState()
+    val brief = items.firstOrNull { it.uid == uid }
+    if (brief == null) { LaunchedEffect(Unit) { onBack() }; return }
+    val next = items.getOrNull(items.indexOf(brief) + 1)
+    val prefs = remember { context.getSharedPreferences("briefs_reading", Context.MODE_PRIVATE) }
+    var scale by remember { mutableFloatStateOf(prefs.getFloat("scale", 1f)) }
+    var showImages by remember(uid) { mutableStateOf(brief.address in prefs.getStringSet("imageSenders", emptySet())!!) }
+    val article by produceState<Article?>(null, uid, showImages) {
+        value = withContext(Dispatchers.Default) { BriefHtml.article(Briefs.body(context, uid), showImages) }
+    }
+    LaunchedEffect(uid) { Briefs.markRead(context, uid) }
+    var progress by remember(uid) { mutableFloatStateOf(0f) }
+    var web by remember { mutableStateOf<WebView?>(null) }
+    var sizing by remember { mutableStateOf(false) }
+    var contents by remember { mutableStateOf(false) }
+    val speech = rememberSpeech(uid)
+    val topDp = WindowInsets.statusBars.asPaddingValues().calculateTopPadding().value + 64f
+
+    Box(Modifier.fillMaxSize().background(c.background)) {
+        val a = article
+        if (a != null) AndroidView(
+            factory = { ctx ->
+                WebView(ctx).apply {
+                    setBackgroundColor(c.background.toArgb())
+                    isVerticalScrollBarEnabled = false
+                    // Only for jumping to a section; the email's own scripts and handlers were stripped out.
+                    settings.javaScriptEnabled = true
+                    settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+                    settings.allowFileAccess = false
+                    webViewClient = object : WebViewClient() {
+                        override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+                            val url = request.url
+                            when {
+                                url.scheme == "gu" -> showImages = true
+                                url.scheme == "http" || url.scheme == "https" -> runCatching {
+                                    androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(ctx, url)
+                                }
+                                else -> runCatching { ctx.startActivity(Intent(Intent.ACTION_VIEW, url)) }
+                            }
+                            return true
+                        }
+
+                        override fun onPageFinished(view: WebView, url: String?) {
+                            // Back where you left off.
+                            val saved = prefs.getFloat("pos_$uid", 0f)
+                            if (saved > 0f) view.postDelayed({
+                                val total = view.contentHeight * view.resources.displayMetrics.density - view.height
+                                if (total > 0) view.scrollTo(0, (total * saved).toInt())
+                            }, 150)
+                        }
+                    }
+                    setOnScrollChangeListener { v, _, y, _, _ ->
+                        val w = v as WebView
+                        val total = w.contentHeight * w.resources.displayMetrics.density - w.height
+                        progress = if (total > 0) (y / total).coerceIn(0f, 1f) else 1f
+                        prefs.edit().putFloat("pos_$uid", if (progress > 0.98f) 0f else progress).apply()
+                    }
+                    web = this
+                }
+            },
+            update = { w ->
+                w.settings.textZoom = (scale * 100).toInt()
+                val key = "$uid-$showImages-${c.isDark}"
+                if (w.tag != key) {
+                    w.tag = key
+                    w.loadDataWithBaseURL(null, page(a, brief, c, topDp, showImages), "text/html", "utf-8", null)
+                }
+            },
+            modifier = Modifier.fillMaxSize(),
+        )
+
+        Column(Modifier.align(Alignment.TopCenter)) {
+            ReaderBar(brief.sender, onBack = onBack) {
+                ToolbarIcon(Icons.Rounded.FormatSize, "Text size") { sizing = true }
+                if ((a?.headings?.size ?: 0) >= 3) ToolbarIcon(Icons.AutoMirrored.Rounded.List, "Contents") { contents = true }
+                OverflowMenu(buildList {
+                    add((if (speech.speaking) "Stop reading" else "Read aloud") to {
+                        if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(brief.subject) + it.paragraphs) }
+                    })
+                    if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
+                    val senders = prefs.getStringSet("imageSenders", emptySet())!!
+                    if (brief.address.isNotEmpty()) {
+                        if (brief.address in senders) add("Don't load images from this sender" to {
+                            prefs.edit().putStringSet("imageSenders", senders - brief.address).apply(); showImages = false
+                        }) else if ((a?.images ?: 0) > 0) add("Always show images from this sender" to {
+                            prefs.edit().putStringSet("imageSenders", senders + brief.address).apply(); showImages = true
+                        })
+                    }
+                })
+            }
+            ThinProgress(progress, height = 2.5.dp, modifier = Modifier.padding(horizontal = 0.dp))
+        }
+
+        // Bottom: reading aloud, or the next brief once you reach the end.
+        Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 16.dp, start = 24.dp, end = 24.dp)) {
+            when {
+                speech.speaking -> FloatingPill("Reading aloud · Stop", onClick = speech::stop)
+                progress > 0.96f && next != null -> FloatingPill("Next: ${next.subject}", onClick = { onOpen(next.uid) })
+            }
+        }
+    }
+
+    if (sizing) OneUiDialog("Text size", onDismiss = { sizing = false }, buttons = listOf("Done" to { sizing = false })) {
+        Text("${(scale * 100).toInt()}%", fontSize = 15.sp, color = c.textSecondary)
+        OneUiSlider(
+            scale, { scale = (it * 20).toInt() / 20f }, valueRange = 0.8f..1.6f,
+            onValueChangeFinished = { prefs.edit().putFloat("scale", scale).apply() },
+            modifier = Modifier.padding(top = 12.dp),
+        )
+    }
+    if (contents) OneUiDialog("Contents", onDismiss = { contents = false }, buttons = listOf("Close" to { contents = false })) {
+        article?.headings?.forEach { (id, text) ->
+            Text(
+                text, fontSize = 16.sp, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable {
+                    contents = false
+                    web?.evaluateJavascript("document.getElementById('$id').scrollIntoView({behavior:'smooth'})", null)
+                }.padding(horizontal = 6.dp, vertical = 11.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun FloatingPill(text: String, onClick: () -> Unit) {
+    val c = OneUi.colors
+    Row(
+        Modifier.shadow(10.dp, CircleShape, ambientColor = Color(0x66000000), spotColor = Color(0x88000000))
+            .clip(CircleShape).background(c.popup).clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 13.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(text, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
+    }
+}
+
+/** The article page: the cleaned email in One UI's font and colours, headed by its subject and details. */
+private fun page(a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean): String {
+    fun hex(color: Color) = String.format("#%06X", color.toArgb() and 0xFFFFFF)
+    fun esc(s: String) = org.jsoup.nodes.Entities.escape(s)
+    val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(Date(b.date))
+    val imageNote = if (!showImages && a.images > 0) " · <a href=\"gu://images\">Show ${a.images} image${if (a.images == 1) "" else "s"}</a>" else ""
+    return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
+:root{color-scheme:${if (c.isDark) "dark" else "light"}}
+html,body{margin:0;background:${hex(c.background)}}
+body{padding:${topDp.toInt() + 14}px 24px 150px;color:${hex(c.text)};font-family:sec,SamsungOne,sans-serif;font-size:17px;line-height:1.62;overflow-wrap:anywhere}
+a{color:${hex(c.accent)};text-decoration:none}
+h1.gu-title{font-size:1.65em;line-height:1.22;margin:0 0 .35em;font-weight:800;letter-spacing:-.01em}
+.gu-meta{color:${hex(c.textSecondary)};font-size:.82em;margin-bottom:1.8em}
+h1,h2,h3,h4{line-height:1.3;margin:1.4em 0 .5em}
+h1{font-size:1.4em}h2{font-size:1.25em}h3{font-size:1.1em}
+p{margin:0 0 1em}
+div:not(:has(div,p,ul,ol,h1,h2,h3,h4,blockquote)){margin:0 0 .75em}
+img{display:block;max-width:100%;height:auto;margin:1em auto;border-radius:14px}
+hr{border:0;border-top:1px solid ${hex(c.divider)};margin:1.6em 0}
+blockquote{margin:1em 0;padding-left:14px;border-left:3px solid ${hex(c.accent)};color:${hex(c.textSecondary)}}
+ul,ol{padding-left:1.3em}li{margin:.3em 0}
+pre,code{white-space:pre-wrap;font-size:.9em}
+</style></head><body>
+<h1 class="gu-title">${esc(b.subject)}</h1>
+<div class="gu-meta">${esc(b.sender)} · $date · ${b.minutes} min read$imageNote</div>
+${a.html}
+</body></html>"""
+}
+
+// ---------------------------------------------------------------- read aloud
+
+private class Speech(private val context: Context) {
+    var speaking by mutableStateOf(false)
+        private set
+    private var tts: TextToSpeech? = null
+    private var ready = false
+    private var pending: List<String>? = null
+
+    fun speak(parts: List<String>) {
+        speaking = true
+        if (ready) say(parts) else {
+            pending = parts
+            if (tts == null) tts = TextToSpeech(context) { status ->
+                ready = status == TextToSpeech.SUCCESS
+                if (ready) pending?.let { say(it) } else speaking = false
+                pending = null
+            }.apply {
+                setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(id: String?) {}
+                    override fun onDone(id: String?) { if (id == "last") context.mainExecutor.execute { speaking = false } }
+                    @Deprecated("Deprecated in Java") override fun onError(id: String?) { context.mainExecutor.execute { speaking = false } }
+                })
+            }
+        }
+    }
+
+    private fun say(parts: List<String>) {
+        val t = tts ?: return
+        val max = TextToSpeech.getMaxSpeechInputLength() - 1
+        val chunks = parts.flatMap { p -> p.chunked(max) }
+        chunks.forEachIndexed { i, chunk ->
+            t.speak(chunk, if (i == 0) TextToSpeech.QUEUE_FLUSH else TextToSpeech.QUEUE_ADD, null, if (i == chunks.lastIndex) "last" else "p$i")
+        }
+    }
+
+    fun stop() { tts?.stop(); speaking = false }
+    fun shutdown() { tts?.stop(); tts?.shutdown(); tts = null; ready = false; speaking = false }
+}
+
+@Composable
+private fun rememberSpeech(key: Any): Speech {
+    val context = LocalContext.current
+    val speech = remember(key) { Speech(context) }
+    // Stops when you leave the brief, and when the app goes to the background.
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(speech, lifecycle) {
+        val observer = LifecycleEventObserver { _, e -> if (e == Lifecycle.Event.ON_STOP) speech.stop() }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer); speech.shutdown() }
+    }
+    return speech
+}
+
+// ---------------------------------------------------------------- dates
+
+private fun dayKey(t: Long): Int { val c = Calendar.getInstance().apply { timeInMillis = t }; return c.get(Calendar.YEAR) * 1000 + c.get(Calendar.DAY_OF_YEAR) }
+
+private fun dayLabel(t: Long): String = when (dayKey(t)) {
+    dayKey(System.currentTimeMillis()) -> "Today"
+    dayKey(System.currentTimeMillis() - 86_400_000L) -> "Yesterday"
+    else -> SimpleDateFormat(
+        if (Calendar.getInstance().apply { timeInMillis = t }.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) "EEEE, MMM d" else "MMM d, yyyy",
+        Locale.getDefault(),
+    ).format(Date(t))
+}
+
+private fun timeAgo(t: Long): String {
+    val m = (System.currentTimeMillis() - t) / 60_000
+    return when {
+        m < 1 -> "just now"
+        m < 60 -> "$m min ago"
+        m < 24 * 60 -> "${m / 60} h ago"
+        else -> DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(t))
+    }
+}

@@ -1,0 +1,96 @@
+package com.tools.app.briefs
+
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
+import org.jsoup.nodes.Element
+
+/** A brief made readable: the article HTML, its text for reading aloud, and its section headings. */
+class Article(val html: String, val paragraphs: List<String>, val headings: List<Pair<String, String>>, val images: Int)
+
+/**
+ * Turns a newsletter's email HTML into a plain article: no layout tables, inline styles, tracking pixels,
+ * hidden preview text or "unsubscribe / view in browser" boilerplate. The page then gets One UI's own type
+ * and colours, so dark mode works even for emails that hard-code white backgrounds.
+ */
+object BriefHtml {
+    private val boilerplate = Regex(
+        "(?i)unsubscribe|view (it |this )?(email )?(in|on) (your |a )?(web )?browser|view online|view as (a )?web ?page|" +
+            "manage (your )?(email )?(preferences|subscriptions?|settings)|update (your )?(email )?preferences|email preferences|" +
+            "forward(ed)? (this|to a friend)|having trouble (viewing|reading)|add us to your address book",
+    )
+    private val hidden = Regex("(?i)display\\s*:\\s*none|visibility\\s*:\\s*hidden|max-height\\s*:\\s*0(px)?\\s*(;|$)|font-size\\s*:\\s*0(px)?\\s*(;|$)|opacity\\s*:\\s*0(\\.0+)?\\s*(;|$)|mso-hide\\s*:\\s*all")
+    private val keepTags = setOf("p", "div", "br", "hr", "a", "img", "b", "strong", "i", "em", "u", "h1", "h2", "h3", "h4", "h5", "h6",
+        "ul", "ol", "li", "blockquote", "pre", "code", "sup", "sub", "figure", "figcaption", "span", "body", "html")
+
+    fun plainText(raw: String): String = clean(raw).body().text()
+
+    fun article(raw: String, showImages: Boolean): Article {
+        val doc = clean(raw)
+        val body = doc.body()
+        val images = body.select("img").size
+        if (!showImages) body.select("img").remove()
+        pruneEmpty(body)
+        // Section headings (id → text), for the contents list.
+        val headings = body.select("h1, h2, h3").mapIndexedNotNull { i, h ->
+            h.attr("id", "gu-h$i")
+            h.text().trim().takeIf { it.isNotEmpty() }?.let { "gu-h$i" to it }
+        }
+        val paragraphs = body.select("h1, h2, h3, h4, p, li, blockquote, div")
+            .filter { el -> el.children().none { it.tagName() in setOf("p", "div", "li", "h1", "h2", "h3", "h4", "ul", "ol", "blockquote") } }
+            .map { it.text().trim() }.filter { it.isNotEmpty() }
+        return Article(body.html(), paragraphs, headings, images)
+    }
+
+    private fun clean(raw: String): Document {
+        val doc = Jsoup.parse(raw)
+        doc.select("script, style, head, meta, link, noscript, title, iframe, form, input, button, select, textarea, svg, map, object, embed").remove()
+        // Preview text and other hidden bits.
+        doc.select("[style]").filter { hidden.containsMatchIn(it.attr("style")) }.forEach { it.remove() }
+        doc.select("[hidden], [aria-hidden=true]").remove()
+        // Tracking pixels and spacers.
+        doc.select("img").forEach { img ->
+            val w = img.attr("width").filter(Char::isDigit).toIntOrNull()
+            val h = img.attr("height").filter(Char::isDigit).toIntOrNull()
+            val style = img.attr("style")
+            if (img.attr("src").isBlank() || (w != null && w <= 3) || (h != null && h <= 3) ||
+                Regex("(?i)(width|height)\\s*:\\s*[0-3]px").containsMatchIn(style)) img.remove()
+        }
+        // Footer and header boilerplate: the smallest block around such a link, if it's short.
+        doc.select("a").filter { boilerplate.containsMatchIn(it.text()) }.forEach { a ->
+            var block: Element = a
+            while (block.parent() != null && block.parent()!!.tagName() !in setOf("body", "html") &&
+                block.parent()!!.text().length < 300) block = block.parent()!!
+            block.remove()
+        }
+        doc.select("p, div, td, span").filter { it.ownText().length < 300 && boilerplate.containsMatchIn(it.ownText()) && it.select("a").isEmpty() }
+            .forEach { it.remove() }
+        // Layout tables become plain blocks.
+        doc.select("td, th").forEach { it.tagName("div") }
+        doc.select("table, tbody, thead, tfoot, tr, center, font, colgroup, col").forEach { it.unwrap() }
+        // Everything else keeps only what reading needs.
+        doc.getAllElements().forEach { el ->
+            if (el.tagName() !in keepTags) { el.tagName("div") }
+            val keep = when (el.tagName()) {
+                "a" -> setOf("href")
+                "img" -> setOf("src", "alt")
+                else -> emptySet()
+            }
+            el.attributes().asList().map { it.key }.filter { it !in keep }.forEach { el.removeAttr(it) }
+        }
+        doc.select("a[href^=javascript]").forEach { it.unwrap() }
+        return doc
+    }
+
+    /** Drops elements left with nothing to show (repeatedly, as emptying one can empty its parent). */
+    private fun pruneEmpty(body: Element) {
+        repeat(6) {
+            val empty = body.select("div, p, span, a, b, strong, i, em, li, ul, ol, blockquote, h1, h2, h3, h4, h5, h6, figure")
+                .filter { it.text().isBlank() && it.select("img, hr, br").isEmpty() }
+            if (empty.isEmpty()) return
+            empty.forEach { it.remove() }
+        }
+        // Runs of <br> and dividers collapse to one.
+        body.select("br + br").remove()
+        body.select("hr + hr").remove()
+    }
+}

@@ -3,6 +3,7 @@ package com.tools.app.home
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.rounded.Newspaper
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.graphics.graphicsLayer
@@ -109,6 +110,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         ),
         "Files" to listOf(
             Tool(Route.Reader, "Document reader", "PDFs, Word files and text, One UI style", Icons.AutoMirrored.Rounded.MenuBook, IconColors.Orange),
+            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Blue),
             Tool(Route.PdfEditor, "PDF editor", "Merge, split, reorder, sign and annotate PDFs", Icons.Rounded.PictureAsPdf, IconColors.Red),
             Tool(Route.Converter, "File converter", "Images, documents, audio and video", Icons.Rounded.SwapHoriz, IconColors.Teal),
             Tool(Route.Print, "Print", "Print PDFs, photos and documents", Icons.Rounded.Print, IconColors.Blue),

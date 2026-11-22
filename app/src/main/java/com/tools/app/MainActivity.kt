@@ -38,7 +38,7 @@ import com.tools.app.music.MusicScreen
 import com.tools.app.music.MusicSettingsScreen
 import com.tools.app.ui.theme.OneUiTheme
 
-enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker, CardBalance }
+enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker, CardBalance, Briefs }
 
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
@@ -142,6 +142,8 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     when (s.last()) {
                         Route.Home -> HomeScreen(home, open = { r ->
                             if (r == Route.AppLock) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open App lock") { push(r) }
+                            // Briefs is its own window (and launcher icon), like the Document reader's files.
+                            else if (r == Route.Briefs) startActivity(Intent(this@MainActivity, com.tools.app.briefs.BriefsActivity::class.java))
                             else push(r)
                         })
                         Route.Music -> MusicScreen(musicList, onBack = ::pop, onOpenSettings = { push(Route.MusicSettings) })
@@ -172,6 +174,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.IconMaker -> com.tools.app.iconmaker.IconMakerScreen(onBack = ::pop)
                         Route.CardBalance -> com.tools.app.card.CardBalanceScreen(onBack = ::pop)
                         Route.ApkExtractor -> com.tools.app.apk.ApkScreen(onBack = ::pop)
+                        Route.Briefs -> Unit
                     }
                     }
                 }

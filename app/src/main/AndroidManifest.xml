@@ -167,6 +167,23 @@
             </intent-filter>
         </activity>
 
+        <!-- Briefs: Gmail newsletters as readable articles, with its own launcher icon and task -->
+        <activity
+            android:name=".briefs.BriefsActivity"
+            android:exported="true"
+            android:label="@string/briefs"
+            android:icon="@mipmap/ic_briefs"
+            android:roundIcon="@mipmap/ic_briefs"
+            android:taskAffinity="com.tools.app.briefs"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.Tools"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboardHidden|uiMode">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <!-- Share any text/link → QR code sheet -->
         <activity
             android:name=".qr.QrActivity"
