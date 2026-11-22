@@ -26,6 +26,24 @@ object BriefHtml {
 
     fun plainText(raw: String): String = clean(raw).body().text()
 
+    /** True for emoji and their modifiers (pictographs, dingbats, flags, skin tones, joiners), not ©, ® or ™. */
+    private fun isEmoji(cp: Int) = cp in 0x1F000..0x1FAFF || cp in 0x2600..0x27BF || cp in 0x2B00..0x2BFF ||
+        cp in 0x2300..0x23FF || cp in 0x1F1E6..0x1F1FF || cp in 0xE0020..0xE007F ||
+        cp == 0xFE0F || cp == 0xFE0E || cp == 0x200D || cp == 0x20E3 || cp == 0x3030 || cp == 0x303D || cp == 0x3297 || cp == 0x3299
+
+    /** [s] without emoji. With [tidy], doubled spaces left behind are closed up and the ends trimmed. */
+    fun noEmoji(s: String, tidy: Boolean = true): String {
+        val sb = StringBuilder(s.length)
+        var i = 0
+        while (i < s.length) {
+            val cp = s.codePointAt(i)
+            if (!isEmoji(cp)) sb.appendCodePoint(cp)
+            i += Character.charCount(cp)
+        }
+        val out = sb.toString()
+        return if (tidy) out.replace(Regex("[ \\t]{2,}"), " ").trim().ifEmpty { s.trim() } else out
+    }
+
     fun article(raw: String, showImages: Boolean, subject: String = ""): Article {
         val doc = clean(raw)
         val body = doc.body()
@@ -104,6 +122,16 @@ object BriefHtml {
             el.attributes().asList().map { it.key }.filter { it !in keep }.forEach { el.removeAttr(it) }
         }
         doc.select("a[href^=javascript]").forEach { it.unwrap() }
+        // No emoji anywhere in the article.
+        doc.body()?.let { body ->
+            org.jsoup.select.NodeTraversor.traverse(org.jsoup.select.NodeVisitor { node, _ ->
+                if (node is org.jsoup.nodes.TextNode) {
+                    val t = node.wholeText
+                    val clean = noEmoji(t, tidy = false)
+                    if (clean != t) node.text(clean.replace(Regex("^ +| +$"), " "))
+                }
+            }, body)
+        }
         return doc
     }
 

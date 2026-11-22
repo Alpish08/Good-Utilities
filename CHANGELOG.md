@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.8.6 — 2026-11-22
+- Briefs: the sync button turns once when pressed.
+- Briefs: no emoji anywhere: list, header, article title and text, and read-aloud.
+- Briefs: the "Next: …" pill at the end of an article has the header's frosted grey and blur.
+
 ## 2.8.5 — 2026-11-22
 - Briefs: the refresh button shows the same loading animation as pull to refresh.
 

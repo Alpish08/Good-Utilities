@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -279,7 +280,15 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
             },
             onBack = onBack,
             actions = {
-                ToolbarIcon(OneUiIcons.Refresh, "Sync") { pulled = true; Briefs.sync(context) }   // shows the loader too
+                // Turns once when pressed, and shows the loader like a pull.
+                val spin = remember { androidx.compose.animation.core.Animatable(0f) }
+                val spinScope = rememberCoroutineScope()
+                Box(Modifier.graphicsLayer { rotationZ = spin.value }) {
+                    ToolbarIcon(OneUiIcons.Refresh, "Sync") {
+                        pulled = true; Briefs.sync(context)
+                        spinScope.launch { spin.snapTo(0f); spin.animateTo(360f, tween(650, easing = com.tools.app.ui.theme.OneUiEasing)); spin.snapTo(0f) }
+                    }
+                }
                 OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
             },
         ) {
@@ -367,6 +376,9 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
     val brief = items.firstOrNull { it.uid == uid }
     if (brief == null) { LaunchedEffect(Unit) { onBack() }; return }
     val next = items.getOrNull(items.indexOf(brief) + 1)
+    val latestNext = androidx.compose.runtime.rememberUpdatedState(next)
+    val onOpenLatest = androidx.compose.runtime.rememberUpdatedState(onOpen)
+    val navDp = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding().value
     val prefs = remember { context.getSharedPreferences("briefs_reading", Context.MODE_PRIVATE) }
     var scale by remember { mutableFloatStateOf(prefs.getFloat("scale", 1f)) }
     // "Show in light": the page in One UI's light colours, for newsletters made for a white background. Remembered.
@@ -400,6 +412,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                             val url = request.url
                             when {
+                                url.scheme == "gu" && url.host == "next" -> latestNext.value?.let { onOpenLatest.value(it.uid) }
                                 url.scheme == "gu" -> showImages = true
                                 url.scheme == "http" || url.scheme == "https" -> runCatching {
                                     androidx.browser.customtabs.CustomTabsIntent.Builder().setShowTitle(true).build().launchUrl(ctx, url)
@@ -431,12 +444,16 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                 w.settings.textZoom = (scale * 100).toInt()
                 // Keyed on the article itself: it's rebuilt a moment after the images switch flips, and loading on
                 // the flip alone showed the old version and then skipped the new one.
-                val key = "${System.identityHashCode(a)}-${c.isDark}-$lightPage"
+                val key = "${System.identityHashCode(a)}-${c.isDark}-$lightPage-${next?.uid}"
                 if (w.tag != key) {
                     w.tag = key
                     val colours = if (lightPage && c.isDark) com.tools.app.ui.theme.OneUiLightColors else c
                     w.setBackgroundColor(colours.background.toArgb())
-                    w.loadDataWithBaseURL(null, page(a, brief, colours, topDp, showImages, frost = frost(c)), "text/html", "utf-8", null)
+                    w.loadDataWithBaseURL(
+                        null,
+                        page(a, brief, colours, topDp, showImages, frost = frost(c), next = next?.let { plainTitle(it.subject) }, pillText = c.text, bottomDp = navDp),
+                        "text/html", "utf-8", null,
+                    )
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -445,7 +462,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
         Column(Modifier.align(Alignment.TopCenter)) {
             val bar: @Composable () -> Unit = {
                 // No fill of its own: the page draws the frosted strip under it (see page()), as the PDF reader's header.
-                ReaderBar(brief.sender, onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
+                ReaderBar(plainTitle(brief.sender), onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
                     OverflowMenu(buildList {
                         if ((a?.headings?.size ?: 0) >= 3) add("Contents" to { contents = true })
                         add("Text size" to { sizing = true })
@@ -453,7 +470,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                             lightPage = !lightPage; prefs.edit().putBoolean("light", lightPage).apply()
                         })
                         add((if (speech.speaking) "Stop reading" else "Read aloud") to {
-                            if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(brief.subject) + it.paragraphs) }
+                            if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(plainTitle(brief.subject)) + it.paragraphs) }
                         })
                         if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
                         val senders = prefs.getStringSet("imageSenders", emptySet())!!
@@ -475,7 +492,6 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
         Box(Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 16.dp, start = 24.dp, end = 24.dp)) {
             when {
                 speech.speaking -> FloatingPill("Reading aloud · Stop", onClick = speech::stop)
-                progress > 0.96f && next != null -> FloatingPill("Next: ${next.subject}", onClick = { onOpen(next.uid) })
             }
         }
     }
@@ -521,7 +537,11 @@ private fun frost(c: OneUiColors): String {
     return "rgba(${(argb shr 16) and 0xFF},${(argb shr 8) and 0xFF},${argb and 0xFF},${"%.2f".format(java.util.Locale.US, f.alpha)})"
 }
 
-private fun page(a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean, frost: String = frost(c)): String {
+private fun page(
+    a: Article, b: Brief, c: OneUiColors, topDp: Float, showImages: Boolean, frost: String = frost(c),
+    /** The "Next: …" pill: the next brief's title, the header's text colour, and the room the navigation bar takes. */
+    next: String? = null, pillText: Color = c.text, bottomDp: Float = 0f,
+): String {
     fun hex(color: Color) = String.format("#%06X", color.toArgb() and 0xFFFFFF)
     fun esc(s: String) = org.jsoup.nodes.Entities.escape(s)
     val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(Date(b.date))
@@ -543,11 +563,18 @@ blockquote{margin:1em 0;padding-left:14px;border-left:3px solid ${hex(c.accent)}
 ul,ol{padding-left:1.3em}li{margin:.3em 0}
 pre,code{white-space:pre-wrap;font-size:.9em}
 .gu-bar{position:fixed;top:0;left:0;right:0;height:${topDp.toInt()}px;z-index:9;background:$frost;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)}
+.gu-next{position:fixed;left:50%;bottom:${bottomDp.toInt() + 16}px;z-index:9;max-width:calc(100% - 48px);box-sizing:border-box;padding:13px 20px;border-radius:999px;
+ background:$frost;-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);box-shadow:0 6px 18px rgba(0,0,0,.35);
+ color:${hex(pillText)};font-size:15px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ opacity:0;pointer-events:none;transform:translate(-50%,16px);transition:opacity .22s,transform .3s cubic-bezier(.22,.25,0,1)}
+.gu-next.on{opacity:1;pointer-events:auto;transform:translate(-50%,0)}
 </style></head><body>
 <div class="gu-bar"></div>
-<h1 class="gu-title">${esc(b.subject)}</h1>
-<div class="gu-meta">${esc(b.sender)} · $date · ${b.minutes} min read$imageNote</div>
+<h1 class="gu-title">${esc(plainTitle(b.subject))}</h1>
+<div class="gu-meta">${esc(plainTitle(b.sender))} · $date · ${b.minutes} min read$imageNote</div>
 ${a.html}
+${if (next != null) """<a id="gu-next" class="gu-next" href="gu://next">Next: ${esc(next)}</a>
+<script>(function(){var n=document.getElementById('gu-next');function u(){var d=document.documentElement;n.classList.toggle('on',window.innerHeight+window.scrollY>=d.scrollHeight-60);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();</script>""" else ""}
 </body></html>"""
 }
 
@@ -605,20 +632,8 @@ private fun rememberSpeech(key: Any): Speech {
     return speech
 }
 
-/** Subjects without their emoji ("☕ Hangover pill" → "Hangover pill") for the list. */
-private fun plainTitle(s: String): String {
-    val sb = StringBuilder()
-    var i = 0
-    while (i < s.length) {
-        val cp = s.codePointAt(i)
-        val type = Character.getType(cp)
-        val emoji = type == Character.OTHER_SYMBOL.toInt() || type == Character.SURROGATE.toInt() ||
-            cp == 0xFE0F || cp == 0x200D || cp in 0x1F3FB..0x1F3FF || cp in 0xE0020..0xE007F
-        if (!emoji) sb.appendCodePoint(cp)
-        i += Character.charCount(cp)
-    }
-    return sb.toString().replace(Regex("\\s{2,}"), " ").trim().ifEmpty { s }
-}
+/** Subjects and names without their emoji ("☕ Hangover pill" → "Hangover pill"). */
+private fun plainTitle(s: String): String = BriefHtml.noEmoji(s)
 
 // ---------------------------------------------------------------- dates
 
