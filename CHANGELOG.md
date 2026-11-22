@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.5 — 2026-11-22
+- Briefs: the refresh button shows the same loading animation as pull to refresh.
+
 ## 2.8.4 — 2026-11-22
 - Briefs: pull down to refresh, with Samsung's four-dot loading animation just below the back and ⋮ buttons, over the first cards.
 

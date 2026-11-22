@@ -234,8 +234,8 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
     var signingOut by remember { mutableStateOf(false) }
     val unread = items.count { !it.seen }
 
-    // Pull down to refresh, with Samsung's four-dot loader. It shows for a sync you pulled for; the automatic
-    // sync on opening only says "Syncing…" under the title.
+    // Pull down to refresh, with Samsung's four-dot loader. It shows for a sync you asked for (pulled, or the refresh
+    // button); the automatic sync on opening only says "Syncing…" under the title.
     val pull = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
     var pulled by remember { mutableStateOf(false) }
     LaunchedEffect(syncing) { if (!syncing) pulled = false }
@@ -279,7 +279,7 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
             },
             onBack = onBack,
             actions = {
-                ToolbarIcon(OneUiIcons.Refresh, "Sync") { Briefs.sync(context) }
+                ToolbarIcon(OneUiIcons.Refresh, "Sync") { pulled = true; Briefs.sync(context) }   // shows the loader too
                 OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
             },
         ) {
