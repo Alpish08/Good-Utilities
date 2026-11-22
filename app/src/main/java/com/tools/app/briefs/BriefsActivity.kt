@@ -262,14 +262,10 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
             sectionLabel(day, key = "day-$day")
             cardList(briefs, key = { it.uid }) { b ->
                 ListRow(
-                    b.subject,
+                    plainTitle(b.subject),
                     summary = "${b.sender} · ${b.minutes} min read",
-                    leading = {
-                        // Unread briefs get the accent dot, like Samsung Email.
-                        Box(Modifier.width(10.dp), contentAlignment = Alignment.Center) {
-                            if (!b.seen) Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent))
-                        }
-                    },
+                    // Unread briefs get the accent dot at the end, like Samsung Email.
+                    trailing = if (b.seen) null else ({ Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent)) }),
                     onClick = { onOpen(b.uid) },
                 )
             }
@@ -327,13 +323,21 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
     val next = items.getOrNull(items.indexOf(brief) + 1)
     val prefs = remember { context.getSharedPreferences("briefs_reading", Context.MODE_PRIVATE) }
     var scale by remember { mutableFloatStateOf(prefs.getFloat("scale", 1f)) }
+    // "Show in light": the page in One UI's light colours, for newsletters made for a white background. Remembered.
+    var lightPage by remember { mutableStateOf(prefs.getBoolean("light", false)) }
     var showImages by remember(uid) { mutableStateOf(brief.address in prefs.getStringSet("imageSenders", emptySet())!!) }
     val article by produceState<Article?>(null, uid, showImages) {
         value = withContext(Dispatchers.Default) {
-            BriefHtml.article(Briefs.body(context, uid), showImages)
+            BriefHtml.article(Briefs.body(context, uid), showImages, brief.subject)
         }
     }
     LaunchedEffect(uid) { Briefs.markRead(context, uid) }
+    val window = (context as? android.app.Activity)?.window
+    DisposableEffect(lightPage, c.isDark) {
+        val ctrl = window?.let { androidx.core.view.WindowCompat.getInsetsController(it, it.decorView) }
+        ctrl?.isAppearanceLightStatusBars = lightPage || !c.isDark
+        onDispose { ctrl?.isAppearanceLightStatusBars = !c.isDark }
+    }
     var progress by remember(uid) { mutableFloatStateOf(0f) }   // only for the "Next" pill at the end
     var web by remember { mutableStateOf<WebView?>(null) }
     var sizing by remember { mutableStateOf(false) }
@@ -387,35 +391,44 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                 w.settings.textZoom = (scale * 100).toInt()
                 // Keyed on the article itself: it's rebuilt a moment after the images switch flips, and loading on
                 // the flip alone showed the old version and then skipped the new one.
-                val key = "${System.identityHashCode(a)}-${c.isDark}"
+                val key = "${System.identityHashCode(a)}-${c.isDark}-$lightPage"
                 if (w.tag != key) {
                     w.tag = key
-                    w.loadDataWithBaseURL(null, page(a, brief, c, topDp, showImages), "text/html", "utf-8", null)
+                    val colours = if (lightPage && c.isDark) com.tools.app.ui.theme.OneUiLightColors else c
+                    w.setBackgroundColor(colours.background.toArgb())
+                    w.loadDataWithBaseURL(null, page(a, brief, colours, topDp, showImages), "text/html", "utf-8", null)
                 }
             },
             modifier = Modifier.fillMaxSize(),
         )
 
         Column(Modifier.align(Alignment.TopCenter)) {
-            // No fill of its own: the page draws the frosted strip under it (see page()), as the PDF reader's header.
-            ReaderBar(brief.sender, onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
-                OverflowMenu(buildList {
-                    if ((a?.headings?.size ?: 0) >= 3) add("Contents" to { contents = true })
-                    add("Text size" to { sizing = true })
-                    add((if (speech.speaking) "Stop reading" else "Read aloud") to {
-                        if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(brief.subject) + it.paragraphs) }
-                    })
-                    if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
-                    val senders = prefs.getStringSet("imageSenders", emptySet())!!
-                    if (brief.address.isNotEmpty()) {
-                        if (brief.address in senders) add("Stop always showing images" to {
-                            prefs.edit().putStringSet("imageSenders", senders - brief.address).apply(); showImages = false
-                        }) else if ((a?.images ?: 0) > 0) add("Always show images" to {
-                            prefs.edit().putStringSet("imageSenders", senders + brief.address).apply(); showImages = true
+            val bar: @Composable () -> Unit = {
+                // No fill of its own: the page draws the frosted strip under it (see page()), as the PDF reader's header.
+                ReaderBar(brief.sender, onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
+                    OverflowMenu(buildList {
+                        if ((a?.headings?.size ?: 0) >= 3) add("Contents" to { contents = true })
+                        add("Text size" to { sizing = true })
+                        if (c.isDark) add((if (lightPage) "Show in dark" else "Show in light") to {
+                            lightPage = !lightPage; prefs.edit().putBoolean("light", lightPage).apply()
                         })
-                    }
-                })
+                        add((if (speech.speaking) "Stop reading" else "Read aloud") to {
+                            if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(brief.subject) + it.paragraphs) }
+                        })
+                        if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
+                        val senders = prefs.getStringSet("imageSenders", emptySet())!!
+                        if (brief.address.isNotEmpty()) {
+                            if (brief.address in senders) add("Stop always showing images" to {
+                                prefs.edit().putStringSet("imageSenders", senders - brief.address).apply(); showImages = false
+                            }) else if ((a?.images ?: 0) > 0) add("Always show images" to {
+                                prefs.edit().putStringSet("imageSenders", senders + brief.address).apply(); showImages = true
+                            })
+                        }
+                    })
+                }
             }
+            // Over a light page, the header's text and icons go dark too (and so do the status bar icons).
+            if (lightPage && c.isDark) com.tools.app.ui.theme.OneUiLight(bar) else bar()
         }
 
         // Bottom: reading aloud, or the next brief once you reach the end.
@@ -550,6 +563,21 @@ private fun rememberSpeech(key: Any): Speech {
         onDispose { lifecycle.removeObserver(observer); speech.shutdown() }
     }
     return speech
+}
+
+/** Subjects without their emoji ("☕ Hangover pill" → "Hangover pill") for the list. */
+private fun plainTitle(s: String): String {
+    val sb = StringBuilder()
+    var i = 0
+    while (i < s.length) {
+        val cp = s.codePointAt(i)
+        val type = Character.getType(cp)
+        val emoji = type == Character.OTHER_SYMBOL.toInt() || type == Character.SURROGATE.toInt() ||
+            cp == 0xFE0F || cp == 0x200D || cp in 0x1F3FB..0x1F3FF || cp in 0xE0020..0xE007F
+        if (!emoji) sb.appendCodePoint(cp)
+        i += Character.charCount(cp)
+    }
+    return sb.toString().replace(Regex("\\s{2,}"), " ").trim().ifEmpty { s }
 }
 
 // ---------------------------------------------------------------- dates

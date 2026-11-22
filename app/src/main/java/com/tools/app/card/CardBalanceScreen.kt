@@ -219,9 +219,10 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     summary = timeText(e.time) + " · Balance " + CardStore.format(after[e.id] ?: 0),
                     trailing = {
                         Text(
-                            if (e.cents < 0) CardStore.format(-e.cents) else CardStore.format(e.cents, sign = true),
+                            CardStore.format(e.cents, sign = true),
                             fontSize = 16.sp, fontWeight = FontWeight.SemiBold,
-                            color = if (e.cents > 0) c.success else c.text,
+                            // Deposits green, expenses a warm red-orange (with their minus sign).
+                            color = if (e.cents > 0) c.success else if (c.isDark) Color(0xFFFF7A59) else Color(0xFFE0502E),
                         )
                     },
                     onClick = { editing = e },

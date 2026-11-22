@@ -150,8 +150,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Track expenses and payments",
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
-            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Blue),
-            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Red),
+            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Red),
+            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Pink),
             Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
             Tool(Route.Random, "Random", "Numbers in any range, or roll some dice", Icons.Rounded.Casino, IconColors.Purple),
         ),
@@ -197,9 +197,9 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         title = "Good Utilities",
         subtitle = "${groups.sumOf { it.second.size }} tools",
         listState = state.list,
-        // The title scrolls away and the buttons float on shadowed chips, in every tab and with no tab chosen;
-        // only search keeps the classic pinned toolbar.
-        floatingToolbar = !searching,
+        // With no tab chosen, the title scrolls away and the buttons float on shadowed chips; inside a tab, and
+        // while searching, the title stays pinned.
+        floatingToolbar = state.tab < 0 && !searching,
         // The list fades out toward the tab bar everywhere.
         fadeUnderBottomBar = true,
         actions = {

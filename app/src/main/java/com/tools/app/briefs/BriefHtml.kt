@@ -16,7 +16,9 @@ object BriefHtml {
     private val boilerplate = Regex(
         "(?i)unsubscribe|view (it |this )?(email )?(in|on) (your |a )?(web )?browser|view online|view as (a )?web ?page|" +
             "manage (your )?(email )?(preferences|subscriptions?|settings)|update (your )?(email )?preferences|email preferences|" +
-            "forward(ed)? (this|to a friend)|having trouble (viewing|reading)|add us to your address book",
+            "forward(ed)? (this|to a friend)|having trouble (viewing|reading)|add us to your address book|" +
+            "read (this|it|the) (issue |email |newsletter |post )?(in|on) (a|your|the) (web )?browser|(someone|somebody|a friend) forward(ed)? (you )?this|" +
+            "subscribe to (this|our|the) newsletter|sign up (here|for free)|was this (email )?forwarded to you",
     )
     private val hidden = Regex("(?i)display\\s*:\\s*none|visibility\\s*:\\s*hidden|max-height\\s*:\\s*0(px)?\\s*(;|$)|font-size\\s*:\\s*0(px)?\\s*(;|$)|opacity\\s*:\\s*0(\\.0+)?\\s*(;|$)|mso-hide\\s*:\\s*all")
     private val keepTags = setOf("p", "div", "br", "hr", "a", "img", "b", "strong", "i", "em", "u", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -24,9 +26,14 @@ object BriefHtml {
 
     fun plainText(raw: String): String = clean(raw).body().text()
 
-    fun article(raw: String, showImages: Boolean): Article {
+    fun article(raw: String, showImages: Boolean, subject: String = ""): Article {
         val doc = clean(raw)
         val body = doc.body()
+        // The subject is already the page title: drop the newsletter's own copy of it near the top.
+        val key = subject.lowercase().filter { it.isLetterOrDigit() }
+        if (key.length >= 4) body.select("h1, h2, h3, p, div").take(12)
+            .firstOrNull { el -> el.children().none { it.tagName() in setOf("p", "div") } && el.text().lowercase().filter { it.isLetterOrDigit() } == key }
+            ?.remove()
         val images = body.select("img").size
         if (!showImages) body.select("img").remove()
         pruneEmpty(body)

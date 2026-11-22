@@ -105,6 +105,20 @@ object OneUi {
     val CardShape = RoundedCornerShape(CardRadius)
 }
 
+/** One UI's light colours, e.g. for a page shown light while the phone is in dark mode. */
+val OneUiLightColors: OneUiColors get() = Light
+
+/** Draws [content] in One UI's light colours, whatever the system theme. */
+@Composable
+fun OneUiLight(content: @Composable () -> Unit) {
+    CompositionLocalProvider(
+        LocalOneUi provides Light,
+        LocalContentColor provides Light.text,
+        androidx.compose.foundation.LocalIndication provides PressHighlight.Light,
+        content = content,
+    )
+}
+
 @Composable
 fun OneUiTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()

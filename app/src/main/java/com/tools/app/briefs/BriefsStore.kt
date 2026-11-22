@@ -220,8 +220,11 @@ object Briefs {
                 // UIDs are only meaningful within one UIDVALIDITY; if Gmail resets it, start over.
                 val validity = f.uidValidity
                 val known = if (validity == prefs(c).getLong("validity", -1)) list.value.associateBy { it.uid } else emptyMap()
-                val n = f.messageCount
-                val msgs = if (n == 0) emptyArray() else f.getMessages(maxOf(1, n - KEEP + 1), n)
+                // The newest by date, not the last ones given the label: labelling a batch of old newsletters used
+                // to push recent emails out of the kept set.
+                val candidates = newest(f)
+                f.fetch(candidates, FetchProfile().apply { add(FetchProfile.Item.ENVELOPE) })
+                val msgs = candidates.sortedByDescending { (it.receivedDate ?: it.sentDate)?.time ?: 0L }.take(KEEP).toTypedArray()
                 f.fetch(msgs, FetchProfile().apply {
                     add(UIDFolder.FetchProfileItem.UID); add(FetchProfile.Item.ENVELOPE); add(FetchProfile.Item.FLAGS)
                 })
@@ -243,6 +246,23 @@ object Briefs {
                 f.close(false)
             }
         }
+    }
+
+    /**
+     * Candidates for the newest [KEEP] emails by date. Gmail does the date search, widening the window until there are
+     * enough, so a label holding a big archive doesn't need every email's date downloaded.
+     */
+    private fun newest(f: IMAPFolder): Array<Message> {
+        val total = f.messageCount
+        if (total <= KEEP * 3) return if (total == 0) emptyArray() else f.messages
+        val day = 86_400_000L
+        var found = emptyArray<Message>()
+        for (days in listOf(30L, 90L, 365L, 3 * 365L)) {
+            found = f.search(javax.mail.search.ReceivedDateTerm(javax.mail.search.ComparisonTerm.GE, java.util.Date(System.currentTimeMillis() - days * day)))
+            if (found.size >= KEEP) return found
+        }
+        // Not enough in three years: everything from then, topped up with the last ones by position.
+        return (found.toList() + f.getMessages(maxOf(1, total - KEEP * 2 + 1), total).toList()).distinctBy { it.messageNumber }.toTypedArray()
     }
 
     private fun fetch(c: Context, m: Message, uid: Long, seen: Boolean): Brief {
