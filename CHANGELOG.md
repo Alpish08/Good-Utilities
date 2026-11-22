@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.4 — 2026-11-22
+- Briefs: pull down to refresh, with Samsung's four-dot loading animation above the title.
+
 ## 2.8.3 — 2026-11-22
 - Tab bar: the selected highlight is centred on its tab to the pixel, with an even 4 dp gap on every side (it used to drift left toward Misc).
 - Briefs: the list is grouped into three cards (Today, Yesterday and Past, with dates on past briefs).

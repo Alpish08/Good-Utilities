@@ -63,6 +63,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
@@ -232,53 +233,79 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
     var signingOut by remember { mutableStateOf(false) }
     val unread = items.count { !it.seen }
 
-    OneUiScaffold(
-        title = "Briefs",
-        subtitle = when {
-            syncing -> "Syncing…"
-            unread > 0 -> "$unread unread"
-            items.isNotEmpty() -> "All caught up"
-            else -> null
-        },
-        onBack = onBack,
-        actions = {
-            ToolbarIcon(OneUiIcons.Refresh, "Sync") { Briefs.sync(context) }
-            OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
+    // Pull down to refresh, with Samsung's four-dot loader. It shows for a sync you pulled for; the automatic
+    // sync on opening only says "Syncing…" under the title.
+    val pull = androidx.compose.material3.pulltorefresh.rememberPullToRefreshState()
+    var pulled by remember { mutableStateOf(false) }
+    LaunchedEffect(syncing) { if (!syncing) pulled = false }
+    val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    androidx.compose.material3.pulltorefresh.PullToRefreshBox(
+        isRefreshing = pulled && syncing,
+        onRefresh = { pulled = true; Briefs.sync(context) },
+        state = pull,
+        indicator = {
+            val shown = pulled && syncing
+            val f = if (shown) 1f else pull.distanceFraction.coerceIn(0f, 1f)
+            if (f > 0f) Box(
+                Modifier.align(Alignment.TopCenter).padding(top = statusTop + 18.dp)
+                    .graphicsLayer {
+                        // Follows your finger in, growing and fading up, then stays while it syncs.
+                        alpha = f
+                        scaleX = 0.5f + 0.5f * f; scaleY = scaleX
+                        translationY = (f - 1f) * 28.dp.toPx()
+                        rotationZ = if (shown) 0f else 270f * pull.distanceFraction
+                    },
+            ) { com.tools.app.ui.OneUiSpinner(Modifier.size(44.dp)) }
         },
     ) {
-        error?.let { e ->
-            card("error") { ListRow("Couldn't sync", summary = e, summaryColor = c.error, onClick = { Briefs.sync(context) }) }
-        }
-        if (items.isEmpty()) {
-            if (syncing) item("loading") {
-                Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner() }
-            } else description(
-                "Nothing under \"${account?.label}\" yet. Label an email in Gmail and it shows up here the next time you open Briefs.",
-                key = "empty",
-            )
-        }
-        // Three cards: Today, Yesterday and Past (the past ones show their date).
-        val groups = items.groupBy { b ->
-            when (dayKey(b.date)) {
-                dayKey(System.currentTimeMillis()) -> "Today"
-                dayKey(System.currentTimeMillis() - 86_400_000L) -> "Yesterday"
-                else -> "Past"
+        OneUiScaffold(
+            title = "Briefs",
+            subtitle = when {
+                syncing -> "Syncing…"
+                unread > 0 -> "$unread unread"
+                items.isNotEmpty() -> "All caught up"
+                else -> null
+            },
+            onBack = onBack,
+            actions = {
+                ToolbarIcon(OneUiIcons.Refresh, "Sync") { Briefs.sync(context) }
+                OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
+            },
+        ) {
+            error?.let { e ->
+                card("error") { ListRow("Couldn't sync", summary = e, summaryColor = c.error, onClick = { Briefs.sync(context) }) }
             }
-        }
-        listOf("Today", "Yesterday", "Past").forEach { group ->
-            val briefs = groups[group] ?: return@forEach
-            sectionLabel(group, key = "group-$group")
-            cardList(briefs, key = { it.uid }) { b ->
-                ListRow(
-                    plainTitle(b.subject),
-                    summary = listOfNotNull(b.sender, if (group == "Past") shortDate(b.date) else null, "${b.minutes} min read").joinToString(" · "),
-                    // Unread briefs get the accent dot at the end, like Samsung Email.
-                    trailing = if (b.seen) null else ({ Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent)) }),
-                    onClick = { onOpen(b.uid) },
+            if (items.isEmpty()) {
+                if (syncing) item("loading") {
+                    Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner() }
+                } else description(
+                    "Nothing under \"${account?.label}\" yet. Label an email in Gmail and it shows up here the next time you open Briefs.",
+                    key = "empty",
                 )
             }
+            // Three cards: Today, Yesterday and Past (the past ones show their date).
+            val groups = items.groupBy { b ->
+                when (dayKey(b.date)) {
+                    dayKey(System.currentTimeMillis()) -> "Today"
+                    dayKey(System.currentTimeMillis() - 86_400_000L) -> "Yesterday"
+                    else -> "Past"
+                }
+            }
+            listOf("Today", "Yesterday", "Past").forEach { group ->
+                val briefs = groups[group] ?: return@forEach
+                sectionLabel(group, key = "group-$group")
+                cardList(briefs, key = { it.uid }) { b ->
+                    ListRow(
+                        plainTitle(b.subject),
+                        summary = listOfNotNull(b.sender, if (group == "Past") shortDate(b.date) else null, "${b.minutes} min read").joinToString(" · "),
+                        // Unread briefs get the accent dot at the end, like Samsung Email.
+                        trailing = if (b.seen) null else ({ Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent)) }),
+                        onClick = { onOpen(b.uid) },
+                    )
+                }
+            }
+            if (items.isNotEmpty() && Briefs.lastSync > 0) description("Synced ${timeAgo(Briefs.lastSync)} · ${account?.email}", key = "synced")
         }
-        if (items.isNotEmpty() && Briefs.lastSync > 0) description("Synced ${timeAgo(Briefs.lastSync)} · ${account?.email}", key = "synced")
     }
 
     if (changingLabel) {
