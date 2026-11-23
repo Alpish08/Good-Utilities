@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.11 — 2026-11-23
+- Popups use their text boxes' grey as their base colour (same see-through alpha and blur as before).
+
 ## 2.8.10 — 2026-11-23
 - Popups with text boxes rise whole above the keyboard (title, fields and buttons), instead of only the focused box being scrolled into view with the rest of the popup under the keyboard.
 
