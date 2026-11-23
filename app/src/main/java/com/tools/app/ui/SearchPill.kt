@@ -61,6 +61,12 @@ import com.tools.app.ui.theme.OneUi
 
 /** My Files' search pill: #313131 with a hairline #3A3A3D edge (sampled from One UI 8.5). */
 fun pillColor(dark: Boolean) = if (dark) Color(0xFF313131) else Color.White
+/** Popups' text boxes and buttons: see-through, outline only (true), or filled with [pillColor] (false). Trial. */
+const val PopupFieldsClear = true
+
+/** The fill of a text box or button inside a popup (transparent while [PopupFieldsClear]). */
+fun popupFieldFill(dark: Boolean) = if (PopupFieldsClear) Color.Transparent else pillColor(dark)
+
 fun pillEdge(dark: Boolean) = if (dark) Color(0xFF3A3A3D) else Color(0x14000000)
 
 /**

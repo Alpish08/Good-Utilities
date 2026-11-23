@@ -202,7 +202,7 @@ private fun Field(
     Box(
         modifier.fillMaxWidth().height(48.dp).clip(CircleShape)
             .then(
-                if (popup) Modifier.background(com.tools.app.ui.pillColor(c.isDark)).border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
+                if (popup) Modifier.background(com.tools.app.ui.popupFieldFill(c.isDark)).border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
                 else Modifier.background(c.tonal),
             )
             .padding(horizontal = 18.dp),

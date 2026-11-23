@@ -434,7 +434,7 @@ private fun NoteField(value: String, onChange: (String) -> Unit, modifier: Modif
 @Composable
 private fun Modifier.fieldBackground(popup: Boolean): Modifier {
     val c = OneUi.colors
-    return if (popup) background(com.tools.app.ui.pillColor(c.isDark)).border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
+    return if (popup) background(com.tools.app.ui.popupFieldFill(c.isDark)).border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
     else background(c.tonal)
 }
 

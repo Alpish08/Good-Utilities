@@ -1151,7 +1151,7 @@ fun SegmentedControl(options: List<String>, selected: Int, onSelect: (Int) -> Un
     // In popups the track takes the Home search bar's grey (the tonal fill looks purple on the popup's grey).
     BoxWithConstraints(
         modifier.fillMaxWidth().height(42.dp).clip(CircleShape)
-            .then(if (popup) Modifier.background(pillColor(c.isDark)).border(0.6.dp, pillEdge(c.isDark), CircleShape) else Modifier.background(c.tonal))
+            .then(if (popup) Modifier.background(popupFieldFill(c.isDark)).border(0.6.dp, pillEdge(c.isDark), CircleShape) else Modifier.background(c.tonal))
             .padding(3.dp),
     ) {
         val segment = maxWidth / options.size

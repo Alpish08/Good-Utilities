@@ -334,7 +334,7 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
     val thumbs = remember(pkg) { android.util.LruCache<String, Bitmap>(120) }
     OneUiDialog("Base icon", onDismiss, buttons = listOf("Cancel" to onDismiss)) {
         Row(
-            Modifier.fillMaxWidth().clip(CircleShape).background(com.tools.app.ui.pillColor(c.isDark))
+            Modifier.fillMaxWidth().clip(CircleShape).background(com.tools.app.ui.popupFieldFill(c.isDark))
                 .border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
                 .clickable(interactionSource = null, indication = null) { focus.requestFocus() }
                 .padding(horizontal = 16.dp, vertical = 12.dp),
