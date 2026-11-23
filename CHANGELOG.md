@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.15 — 2026-11-23
+- Their own windows are named like their pages: One Mail is now Briefs, One Viewer is now Document Viewer.
+
 ## 2.8.14 — 2026-11-23
 - Text boxes and unselected buttons inside popups are see-through with just their outline.
 

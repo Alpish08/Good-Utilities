@@ -168,7 +168,7 @@
         </activity>
 
         <!-- Briefs: Gmail newsletters as readable articles. Opened from Home only (no launcher icon), in its own task,
-             where Recents names it "One Mail". -->
+             where Recents names it "Briefs". -->
         <activity
             android:name=".briefs.BriefsActivity"
             android:exported="false"
