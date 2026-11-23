@@ -1,7 +1,7 @@
 # Changelog
 
 ## 2.8.14 — 2026-11-23
-- Trial: text boxes and unselected buttons inside popups are see-through with just their outline (switch: PopupFieldsClear).
+- Text boxes and unselected buttons inside popups are see-through with just their outline.
 
 ## 2.8.13 — 2026-11-23
 - Popups are a step darker than their text boxes (#282828 in dark mode), at the same opacity and blur.
