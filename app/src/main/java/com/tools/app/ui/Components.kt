@@ -157,6 +157,9 @@ private fun centredCircle(radius: Dp) = object : Shape {
 
 /** The ⋮ menu's frosted look, shared by floating buttons, popups and the PDF page indicator. */
 val MenuBlurRadius = 28.dp
+/** Popups' base colour: a step darker than their text boxes ([pillColor]). */
+fun popupBase(dark: Boolean) = if (dark) Color(0xFF282828) else Color(0xFFF6F6F8)
+
 fun menuTint(popup: Color, dark: Boolean) = popup.copy(alpha = if (dark) 0.74f else 0.8f)
 
 /**
@@ -1498,9 +1501,9 @@ fun OneUiDialog(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    // The popup text boxes' base colour (pillColor), a little more opaque than the menus (88 % / 90 %) so it
-                    // reads almost as the boxes' grey, with the blur still showing through.
-                    .background(if (shot != null) pillColor(c.isDark).copy(alpha = if (c.isDark) 0.88f else 0.9f) else pillColor(c.isDark))
+                    // A grey a step darker than the popup's text boxes (#282828 vs their #313131), a little more opaque than
+                    // the menus (88 % / 90 %) so the boxes stand out slightly, with the blur still showing through.
+                    .background(if (shot != null) popupBase(c.isDark).copy(alpha = if (c.isDark) 0.88f else 0.9f) else popupBase(c.isDark))
                     .padding(top = 24.dp, bottom = 10.dp),
             ) {
                 Text(title, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(horizontal = 24.dp))
