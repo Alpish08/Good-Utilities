@@ -1498,8 +1498,9 @@ fun OneUiDialog(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    // The popup text boxes' base colour (pillColor), at the menus' usual see-through alpha over the blur.
-                    .background(if (shot != null) menuTint(pillColor(c.isDark), c.isDark) else pillColor(c.isDark))
+                    // The popup text boxes' base colour (pillColor), a little more opaque than the menus (88 % / 90 %) so it
+                    // reads almost as the boxes' grey, with the blur still showing through.
+                    .background(if (shot != null) pillColor(c.isDark).copy(alpha = if (c.isDark) 0.88f else 0.9f) else pillColor(c.isDark))
                     .padding(top = 24.dp, bottom = 10.dp),
             ) {
                 Text(title, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(horizontal = 24.dp))

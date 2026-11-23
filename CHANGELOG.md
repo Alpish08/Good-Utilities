@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.12 — 2026-11-23
+- Popups are a little more opaque (88 % in dark mode, 90 % in light), closer to their text boxes' grey with the blur still visible.
+
 ## 2.8.11 — 2026-11-23
 - Popups use their text boxes' grey as their base colour (same see-through alpha and blur as before).
 
