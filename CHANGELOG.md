@@ -2,6 +2,7 @@
 
 ## 2.8.9 — 2026-11-23
 - The bottom "Search" pill (App lock, APK extractor, song picker) morphs into the full search bar: it widens while rising with the keyboard, and rides back down on top of it into the pill when closing.
+- Home: search morphs the tab pill itself into the search bar the same way; the tabs fade out (riding up with it) as the search field fades in, and back again on closing.
 
 ## 2.8.8 — 2026-11-22
 - Briefs: tapping a pill or link no longer flashes a blue rectangle; pills brighten slightly while pressed.

@@ -160,6 +160,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     // Search opens from the toolbar's search button as a full-width bar at the bottom.
     var query by remember { mutableStateOf("") }
     var searching by remember { mutableStateOf(false) }
+    val morph = remember { com.tools.app.ui.SearchMorphProgress() }
     val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
     fun closeSearch() {
@@ -211,8 +212,20 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             // which sit a few dp outside their own bounds, are never cropped mid-fade.
             androidx.compose.foundation.layout.Box(contentAlignment = androidx.compose.ui.Alignment.BottomCenter) {
                 // The tabs are toggles: tap one to show only its tools, tap it again to see everything.
-                FadeSlot(!searching) { com.tools.app.ui.TabPill(tabs, state.tab, { state.tab = if (state.tab == it) -1 else it }) }
-                FadeSlot(searching) { com.tools.app.ui.SearchBar(query, { query = it }, onClose = ::closeSearch) }
+                // Search morphs the tab pill itself into the search bar (330 × 56 dp → full width above the keyboard):
+                // while it changes shape it draws the pill, and the tabs fade out as the search field fades in.
+                com.tools.app.ui.SearchMorph(
+                    searching, query, { query = it }, onOpen = { searching = true }, onClose = ::closeSearch,
+                    restWidth = 330.dp, restHeight = 56.dp, restOffset = 4.dp, hiddenAtRest = true, fadeContent = true, progress = morph,
+                )
+                // Drawn over the morphing bar so the tabs can fade out on top of it.
+                com.tools.app.ui.TabPill(
+                    tabs, state.tab, { state.tab = if (state.tab == it) -1 else it },
+                    chrome = !searching && morph.value == 0f,
+                    // Gone by halfway through the morph, as the search field fades in; riding up with the bar.
+                    contentAlpha = (1f - morph.value / 0.5f).coerceIn(0f, 1f),
+                    contentLift = morph.lift,
+                )
             }
         },
     ) {

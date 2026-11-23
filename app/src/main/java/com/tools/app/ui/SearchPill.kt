@@ -180,7 +180,15 @@ val LocalHazeState = androidx.compose.runtime.staticCompositionLocalOf<dev.chris
 
 /** [selected] -1 = no tab chosen (Home shows every tool); tapping the selected tab again clears it. */
 @Composable
-fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels) {
+fun TabPill(
+    tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier, labels: Boolean = TabPillLabels,
+    /** false: only the tabs are drawn (Home's search morph draws the pill itself while it changes shape). */
+    chrome: Boolean = true,
+    /** The tabs (icons, labels, capsule) fade with this while the pill morphs into the search bar. */
+    contentAlpha: Float = 1f,
+    /** …and rise this far (px) with it, riding the bar up as the keyboard opens. */
+    contentLift: Float = 0f,
+) {
     val c = OneUi.colors
     // Labelled tabs a little closer than Phone's 72 dp, so five fit in a shorter pill.
     val slot = if (labels) 63.dp else 56.dp
@@ -220,27 +228,31 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
             Modifier
                 .onGloballyPositioned { pillX = it.positionInRoot().x }
                 .height(56.dp)
-                // A soft drop shadow, and the tools scrolling underneath blurred through the pill.
-                .shadow(
-                    12.dp, CircleShape,
-                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
-                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
-                )
-                .clip(CircleShape)
                 .then(
-                    LocalHazeState.current?.let { haze ->
-                        Modifier.hazeBlur(
-                            dev.chrisbanes.haze.HazeInput.Sources(haze),
-                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                    if (!chrome) Modifier else Modifier
+                        // A soft drop shadow, and the tools scrolling underneath blurred through the pill.
+                        .shadow(
+                            12.dp, CircleShape,
+                            ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                            spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
                         )
-                    } ?: Modifier,
+                        .clip(CircleShape)
+                        .then(
+                            LocalHazeState.current?.let { haze ->
+                                Modifier.hazeBlur(
+                                    dev.chrisbanes.haze.HazeInput.Sources(haze),
+                                    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                                )
+                            } ?: Modifier,
+                        )
+                        // A very faint hairline, as some One UI apps have (Clock doesn't). Toggled by TabPillOutline.
+                        .then(if (TabPillOutline) Modifier.border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape) else Modifier)
+                        .drawBehind {
+                            drawRect(pillBase)
+                            drawRect(androidx.compose.ui.graphics.Brush.radialGradient(listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f))
+                        },
                 )
-                // A very faint hairline, as some One UI apps have (Clock doesn't). Toggled by TabPillOutline.
-                .then(if (TabPillOutline) Modifier.border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape) else Modifier)
-                .drawBehind {
-                    drawRect(pillBase)
-                    drawRect(androidx.compose.ui.graphics.Brush.radialGradient(listOf(pillGlow, Color.Transparent), center = center, radius = size.width * 0.6f))
-                },
+                .graphicsLayer { alpha = contentAlpha; translationY = -contentLift },
             contentAlignment = Alignment.CenterStart,
         ) {
             // The selected (or pressed) capsule, centred on its slot (a little wider than the slot).
@@ -275,7 +287,8 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                         Modifier
                             .size(width = slot, height = 56.dp)
                             .onGloballyPositioned { slotCentres[i] = it.positionInRoot().x + it.size.width / 2f }
-                            .pointerInput(i) {
+                            // Fading out into the search bar: the tabs no longer take taps.
+                            .then(if (contentAlpha < 1f) Modifier else Modifier.pointerInput(i) {
                                 detectTapGestures(onPress = {
                                     pressedTab = i
                                     scope.launch { glow.animateTo(1f, tween(200, easing = OneUiEasing)) }
@@ -290,7 +303,7 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
                                     }
                                     scope.launch { scale.animateTo(1f, tween(350, easing = OneUiEasing)) }
                                 })
-                            }
+                            })
                             .semantics { contentDescription = tab.label },
                         contentAlignment = if (labels) Alignment.TopCenter else Alignment.Center,
                     ) {
@@ -325,7 +338,6 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
  * Measured on the S24 Ultra: the resting pill is 240 × 52 dp, centred 4 dp lower than the bar host's bottom edge; the open
  * bar is full width (16 dp margins), 53 dp tall, sitting on the keyboard. The morph runs between exactly those two.
  */
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun PageSearch(
     searching: Boolean,
@@ -334,6 +346,35 @@ fun PageSearch(
     onOpen: () -> Unit,
     onClose: () -> Unit,
     label: String = "Search",
+) = SearchMorph(searching, query, onQueryChange, onOpen, onClose, label)
+
+/** How far a [SearchMorph] has opened (0 = resting shape, 1 = search bar), for what's drawn around it. */
+class SearchMorphProgress {
+    var value by androidx.compose.runtime.mutableFloatStateOf(0f)
+    /** How far (px) the bar has risen with the keyboard, so what fades out of it can ride along. */
+    var lift by androidx.compose.runtime.mutableFloatStateOf(0f)
+}
+
+/**
+ * The search bar that grows out of a resting pill: [PageSearch]'s short "Search" pill, or Home's tab pill (then
+ * [restWidth]/[restHeight]/[restOffset] are the tab pill's, [hiddenAtRest] leaves the resting pill to [TabPill], and
+ * [fadeContent] fades the search field in while the tabs fade out).
+ */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@Composable
+fun SearchMorph(
+    searching: Boolean,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onOpen: () -> Unit,
+    onClose: () -> Unit,
+    label: String = "Search",
+    restWidth: androidx.compose.ui.unit.Dp = 240.dp,
+    restHeight: androidx.compose.ui.unit.Dp = 52.dp,
+    restOffset: androidx.compose.ui.unit.Dp = 4.dp,
+    hiddenAtRest: Boolean = false,
+    fadeContent: Boolean = false,
+    progress: SearchMorphProgress? = null,
 ) {
     val c = OneUi.colors
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -364,6 +405,8 @@ fun PageSearch(
     // bar used to slip behind it.
     val imeNow = (WindowInsets.ime.getBottom(density) - nav).coerceAtLeast(0)
     val lift = maxOf(rise, imeNow.toFloat())
+    androidx.compose.runtime.SideEffect { progress?.value = morph; progress?.lift = lift }
+    if (hiddenAtRest && !searching && morph == 0f) return
 
     // Opening: focus the field so the keyboard comes up. Closing: drop focus so it goes down with the pill.
     LaunchedEffect(searching) {
@@ -384,12 +427,12 @@ fun PageSearch(
         Modifier.fillMaxWidth().padding(bottom = with(density) { lift.toDp() }),
         contentAlignment = Alignment.Center,
     ) {
-        val width = androidx.compose.ui.unit.lerp(240.dp, maxWidth, morph)
+        val width = androidx.compose.ui.unit.lerp(restWidth, maxWidth, morph)
         Row(
             Modifier
-                .offset(y = androidx.compose.ui.unit.lerp(4.dp, (-6).dp, morph))
+                .offset(y = androidx.compose.ui.unit.lerp(restOffset, (-6).dp, morph))
                 .width(width)
-                .height(androidx.compose.ui.unit.lerp(52.dp, 53.dp, morph))
+                .height(androidx.compose.ui.unit.lerp(restHeight, 53.dp, morph))
                 .shadow(
                     12.dp, CircleShape,
                     ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
@@ -410,7 +453,9 @@ fun PageSearch(
                     if (searching) runCatching { focus.requestFocus() } else onOpen()
                 }
                 .semantics { contentDescription = label }
-                .padding(start = 17.dp, end = 8.dp),
+                .padding(start = 17.dp, end = 8.dp)
+                // Growing out of the tab pill, the search field fades in as the tabs fade out.
+                .graphicsLayer { alpha = if (fadeContent) ((morph - 0.4f) / 0.6f).coerceIn(0f, 1f) else 1f },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(OneUiIcons.Search, null, tint = hint, modifier = Modifier.size(24.dp))
