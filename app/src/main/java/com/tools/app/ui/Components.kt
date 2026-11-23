@@ -1,5 +1,8 @@
 package com.tools.app.ui
 
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.union
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.animation.core.animateFloat
 import dev.chrisbanes.haze.hazeSource
@@ -1460,10 +1463,23 @@ fun OneUiDialog(
         onDismissRequest = { if (dismissible) onDismiss() },
         properties = androidx.compose.ui.window.DialogProperties(
             usePlatformDefaultWidth = false, dismissOnBackPress = dismissible, dismissOnClickOutside = dismissible,
+            decorFitsSystemWindows = false,
         ),
     ) {
+        // The popup handles the keyboard itself: no system pan (which only kept the focused field in view and left the
+        // rest of the popup, buttons included, under the keyboard). The whole card rises to sit on top of it instead.
+        val dialogWindow = (LocalView.current.parent as? androidx.compose.ui.window.DialogWindowProvider)?.window
+        androidx.compose.runtime.SideEffect {
+            @Suppress("DEPRECATION")
+            dialogWindow?.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        }
         val shown = remember { androidx.compose.animation.core.MutableTransitionState(false).apply { targetState = true } }
-        Box(Modifier.fillMaxSize().navigationBarsPadding().padding(12.dp), contentAlignment = Alignment.BottomCenter) {
+        Box(
+            Modifier.fillMaxSize()
+                .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
+                .padding(12.dp),
+            contentAlignment = Alignment.BottomCenter,
+        ) {
             androidx.compose.animation.AnimatedVisibility(
                 shown,
                 enter = androidx.compose.animation.slideInVertically(tween(340, easing = OneUiEasing)) { it / 3 } +

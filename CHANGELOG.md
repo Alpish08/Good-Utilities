@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.10 — 2026-11-23
+- Popups with text boxes rise whole above the keyboard (title, fields and buttons), instead of only the focused box being scrolled into view with the rest of the popup under the keyboard.
+
 ## 2.8.9 — 2026-11-23
 - The bottom "Search" pill (App lock, APK extractor, song picker) morphs into the full search bar: it widens while rising with the keyboard, and rides back down on top of it into the pill when closing.
 - Home: search morphs the tab pill itself into the search bar the same way; the tabs fade out (riding up with it) as the search field fades in, and back again on closing.
