@@ -318,9 +318,14 @@ fun TabPill(tabs: List<PillTab>, selected: Int, onSelect: (Int) -> Unit, modifie
 }
 
 /**
- * My Files' resting search: a short frosted "Search" pill floating at the bottom of the page. Tapping it opens the
- * full [SearchBar] above the keyboard; the two cross-fade in place.
+ * My Files' search: a short frosted "Search" pill resting at the bottom of the page. Tapping it morphs that same pill
+ * into the full-width search bar, rising with the keyboard as it opens (and back down into the pill as it closes).
+ * Closing the keyboard with nothing typed ends the search.
+ *
+ * Measured on the S24 Ultra: the resting pill is 240 × 52 dp, centred 4 dp lower than the bar host's bottom edge; the open
+ * bar is full width (16 dp margins), 53 dp tall, sitting on the keyboard. The morph runs between exactly those two.
  */
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 @Composable
 fun PageSearch(
     searching: Boolean,
@@ -330,9 +335,102 @@ fun PageSearch(
     onClose: () -> Unit,
     label: String = "Search",
 ) {
-    Box(contentAlignment = Alignment.BottomCenter) {
-        SearchFade(!searching) { SearchPillButton(label, onOpen) }
-        SearchFade(searching) { SearchBar(query, onQueryChange, onClose, placeholder = label) }
+    val c = OneUi.colors
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val focus = remember { FocusRequester() }
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+
+    // Where the keyboard will end up (Samsung Keyboard reports its final height at once; its own slide runs ahead of
+    // the live insets, so the bar heads straight for that height on its own curve rather than tracking the insets).
+    val nav = WindowInsets.navigationBars.getBottom(density)
+    val target = (WindowInsets.imeAnimationTarget.getBottom(density) - nav).coerceAtLeast(0)
+    val keyboardUp = target > 0
+
+    // The keyboard's height arrives ~150 ms after the tap; the pill waits for it so it widens and rises together
+    // (or opens anyway after a moment, e.g. with a hardware keyboard).
+    var waited by remember { mutableStateOf(false) }
+    LaunchedEffect(searching) { waited = false; if (searching) { kotlinx.coroutines.delay(450); waited = true } }
+    val open = searching && (keyboardUp || waited)
+
+    // 0 = resting pill, 1 = open bar. Width, height and offset follow it; the lift follows the keyboard.
+    val morph by androidx.compose.animation.core.animateFloatAsState(
+        if (open) 1f else 0f, tween(if (open) 280 else 260, easing = OneUiEasing), label = "searchMorph",
+    )
+    val rise by androidx.compose.animation.core.animateFloatAsState(
+        if (searching && keyboardUp) target.toFloat() else 0f, tween(if (keyboardUp) 260 else 240, easing = OneUiEasing), label = "searchLift",
+    )
+    // Never below the keyboard's current top edge: on the way down the keyboard slides slower than our curve, and the
+    // bar used to slip behind it.
+    val imeNow = (WindowInsets.ime.getBottom(density) - nav).coerceAtLeast(0)
+    val lift = maxOf(rise, imeNow.toFloat())
+
+    // Opening: focus the field so the keyboard comes up. Closing: drop focus so it goes down with the pill.
+    LaunchedEffect(searching) {
+        if (searching) { runCatching { focus.requestFocus() }; keyboard?.show() } else focusManager.clearFocus()
+    }
+    // The first back press only hides the keyboard; with nothing typed, that ends the search.
+    var hadIme by remember { mutableStateOf(false) }
+    val latestQuery by androidx.compose.runtime.rememberUpdatedState(query)
+    LaunchedEffect(keyboardUp, searching) {
+        if (!searching) { hadIme = false; return@LaunchedEffect }
+        if (keyboardUp) hadIme = true
+        else if (hadIme) { hadIme = false; if (latestQuery.isEmpty()) onClose() }
+    }
+
+    val style = MaterialTheme.typography.bodyLarge.copy(fontSize = 16.5.sp, lineHeight = 21.sp, fontWeight = FontWeight.Bold, color = c.text)
+    val hint = if (c.isDark) Color(0xFFA3A3A7) else Color(0xFF8A8A8F)
+    androidx.compose.foundation.layout.BoxWithConstraints(
+        Modifier.fillMaxWidth().padding(bottom = with(density) { lift.toDp() }),
+        contentAlignment = Alignment.Center,
+    ) {
+        val width = androidx.compose.ui.unit.lerp(240.dp, maxWidth, morph)
+        Row(
+            Modifier
+                .offset(y = androidx.compose.ui.unit.lerp(4.dp, (-6).dp, morph))
+                .width(width)
+                .height(androidx.compose.ui.unit.lerp(52.dp, 53.dp, morph))
+                .shadow(
+                    12.dp, CircleShape,
+                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
+                )
+                .clip(CircleShape)
+                .then(
+                    LocalHazeState.current?.let { haze ->
+                        Modifier.hazeBlur(
+                            dev.chrisbanes.haze.HazeInput.Sources(haze),
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                        )
+                    } ?: Modifier,
+                )
+                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
+                .drawBehind { drawRect(searchPillBase(c.isDark)) }
+                .clickable(interactionSource = null, indication = if (searching) null else androidx.compose.foundation.LocalIndication.current) {
+                    if (searching) runCatching { focus.requestFocus() } else onOpen()
+                }
+                .semantics { contentDescription = label }
+                .padding(start = 17.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(OneUiIcons.Search, null, tint = hint, modifier = Modifier.size(24.dp))
+            Spacer(Modifier.width(6.dp))
+            Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+                if (query.isEmpty()) Text(label, style = style.copy(color = hint), maxLines = 1)
+                BasicTextField(
+                    query, onQueryChange,
+                    enabled = searching,
+                    singleLine = true,
+                    textStyle = style,
+                    cursorBrush = SolidColor(c.accent),
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    modifier = Modifier.fillMaxWidth().focusRequester(focus),
+                )
+            }
+            if (searching && query.isNotEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).clickable { onQueryChange("") }, contentAlignment = Alignment.Center) {
+                Icon(OneUiIcons.Close, "Clear", tint = c.text, modifier = Modifier.size(22.dp))
+            } else Spacer(Modifier.width(16.dp))
+        }
     }
 }
 

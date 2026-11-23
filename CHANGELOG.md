@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.9 — 2026-11-23
+- The bottom "Search" pill (App lock, APK extractor, song picker) morphs into the full search bar: it widens while rising with the keyboard, and rides back down on top of it into the pill when closing.
+
 ## 2.8.8 — 2026-11-22
 - Briefs: tapping a pill or link no longer flashes a blue rectangle; pills brighten slightly while pressed.
 
