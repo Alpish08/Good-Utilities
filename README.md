@@ -2,11 +2,14 @@
 
 A collection of everyday tools for Android, designed to look and feel like Samsung's own One UI 8.5 apps:
 expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, floating
-search pill, compact One UI buttons, Samsung's own four-dot loading animation, One UI sliders and switches, predictive back, and full dark mode.
+search pill that morphs into the search bar as the keyboard opens, compact One UI buttons, multi-select with
+"All", a count chip and a floating action bar, Samsung's own four-dot loading animation, One UI sliders and switches,
+predictive back, and full dark mode.
 
 Home lists every tool by category, over a soft colour wash you can change from ⋮ → Background (Midnight, Amethyst,
 Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as filters:
-tap a tab to show only its tools, tap it again to see everything. Search opens as a frosted bar above the keyboard.
+tap a tab to show only its tools, tap it again to see everything. Search grows out of the tab bar itself into a
+frosted bar above the keyboard.
 
 Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 and newer (arm64).
 
@@ -39,8 +42,8 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 - **Battery info**: Samsung's own battery health and lifetime cycle count (synced from a Mac with `sync-battery.sh`, since Android doesn't let apps read them), plus temperature and charging speed.
 
 **Miscellaneous**
-- **Card balance**: manage your expenses and track payments in exact cents. Choose − or +, type an amount and an optional note, tap Log; the payment history shows the balance after each entry; long-press to select several and delete them. Several cards (one primary) with a quick switcher beside the balance, all kept on the phone.
-- **Virtual cards**: your IDs' front and back (driver's license, Social Security card…), Samsung Wallet style: swipe between cards (with Wallet's own haptic tick), swipe down or up on one to turn it over that way. It asks for your fingerprint or PIN every time and closes when the screen turns off or you leave the app. Photos and names are encrypted with a hardware-backed key, stored only in the app and kept out of backups. Add from your photos or share one to "Add to Virtual cards".
+- **Card balance**: manage your expenses and track payments in exact cents. The balance and the entry row share one card: choose − or +, type an amount and an optional note, tap Log. The payment history shows the balance after each entry (expenses in red-orange, deposits in green); long-press to select several and delete them, with Undo. Several cards (one primary) with a quick switcher beside the balance, all kept on the phone.
+- **Virtual cards**: your IDs' front and back (driver's license, Social Security card…), Samsung Wallet style: swipe sideways between cards (with Wallet's own haptic tick) and down or up on one to turn it over that way; One UI's page dots, the card's name and the side showing sit underneath. It asks for your fingerprint or PIN every time, closes when the screen turns off or you leave the app, and blocks screenshots and the recent-apps preview. Photos and names are encrypted with a hardware-backed key, stored only in the app and kept out of backups. Add a card from your photos (a Front | Back switch over one photo slot, the name typed under it) or share a photo to "Add to Virtual cards".
 - **Briefs** (One Brief): your newsletters and articles from one Gmail label, as clean, readable pages, grouped into Today, Yesterday and Past; pull down to refresh. It opens in its own window. Each email is reformatted in One UI's type with real dark mode (or "Show in light" for newsletters made for white), with tracking pixels, repeated titles and "view in browser / unsubscribe / forwarded" clutter removed. Images stay off until you allow a sender. Adjustable text size, reading time, a contents list for long digests, short data tables (like market prices) kept on one line, read aloud, and the next brief at the end. It keeps the 80 newest emails by date and syncs over IMAP with a Gmail app password (kept encrypted) only while it's open: no background activity, no notifications. Opening a brief marks it read in Gmail; nothing else changes there.
 - **Japanese reader**: reads Japanese on your screen (Quick Settings tile), in photos or the camera: furigana, word meanings (JMdict, offline), sentence translation (on-device) and a saved-words list with flashcards.
 - **QR code**: turn a link or any text into a QR code. It's also in the share sheet.
