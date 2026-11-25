@@ -1699,8 +1699,10 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
-                    Icon(icon, null, tint = c.text, modifier = Modifier.size(22.dp))
-                    Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1)
+                    // Nudged down 2.7 dp: the label's line box has room under the letters, so plain centring left the
+                    // icon 28 px from the top and the label 47 px from the bottom (measured); now they match.
+                    Icon(icon, null, tint = c.text, modifier = Modifier.offset(y = 2.7.dp).size(22.dp))
+                    Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1, modifier = Modifier.offset(y = 2.7.dp))
                 }
             }
         }

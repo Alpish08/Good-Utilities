@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.13 — 2026-11-25
+- The floating action bar's buttons (e.g. Delete while selecting) have their icon and label centred: the gap above the icon now matches the gap under the label.
+
 ## 2.9.12 — 2026-11-25
 - Reverted 2.9.10 and 2.9.11: the tab bar has its earlier colour, glow and outline back, and the frosted pills blur what's behind them in colour again.
 
