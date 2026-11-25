@@ -36,6 +36,8 @@
     </queries>
 
     <application
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
         android:networkSecurityConfig="@xml/network_security"
         android:name=".ToolsApp"
         android:enableOnBackInvokedCallback="true"
@@ -140,6 +142,20 @@
                 <action android:name="android.intent.action.SEND_MULTIPLE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/pdf" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+        </activity-alias>
+
+        <!-- Share a photo → Add to ID cards (same activity, routed by component name; asks to unlock first) -->
+        <activity-alias
+            android:name=".IdCardsShare"
+            android:targetActivity=".MainActivity"
+            android:exported="true"
+            android:label="@string/add_to_id_cards"
+            android:icon="@mipmap/ic_launcher">
+            <intent-filter android:label="@string/add_to_id_cards">
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="image/*" />
             </intent-filter>
         </activity-alias>

@@ -38,7 +38,7 @@ import com.tools.app.music.MusicScreen
 import com.tools.app.music.MusicSettingsScreen
 import com.tools.app.ui.theme.OneUiTheme
 
-enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker, CardBalance, Briefs }
+enum class Route { Home, Battery, PdfEditor, Converter, Compressor, Random, VideoDownloader, Reader, QrCode, Print, Japanese, GuideAppLock, GuideBattery, About, AppLockPin, PrivateDns, Music, MusicSettings, YouTubeSignIn, ColorPicker, Blur, AppLock, ChargeLimit, AudioMerge, AudioTrim, BackgroundRemover, ApkExtractor, IconMaker, CardBalance, Briefs, IdCards }
 
 class MainActivity : androidx.fragment.app.FragmentActivity() {
     /** Back stack, e.g. "Home,Music". Kept as a string so it survives process recreation. */
@@ -142,6 +142,8 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     when (s.last()) {
                         Route.Home -> HomeScreen(home, open = { r ->
                             if (r == Route.AppLock) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open App lock") { push(r) }
+                            // ID cards asks for your fingerprint or PIN every time, like App lock.
+                            else if (r == Route.IdCards) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open ID cards") { push(r) }
                             // Briefs is its own window (and launcher icon), like the Document reader's files.
                             else if (r == Route.Briefs) startActivity(Intent(this@MainActivity, com.tools.app.briefs.BriefsActivity::class.java))
                             else push(r)
@@ -175,6 +177,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                         Route.CardBalance -> com.tools.app.card.CardBalanceScreen(onBack = ::pop)
                         Route.ApkExtractor -> com.tools.app.apk.ApkScreen(onBack = ::pop)
                         Route.Briefs -> Unit
+                        Route.IdCards -> com.tools.app.idcards.IdCardsScreen(onBack = ::pop)
                     }
                     }
                 }
@@ -202,8 +205,18 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
         override fun onReceive(context: android.content.Context, intent: Intent) { stack = withoutAppLock(stack) }
     }
 
-    /** The stack with App lock (and the pages opened from it) closed. */
-    private fun withoutAppLock(s: String) = s.split(',').takeWhile { it != Route.AppLock.name }.joinToString(",")
+    /** The stack with App lock and ID cards (and the pages opened from them) closed: they unlock afresh each time. */
+    private fun withoutAppLock(s: String) =
+        s.split(',').takeWhile { it != Route.AppLock.name && it != Route.IdCards.name }.joinToString(",")
+
+    /** Leaving the app closes ID cards (not while its photo picker is open). */
+    override fun onStop() {
+        super.onStop()
+        if (!com.tools.app.idcards.IdStore.picking) {
+            val cut = stack.split(',').takeWhile { it != Route.IdCards.name }.joinToString(",")
+            if (cut != stack) { stack = cut; com.tools.app.idcards.IdStore.pendingShare.value = null }
+        }
+    }
 
     override fun onDestroy() {
         runCatching { unregisterReceiver(screenOff) }
@@ -221,6 +234,20 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
     }
 
     private fun handleShare(intent: Intent?) {
+        // "Add to ID cards" from the share sheet: read the photo now (the permission is short-lived), then unlock.
+        if (intent?.component?.className?.endsWith(".IdCardsShare") == true) {
+            @Suppress("DEPRECATION")
+            val uri = intent.getParcelableExtra<android.net.Uri>(Intent.EXTRA_STREAM) ?: intent.data
+            val bytes = uri?.let { u -> runCatching { contentResolver.openInputStream(u)?.use { it.readBytes() } }.getOrNull() }
+            stack = "Home"
+            if (bytes != null) {
+                com.tools.app.idcards.IdStore.pendingShare.value = bytes
+                window.decorView.post {
+                    com.tools.app.applock.confirmIdentity(this, "Add to ID cards") { stack = "Home,IdCards" }
+                }
+            }
+            return
+        }
         if (intent?.action == ACTION_CARD) {
             stack = "Home,CardBalance"
             when (intent.getStringExtra(EXTRA_MODE)) {

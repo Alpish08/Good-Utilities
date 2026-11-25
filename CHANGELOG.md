@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9 — 2026-11-25
+- New: **ID cards** (Misc). Keep a copy of your IDs' front and back, Samsung Wallet style. It asks for your fingerprint or PIN every time it opens, and closes when the screen turns off or you leave the app. Photos and names are encrypted with a hardware-backed key, stored only in the app, and kept out of backups. Add a card from your photos, or share a photo to "Add to ID cards"; tap or swipe to flip it.
+- Multi-select, My Files / Reminder style: long-press a payment in Card balance to select, "All" and Cancel at the top, Delete in a floating bar, with Undo.
+
 ## 2.8.18 — 2026-11-24
 - Files tab: Compressor's icon is purple and APK extractor's is Android green, so Print, Compressor and APK extractor are no longer three blues in a row.
 

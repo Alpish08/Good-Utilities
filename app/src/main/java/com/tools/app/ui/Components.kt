@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.union
@@ -221,6 +222,8 @@ fun OneUiScaffold(
     floatingToolbar: Boolean = true,
     /** false: no fade under the floating bottom bar (rows stay fully visible beside it). */
     fadeUnderBottomBar: Boolean = true,
+    /** Multi-select mode (My Files / Reminder): "N selected" title, an "All" check in place of back, and Cancel. */
+    selection: Selection? = null,
     content: LazyListScope.() -> Unit,
 ) {
     // Every page's list is captured for live blur: the floating buttons (and Home's tab pill) frost what scrolls under them.
@@ -229,7 +232,7 @@ fun OneUiScaffold(
         androidx.compose.runtime.CompositionLocalProvider(LocalHazeState provides haze) {
             OneUiScaffold(
                 title, subtitle, onBack, actions, bottomBar, listState, expandedTitle, bottomInset,
-                floatingToolbar, fadeUnderBottomBar, content,
+                floatingToolbar, fadeUnderBottomBar, selection, content,
             )
         }
         return
@@ -238,6 +241,7 @@ fun OneUiScaffold(
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+    val shownTitle = selection?.let { if (it.count == 0) "Select items" else "${it.count} selected" } ?: title
     // Every page can show the big title; expandedTitle = false only means it starts collapsed
     // (pull down at the top to expand it, like Samsung apps, for one-handed use).
     val expanded = true
@@ -404,7 +408,9 @@ fun OneUiScaffold(
         // header, just above the first card, and ride up with the list until they pin to the top.
         androidx.compose.runtime.CompositionLocalProvider(LocalToolbarChip provides chip) {
             Toolbar(
-                title = if (expanded) "" else title, onBack = onBack, actions = actions,
+                title = if (expanded) "" else shownTitle, onBack = onBack,
+                actions = if (selection != null) ({ SelectionCancel(selection.onCancel) }) else actions,
+                leading = selection?.let { s -> { SelectAllCheck(s.allSelected, s.onToggleAll) } },
                 modifier = if (expanded) Modifier.graphicsLayer { translationY = rangePx - headerScroll } else Modifier,
             )
         }
@@ -420,7 +426,7 @@ fun OneUiScaffold(
             },
         ) {
             ExpandingTitle(
-                title, subtitle, hasBack = onBack != null, widthPx = widthPx,
+                shownTitle, if (selection != null) null else subtitle, hasBack = onBack != null || selection != null, widthPx = widthPx,
                 t = { headerScroll / rangePx },
                 // Expanded: centred in the space above the buttons. Collapsed: on the toolbar's centre line.
                 centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx) },
@@ -593,6 +599,8 @@ private fun Toolbar(
     onBack: (() -> Unit)?,
     actions: @Composable RowScope.() -> Unit,
     modifier: Modifier = Modifier,
+    /** Replaces the back button (selection mode's "All" check). */
+    leading: (@Composable () -> Unit)? = null,
 ) {
     val c = OneUi.colors
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -604,7 +612,8 @@ private fun Toolbar(
             .padding(start = 4.dp, end = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (onBack != null) {
+        if (leading != null) leading()
+        else if (onBack != null) {
             val backSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
             Box(
                 Modifier.size(52.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), c.isDark)
@@ -737,12 +746,17 @@ fun ListRow(
     onClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     dimmed: Boolean = false,
+    /** Long press (e.g. to start selecting). */
+    onLongClick: (() -> Unit)? = null,
 ) {
     val c = OneUi.colors
     Row(
         modifier
             .fillMaxWidth()
-            .then(if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier)
+            .then(
+                if (onLongClick != null) Modifier.combinedClickable(enabled = enabled, onClick = { onClick?.invoke() }, onLongClick = onLongClick)
+                else if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier,
+            )
             .heightIn(min = 56.dp)
             .padding(horizontal = RowPadding, vertical = 15.dp)
             .graphicsLayer { alpha = if (dimmed || !enabled) 0.45f else 1f },
@@ -1569,4 +1583,87 @@ fun Modifier.fadingEdges(state: androidx.compose.foundation.gestures.ScrollableS
                 blendMode = BlendMode.DstIn,
             )
         }
+}
+
+
+/** Multi-select state for [OneUiScaffold]: how many are selected, whether that's all of them, and the two actions. */
+class Selection(val count: Int, val allSelected: Boolean, val onToggleAll: () -> Unit, val onCancel: () -> Unit)
+
+/**
+ * Selection mode's leading control (My Files / Reminder): a round check over "All". Once the list scrolls under the
+ * toolbar it sits on a frosted chip like the back button, the label giving way to the chip.
+ */
+@Composable
+private fun SelectAllCheck(all: Boolean, onToggle: () -> Unit) {
+    val c = OneUi.colors
+    val chip = LocalToolbarChip.current
+    Box(
+        Modifier.size(52.dp).chipShadow(chip, centredCircle(23.dp), c.isDark)
+            .clickable(interactionSource = null, indication = null, onClick = onToggle),
+        contentAlignment = Alignment.Center,
+    ) {
+        FrostBackground(Modifier.size(46.dp), CircleShape, chip)
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            RoundCheck(all, Modifier.size(22.dp))
+            Text(
+                "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                modifier = Modifier.padding(top = 2.dp).graphicsLayer { alpha = 1f - chip() },
+            )
+        }
+    }
+}
+
+/** Selection mode's "Cancel" (on the actions capsule once floating). */
+@Composable
+private fun SelectionCancel(onCancel: () -> Unit) {
+    val c = OneUi.colors
+    Text(
+        "Cancel", fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = c.text,
+        modifier = Modifier.clip(CircleShape).clickable(onClick = onCancel).padding(horizontal = 14.dp, vertical = 12.dp),
+    )
+}
+
+/**
+ * The floating action bar shown while selecting (My Files: Move · Copy · Share · Delete): a frosted pill of icon-over-
+ * label buttons, like the tab bar.
+ */
+@Composable
+fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabled: Boolean = true) {
+    val c = OneUi.colors
+    Box(Modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
+        Row(
+            Modifier
+                .height(56.dp)
+                .shadow(
+                    12.dp, CircleShape,
+                    ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
+                    spotColor = if (c.isDark) Color(0xCC000000) else Color(0x40000000),
+                )
+                .clip(CircleShape)
+                .then(
+                    LocalHazeState.current?.let { haze ->
+                        Modifier.hazeBlur(
+                            dev.chrisbanes.haze.HazeInput.Sources(haze),
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                        )
+                    } ?: Modifier,
+                )
+                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
+                .drawBehind { drawRect(searchPillBase(c.isDark)) }
+                .padding(horizontal = 7.5.dp)
+                .graphicsLayer { alpha = if (enabled) 1f else 0.4f },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            items.forEach { (icon, label, action) ->
+                Column(
+                    Modifier.width(63.dp).height(48.dp).clip(CircleShape).clickable(enabled = enabled, onClick = action),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Icon(icon, null, tint = c.text, modifier = Modifier.size(22.dp))
+                    Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1)
+                }
+            }
+        }
+    }
 }

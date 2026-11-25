@@ -20,4 +20,5 @@
     <string name="spacer_widget_description">Invisible empty space, any size. Taps do nothing; swipes still move the home screen.</string>
     <string name="read_japanese">Japanese reader</string>
     <string name="briefs">One Brief</string>
+    <string name="add_to_id_cards">Add to ID cards</string>
 </resources>

@@ -47,6 +47,7 @@ import com.tools.app.ui.OneUiDialog
 import com.tools.app.ui.OneUiScaffold
 import com.tools.app.ui.OverflowMenu
 import com.tools.app.ui.PillButton
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -84,7 +85,11 @@ fun CardBalanceScreen(onBack: () -> Unit) {
     var note by remember { mutableStateOf("") }
     var dialog by remember { mutableStateOf<Dialog?>(null) }
     var editing by remember { mutableStateOf<Entry?>(null) }
-    var deleted by remember { mutableStateOf<Entry?>(null) }
+    var deleted by remember { mutableStateOf<List<Entry>>(emptyList()) }
+    // Multi-select (long-press a payment): My Files / Reminder style, with Delete in a floating action bar.
+    var selecting by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(setOf<String>()) }
+    androidx.activity.compose.BackHandler(enabled = selecting) { selecting = false; selected = emptySet() }
     val amountFocus = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
     val windowInfo = androidx.compose.ui.platform.LocalWindowInfo.current
@@ -110,7 +115,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             CardStore.pendingMode.value = null
         }
     }
-    LaunchedEffect(deleted) { if (deleted != null) { delay(6000); deleted = null } }
+    LaunchedEffect(deleted) { if (deleted.isNotEmpty()) { delay(6000); deleted = emptyList() } }
 
     fun logIt() {
         val cents = CardStore.parse(amount) ?: return
@@ -125,8 +130,27 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         if (imeShown.value && list.firstVisibleItemIndex == 0) list.collapseHeader()
     }
 
+    val allIds = card?.entries?.map { it.id }.orEmpty()
     OneUiScaffold(
         title = "Card balance", onBack = onBack, listState = list,
+        selection = if (selecting) com.tools.app.ui.Selection(
+            count = selected.size,
+            allSelected = allIds.isNotEmpty() && selected.size == allIds.size,
+            onToggleAll = { selected = if (selected.size == allIds.size) emptySet() else allIds.toSet() },
+            onCancel = { selecting = false; selected = emptySet() },
+        ) else null,
+        bottomBar = if (selecting) ({
+            com.tools.app.ui.SelectionActions(
+                listOf(
+                    Triple(androidx.compose.material.icons.Icons.Outlined.Delete, "Delete") {
+                        val gone = card?.entries?.filter { it.id in selected }.orEmpty()
+                        gone.forEach { CardStore.deleteEntry(context, it.id) }
+                        deleted = gone; selecting = false; selected = emptySet()
+                    },
+                ),
+                enabled = selected.isNotEmpty(),
+            )
+        }) else null,
         actions = {
             if (card != null) OverflowMenu(
                 buildList {
@@ -194,13 +218,14 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             }
         }
 
-        deleted?.let { e ->
+        if (deleted.isNotEmpty()) {
+            val gone = deleted
             card("undo") {
                 Row(Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Entry deleted", fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
+                    Text(if (gone.size == 1) "Entry deleted" else "${gone.size} entries deleted", fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
                     Text(
                         "Undo", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
-                        modifier = Modifier.clip(CircleShape).clickable { CardStore.restoreEntry(context, e); deleted = null }.padding(horizontal = 14.dp, vertical = 10.dp),
+                        modifier = Modifier.clip(CircleShape).clickable { gone.forEach { CardStore.restoreEntry(context, it) }; deleted = emptyList() }.padding(horizontal = 14.dp, vertical = 10.dp),
                     )
                 }
             }
@@ -225,7 +250,12 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                             color = if (e.cents > 0) c.success else if (c.isDark) Color(0xFFFF7A59) else Color(0xFFE0502E),
                         )
                     },
-                    onClick = { editing = e },
+                    leading = if (selecting) ({ com.tools.app.ui.RoundCheck(e.id in selected, Modifier.size(22.dp)) }) else null,
+                    onClick = {
+                        if (selecting) selected = if (e.id in selected) selected - e.id else selected + e.id
+                        else editing = e
+                    },
+                    onLongClick = { if (!selecting) { selecting = true; selected = setOf(e.id) } },
                 )
             }
         }
@@ -298,7 +328,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         OneUiDialog(
             "Edit entry", { editing = null },
             buttons = listOf(
-                "Delete" to { CardStore.deleteEntry(context, e.id); deleted = e; editing = null },
+                "Delete" to { CardStore.deleteEntry(context, e.id); deleted = listOf(e); editing = null },
                 "Cancel" to { editing = null },
                 "Save" to {
                     val cents = CardStore.parse(amt)

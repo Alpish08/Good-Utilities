@@ -11,8 +11,8 @@ android {
         applicationId = "com.tools.app"
         minSdk = 29
         targetSdk = 36
-        versionCode = 115
-        versionName = "2.8.18"
+        versionCode = 116
+        versionName = "2.9"
         // S24 Ultra (and every modern phone) is arm64; keeps the bundled Python/FFmpeg small.
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -75,6 +75,7 @@ dependencies {
     implementation("com.sun.mail:android-mail:1.6.7")
     implementation("com.sun.mail:android-activation:1.6.7")
     implementation("org.jsoup:jsoup:1.18.1")
+    implementation("androidx.exifinterface:exifinterface:1.3.7") // ID cards: photos stored upright
     implementation("androidx.browser:browser:1.8.0")
     implementation("io.coil-kt.coil3:coil-compose:3.6.3")
     implementation("dev.chrisbanes.haze:haze:2.1.0") // blur behind the Home tab pill
