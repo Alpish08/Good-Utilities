@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.4 — 2026-11-25
+- Virtual cards: under the cards, One UI's page indicator (the current card a capsule), then the card's name and which side is showing, in place of Wallet's panel.
+- The photo slots use a One UI-style add-photo icon (the Gallery picture with a "+").
+
 ## 2.9.3 — 2026-11-25
 - ID cards is now **Virtual cards**.
 - Cards turn over the way you swipe: down and the top comes towards you, up and the bottom does. No tap to flip, and no hint text.

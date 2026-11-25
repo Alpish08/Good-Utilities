@@ -30,7 +30,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AddPhotoAlternate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -194,6 +193,17 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
                 })
             }
         }
+        // Under the cards: One UI's page indicator (the current card a capsule), then its name and side.
+        if (current != null) item("label") {
+            Column(Modifier.fillMaxWidth().padding(top = 2.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                if (cards.size > 1) PageCapsules(cards.size, pager.currentPage)
+                Text(current.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, modifier = Modifier.padding(top = 14.dp))
+                Text(
+                    if (!current.hasBack) "Front only" else if (showingBack(current.id)) "Back" else "Front",
+                    fontSize = 13.5.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp),
+                )
+            }
+        }
     }
 
     val card = current
@@ -212,10 +222,7 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     }
 }
 
-/**
- * A card that turns over the way you swipe: down and its top comes towards you, up and its bottom does. Its name hangs
- * underneath on a panel, like Wallet's.
- */
+/** A card that turns over the way you swipe: down and its top comes towards you, up and its bottom does. */
 @Composable
 private fun FlipCard(card: IdCard, turns: Int, onSwipe: (down: Boolean) -> Unit) {
     val c = OneUi.colors
@@ -239,17 +246,18 @@ private fun FlipCard(card: IdCard, turns: Int, onSwipe: (down: Boolean) -> Unit)
                 .clip(CardShape)
                 .border(1.dp, com.tools.app.ui.pillEdge(c.isDark), CardShape),
         )
-        // Wallet's panel: 6 dp in from the card's sides.
-        Box(
-            Modifier.fillMaxWidth().padding(horizontal = 6.dp)
-                .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)).background(c.card)
-                .padding(vertical = 12.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                if (card.hasBack) "${card.title} · ${if (back) "Back" else "Front"}" else card.title,
-                fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, maxLines = 1,
-            )
+    }
+}
+
+/** One UI's page indicator: dots, the current page a capsule that grows into place. */
+@Composable
+private fun PageCapsules(count: Int, current: Int) {
+    val c = OneUi.colors
+    Row(horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(5.dp), verticalAlignment = Alignment.CenterVertically) {
+        repeat(count) { i ->
+            val on = i == current
+            val w by androidx.compose.animation.core.animateDpAsState(if (on) 18.dp else 6.dp, tween(260, easing = com.tools.app.ui.theme.OneUiEasing), label = "dot")
+            Box(Modifier.size(width = w, height = 6.dp).clip(CircleShape).background(if (on) c.text else c.text.copy(alpha = 0.3f)))
         }
     }
 }
@@ -342,7 +350,7 @@ private fun PhotoSlot(label: String, image: ByteArray?, onPick: () -> Unit, onCl
         ) {
             if (bmp != null) Image(bmp.asImageBitmap(), label, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio))
             else Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Rounded.AddPhotoAlternate, null, tint = c.textSecondary, modifier = Modifier.size(34.dp))
+                Icon(OneUiIcons.AddPhoto, null, tint = c.textSecondary, modifier = Modifier.size(34.dp))
                 Text("Choose from photos", fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
             }
         }

@@ -86,6 +86,21 @@ object OneUiIcons {
     /** Same picture as the Images tab. */
     val Gallery: ImageVector get() = TabImages
 
+    /** Add a photo: the Gallery picture outline, its bottom-right corner opened for a "+". */
+    val AddPhoto: ImageVector by lazy {
+        icon("AddPhoto") {
+            line(TabStroke) {
+                moveTo(11.2f, 17.6f); lineTo(5.7f, 17.6f); arcTo(2.6f, 2.6f, 0f, false, true, 3.1f, 15f)
+                lineTo(3.1f, 5.7f); arcTo(2.6f, 2.6f, 0f, false, true, 5.7f, 3.1f)
+                lineTo(15f, 3.1f); arcTo(2.6f, 2.6f, 0f, false, true, 17.6f, 5.7f); lineTo(17.6f, 11.2f)
+            }
+            line(TabStroke) { circle(7.6f, 7.7f, 1.6f) }
+            line(TabStroke) { moveTo(3.2f, 14.3f); lineTo(7.6f, 11.7f); lineTo(10f, 13.3f); lineTo(12.6f, 11.2f) }
+            line(TabStroke) { moveTo(18.4f, 14.6f); lineTo(18.4f, 21.8f) }
+            line(TabStroke) { moveTo(14.8f, 18.2f); lineTo(22f, 18.2f) }
+        }
+    }
+
     /** "More options": three vertical dots. */
     val More: ImageVector by lazy {
         // Matched to Samsung Reminder's ⋮ on the S24 Ultra: 11 px dots 21.5 px apart (r 1.6, 6.15 apart at 24 dp).
