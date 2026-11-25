@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.11 — 2026-11-25
+- The frosted pills (tab bar, search, selection actions) blur what's behind them in grey, so coloured icons sliding underneath no longer tint them magenta.
+
 ## 2.9.10 — 2026-11-25
 - Tab bar: no outline, and Gallery's colours over a black page (36 at the ends, 40 in the middle, the highlight 66). The search pills keep their outline; Home's search morph starts in the tab bar's colour and blends into the search bar's.
 

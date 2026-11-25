@@ -137,7 +137,7 @@ fun SearchBar(
                     LocalHazeState.current?.let { haze ->
                         Modifier.hazeBlur(
                             dev.chrisbanes.haze.HazeInput.Sources(haze),
-                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background); colorEffects(listOf(GreyBackdrop)) },
                         )
                     } ?: Modifier,
                 )
@@ -181,6 +181,14 @@ const val TabPillLabels = true
  * a 22 dp icon over a 10 sp label, tabs 63 dp apart (Phone uses 72; five tabs need it tighter), the selected tab on a 70 × 48 dp capsule (7 dp wider than the slot). Icon-only (Clock):
  * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
+/**
+ * The floating pills' backdrop, blurred in grey: coloured icons sliding under a pill (red, purple…) used to tint it
+ * magenta. Gallery's bar stays neutral the same way.
+ */
+val GreyBackdrop: dev.chrisbanes.haze.blur.HazeColorEffect = dev.chrisbanes.haze.blur.HazeColorEffect.colorFilter(
+    androidx.compose.ui.graphics.ColorFilter.colorMatrix(androidx.compose.ui.graphics.ColorMatrix().apply { setToSaturation(0f) }),
+)
+
 /** Set by Home: the list the tab pill blurs behind itself. */
 val LocalHazeState = androidx.compose.runtime.staticCompositionLocalOf<dev.chrisbanes.haze.HazeState?> { null }
 
@@ -248,7 +256,7 @@ fun TabPill(
                             LocalHazeState.current?.let { haze ->
                                 Modifier.hazeBlur(
                                     dev.chrisbanes.haze.HazeInput.Sources(haze),
-                                    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                                    dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background); colorEffects(listOf(GreyBackdrop)) },
                                 )
                             } ?: Modifier,
                         )
@@ -454,7 +462,7 @@ fun SearchMorph(
                     LocalHazeState.current?.let { haze ->
                         Modifier.hazeBlur(
                             dev.chrisbanes.haze.HazeInput.Sources(haze),
-                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background); colorEffects(listOf(GreyBackdrop)) },
                         )
                     } ?: Modifier,
                 )
@@ -527,7 +535,7 @@ fun SearchPillButton(label: String, onClick: () -> Unit) {
                     LocalHazeState.current?.let { haze ->
                         Modifier.hazeBlur(
                             dev.chrisbanes.haze.HazeInput.Sources(haze),
-                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background); colorEffects(listOf(GreyBackdrop)) },
                         )
                     } ?: Modifier,
                 )
