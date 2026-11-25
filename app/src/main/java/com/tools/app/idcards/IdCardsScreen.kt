@@ -317,13 +317,15 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
             if (side == 0) PhotoSlot(null, front, onPick = { pick(false) })
             else PhotoSlot(null, back, onPick = { pick(true) }, onClear = back?.let { { back = null } }, hint = "Optional")
         }
-        // The name goes under the photo, centred, just where the cards page shows it.
-        item("name") { CardNameField(name, { name = it.take(40) }) }
-        item("save") {
-            Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), contentAlignment = Alignment.CenterEnd) {
+        // The name goes under the photo, centred, just where the cards page shows it; Save sits beside it on the
+        // line, so it's in reach without scrolling.
+        item("name") {
+            Box(Modifier.fillMaxWidth()) {
+                CardNameField(name, { name = it.take(40) })
                 PillButton(
                     if (saving) "Saving…" else "Save",
                     enabled = front != null && name.isNotBlank() && !saving,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp),
                     onClick = {
                         val f = front ?: return@PillButton
                         saving = true
@@ -372,7 +374,7 @@ private fun PhotoSlot(label: String?, image: ByteArray?, onPick: () -> Unit, onC
 private fun CardNameField(value: String, onChange: (String) -> Unit) {
     val c = OneUi.colors
     Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.fillMaxWidth(0.7f), contentAlignment = Alignment.Center) {
+        Box(Modifier.fillMaxWidth(0.5f), contentAlignment = Alignment.Center) {
             if (value.isEmpty()) Text("Card name", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.textSecondary)
             BasicTextField(
                 value, onChange, singleLine = true,

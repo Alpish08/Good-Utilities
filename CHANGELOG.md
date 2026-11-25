@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.7 — 2026-11-25
+- Virtual cards › Add card: Save sits beside the card name, on its line, so it's in reach without scrolling.
+
 ## 2.9.6 — 2026-11-25
 - The tab bar is Gallery's height: 58 dp with a 50 dp highlight, 4 dp in all round (it was 2 dp thinner). Home's search morph and the selection action bar match it.
 - Virtual cards › Add card: Front | Back switch (like the Compressor's) over one photo slot for the chosen side; the add-photo icon's "+" sits at the picture's top-right corner.
