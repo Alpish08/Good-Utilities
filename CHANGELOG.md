@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.12 — 2026-11-25
+- Reverted 2.9.10 and 2.9.11: the tab bar has its earlier colour, glow and outline back, and the frosted pills blur what's behind them in colour again.
+
 ## 2.9.11 — 2026-11-25
 - The frosted pills (tab bar, search, selection actions) blur what's behind them in grey, so coloured icons sliding underneath no longer tint them magenta.
 

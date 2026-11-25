@@ -1682,7 +1682,7 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                     LocalHazeState.current?.let { haze ->
                         Modifier.hazeBlur(
                             dev.chrisbanes.haze.HazeInput.Sources(haze),
-                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background); colorEffects(listOf(GreyBackdrop)) },
+                            dev.chrisbanes.haze.blur.HazeBlurStyle { blurRadius(22.dp); noiseFactor(0f); backgroundColor(c.background) },
                         )
                     } ?: Modifier,
                 )
