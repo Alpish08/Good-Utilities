@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.8 — 2026-11-25
+- Virtual cards blocks screenshots, screen recording and the recent-apps preview.
+- Selecting: once the list scrolls, the floating chip shows the count beside the All check (Reminder's "○ 2").
+- Tab bar: icons and labels sit 2 dp lower, so the space above the icons matches the space under the labels.
+
 ## 2.9.7 — 2026-11-25
 - Virtual cards › Add card: Save sits beside the card name, on its line, so it's in reach without scrolling.
 

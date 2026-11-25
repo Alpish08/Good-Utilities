@@ -316,7 +316,7 @@ fun TabPill(
                         val tint = if (on) iconOn else iconOff
                         if (!labels) Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.size(24.dp))
                         else {
-                            Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.padding(top = 8.35.dp).size(22.3.dp)) // 7% under 24 dp, same centre
+                            Icon(if (on) tab.selectedIcon else tab.icon, null, tint = tint, modifier = Modifier.padding(top = 10.35.dp).size(22.3.dp)) // 7% under 24 dp, same centre
                             androidx.compose.material3.Text(
                                 tab.label,
                                 color = tint,
@@ -325,8 +325,9 @@ fun TabPill(
                                 letterSpacing = 0.sp,
                                 fontWeight = if (on) FontWeight.SemiBold else FontWeight.Medium,
                                 maxLines = 1,
-                                // Baseline 43 dp below the pill's top, as in Phone / Modes and Routines.
-                                modifier = Modifier.paddingFrom(androidx.compose.ui.layout.FirstBaseline, before = 43.dp),
+                                // Icon and label sit 2 dp lower than before so the gap above the icon matches the one under
+                                // the label (measured: 38 px over, 52 px under, in the 58 dp pill).
+                                modifier = Modifier.paddingFrom(androidx.compose.ui.layout.FirstBaseline, before = 45.dp),
                             )
                         }
                     }

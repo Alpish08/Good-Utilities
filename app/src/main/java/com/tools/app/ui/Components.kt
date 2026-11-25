@@ -410,7 +410,7 @@ fun OneUiScaffold(
             Toolbar(
                 title = if (expanded) "" else shownTitle, onBack = onBack,
                 actions = if (selection != null) ({ SelectionCancel(selection.onCancel) }) else actions,
-                leading = selection?.let { s -> { SelectAllCheck(s.allSelected, s.onToggleAll) } },
+                leading = selection?.let { s -> { SelectAllCheck(s.allSelected, s.count, s.onToggleAll) } },
                 modifier = if (expanded) Modifier.graphicsLayer { translationY = rangePx - headerScroll } else Modifier,
             )
         }
@@ -1609,27 +1609,45 @@ class Selection(val count: Int, val allSelected: Boolean, val onToggleAll: () ->
 
 /**
  * Selection mode's leading control (My Files / Reminder): a round check over "All". Once the list scrolls under the
- * toolbar it sits on a frosted chip like the back button, the label giving way to the chip.
+ * toolbar it sits on a frosted chip like the back button, the label giving way to the chip, and the chip widens to
+ * show how many are selected beside the check (Reminder's "○ 2").
  */
 @Composable
-private fun SelectAllCheck(all: Boolean, onToggle: () -> Unit) {
+private fun SelectAllCheck(all: Boolean, count: Int, onToggle: () -> Unit) {
     val c = OneUi.colors
     val chip = LocalToolbarChip.current
     // Lined up over the rows' checks (card margin 10 + row padding 18 + half the 22 dp check = 39 dp from the edge;
-    // this slot's centre is at 30 dp), and set a little low like My Files', the circle level with the title.
+    // this slot's centre is at 30 dp).
     Box(
-        Modifier.offset(x = 9.dp).size(52.dp).chipShadow(chip, centredCircle(23.dp), c.isDark)
+        Modifier.offset(x = 9.dp).height(52.dp)
             .clickable(interactionSource = null, indication = null, onClick = onToggle),
-        contentAlignment = Alignment.Center,
     ) {
-        FrostBackground(Modifier.size(46.dp), CircleShape, chip)
-        // Over the page: the circle a little above centre with "All" under it. On the floating chip the label fades and
-        // the circle settles into the chip's exact centre.
-        RoundCheck(all, Modifier.size(22.dp).graphicsLayer { translationY = (1f - chip()) * -3.dp.toPx() })
-        Text(
-            "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-            modifier = Modifier.graphicsLayer { translationY = 17.dp.toPx(); alpha = 1f - chip() },
-        )
+        Box(Modifier.matchParentSize().padding(3.dp).chipShadow(chip, CircleShape, c.isDark))
+        FrostBackground(Modifier.matchParentSize().padding(3.dp), CircleShape, chip)
+        Row(Modifier.height(52.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(Modifier.size(52.dp), contentAlignment = Alignment.Center) {
+                // Over the page: the circle a little above centre with "All" under it. On the chip the label fades
+                // and the circle settles into the chip's centre line.
+                RoundCheck(all, Modifier.size(22.dp).graphicsLayer { translationY = (1f - chip()) * -3.dp.toPx() })
+                Text(
+                    "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                    modifier = Modifier.graphicsLayer { translationY = 17.dp.toPx(); alpha = 1f - chip() },
+                )
+            }
+            // The count slides out of the chip's right side as it forms.
+            Text(
+                "$count", fontSize = 17.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1,
+                modifier = Modifier
+                    .layout { m, cs ->
+                        val p = m.measure(cs.copy(minWidth = 0))
+                        val w = (p.width * chip()).roundToInt()
+                        layout(w, p.height) { p.placeRelative(0, 0) }
+                    }
+                    .clipToBounds()
+                    .graphicsLayer { alpha = chip() }
+                    .padding(end = 16.dp),
+            )
+        }
     }
 }
 

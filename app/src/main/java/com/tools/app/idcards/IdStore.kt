@@ -26,8 +26,8 @@ data class IdCard(val id: String, val title: String, val hasBack: Boolean, val a
  * private storage only: never in Gallery, Downloads or backups. Decrypted images exist only in memory, on screen.
  */
 object IdStore {
-    /** Screenshots and the recents preview blocked while ID cards is open. Off while testing with a fake card. */
-    const val SECURE = false
+    /** Screenshots, screen recording and the recents preview blocked while Virtual cards is open. */
+    const val SECURE = true
 
     private const val KEY = "idcards_key"
     private const val MAX_SIDE = 2400
