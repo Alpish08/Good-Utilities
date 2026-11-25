@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.10 — 2026-11-25
+- Tab bar: no outline, and Gallery's colours over a black page (36 at the ends, 40 in the middle, the highlight 66). The search pills keep their outline; Home's search morph starts in the tab bar's colour and blends into the search bar's.
+
 ## 2.9.9 — 2026-11-25
 - Card balance: the balance and the entry row share one card, under a divider like a list's rows.
 - The Log button is as wide as the − and + pair, so the amount box sits centred between them.

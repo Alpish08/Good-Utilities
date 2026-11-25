@@ -171,7 +171,7 @@ fun SearchBar(
 class PillTab(val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector, val selectedIcon: androidx.compose.ui.graphics.vector.ImageVector)
 
 /** The tab pill's faint hairline outline (false hides it). */
-const val TabPillOutline = true
+const val TabPillOutline = false
 
 /** Labels under the tab icons (Gallery / Phone / Samsung Health style); false = icon-only like Clock. */
 const val TabPillLabels = true
@@ -206,10 +206,11 @@ fun TabPill(
     // Neutral grey like Clock's bar (~#232323 at the edge, #262626 at the centre with the glow below).
     // A little more see-through than before, so the blur shows (Clock's neutral grey on top of it).
     // Dark: Clock's base grey (#292929), see-through enough for the blur to show.
-    val pillBase = if (c.isDark) Color(0xFF292929).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)
-    val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.015f) else Color.White.copy(alpha = 0.3f)
-    val restCentre = if (c.isDark) 0.15f else 0.045f
-    val restEdge = if (c.isDark) 0.105f else 0.03f
+    val pillBase = tabPillBase(c.isDark)
+    // Gallery's pill is ~4 levels lighter in the middle than at its ends (40 vs 36 over black).
+    val pillGlow = if (c.isDark) Color.White.copy(alpha = 0.028f) else Color.White.copy(alpha = 0.3f)
+    val restCentre = if (c.isDark) 0.16f else 0.045f
+    val restEdge = if (c.isDark) 0.115f else 0.03f
     val pressCentre = if (c.isDark) 0.315f else 0.10f
     val pressEdge = if (c.isDark) 0.22f else 0.07f
     val tintBase = if (c.isDark) Color.White else Color.Black
@@ -382,6 +383,9 @@ fun SearchMorph(
     hiddenAtRest: Boolean = false,
     fadeContent: Boolean = false,
     progress: SearchMorphProgress? = null,
+    /** The resting pill's own fill and outline (Home: the tab pill's), blended into the search bar's as it opens. */
+    restBase: Color? = null,
+    restOutline: Boolean = true,
 ) {
     val c = OneUi.colors
     val density = androidx.compose.ui.platform.LocalDensity.current
@@ -454,8 +458,13 @@ fun SearchMorph(
                         )
                     } ?: Modifier,
                 )
-                .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
-                .drawBehind { drawRect(searchPillBase(c.isDark)) }
+                .border(
+                    0.5.dp,
+                    (if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f))
+                        .let { if (restOutline) it else it.copy(alpha = it.alpha * morph) },
+                    CircleShape,
+                )
+                .drawBehind { drawRect(restBase?.let { androidx.compose.ui.graphics.lerp(it, searchPillBase(c.isDark), morph) } ?: searchPillBase(c.isDark)) }
                 .clickable(interactionSource = null, indication = if (searching) null else androidx.compose.foundation.LocalIndication.current) {
                     if (searching) runCatching { focus.requestFocus() } else onOpen()
                 }
@@ -537,5 +546,11 @@ fun SearchPillButton(label: String, onClick: () -> Unit) {
     }
 }
 
-/** The search pills' see-through grey (the tab pill's base), laid over the live blur. */
+/**
+ * The tab pill's see-through grey: Gallery's pill over a black page measures (36, 36, 36) at its ends and (40, 40, 40)
+ * in the middle, so #353535 at 66 % (≈ 35 over black) plus the faint centre glow; the blur still shows through.
+ */
+fun tabPillBase(dark: Boolean) = if (dark) Color(0xFF353535).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)
+
+/** The search pills' see-through grey, laid over the live blur. */
 fun searchPillBase(dark: Boolean) = if (dark) Color(0xFF292929).copy(alpha = 0.66f) else Color.White.copy(alpha = 0.55f)
