@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.8.16 — 2026-11-24
+- The ⋮ icon is 15 % smaller, in proportion with the other toolbar icons.
+
 ## 2.8.15 — 2026-11-23
 - Their own windows are named like their pages: One Mail is now Briefs, One Viewer is now Document Viewer.
 

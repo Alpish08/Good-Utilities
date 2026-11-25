@@ -88,10 +88,12 @@ object OneUiIcons {
 
     /** "More options": three vertical dots. */
     val More: ImageVector by lazy {
+        // 15 % smaller than the first cut (dots r 1.9 → 1.615, 7 → 5.95 apart), so it no longer looks bigger than the
+        // toolbar's other icons.
         icon("More") {
-            fill { circle(12f, 5f, 1.9f) }
-            fill { circle(12f, 12f, 1.9f) }
-            fill { circle(12f, 19f, 1.9f) }
+            fill { circle(12f, 6.05f, 1.615f) }
+            fill { circle(12f, 12f, 1.615f) }
+            fill { circle(12f, 17.95f, 1.615f) }
         }
     }
 
