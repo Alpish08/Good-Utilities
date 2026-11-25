@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.5 — 2026-11-25
+- Virtual cards › Add card: the name is typed under the front photo, centred and bold over a short line, just where the cards page shows it.
+- The add-photo icon is the Images tab's filled picture with a "+" at its corner.
+
 ## 2.9.4 — 2026-11-25
 - Virtual cards: under the cards, One UI's page indicator (the current card a capsule), then the card's name and which side is showing, in place of Wallet's panel.
 - The photo slots use a One UI-style add-photo icon (the Gallery picture with a "+").

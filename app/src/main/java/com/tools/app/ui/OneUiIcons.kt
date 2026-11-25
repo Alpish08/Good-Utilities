@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import androidx.compose.ui.graphics.vector.group
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
@@ -86,16 +87,19 @@ object OneUiIcons {
     /** Same picture as the Images tab. */
     val Gallery: ImageVector get() = TabImages
 
-    /** Add a photo: the Gallery picture outline, its bottom-right corner opened for a "+". */
+    /** Add a photo: the Images tab's filled picture, a little smaller, with a "+" at its bottom-right corner. */
     val AddPhoto: ImageVector by lazy {
         icon("AddPhoto") {
-            line(TabStroke) {
-                moveTo(11.2f, 17.6f); lineTo(5.7f, 17.6f); arcTo(2.6f, 2.6f, 0f, false, true, 3.1f, 15f)
-                lineTo(3.1f, 5.7f); arcTo(2.6f, 2.6f, 0f, false, true, 5.7f, 3.1f)
-                lineTo(15f, 3.1f); arcTo(2.6f, 2.6f, 0f, false, true, 17.6f, 5.7f); lineTo(17.6f, 11.2f)
+            // TabImagesOn at 72 %, its top-left at (2, 2): it ends at ~15 dp, clear of the "+".
+            group(scaleX = 0.72f, scaleY = 0.72f, translationX = -0.1f, translationY = -0.1f) {
+                fill(evenOdd = true) {
+                    roundRect(2.93f, 2.93f, 21.07f, 21.07f, 3.8f)
+                    circle(8.58f, 8.72f, 1.9f)
+                    moveTo(4.55f, 17.12f); lineTo(9.06f, 14.57f); lineTo(11.82f, 16.37f); lineTo(16.23f, 12.77f); lineTo(19.45f, 15.68f)
+                    lineTo(19.45f, 17.27f); arcTo(2.18f, 2.18f, 0f, false, true, 17.27f, 19.45f); lineTo(6.73f, 19.45f)
+                    arcTo(2.18f, 2.18f, 0f, false, true, 4.55f, 17.27f); close()
+                }
             }
-            line(TabStroke) { circle(7.6f, 7.7f, 1.6f) }
-            line(TabStroke) { moveTo(3.2f, 14.3f); lineTo(7.6f, 11.7f); lineTo(10f, 13.3f); lineTo(12.6f, 11.2f) }
             line(TabStroke) { moveTo(18.4f, 14.6f); lineTo(18.4f, 21.8f) }
             line(TabStroke) { moveTo(14.8f, 18.2f); lineTo(22f, 18.2f) }
         }

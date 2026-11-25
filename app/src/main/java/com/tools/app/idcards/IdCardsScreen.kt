@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -305,10 +306,9 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
 
     OneUiScaffold(title = "Add card", onBack = onDone) {
         description("Crop and straighten the photos in Gallery first (Edit › crop finds the card's edges), then pick them here.")
-        card("name") {
-            Box(Modifier.padding(16.dp)) { NameField(name, { name = it.take(40) }) }
-        }
         item("front") { PhotoSlot("Front", front, onPick = { pick(false) }) }
+        // The name goes under the front photo, centred, just where the cards page shows it.
+        item("name") { CardNameField(name, { name = it.take(40) }) }
         item("back") { PhotoSlot("Back (optional)", back, onPick = { pick(true) }, onClear = back?.let { { back = null } }) }
         item("save") {
             Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), contentAlignment = Alignment.CenterEnd) {
@@ -354,6 +354,26 @@ private fun PhotoSlot(label: String, image: ByteArray?, onPick: () -> Unit, onCl
                 Text("Choose from photos", fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
             }
         }
+    }
+}
+
+/** The card's name, typed under its photo: centred and bold like the cards page, over a short hairline. */
+@Composable
+private fun CardNameField(value: String, onChange: (String) -> Unit) {
+    val c = OneUi.colors
+    Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.fillMaxWidth(0.7f), contentAlignment = Alignment.Center) {
+            if (value.isEmpty()) Text("Card name", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.textSecondary)
+            BasicTextField(
+                value, onChange, singleLine = true,
+                textStyle = TextStyle(fontFamily = SamsungFont, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text, textAlign = TextAlign.Center),
+                cursorBrush = SolidColor(c.accent),
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+            )
+        }
+        Box(Modifier.width(150.dp).height(1.dp).background(com.tools.app.ui.pillEdge(c.isDark)))
+        Text("e.g. Driver's license", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
