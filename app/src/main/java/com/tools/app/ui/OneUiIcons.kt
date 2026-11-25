@@ -87,11 +87,11 @@ object OneUiIcons {
     /** Same picture as the Images tab. */
     val Gallery: ImageVector get() = TabImages
 
-    /** Add a photo: the Images tab's filled picture, a little smaller, with a "+" at its bottom-right corner. */
+    /** Add a photo: the Images tab's filled picture, a little smaller, with a "+" at its top-right corner. */
     val AddPhoto: ImageVector by lazy {
         icon("AddPhoto") {
-            // TabImagesOn at 72 %, its top-left at (2, 2): it ends at ~15 dp, clear of the "+".
-            group(scaleX = 0.72f, scaleY = 0.72f, translationX = -0.1f, translationY = -0.1f) {
+            // TabImagesOn at 72 %, in the bottom-left (2…15, 9…22), clear of the "+" above its right corner.
+            group(scaleX = 0.72f, scaleY = 0.72f, translationX = -0.1f, translationY = 6.8f) {
                 fill(evenOdd = true) {
                     roundRect(2.93f, 2.93f, 21.07f, 21.07f, 3.8f)
                     circle(8.58f, 8.72f, 1.9f)
@@ -100,8 +100,8 @@ object OneUiIcons {
                     arcTo(2.18f, 2.18f, 0f, false, true, 4.55f, 17.27f); close()
                 }
             }
-            line(TabStroke) { moveTo(18.4f, 14.6f); lineTo(18.4f, 21.8f) }
-            line(TabStroke) { moveTo(14.8f, 18.2f); lineTo(22f, 18.2f) }
+            line(TabStroke) { moveTo(18.4f, 2.2f); lineTo(18.4f, 9.4f) }
+            line(TabStroke) { moveTo(14.8f, 5.8f); lineTo(22f, 5.8f) }
         }
     }
 

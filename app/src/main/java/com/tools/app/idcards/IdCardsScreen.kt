@@ -292,6 +292,7 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
     var back by remember { mutableStateOf<ByteArray?>(null) }
     var pickingBack by remember { mutableStateOf(false) }
     var saving by remember { mutableStateOf(false) }
+    var side by rememberSaveable { mutableStateOf(0) }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         IdStore.picking = false
         if (uri != null) scope.launch {
@@ -306,10 +307,18 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
 
     OneUiScaffold(title = "Add card", onBack = onDone) {
         description("Crop and straighten the photos in Gallery first (Edit › crop finds the card's edges), then pick them here.")
-        item("front") { PhotoSlot("Front", front, onPick = { pick(false) }) }
-        // The name goes under the front photo, centred, just where the cards page shows it.
+        // Front | Back, like the Compressor's Video | Audio | Photo, over one photo slot for the chosen side.
+        item("side") {
+            Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
+                com.tools.app.ui.SegmentedControl(listOf("Front", "Back"), if (side == 0) 0 else 1, { side = it })
+            }
+        }
+        item("photo") {
+            if (side == 0) PhotoSlot(null, front, onPick = { pick(false) })
+            else PhotoSlot(null, back, onPick = { pick(true) }, onClear = back?.let { { back = null } }, hint = "Optional")
+        }
+        // The name goes under the photo, centred, just where the cards page shows it.
         item("name") { CardNameField(name, { name = it.take(40) }) }
-        item("back") { PhotoSlot("Back (optional)", back, onPick = { pick(true) }, onClear = back?.let { { back = null } }) }
         item("save") {
             Box(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), contentAlignment = Alignment.CenterEnd) {
                 PillButton(
@@ -331,12 +340,12 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
 
 /** A picked photo (or the place to pick one), at card proportions. */
 @Composable
-private fun PhotoSlot(label: String, image: ByteArray?, onPick: () -> Unit, onClear: (() -> Unit)? = null) {
+private fun PhotoSlot(label: String?, image: ByteArray?, onPick: () -> Unit, onClear: (() -> Unit)? = null, hint: String? = null) {
     val c = OneUi.colors
     val bmp = remember(image) { image?.let { runCatching { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() } }
     Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
-        Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            Text(label, fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = c.textSecondary, modifier = Modifier.weight(1f))
+        if (label != null || onClear != null) Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(label.orEmpty(), fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = c.textSecondary, modifier = Modifier.weight(1f))
             if (onClear != null) Text(
                 "Remove", fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                 modifier = Modifier.clip(CircleShape).clickable(onClick = onClear).padding(horizontal = 10.dp, vertical = 4.dp),
@@ -348,10 +357,11 @@ private fun PhotoSlot(label: String, image: ByteArray?, onPick: () -> Unit, onCl
                 .clickable(onClick = onPick),
             contentAlignment = Alignment.Center,
         ) {
-            if (bmp != null) Image(bmp.asImageBitmap(), label, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio))
+            if (bmp != null) Image(bmp.asImageBitmap(), label ?: "Photo", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio))
             else Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(OneUiIcons.AddPhoto, null, tint = c.textSecondary, modifier = Modifier.size(34.dp))
                 Text("Choose from photos", fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
+                if (hint != null) Text(hint, fontSize = 12.5.sp, color = c.textSecondary.copy(alpha = 0.7f), modifier = Modifier.padding(top = 2.dp))
             }
         }
     }

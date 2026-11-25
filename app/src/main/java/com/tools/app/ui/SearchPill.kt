@@ -177,7 +177,7 @@ const val TabPillOutline = true
 const val TabPillLabels = true
 
 /**
- * One UI 8.5 bottom navigation: a floating 56 dp pill. With labels (Gallery, Phone, Samsung Health, measured):
+ * One UI 8.5 bottom navigation: a floating 58 dp pill (Gallery measured: 203 px = 58 dp, its capsule 50 dp, 4 dp in). With labels (Gallery, Phone, Samsung Health, measured):
  * a 22 dp icon over a 10 sp label, tabs 63 dp apart (Phone uses 72; five tabs need it tighter), the selected tab on a 70 × 48 dp capsule (7 dp wider than the slot). Icon-only (Clock):
  * tabs 56 dp apart on a 60 × 46 dp capsule. The selected tab gets a filled icon.
  */
@@ -201,7 +201,7 @@ fun TabPill(
     // 7.5 dp: the selected capsule then clears the pill's ends by 4 dp, the same as above and below it ((56 − 48) / 2).
     val rowPad = if (labels) 7.5.dp else 8.dp
     val capsuleW = if (labels) 70.dp else 60.dp
-    val capsuleH = if (labels) 48.dp else 46.dp
+    val capsuleH = if (labels) 50.dp else 46.dp
     // The capsule is lit from its centre (a soft glow).
     // Neutral grey like Clock's bar (~#232323 at the edge, #262626 at the centre with the glow below).
     // A little more see-through than before, so the blur shows (Clock's neutral grey on top of it).
@@ -233,7 +233,7 @@ fun TabPill(
         Box(
             Modifier
                 .onGloballyPositioned { pillX = it.positionInRoot().x }
-                .height(56.dp)
+                .height(if (labels) 58.dp else 56.dp)
                 .then(
                     if (!chrome) Modifier else Modifier
                         // A soft drop shadow, and the tools scrolling underneath blurred through the pill.
@@ -291,7 +291,7 @@ fun TabPill(
                     val on = i == shown
                     Box(
                         Modifier
-                            .size(width = slot, height = 56.dp)
+                            .size(width = slot, height = if (labels) 58.dp else 56.dp)
                             .onGloballyPositioned { slotCentres[i] = it.positionInRoot().x + it.size.width / 2f }
                             // Fading out into the search bar: the tabs no longer take taps.
                             .then(if (contentAlpha < 1f) Modifier else Modifier.pointerInput(i) {

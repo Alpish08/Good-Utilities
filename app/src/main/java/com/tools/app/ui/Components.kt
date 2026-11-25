@@ -1653,7 +1653,7 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
     Box(Modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Row(
             Modifier
-                .height(56.dp)
+                .height(58.dp)
                 .shadow(
                     12.dp, CircleShape,
                     ambientColor = if (c.isDark) Color(0x99000000) else Color(0x33000000),
@@ -1670,14 +1670,14 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                 )
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .drawBehind { drawRect(searchPillBase(c.isDark)) }
-                // Like the tab pill: each button's 70 × 48 dp press capsule clears the pill's edge by 4 dp all round.
+                // Like the tab pill: each button's 70 × 50 dp press capsule clears the pill's edge by 4 dp all round.
                 .padding(horizontal = 4.dp)
                 .graphicsLayer { alpha = if (enabled) 1f else 0.4f },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { (icon, label, action) ->
                 Column(
-                    Modifier.width(70.dp).height(48.dp).clip(CircleShape).clickable(enabled = enabled, onClick = action),
+                    Modifier.width(70.dp).height(50.dp).clip(CircleShape).clickable(enabled = enabled, onClick = action),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {

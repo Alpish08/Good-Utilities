@@ -218,7 +218,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 // while it changes shape it draws the pill, and the tabs fade out as the search field fades in.
                 com.tools.app.ui.SearchMorph(
                     searching, query, { query = it }, onOpen = { searching = true }, onClose = ::closeSearch,
-                    restWidth = 330.dp, restHeight = 56.dp, restOffset = 4.dp, hiddenAtRest = true, fadeContent = true, progress = morph,
+                    restWidth = 330.dp, restHeight = 58.dp, restOffset = 4.dp, hiddenAtRest = true, fadeContent = true, progress = morph,
                 )
                 // Drawn over the morphing bar so the tabs can fade out on top of it.
                 com.tools.app.ui.TabPill(
