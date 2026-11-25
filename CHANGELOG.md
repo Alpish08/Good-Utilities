@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.9 — 2026-11-25
+- Card balance: the balance and the entry row share one card, under a divider like a list's rows.
+- The Log button is as wide as the − and + pair, so the amount box sits centred between them.
+
 ## 2.9.8 — 2026-11-25
 - Virtual cards blocks screenshots, screen recording and the recent-apps preview.
 - Selecting: once the list scrolls, the floating chip shows the count beside the All check (Reminder's "○ 2").

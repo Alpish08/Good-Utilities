@@ -176,7 +176,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             var rowH by remember { mutableStateOf(0.dp) }
             val sideGap = ((rowH - 76.dp) / 2).coerceAtLeast(12.dp)
             Row(
-                Modifier.onSizeChanged { rowH = with(density) { it.height.toDp() } }.padding(start = 22.dp, end = sideGap, top = 12.dp, bottom = 12.dp),
+                Modifier.onSizeChanged { rowH = with(density) { it.height.toDp() } }.padding(start = 22.dp, end = sideGap, top = 12.dp, bottom = 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(Modifier.weight(1f).padding(vertical = 8.dp)) {
@@ -195,10 +195,9 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     Text(if (many) "Cards" else "Add card", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(top = 4.dp))
                 }
             }
-        }
-
-        card("entry") {
-            Column(Modifier.padding(14.dp)) {
+            // One card: the balance on top, then (under a divider, like a list's rows) the entry row and note.
+            com.tools.app.ui.CardDivider()
+            Column(Modifier.padding(start = 14.dp, end = 14.dp, top = 16.dp, bottom = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     ModeButton("−", selected = spend) { spend = true }
                     ModeButton("+", selected = !spend, modifier = Modifier.padding(start = 6.dp)) { spend = false }
@@ -207,10 +206,11 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                         Modifier.padding(start = 10.dp).weight(1f),
                         onDone = ::logIt, focus = amountFocus,
                     )
+                    // As wide as the − and + pair (44 + 6 + 44 dp), so the amount box sits centred between them.
                     PillButton(
                         "Log", onClick = ::logIt,
                         enabled = (CardStore.parse(amount) ?: 0L) > 0L,
-                        modifier = Modifier.padding(start = 10.dp),
+                        modifier = Modifier.padding(start = 10.dp).width(94.dp),
                     )
                 }
                 // The gap above the note matches the card's 14 dp bottom edge (the card grows to fit).
