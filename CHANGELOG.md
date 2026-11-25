@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.2 — 2026-11-25
+- ID cards: just the swipeable cards (no All tab or card page). Swipe down on a card (or tap) to turn it over; the ⋮ menu (rename, replace, add or remove the back, delete) acts on the card in view. Cards have a thin grey outline, and switching cards plays Samsung Wallet's own haptic tick.
+- Selecting: on the floating chip the "All" circle sits in the chip's exact centre; the floating Delete button's press highlight clears the pill's edge by 4 dp all round.
+
 ## 2.9.1 — 2026-11-25
 - Selecting: the check pops in (the blue fills out from the centre with a slight bounce, the tick scales in) and each row's text slides over to make room; "All" sits over the rows' checks.
 - ID cards: Samsung Wallet's layout. Quick access (one card at a time with its neighbours peeking in, swipe between them, its name on a panel underneath) and All (the stack), switched from a bottom tab bar; the card page has a compact top bar with the card just under it, and an info card.

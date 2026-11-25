@@ -14,7 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -31,10 +31,6 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
-import androidx.compose.material.icons.rounded.Apps
-import androidx.compose.material.icons.outlined.Apps
-import androidx.compose.material.icons.rounded.CreditCard
-import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -85,7 +81,6 @@ private val CardShape = RoundedCornerShape(16.dp)
 
 private sealed interface Page {
     data object List : Page
-    data class Open(val id: String) : Page
     data object Add : Page
 }
 
@@ -108,13 +103,8 @@ fun IdCardsScreen(onBack: () -> Unit) {
         onDispose { if (IdStore.SECURE) window?.clearFlags(WindowManager.LayoutParams.FLAG_SECURE) }
     }
 
-    when (val p = page) {
-        Page.List -> CardList(cards, onBack, onOpen = { page = Page.Open(it) }, onAdd = { page = Page.Add })
-        is Page.Open -> {
-            BackHandler { page = Page.List }
-            val card = cards.firstOrNull { it.id == p.id }
-            if (card == null) page = Page.List else CardView(card, onBack = { page = Page.List })
-        }
+    when (page) {
+        Page.List -> CardList(cards, onBack, onAdd = { page = Page.Add })
         Page.Add -> {
             val done = { IdStore.pendingShare.value = null; page = Page.List }
             BackHandler { done() }
@@ -123,88 +113,142 @@ fun IdCardsScreen(onBack: () -> Unit) {
     }
 }
 
-// ---------------------------------------------------------------- list: the Wallet stack
+// ---------------------------------------------------------------- the cards (Wallet's Quick access)
 
+/**
+ * Samsung Wallet's Quick access: one card at a time, its neighbours peeking in at the sides; swipe sideways between
+ * them (with Wallet's own haptic tick), swipe down (or tap) to turn one over. The ⋮ menu acts on the card in view.
+ */
 @Composable
-private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onOpen: (String) -> Unit, onAdd: () -> Unit) {
-    // Samsung Wallet's two views, switched from a bottom tab bar: Quick access (one card at a time, swipe between them)
-    // and All (the stack).
-    var tab by rememberSaveable { mutableStateOf(0) }
-    val tabs = remember {
-        listOf(
-            com.tools.app.ui.PillTab("Quick access", Icons.Outlined.CreditCard, Icons.Rounded.CreditCard),
-            com.tools.app.ui.PillTab("All", Icons.Outlined.Apps, Icons.Rounded.Apps),
-        )
+private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit) {
+    val context = LocalContext.current
+    val c = OneUi.colors
+    val view = androidx.compose.ui.platform.LocalView.current
+    val pager = androidx.compose.foundation.pager.rememberPagerState { cards.size }
+    val current = cards.getOrNull(pager.currentPage.coerceAtMost(cards.lastIndex))
+    // Which cards are showing their back.
+    var backs by remember { mutableStateOf(setOf<String>()) }
+    var renaming by remember { mutableStateOf(false) }
+    var deleting by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    var replacingBack by remember { mutableStateOf(false) }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        IdStore.picking = false
+        val card = current
+        if (uri != null && card != null) scope.launch {
+            val bytes = withContext(Dispatchers.IO) { read(context, uri) } ?: return@launch
+            withContext(Dispatchers.IO) { IdStore.replace(context, card.id, replacingBack, bytes) }
+            backs = if (replacingBack) backs + card.id else backs - card.id
+        }
     }
+    fun pick(back: Boolean) {
+        replacingBack = back; IdStore.picking = true
+        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+    }
+
+    // Samsung Wallet's card-switch haptic (SemHaptic type 50025, measured from Wallet: a short, sharp tick).
+    var lastPage by remember { mutableStateOf(-1) }
+    androidx.compose.runtime.LaunchedEffect(pager) {
+        androidx.compose.runtime.snapshotFlow { pager.currentPage }.collect { p ->
+            if (lastPage >= 0 && p != lastPage) {
+                if (!view.performHapticFeedback(50025)) view.performHapticFeedback(android.view.HapticFeedbackConstants.SEGMENT_FREQUENT_TICK)
+            }
+            lastPage = p
+        }
+    }
+
     OneUiScaffold(
         title = "ID cards",
         subtitle = when (cards.size) { 0 -> null; 1 -> "1 card"; else -> "${cards.size} cards" },
         onBack = onBack,
-        actions = { ToolbarIcon(OneUiIcons.Add, "Add card", onAdd) },
-        bottomBar = if (cards.size > 1) ({ com.tools.app.ui.TabPill(tabs, tab, { tab = it }) }) else null,
-        fadeUnderBottomBar = false,
+        actions = {
+            ToolbarIcon(OneUiIcons.Add, "Add card", onAdd)
+            val card = current
+            if (card != null) OverflowMenu(buildList {
+                add("Rename" to { renaming = true })
+                add("Replace front" to { pick(false) })
+                add((if (card.hasBack) "Replace back" else "Add back") to { pick(true) })
+                if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); backs = backs - card.id })
+                add("Delete" to { deleting = true })
+            })
+        },
     ) {
         if (cards.isEmpty()) {
             description("Keep a copy of your IDs' front and back: crop the photos in Gallery first, then add them here. They're locked with your fingerprint and encrypted on this phone.")
             card("add-first") { ListRow("Add an ID card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
             return@OneUiScaffold
         }
-        if (tab == 0 || cards.size == 1) item("carousel") { QuickAccess(cards, onOpen) }
-        else item("stack") { WalletStack(cards, onOpen) }
-    }
-}
-
-/**
- * Samsung Wallet's Quick access: one card at a time, its neighbours peeking in at the sides; swipe between them. Under
- * each card hangs a slightly narrower panel with its name, like Wallet's balance strip.
- */
-@Composable
-private fun QuickAccess(cards: List<IdCard>, onOpen: (String) -> Unit) {
-    val c = OneUi.colors
-    val pager = androidx.compose.foundation.pager.rememberPagerState { cards.size }
-    androidx.compose.foundation.pager.HorizontalPager(
-        pager,
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 36.dp),
-        pageSpacing = 14.dp,
-        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
-    ) { i ->
-        val card = cards[i]
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            CardFace(
-                card, back = false,
-                modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio)
-                    .shadow(10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
-                    .clip(CardShape).clickable { onOpen(card.id) },
-                crop = true,
-            )
-            Box(
-                Modifier.fillMaxWidth().padding(horizontal = 10.dp)
-                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)).background(c.card)
-                    .clickable { onOpen(card.id) }.padding(vertical = 12.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(card.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, maxLines = 1)
+        item("carousel") {
+            androidx.compose.foundation.pager.HorizontalPager(
+                pager,
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 36.dp),
+                pageSpacing = 14.dp,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
+            ) { i ->
+                val card = cards[i]
+                val showBack = card.id in backs && card.hasBack
+                FlipCard(card, showBack, onFlip = { if (card.hasBack) backs = if (card.id in backs) backs - card.id else backs + card.id })
             }
         }
+        if (current != null) item("hint") {
+            Text(
+                if (current.hasBack) "Swipe down on the card to turn it over" else "No back added · ⋮ › Add back",
+                fontSize = 13.5.sp, color = c.textSecondary, textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+            )
+        }
+    }
+
+    val card = current
+    if (renaming && card != null) {
+        var name by remember { mutableStateOf(card.title) }
+        OneUiDialog(
+            "Rename", onDismiss = { renaming = false },
+            buttons = listOf("Cancel" to { renaming = false }, "Save" to { IdStore.rename(context, card.id, name.trim()); renaming = false }),
+        ) { NameField(name, { name = it.take(40) }, popup = true) }
+    }
+    if (deleting && card != null) OneUiDialog(
+        "Delete ${card.title}?", onDismiss = { deleting = false },
+        buttons = listOf("Cancel" to { deleting = false }, "Delete" to { deleting = false; IdStore.delete(context, card.id) }),
+    ) {
+        Text("Both photos are removed from this phone. Your Gallery copies, if any, stay where they are.", fontSize = 15.sp, color = c.textSecondary)
     }
 }
 
-/** Samsung Wallet's "All" stack: each card shows its top strip, the last one in full. */
+/** A card that turns over top-to-bottom: swipe down on it, or tap. Its name hangs underneath on a panel, like Wallet. */
 @Composable
-private fun WalletStack(cards: List<IdCard>, onOpen: (String) -> Unit) {
-    BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)) {
-        val cardH = maxWidth / CardRatio
-        val strip = 70.dp
-        Box(Modifier.fillMaxWidth().height(strip * (cards.size - 1) + cardH)) {
-            cards.forEachIndexed { i, card ->
-                CardFace(
-                    card, back = false,
-                    modifier = Modifier.offset(y = strip * i).fillMaxWidth().aspectRatio(CardRatio)
-                        .shadow(if (i == 0) 0.dp else 10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
-                        .clip(CardShape).clickable { onOpen(card.id) },
-                    crop = true,
-                )
-            }
+private fun FlipCard(card: IdCard, showBack: Boolean, onFlip: () -> Unit) {
+    val c = OneUi.colors
+    val turn by animateFloatAsState(if (showBack) 180f else 0f, tween(440, easing = com.tools.app.ui.theme.OneUiEasing), label = "flip")
+    val face = turn > 90f
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        CardFace(
+            card, back = face, crop = true,
+            modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio)
+                .pointerInput(card.id) {
+                    var dy = 0f
+                    detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (dy > 50f) onFlip() }) { _, d -> dy += d }
+                }
+                .graphicsLayer {
+                    // Turns about its middle, the top coming towards you.
+                    rotationX = -(if (face) turn - 180f else turn)
+                    cameraDistance = 14f * density
+                }
+                .shadow(10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
+                .clip(CardShape)
+                .border(1.dp, com.tools.app.ui.pillEdge(c.isDark), CardShape)
+                .clickable(interactionSource = null, indication = null, onClick = onFlip),
+        )
+        Box(
+            Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)).background(c.card)
+                .padding(vertical = 12.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                if (card.hasBack) "${card.title} · ${if (showBack) "Back" else "Front"}" else card.title,
+                fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, maxLines = 1,
+            )
         }
     }
 }
@@ -222,111 +266,8 @@ private fun CardFace(card: IdCard, back: Boolean, modifier: Modifier = Modifier,
         if (b != null) Image(
             b.asImageBitmap(), card.title,
             contentScale = if (crop) ContentScale.Crop else ContentScale.Fit,
-            alignment = Alignment.TopCenter,
-            modifier = Modifier.matchParentSizeCompat(),
+            modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio),
         )
-    }
-}
-
-@Composable
-private fun Modifier.matchParentSizeCompat(): Modifier = this.then(Modifier.fillMaxWidth().aspectRatio(CardRatio))
-
-// ---------------------------------------------------------------- one card: front and back
-
-@Composable
-private fun CardView(card: IdCard, onBack: () -> Unit) {
-    val context = LocalContext.current
-    val c = OneUi.colors
-    var showBack by rememberSaveable(card.id) { mutableStateOf(false) }
-    val turn by animateFloatAsState(if (showBack && card.hasBack) 180f else 0f, tween(420, easing = com.tools.app.ui.theme.OneUiEasing), label = "flip")
-    var renaming by remember { mutableStateOf(false) }
-    var deleting by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    var replacingBack by remember { mutableStateOf(false) }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        IdStore.picking = false
-        if (uri != null) scope.launch {
-            val bytes = withContext(Dispatchers.IO) { read(context, uri) } ?: return@launch
-            withContext(Dispatchers.IO) { IdStore.replace(context, card.id, replacingBack, bytes) }
-            if (replacingBack) showBack = true
-        }
-    }
-    fun pick(back: Boolean) {
-        replacingBack = back; IdStore.picking = true
-        picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-    }
-
-    OneUiScaffold(
-        title = card.title, onBack = onBack,
-        // Wallet's card page: a compact top bar ("‹ Name ⋮"), the card just under it.
-        expandedTitle = false,
-        actions = {
-            OverflowMenu(buildList {
-                add("Rename" to { renaming = true })
-                add("Replace front" to { pick(false) })
-                add((if (card.hasBack) "Replace back" else "Add back") to { pick(true) })
-                if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); showBack = false })
-                add("Delete" to { deleting = true })
-            })
-        },
-    ) {
-        item("card") {
-            // Tap or swipe to turn it over.
-            Box(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp)
-                    .pointerInput(card.hasBack) {
-                        var dx = 0f
-                        detectHorizontalDragGestures(onDragStart = { dx = 0f }, onDragEnd = { if (card.hasBack && kotlin.math.abs(dx) > 60f) showBack = !showBack }) { _, d -> dx += d }
-                    },
-            ) {
-                val face = if (turn > 90f) true else false
-                CardFace(
-                    card, back = face,
-                    modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio)
-                        .graphicsLayer {
-                            rotationY = if (face) turn - 180f else turn
-                            cameraDistance = 14f * density
-                        }
-                        .shadow(10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
-                        .clip(CardShape)
-                        .clickable(enabled = card.hasBack, interactionSource = null, indication = null) { showBack = !showBack },
-                )
-            }
-        }
-        item("side") {
-            Row(Modifier.fillMaxWidth().padding(top = 4.dp), horizontalArrangement = androidx.compose.foundation.layout.Arrangement.Center) {
-                if (card.hasBack) {
-                    listOf("Front" to false, "Back" to true).forEach { (label, b) ->
-                        val on = showBack == b
-                        Text(
-                            label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                            color = if (on) c.text else c.textSecondary,
-                            modifier = Modifier.clip(CircleShape).background(if (on) c.tonal else Color.Transparent)
-                                .clickable { showBack = b }.padding(horizontal = 16.dp, vertical = 8.dp),
-                        )
-                    }
-                } else Text("No back added · ⋮ › Add back", fontSize = 13.5.sp, color = c.textSecondary)
-            }
-        }
-        card("info") {
-            ListRow("Added", summary = java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG).format(java.util.Date(card.added)))
-            com.tools.app.ui.CardDivider()
-            ListRow("Stored", summary = "Encrypted on this phone · never in Gallery or backups")
-        }
-    }
-
-    if (renaming) {
-        var name by remember { mutableStateOf(card.title) }
-        OneUiDialog(
-            "Rename", onDismiss = { renaming = false },
-            buttons = listOf("Cancel" to { renaming = false }, "Save" to { IdStore.rename(context, card.id, name.trim()); renaming = false }),
-        ) { NameField(name, { name = it.take(40) }, popup = true) }
-    }
-    if (deleting) OneUiDialog(
-        "Delete ${card.title}?", onDismiss = { deleting = false },
-        buttons = listOf("Cancel" to { deleting = false }, "Delete" to { deleting = false; IdStore.delete(context, card.id); onBack() }),
-    ) {
-        Text("Both photos are removed from this phone. Your Gallery copies, if any, stay where they are.", fontSize = 15.sp, color = c.textSecondary)
     }
 }
 

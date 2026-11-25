@@ -1623,13 +1623,13 @@ private fun SelectAllCheck(all: Boolean, onToggle: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         FrostBackground(Modifier.size(46.dp), CircleShape, chip)
-        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.offset(y = 4.dp)) {
-            RoundCheck(all, Modifier.size(22.dp))
-            Text(
-                "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
-                modifier = Modifier.padding(top = 2.dp).graphicsLayer { alpha = 1f - chip() },
-            )
-        }
+        // Over the page: the circle a little above centre with "All" under it. On the floating chip the label fades and
+        // the circle settles into the chip's exact centre.
+        RoundCheck(all, Modifier.size(22.dp).graphicsLayer { translationY = (1f - chip()) * -3.dp.toPx() })
+        Text(
+            "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+            modifier = Modifier.graphicsLayer { translationY = 17.dp.toPx(); alpha = 1f - chip() },
+        )
     }
 }
 
@@ -1670,13 +1670,14 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                 )
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .drawBehind { drawRect(searchPillBase(c.isDark)) }
-                .padding(horizontal = 7.5.dp)
+                // Like the tab pill: each button's 70 × 48 dp press capsule clears the pill's edge by 4 dp all round.
+                .padding(horizontal = 4.dp)
                 .graphicsLayer { alpha = if (enabled) 1f else 0.4f },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { (icon, label, action) ->
                 Column(
-                    Modifier.width(63.dp).height(48.dp).clip(CircleShape).clickable(enabled = enabled, onClick = action),
+                    Modifier.width(70.dp).height(48.dp).clip(CircleShape).clickable(enabled = enabled, onClick = action),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
                 ) {
