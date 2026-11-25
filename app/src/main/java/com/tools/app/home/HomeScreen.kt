@@ -113,8 +113,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             Tool(Route.PdfEditor, "PDF editor", "Merge, split, reorder, sign and annotate PDFs", Icons.Rounded.PictureAsPdf, IconColors.Red),
             Tool(Route.Converter, "File converter", "Images, documents, audio and video", Icons.Rounded.SwapHoriz, IconColors.Teal),
             Tool(Route.Print, "Print", "Print PDFs, photos and documents", Icons.Rounded.Print, IconColors.Blue),
-            Tool(Route.Compressor, "Compressor", "Shrink videos, audio and photos", Icons.Rounded.Compress, IconColors.Blue),
-            Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Blue),
+            Tool(Route.Compressor, "Compressor", "Shrink videos, audio and photos", Icons.Rounded.Compress, IconColors.Purple),
+            Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Green),
         ),
         "Images" to listOf(
             Tool(Route.ColorPicker, "Color picker", "Sample any pixel, get HEX, RGB and palette", Icons.Rounded.Colorize, IconColors.Pink),
