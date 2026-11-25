@@ -88,12 +88,11 @@ object OneUiIcons {
 
     /** "More options": three vertical dots. */
     val More: ImageVector by lazy {
-        // 15 % smaller than the first cut (dots r 1.9 → 1.615, 7 → 5.95 apart), so it no longer looks bigger than the
-        // toolbar's other icons.
+        // Matched to Samsung Reminder's ⋮ on the S24 Ultra: 11 px dots 21.5 px apart (r 1.6, 6.15 apart at 24 dp).
         icon("More") {
-            fill { circle(12f, 6.05f, 1.615f) }
-            fill { circle(12f, 12f, 1.615f) }
-            fill { circle(12f, 17.95f, 1.615f) }
+            fill { circle(12f, 5.85f, 1.6f) }
+            fill { circle(12f, 12f, 1.6f) }
+            fill { circle(12f, 18.15f, 1.6f) }
         }
     }
 

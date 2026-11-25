@@ -78,7 +78,7 @@ private sealed interface Stage {
 @Composable
 private fun ReaderRoot(uri: Uri?, onClose: () -> Unit) {
     Box(Modifier.fillMaxSize().background(OneUi.colors.background)) {
-        if (uri == null) ErrorView("No document", "There's nothing to show. Open a PDF, Word or text file.", "Document Viewer", onClose)
+        if (uri == null) ErrorView("No document", "There's nothing to show. Open a PDF, Word or text file.", "One Reader", onClose)
         else key(uri) { DocumentHost(uri, onClose) }
     }
 }
@@ -89,7 +89,7 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
     val settings = remember { ReaderStore.Settings(ctx) }
     var stage by remember { mutableStateOf<Stage>(Stage.Loading("Opening…")) }
     var prompt by remember { mutableStateOf<Pair<Boolean, CompletableDeferred<String?>>?>(null) }
-    var name by remember { mutableStateOf("Document Viewer") }
+    var name by remember { mutableStateOf("One Reader") }
 
     LaunchedEffect(uri) {
         try {
@@ -169,7 +169,7 @@ private fun loadText(ctx: Context, info: DocInfo): List<TBlock> {
         (if (info.uri.scheme == "file") File(info.uri.path ?: "").inputStream() else ctx.contentResolver.openInputStream(info.uri))
             ?.use { it.readNBytes(limit) } ?: throw IOException("no stream")
     } catch (e: SecurityException) {
-        throw ReaderError("No permission", "Document Viewer isn't allowed to open this file any more. Pick it again from the file list.")
+        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
     } catch (e: IOException) {
         throw ReaderError("Can't read this file", "\"${info.name}\" couldn't be read. It may have been moved or deleted.")
     }
@@ -194,7 +194,7 @@ private fun convertDocx(ctx: Context, info: DocInfo): File {
     } catch (e: Docx.Invalid) {
         throw ReaderError("Can't open this file", "\"${info.name}\" isn't a valid Word document.")
     } catch (e: SecurityException) {
-        throw ReaderError("No permission", "Document Viewer isn't allowed to open this file any more. Pick it again from the file list.")
+        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
     } catch (e: IOException) {
         throw ReaderError("Can't open this file", "\"${info.name}\" couldn't be converted for viewing.")
     } finally {

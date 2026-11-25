@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.8.17 — 2026-11-24
+- The ⋮ icon matches Samsung's own (Reminder, Clock): 11 px dots, 21.5 px apart on the S24 Ultra.
+- The separate windows are named One Brief (Briefs) and One Reader (Document reader), in recent apps and "Open with".
+
 ## 2.8.16 — 2026-11-24
 - The ⋮ icon is 15 % smaller, in proportion with the other toolbar icons.
 

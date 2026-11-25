@@ -290,13 +290,13 @@ class PdfDoc private constructor(
                     val fd = try {
                         openPfd()
                     } catch (e: SecurityException) {
-                        throw ReaderError("No permission", "Document Viewer isn't allowed to open this file any more. Pick it again from the file list.")
+                        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
                     } catch (e: FileNotFoundException) {
                         throw ReaderError("File not found", "\"${info.name}\" was moved or deleted.")
                     } catch (e: IOException) {
                         if (file == null) {
                             try { file = copyLocal() } catch (e2: SecurityException) {
-                                throw ReaderError("No permission", "Document Viewer isn't allowed to open this file any more. Pick it again from the file list.")
+                                throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
                             } catch (e2: IOException) { throw ReaderError("Can't read this file", "\"${info.name}\" couldn't be read.") }
                             continue
                         }
