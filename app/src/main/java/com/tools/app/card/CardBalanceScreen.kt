@@ -250,7 +250,8 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                             color = if (e.cents > 0) c.success else if (c.isDark) Color(0xFFFF7A59) else Color(0xFFE0502E),
                         )
                     },
-                    leading = if (selecting) ({ com.tools.app.ui.RoundCheck(e.id in selected, Modifier.size(22.dp)) }) else null,
+                    leading = { com.tools.app.ui.SelectionCheck(selecting, e.id in selected) },
+                    leadingGap = false,
                     onClick = {
                         if (selecting) selected = if (e.id in selected) selected - e.id else selected + e.id
                         else editing = e

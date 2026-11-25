@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.1 — 2026-11-25
+- Selecting: the check pops in (the blue fills out from the centre with a slight bounce, the tick scales in) and each row's text slides over to make room; "All" sits over the rows' checks.
+- ID cards: Samsung Wallet's layout. Quick access (one card at a time with its neighbours peeking in, swipe between them, its name on a panel underneath) and All (the stack), switched from a bottom tab bar; the card page has a compact top bar with the card just under it, and an info card.
+
 ## 2.9 — 2026-11-25
 - New: **ID cards** (Misc). Keep a copy of your IDs' front and back, Samsung Wallet style. It asks for your fingerprint or PIN every time it opens, and closes when the screen turns off or you leave the app. Photos and names are encrypted with a hardware-backed key, stored only in the app, and kept out of backups. Add a card from your photos, or share a photo to "Add to ID cards"; tap or swipe to flip it.
 - Multi-select, My Files / Reminder style: long-press a payment in Card balance to select, "All" and Cancel at the top, Delete in a floating bar, with Undo.

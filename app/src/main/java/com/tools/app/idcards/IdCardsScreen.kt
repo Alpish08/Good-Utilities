@@ -31,6 +31,10 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddPhotoAlternate
+import androidx.compose.material.icons.rounded.Apps
+import androidx.compose.material.icons.outlined.Apps
+import androidx.compose.material.icons.rounded.CreditCard
+import androidx.compose.material.icons.outlined.CreditCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -123,19 +127,65 @@ fun IdCardsScreen(onBack: () -> Unit) {
 
 @Composable
 private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onOpen: (String) -> Unit, onAdd: () -> Unit) {
+    // Samsung Wallet's two views, switched from a bottom tab bar: Quick access (one card at a time, swipe between them)
+    // and All (the stack).
+    var tab by rememberSaveable { mutableStateOf(0) }
+    val tabs = remember {
+        listOf(
+            com.tools.app.ui.PillTab("Quick access", Icons.Outlined.CreditCard, Icons.Rounded.CreditCard),
+            com.tools.app.ui.PillTab("All", Icons.Outlined.Apps, Icons.Rounded.Apps),
+        )
+    }
     OneUiScaffold(
         title = "ID cards",
         subtitle = when (cards.size) { 0 -> null; 1 -> "1 card"; else -> "${cards.size} cards" },
         onBack = onBack,
         actions = { ToolbarIcon(OneUiIcons.Add, "Add card", onAdd) },
+        bottomBar = if (cards.size > 1) ({ com.tools.app.ui.TabPill(tabs, tab, { tab = it }) }) else null,
+        fadeUnderBottomBar = false,
     ) {
         if (cards.isEmpty()) {
             description("Keep a copy of your IDs' front and back: crop the photos in Gallery first, then add them here. They're locked with your fingerprint and encrypted on this phone.")
             card("add-first") { ListRow("Add an ID card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
             return@OneUiScaffold
         }
-        item("stack") { WalletStack(cards, onOpen) }
-        description("Tap a card to open it. Photos are encrypted on this phone, never in Gallery or backups.", key = "stack-note")
+        if (tab == 0 || cards.size == 1) item("carousel") { QuickAccess(cards, onOpen) }
+        else item("stack") { WalletStack(cards, onOpen) }
+    }
+}
+
+/**
+ * Samsung Wallet's Quick access: one card at a time, its neighbours peeking in at the sides; swipe between them. Under
+ * each card hangs a slightly narrower panel with its name, like Wallet's balance strip.
+ */
+@Composable
+private fun QuickAccess(cards: List<IdCard>, onOpen: (String) -> Unit) {
+    val c = OneUi.colors
+    val pager = androidx.compose.foundation.pager.rememberPagerState { cards.size }
+    androidx.compose.foundation.pager.HorizontalPager(
+        pager,
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 36.dp),
+        pageSpacing = 14.dp,
+        modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
+    ) { i ->
+        val card = cards[i]
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            CardFace(
+                card, back = false,
+                modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio)
+                    .shadow(10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
+                    .clip(CardShape).clickable { onOpen(card.id) },
+                crop = true,
+            )
+            Box(
+                Modifier.fillMaxWidth().padding(horizontal = 10.dp)
+                    .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)).background(c.card)
+                    .clickable { onOpen(card.id) }.padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(card.title, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, maxLines = 1)
+            }
+        }
     }
 }
 
@@ -208,6 +258,8 @@ private fun CardView(card: IdCard, onBack: () -> Unit) {
 
     OneUiScaffold(
         title = card.title, onBack = onBack,
+        // Wallet's card page: a compact top bar ("‹ Name ⋮"), the card just under it.
+        expandedTitle = false,
         actions = {
             OverflowMenu(buildList {
                 add("Rename" to { renaming = true })
@@ -255,6 +307,11 @@ private fun CardView(card: IdCard, onBack: () -> Unit) {
                     }
                 } else Text("No back added · ⋮ › Add back", fontSize = 13.5.sp, color = c.textSecondary)
             }
+        }
+        card("info") {
+            ListRow("Added", summary = java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG).format(java.util.Date(card.added)))
+            com.tools.app.ui.CardDivider()
+            ListRow("Stored", summary = "Encrypted on this phone · never in Gallery or backups")
         }
     }
 

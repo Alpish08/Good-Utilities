@@ -748,6 +748,8 @@ fun ListRow(
     dimmed: Boolean = false,
     /** Long press (e.g. to start selecting). */
     onLongClick: (() -> Unit)? = null,
+    /** false: [leading] brings its own gap (e.g. a selection check that slides in). */
+    leadingGap: Boolean = true,
 ) {
     val c = OneUi.colors
     Row(
@@ -764,7 +766,7 @@ fun ListRow(
     ) {
         if (leading != null) {
             leading()
-            Spacer(Modifier.width(16.dp))
+            if (leadingGap) Spacer(Modifier.width(16.dp))
         }
         Column(Modifier.weight(1f)) {
             Text(title, fontSize = 15.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -852,16 +854,32 @@ fun OneUiSwitch(checked: Boolean, modifier: Modifier = Modifier, onCheckedChange
 @Composable
 fun RoundCheck(checked: Boolean, modifier: Modifier = Modifier) {
     val c = OneUi.colors
-    val bg by animateColorAsState(if (checked) c.accent else Color.Transparent, tween(180), label = "check")
+    // One UI's check: the blue fills out from the centre with a little bounce while the tick pops in; unchecking
+    // runs it back, the outline returning as the fill shrinks.
+    val p by animateFloatAsState(
+        if (checked) 1f else 0f,
+        androidx.compose.animation.core.spring(dampingRatio = 0.55f, stiffness = 520f),
+        label = "check",
+    )
+    val ring = c.textSecondary.copy(alpha = 0.7f)
     Box(
         modifier
             .size(20.dp)
-            .clip(CircleShape)
-            .background(bg)
-            .then(if (!checked) Modifier.border(1.3.dp, c.textSecondary.copy(alpha = 0.7f), CircleShape) else Modifier),
+            .drawBehind {
+                val r = size.minDimension / 2f
+                val stroke = 1.3.dp.toPx()
+                drawCircle(ring.copy(alpha = ring.alpha * (1f - p).coerceIn(0f, 1f)), r - stroke / 2f, style = androidx.compose.ui.graphics.drawscope.Stroke(stroke))
+                if (p > 0f) drawCircle(c.accent, r * p.coerceAtMost(1.08f))
+            },
         contentAlignment = Alignment.Center,
     ) {
-        if (checked) Icon(OneUiIcons.Check, null, tint = c.onAccent, modifier = Modifier.size(14.dp))
+        Icon(
+            OneUiIcons.Check, null, tint = c.onAccent,
+            modifier = Modifier.size(14.dp).graphicsLayer {
+                val t = ((p - 0.25f) / 0.75f).coerceIn(0f, 1.15f)
+                scaleX = t; scaleY = t; alpha = t.coerceIn(0f, 1f)
+            },
+        )
     }
 }
 
@@ -1597,13 +1615,15 @@ class Selection(val count: Int, val allSelected: Boolean, val onToggleAll: () ->
 private fun SelectAllCheck(all: Boolean, onToggle: () -> Unit) {
     val c = OneUi.colors
     val chip = LocalToolbarChip.current
+    // Lined up over the rows' checks (card margin 10 + row padding 18 + half the 22 dp check = 39 dp from the edge;
+    // this slot's centre is at 30 dp), and set a little low like My Files', the circle level with the title.
     Box(
-        Modifier.size(52.dp).chipShadow(chip, centredCircle(23.dp), c.isDark)
+        Modifier.offset(x = 9.dp).size(52.dp).chipShadow(chip, centredCircle(23.dp), c.isDark)
             .clickable(interactionSource = null, indication = null, onClick = onToggle),
         contentAlignment = Alignment.Center,
     ) {
         FrostBackground(Modifier.size(46.dp), CircleShape, chip)
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.offset(y = 4.dp)) {
             RoundCheck(all, Modifier.size(22.dp))
             Text(
                 "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
@@ -1664,6 +1684,27 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                     Text(label, fontSize = 10.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1)
                 }
             }
+        }
+    }
+}
+
+
+/**
+ * A list row's selection check that slides in from the left as selecting starts (pushing the row's text over) and
+ * back out when it ends. Use as [ListRow]'s leading with leadingGap = false.
+ */
+@Composable
+fun SelectionCheck(selecting: Boolean, checked: Boolean) {
+    androidx.compose.animation.AnimatedVisibility(
+        selecting,
+        enter = androidx.compose.animation.expandHorizontally(tween(260, easing = OneUiEasing), expandFrom = Alignment.Start) +
+            androidx.compose.animation.fadeIn(tween(200, delayMillis = 60)),
+        exit = androidx.compose.animation.shrinkHorizontally(tween(220, easing = OneUiEasing), shrinkTowards = Alignment.Start) +
+            androidx.compose.animation.fadeOut(tween(120)),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RoundCheck(checked, Modifier.size(22.dp))
+            Spacer(Modifier.width(16.dp))
         }
     }
 }
