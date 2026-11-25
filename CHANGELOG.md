@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.9.3 — 2026-11-25
+- ID cards is now **Virtual cards**.
+- Cards turn over the way you swipe: down and the top comes towards you, up and the bottom does. No tap to flip, and no hint text.
+- Cards match Samsung Wallet's: 336 × 209 dp, 38 dp from the screen edges, ~12 dp corners, with the name panel 6 dp in from the sides.
+
 ## 2.9.2 — 2026-11-25
 - ID cards: just the swipeable cards (no All tab or card page). Swipe down on a card (or tap) to turn it over; the ⋮ menu (rename, replace, add or remove the back, delete) acts on the card in view. Cards have a thin grey outline, and switching cards plays Samsung Wallet's own haptic tick.
 - Selecting: on the floating chip the "All" circle sits in the chip's exact centre; the floating Delete button's press highlight clears the pill's edge by 4 dp all round.

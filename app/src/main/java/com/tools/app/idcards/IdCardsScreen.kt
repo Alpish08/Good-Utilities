@@ -75,9 +75,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** ID-1 cards (driver's licences, most IDs): 85.6 × 54 mm. */
-private const val CardRatio = 85.6f / 54f
-private val CardShape = RoundedCornerShape(16.dp)
+/** Samsung Wallet's card, measured on the S24 Ultra: 336 × 209 dp (1175 × 731 px), corners ~12 dp. */
+private const val CardRatio = 1175f / 731f
+private val CardShape = RoundedCornerShape(12.dp)
 
 private sealed interface Page {
     data object List : Page
@@ -126,8 +126,10 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     val view = androidx.compose.ui.platform.LocalView.current
     val pager = androidx.compose.foundation.pager.rememberPagerState { cards.size }
     val current = cards.getOrNull(pager.currentPage.coerceAtMost(cards.lastIndex))
-    // Which cards are showing their back.
-    var backs by remember { mutableStateOf(setOf<String>()) }
+    // Each card's turn, in half-turns of 180°: swiping down adds one, swiping up takes one away, so it always turns
+    // the way you swipe. Odd = showing the back.
+    var turns by remember { mutableStateOf(mapOf<String, Int>()) }
+    fun showingBack(id: String) = Math.floorMod(turns[id] ?: 0, 2) == 1
     var renaming by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -138,7 +140,7 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
         if (uri != null && card != null) scope.launch {
             val bytes = withContext(Dispatchers.IO) { read(context, uri) } ?: return@launch
             withContext(Dispatchers.IO) { IdStore.replace(context, card.id, replacingBack, bytes) }
-            backs = if (replacingBack) backs + card.id else backs - card.id
+            if (showingBack(card.id) != replacingBack) turns = turns + (card.id to (turns[card.id] ?: 0) + 1)
         }
     }
     fun pick(back: Boolean) {
@@ -158,7 +160,7 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     }
 
     OneUiScaffold(
-        title = "ID cards",
+        title = "Virtual cards",
         subtitle = when (cards.size) { 0 -> null; 1 -> "1 card"; else -> "${cards.size} cards" },
         onBack = onBack,
         actions = {
@@ -168,34 +170,29 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
                 add("Rename" to { renaming = true })
                 add("Replace front" to { pick(false) })
                 add((if (card.hasBack) "Replace back" else "Add back") to { pick(true) })
-                if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); backs = backs - card.id })
+                if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); turns = turns - card.id })
                 add("Delete" to { deleting = true })
             })
         },
     ) {
         if (cards.isEmpty()) {
             description("Keep a copy of your IDs' front and back: crop the photos in Gallery first, then add them here. They're locked with your fingerprint and encrypted on this phone.")
-            card("add-first") { ListRow("Add an ID card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
+            card("add-first") { ListRow("Add a card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
             return@OneUiScaffold
         }
         item("carousel") {
             androidx.compose.foundation.pager.HorizontalPager(
                 pager,
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 36.dp),
+                // Wallet: the card 38 dp in from each edge, its neighbours peeking in.
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 38.dp),
                 pageSpacing = 14.dp,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
             ) { i ->
                 val card = cards[i]
-                val showBack = card.id in backs && card.hasBack
-                FlipCard(card, showBack, onFlip = { if (card.hasBack) backs = if (card.id in backs) backs - card.id else backs + card.id })
+                FlipCard(card, turns[card.id] ?: 0, onSwipe = { down ->
+                    if (card.hasBack) turns = turns + (card.id to (turns[card.id] ?: 0) + if (down) 1 else -1)
+                })
             }
-        }
-        if (current != null) item("hint") {
-            Text(
-                if (current.hasBack) "Swipe down on the card to turn it over" else "No back added · ⋮ › Add back",
-                fontSize = 13.5.sp, color = c.textSecondary, textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-            )
         }
     }
 
@@ -215,38 +212,42 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     }
 }
 
-/** A card that turns over top-to-bottom: swipe down on it, or tap. Its name hangs underneath on a panel, like Wallet. */
+/**
+ * A card that turns over the way you swipe: down and its top comes towards you, up and its bottom does. Its name hangs
+ * underneath on a panel, like Wallet's.
+ */
 @Composable
-private fun FlipCard(card: IdCard, showBack: Boolean, onFlip: () -> Unit) {
+private fun FlipCard(card: IdCard, turns: Int, onSwipe: (down: Boolean) -> Unit) {
     val c = OneUi.colors
-    val turn by animateFloatAsState(if (showBack) 180f else 0f, tween(440, easing = com.tools.app.ui.theme.OneUiEasing), label = "flip")
-    val face = turn > 90f
+    val angle by animateFloatAsState(turns * 180f, tween(440, easing = com.tools.app.ui.theme.OneUiEasing), label = "flip")
+    // The nearest half-turn decides which face is visible; the face is drawn relative to it so it never shows mirrored.
+    val half = kotlin.math.round(angle / 180f).toInt()
+    val back = Math.floorMod(half, 2) == 1 && card.hasBack
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         CardFace(
-            card, back = face, crop = true,
+            card, back = back, crop = true,
             modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio)
                 .pointerInput(card.id) {
                     var dy = 0f
-                    detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (dy > 50f) onFlip() }) { _, d -> dy += d }
+                    detectVerticalDragGestures(onDragStart = { dy = 0f }, onDragEnd = { if (kotlin.math.abs(dy) > 50f) onSwipe(dy > 0f) }) { _, d -> dy += d }
                 }
                 .graphicsLayer {
-                    // Turns about its middle, the top coming towards you.
-                    rotationX = -(if (face) turn - 180f else turn)
+                    rotationX = -(angle - half * 180f)
                     cameraDistance = 14f * density
                 }
                 .shadow(10.dp, CardShape, ambientColor = Color(0x88000000), spotColor = Color(0xAA000000))
                 .clip(CardShape)
-                .border(1.dp, com.tools.app.ui.pillEdge(c.isDark), CardShape)
-                .clickable(interactionSource = null, indication = null, onClick = onFlip),
+                .border(1.dp, com.tools.app.ui.pillEdge(c.isDark), CardShape),
         )
+        // Wallet's panel: 6 dp in from the card's sides.
         Box(
-            Modifier.fillMaxWidth().padding(horizontal = 10.dp)
-                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)).background(c.card)
+            Modifier.fillMaxWidth().padding(horizontal = 6.dp)
+                .clip(RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp)).background(c.card)
                 .padding(vertical = 12.dp),
             contentAlignment = Alignment.Center,
         ) {
             Text(
-                if (card.hasBack) "${card.title} · ${if (showBack) "Back" else "Front"}" else card.title,
+                if (card.hasBack) "${card.title} · ${if (back) "Back" else "Front"}" else card.title,
                 fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.textSecondary, maxLines = 1,
             )
         }
@@ -294,7 +295,7 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
         picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    OneUiScaffold(title = "Add ID card", onBack = onDone) {
+    OneUiScaffold(title = "Add card", onBack = onDone) {
         description("Crop and straighten the photos in Gallery first (Edit › crop finds the card's edges), then pick them here.")
         card("name") {
             Box(Modifier.padding(16.dp)) { NameField(name, { name = it.take(40) }) }

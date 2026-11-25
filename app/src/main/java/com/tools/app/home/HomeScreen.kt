@@ -151,7 +151,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                 cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Track expenses and payments",
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
-            Tool(Route.IdCards, "ID cards", "Your IDs' front and back, locked and encrypted", Icons.Rounded.Badge, IconColors.Orange),
+            Tool(Route.IdCards, "Virtual cards", "Your IDs' front and back, locked and encrypted", Icons.Rounded.Badge, IconColors.Orange),
             Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Red),
             Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Pink),
             Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
