@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.14 — 2026-11-26
+- Popups with side-by-side buttons (e.g. Delete | Cancel | Save): each press highlight stops 6 dp short of the dividers instead of touching them.
+
 ## 2.9.13 — 2026-11-25
 - The floating action bar's buttons (e.g. Delete while selecting) have their icon and label centred: the gap above the icon now matches the gap under the label.
 
