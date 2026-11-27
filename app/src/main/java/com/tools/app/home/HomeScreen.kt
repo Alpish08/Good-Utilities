@@ -234,7 +234,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         if (searching && q.isNotEmpty()) {
             sectionLabel(if (matches.isEmpty()) "No tools found" else "Results", key = "search-label")
             if (matches.isNotEmpty()) cardList(matches, key = { "found-" + it.route.name }, dividerStart = IconRowDivider) { t ->
-                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, shrinkOnPress = true, onClick = { closeSearch(); open(t.route) })
+                ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { closeSearch(); open(t.route) })
             }
             return@OneUiScaffold
         }
@@ -256,7 +256,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
             groups.forEach { (label, tools) ->
                 sectionLabel(label, key = "all-$label")
                 cardList(tools, key = { "all-" + it.route.name }, dividerStart = IconRowDivider) { t ->
-                    ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, shrinkOnPress = true, onClick = { open(t.route) })
+                    ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) })
                 }
             }
             return@OneUiScaffold
@@ -273,7 +273,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
                     )
                     com.tools.app.ui.RoundCard {
                         tools.forEachIndexed { i, t ->
-                            ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, shrinkOnPress = true, onClick = { open(t.route) })
+                            ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { open(t.route) })
                             if (i != tools.lastIndex) com.tools.app.ui.CardDivider(IconRowDivider)
                         }
                     }

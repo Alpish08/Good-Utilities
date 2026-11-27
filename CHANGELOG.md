@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.16 — 2026-11-26
+- Every tappable list row in the app (tool pages, About, pickers…) gets Settings' press: the contents ease in to 99.2 % while the highlight fills the row.
+
 ## 2.9.15 — 2026-11-26
 - Pressing works like Samsung's: the highlight fills the item while its contents ease inwards. Home's tool cards shrink slightly, like Settings' rows (99.2 %), and ⋮ menu items further, like Clock's (96 %).
 

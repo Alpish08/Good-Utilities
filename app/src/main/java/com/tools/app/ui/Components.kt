@@ -753,7 +753,7 @@ fun ListRow(
     /** false: [leading] brings its own gap (e.g. a selection check that slides in). */
     leadingGap: Boolean = true,
     /** Settings' press: the row's icon and text shrink slightly while the highlight fills the row. */
-    shrinkOnPress: Boolean = false,
+    shrinkOnPress: Boolean = true,
 ) {
     val c = OneUi.colors
     val source = remember { MutableInteractionSource() }
