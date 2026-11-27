@@ -69,6 +69,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.runtime.State
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -750,18 +752,23 @@ fun ListRow(
     onLongClick: (() -> Unit)? = null,
     /** false: [leading] brings its own gap (e.g. a selection check that slides in). */
     leadingGap: Boolean = true,
+    /** Settings' press: the row's icon and text shrink slightly while the highlight fills the row. */
+    shrinkOnPress: Boolean = false,
 ) {
     val c = OneUi.colors
+    val source = remember { MutableInteractionSource() }
+    val scale by pressScale(source, shrinkOnPress)
     Row(
         modifier
             .fillMaxWidth()
             .then(
-                if (onLongClick != null) Modifier.combinedClickable(enabled = enabled, onClick = { onClick?.invoke() }, onLongClick = onLongClick)
-                else if (onClick != null) Modifier.clickable(enabled = enabled, onClick = onClick) else Modifier,
+                if (onLongClick != null) Modifier.combinedClickable(source, LocalIndication.current, enabled = enabled, onClick = { onClick?.invoke() }, onLongClick = onLongClick)
+                else if (onClick != null) Modifier.clickable(source, LocalIndication.current, enabled = enabled, onClick = onClick) else Modifier,
             )
             .heightIn(min = 56.dp)
             .padding(horizontal = RowPadding, vertical = 15.dp)
-            .graphicsLayer { alpha = if (dimmed || !enabled) 0.45f else 1f },
+            // After clickable, so only the content scales and the press highlight keeps the row's full size.
+            .graphicsLayer { alpha = if (dimmed || !enabled) 0.45f else 1f; scaleX = scale; scaleY = scale },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (leading != null) {
@@ -782,6 +789,18 @@ fun ListRow(
             trailing()
         }
     }
+}
+
+/**
+ * Samsung Settings' press: while a row is held its content eases to 99.2 % around the row's centre (measured: the
+ * icon moves 5 px and the text 3 px inwards on the S24 Ultra), in about 200 ms, and back over 250 ms on release.
+ * A ⋮ menu's items shrink further ([to] 0.961: Clock's "Edit preset timers" goes from 461 to 443 px wide).
+ */
+@Composable
+internal fun pressScale(source: androidx.compose.foundation.interaction.InteractionSource, enabled: Boolean = true, to: Float = 0.992f): State<Float> {
+    val pressed by source.collectIsPressedAsState()
+    val on = pressed && enabled
+    return animateFloatAsState(if (on) to else 1f, tween(if (on) 200 else 250, easing = OneUiEasing), label = "pressScale")
 }
 
 /** Filled circle with a white glyph, as in Samsung Settings' main list. */
@@ -1345,6 +1364,8 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
                     .width(androidx.compose.foundation.layout.IntrinsicSize.Max),
             ) {
                 for ((label, action) in items) {
+                    val source = remember { MutableInteractionSource() }
+                    val scale by pressScale(source, to = 0.961f)
                     Text(
                         label, fontSize = 15.5.sp, fontWeight = FontWeight.Medium, color = c.text,
                         maxLines = 1,
@@ -1352,9 +1373,10 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
                             .fillMaxWidth()
                             .heightIn(min = 51.dp)
                             .clip(RoundedCornerShape(20.dp))
-                            .clickable { open = false; backdrop = null; action() }
+                            .clickable(source, LocalIndication.current) { open = false; backdrop = null; action() }
                             .padding(horizontal = 22.dp)
-                            .wrapContentHeight(Alignment.CenterVertically),
+                            .wrapContentHeight(Alignment.CenterVertically)
+                            .graphicsLayer { scaleX = scale; scaleY = scale },
                     )
                 }
             }

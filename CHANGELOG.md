@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.15 — 2026-11-26
+- Pressing works like Samsung's: the highlight fills the item while its contents ease inwards. Home's tool cards shrink slightly, like Settings' rows (99.2 %), and ⋮ menu items further, like Clock's (96 %).
+
 ## 2.9.14 — 2026-11-26
 - Popups with side-by-side buttons (e.g. Delete | Cancel | Save): each press highlight stops 6 dp short of the dividers instead of touching them.
 
