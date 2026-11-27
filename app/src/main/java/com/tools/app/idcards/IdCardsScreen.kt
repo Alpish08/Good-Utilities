@@ -166,17 +166,19 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
         actions = {
             ToolbarIcon(OneUiIcons.Add, "Add card", onAdd)
             val card = current
-            if (card != null) OverflowMenu(buildList {
+            val tips = com.tools.app.ui.tipsItem(ID_TIPS)
+            if (card == null) OverflowMenu(listOf(tips))
+            else OverflowMenu(buildList {
                 add("Rename" to { renaming = true })
                 add("Replace front" to { pick(false) })
                 add((if (card.hasBack) "Replace back" else "Add back") to { pick(true) })
                 if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); turns = turns - card.id })
                 add("Delete" to { deleting = true })
+                add(tips)
             })
         },
     ) {
         if (cards.isEmpty()) {
-            description("Keep a copy of your IDs' front and back: crop the photos in Gallery first, then add them here. They're locked with your fingerprint and encrypted on this phone.")
             card("add-first") { ListRow("Add a card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
             return@OneUiScaffold
         }
@@ -305,8 +307,7 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
         picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    OneUiScaffold(title = "Add card", onBack = onDone) {
-        description("Crop and straighten the photos in Gallery first (Edit › crop finds the card's edges), then pick them here.")
+    OneUiScaffold(title = "Add card", onBack = onDone, actions = { com.tools.app.ui.TipsMenu(ID_TIPS) }) {
         // Front | Back, like the Compressor's Video | Audio | Photo, over one photo slot for the chosen side.
         item("side") {
             Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
@@ -414,3 +415,10 @@ private fun NameField(value: String, onChange: (String) -> Unit, popup: Boolean 
 
 private fun read(context: android.content.Context, uri: Uri): ByteArray? =
     runCatching { context.contentResolver.openInputStream(uri)?.use { it.readBytes() } }.getOrNull()
+
+/** Virtual cards' explanations, in ⋮ › Tips on the cards and Add card pages. */
+private val ID_TIPS = listOf(
+    com.tools.app.ui.Tip("Your IDs, front and back", "Keep a copy of your IDs here. They're locked with your fingerprint and encrypted on this phone, and screenshots are blocked."),
+    com.tools.app.ui.Tip("Crop in Gallery first", "Crop and straighten the photos in Gallery (Edit › crop finds the card's edges), then pick them here, or share a photo to \"Add to Virtual cards\"."),
+    com.tools.app.ui.Tip("Turn a card over", "Swipe down or up on a card to see its back."),
+)

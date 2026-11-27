@@ -59,7 +59,17 @@ fun BatteryScreen(onBack: () -> Unit, onGuide: () -> Unit = {}) {
     val dateFmt = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
     val n = NumberFormat.getIntegerInstance()
 
-    OneUiScaffold(title = "Battery info", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide)) }) {
+    OneUiScaffold(title = "Battery info", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide, com.tools.app.ui.tipsItem(listOf(
+        if (now.samsung == null) com.tools.app.ui.Tip(
+            "Estimated health",
+            "Health is estimated from the fuel gauge (charge stored ÷ level), which reads a couple of points high on Galaxy phones. " +
+                "For Samsung's exact health and lifetime cycle count, connect your phone to your Mac and run sync-battery.sh.",
+        ) else com.tools.app.ui.Tip(
+            "Samsung's figures",
+            "Health and cycles are Samsung's own (its fuel gauge's learned capacity as a share of the ${n.format(now.designMah)} mAh design), " +
+                "as of the last sync. Run sync-battery.sh again every few weeks to refresh them. Cycles include any previous owner's.",
+        ),
+    )))) }) {
         card(key = "hero") {
             Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 HealthRing(now.healthPercent)
@@ -117,15 +127,6 @@ fun BatteryScreen(onBack: () -> Unit, onGuide: () -> Unit = {}) {
             key = { "bat-" + it.first },
         ) { (label, value) -> ListRow(label, summary = value) }
 
-        if (now.samsung == null) description(
-            "Health is estimated from the fuel gauge (charge stored ÷ level), which reads a couple of points high on Galaxy phones. " +
-                "For Samsung's exact health and lifetime cycle count, connect your phone to your Mac and run sync-battery.sh.",
-            key = "about",
-        ) else description(
-            "Health and cycles are Samsung's own (its fuel gauge's learned capacity as a share of the ${n.format(now.designMah)} mAh design), " +
-                "as of the last sync. Run sync-battery.sh again every few weeks to refresh them. Cycles include any previous owner's.",
-            key = "about",
-        )
     }
 }
 

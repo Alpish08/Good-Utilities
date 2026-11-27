@@ -62,6 +62,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
     OneUiScaffold(
         title = "Video downloader",
         onBack = onBack,
+        actions = { com.tools.app.ui.TipsMenu(VIDEO_TIPS) },
         bottomBar = bottomBar(s, engine.engine is EngineState.Ready),
     ) {
         item(key = "link") { LinkCard(s) }
@@ -106,12 +107,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
                 )
             }
 
-            info == null -> {
-                sectionLabel("Supported")
-                cardList(SUPPORTED, key = { it.first }) { (title, summary, icon) ->
-                    ListRow(title, summary = summary)
-                }
-            }
+            info == null -> Unit
 
             else -> {
                 item(key = "preview") { PreviewCard(info) }
@@ -139,10 +135,11 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
     }
 }
 
-private val SUPPORTED = listOf(
-    Triple("Supported sites", "YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo and more", OneUiIcons.Globe),
-    Triple("Share from any app", "Tap Share → Video downloader on a video or post, or paste its link above.", OneUiIcons.Share),
-    Triple("Saved to ${Storage.label(Storage.Folder.Videos)}", "Ready in Samsung Gallery and any player.", OneUiIcons.Folder),
+private val VIDEO_TIPS get() = listOf(
+    com.tools.app.ui.Tip("Supported sites", "YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo and more."),
+    com.tools.app.ui.Tip("Share from any app", "Tap Share → Video downloader on a video or post, or paste its link."),
+    com.tools.app.ui.Tip("Saved to ${Storage.label(Storage.Folder.Videos)}", "Ready in Samsung Gallery and any player."),
+    com.tools.app.ui.Tip("Audio only", "M4A and MP3 get the cover art embedded. Saved to ${Storage.label(Storage.Folder.Audio)}."),
 )
 
 @Composable
@@ -242,7 +239,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.optionCards(s: VState
                 }
             }
         }
-        description("Cover art is embedded in M4A and MP3 files. Saved to ${Storage.label(Storage.Folder.Audio)}.")
     } else {
         val heights = info.heights
         if (heights.isNotEmpty()) {

@@ -152,7 +152,12 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             )
         }) else null,
         actions = {
-            if (card != null) OverflowMenu(
+            val tips = com.tools.app.ui.tipsItem(listOf(
+                com.tools.app.ui.Tip("What it's for", "Manage your spending: log purchases and deposits, see your balance, and look back through your payment history. Everything stays on this phone."),
+                com.tools.app.ui.Tip("Select and delete", "Long-press a payment to start selecting, then tap others or All. Deleting can be undone."),
+            ))
+            if (card == null) OverflowMenu(listOf(tips))
+            else OverflowMenu(
                 buildList {
                     if (state.cards.size > 1) add("Switch card" to { dialog = Dialog.Switch })
                     add("Add card" to { dialog = Dialog.Add })
@@ -160,13 +165,13 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     add("Rename card" to { dialog = Dialog.Rename })
                     add("Edit starting balance" to { dialog = Dialog.Start })
                     add("Delete card" to { dialog = Dialog.Delete })
+                    add(tips)
                 },
             )
         },
     ) {
         if (card == null) {
             card("setup") { SetupCard(onCreate = { name, start -> CardStore.addCard(context, name, start) }) }
-            description("Manage your spending: log purchases and deposits, see your balance, and look back through your payment history. Everything stays on this phone.")
             return@OneUiScaffold
         }
 

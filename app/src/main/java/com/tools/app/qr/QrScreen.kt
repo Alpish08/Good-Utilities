@@ -75,6 +75,7 @@ fun QrScreen(onBack: () -> Unit) {
     OneUiScaffold(
         title = "QR code",
         onBack = onBack,
+        actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Share to QR code", "Share a link or text from any app and choose \"QR code\"."))) },
         bottomBar = if (bitmap != null) ({
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PillButton("Save", tonal = true, modifier = Modifier.weight(1f), onClick = {
@@ -131,6 +132,5 @@ fun QrScreen(onBack: () -> Unit) {
             }
         }
         if (qr?.isFailure == true) description("This is too long for a QR code. Try a shorter link or less text.", key = "too-long")
-        else if (input.isEmpty()) description("Tip: you can also share a link or text from any app and choose \"QR code\".", key = "tip")
     }
 }

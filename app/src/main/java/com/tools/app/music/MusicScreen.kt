@@ -76,7 +76,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
         title = "Music downloader",
         onBack = onBack,
         listState = listState,
-        actions = { com.tools.app.ui.OverflowMenu(listOf("Settings" to onOpenSettings)) },
+        actions = { com.tools.app.ui.OverflowMenu(listOf("Settings" to onOpenSettings, com.tools.app.ui.tipsItem(MUSIC_TIPS))) },
         bottomBar = bottomBar(s, onDownload = download, onRetry = { MusicDownloader.retryFailed(context) }),
     ) {
         item(key = "link") { LinkCard(s) }
@@ -116,12 +116,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
                 )
             }
 
-            playlist == null -> {
-                sectionLabel("How it works")
-                cardList(HOW_IT_WORKS, key = { it.first }) { (title, summary, icon) ->
-                    ListRow(title, summary = summary)
-                }
-            }
+            playlist == null -> Unit
 
             else -> {
                 item(key = "playlist") { PlaylistCard(playlist, s) }
@@ -146,10 +141,10 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
     }
 }
 
-private val HOW_IT_WORKS = listOf(
-    Triple("Share from YouTube", "Tap Share → Music downloader on any song, video or playlist, or paste its link above.", OneUiIcons.Share),
-    Triple("MP3 with album art", "Square cover, title, artist, album and track number are embedded.", OneUiIcons.MusicNote),
-    Triple("Saved to Good Utilities/Music", "Playlists get their own folder. Ready in Samsung Music or any player.", OneUiIcons.Folder),
+private val MUSIC_TIPS = listOf(
+    com.tools.app.ui.Tip("Share from YouTube", "Tap Share → Music downloader on any song, video or playlist, or paste its link."),
+    com.tools.app.ui.Tip("MP3 with album art", "Square cover, title, artist, album and track number are embedded."),
+    com.tools.app.ui.Tip("Saved to Good Utilities/Music", "Playlists get their own folder. Ready in Samsung Music or any player."),
 )
 
 private fun subtitle(s: AppState): String = when (s.phase) {

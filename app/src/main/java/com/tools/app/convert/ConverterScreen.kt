@@ -118,6 +118,7 @@ fun ConverterScreen(onBack: () -> Unit) {
     OneUiScaffold(
         title = "File converter",
         onBack = onBack,
+        actions = { com.tools.app.ui.TipsMenu(CONVERT_TIPS) },
         bottomBar = {
             when {
                 running -> PillButton("Cancel", onClick = { jobs.cancel() }, tonal = true, modifier = Modifier.fillMaxWidth())
@@ -170,21 +171,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
                 "Choose files", summary = "Pick one or more files of the same type",
                 onClick = pick,
             )
-        }
-        sectionLabel("What can be converted")
-        card("matrix") {
-            val rows = listOf(
-                Triple(Kind.Image, "Images", "JPG, PNG, WebP, HEIC, GIF, BMP to JPG, PNG, WebP or PDF"),
-                Triple(Kind.Pdf, "PDF", "to JPG or PNG pages, or text"),
-                Triple(Kind.Docx, "Word (.docx)", "to PDF or text. Text and basic formatting only"),
-                Triple(Kind.Text, "TXT and Markdown", "to PDF"),
-                Triple(Kind.Audio, "Audio", "MP3, WAV, M4A, FLAC, OGG, OPUS, AMR to MP3, WAV, M4A, FLAC, OGG or OPUS"),
-                Triple(Kind.Video, "Video", "MP4, MKV, MOV, WebM, 3GP, AVI to MP4, WebM, GIF, or just the audio"),
-            )
-            rows.forEachIndexed { i, (k, title, summary) ->
-                ListRow(title, summary = summary)
-                if (i != rows.lastIndex) CardDivider()
-            }
         }
         return
     }
@@ -411,3 +397,13 @@ private suspend fun open(context: Context, output: Output) {
         Toast.makeText(context, "No app can open this file. Try Share instead", Toast.LENGTH_SHORT).show()
     }
 }
+
+/** What can be converted, for the ⋮ › Tips popup. */
+private val CONVERT_TIPS = listOf(
+    com.tools.app.ui.Tip("Images", "JPG, PNG, WebP, HEIC, GIF, BMP to JPG, PNG, WebP or PDF."),
+    com.tools.app.ui.Tip("PDF", "To JPG or PNG pages, or text."),
+    com.tools.app.ui.Tip("Word (.docx)", "To PDF or text. Text and basic formatting only."),
+    com.tools.app.ui.Tip("TXT and Markdown", "To PDF."),
+    com.tools.app.ui.Tip("Audio", "MP3, WAV, M4A, FLAC, OGG, OPUS, AMR to MP3, WAV, M4A, FLAC, OGG or OPUS."),
+    com.tools.app.ui.Tip("Video", "MP4, MKV, MOV, WebM, 3GP, AVI to MP4, WebM, GIF, or just the audio."),
+)

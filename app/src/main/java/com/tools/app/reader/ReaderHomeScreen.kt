@@ -111,17 +111,11 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         }
     }
 
-    OneUiScaffold(title = "Documents", onBack = onBack) {
+    OneUiScaffold(title = "Documents", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Make it your default", "Open any PDF in My Files, choose One Reader, then tap \"Always\"."))) }) {
         card("open") {
             ListRow(
                 "Open file", summary = "PDF, Word and text files",
                 onClick = { picker.launch(SupportedMimes) },
-            )
-        }
-        card("default") {
-            ListRow(
-                "Make it your default",
-                summary = "Open any PDF in My Files, choose One Reader, then tap \"Always\".",
             )
         }
 

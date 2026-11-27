@@ -106,7 +106,12 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
     val charging = battery.status == BatteryManager.BATTERY_STATUS_CHARGING
     val bypass = battery.plugged && !charging && abs(currentMa) < 150
 
-    OneUiScaffold(title = "Charge limit", onBack = onBack) {
+    OneUiScaffold(title = "Charge limit", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
+        com.tools.app.ui.Tip("How it works", "Stops charging at any level you choose, using Samsung's own Battery protection. While plugged in at the limit, the phone runs straight from the charger: ideal for gaming, DeX or long navigation sessions."),
+        com.tools.app.ui.Tip("The Now chip", "\"Now\" holds the battery where it is, so the charger powers the phone directly."),
+        com.tools.app.ui.Tip("Auto bypass when hot", "Uses App lock's background service to watch the battery, so App lock needs to stay switched on. Bypass charging you turn on yourself is never turned off by this."),
+        com.tools.app.ui.Tip("Turning it off", "Turning this off restores your previous Battery protection setting. If you open Samsung's Battery protection page and change it there, it may overwrite the custom limit."),
+    )) }) {
         item("status") {
             RoundCard {
                 Column(Modifier.padding(20.dp)) {
@@ -159,7 +164,6 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
                 },
             )
         }
-        description("Stops charging at any level you choose, using Samsung's own Battery protection. While plugged in at the limit, the phone runs straight from the charger: ideal for gaming, DeX or long navigation sessions.")
 
         sectionLabel("Stop charging at")
         card("limit") {
@@ -179,10 +183,6 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
                         })
                     }
                 }
-                Text(
-                    "\"Now\" holds the battery where it is, so the charger powers the phone directly.",
-                    fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 10.dp),
-                )
             }
         }
 
@@ -228,11 +228,6 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
                 }
             }
         }
-        description(
-            "Uses App lock's background service to watch the battery, so App lock needs to stay switched on. " +
-                "Bypass charging you turn on yourself is never turned off by this.",
-            key = "auto-note",
-        )
 
         sectionLabel("Samsung setting right now")
         card("samsung") {
@@ -245,7 +240,6 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             )
         }
         error?.let { e -> description("Couldn't change the setting: $e", key = "error") }
-        description("Turning this off restores your previous Battery protection setting. If you open Samsung's Battery protection page and change it there, it may overwrite the custom limit.")
     }
 }
 

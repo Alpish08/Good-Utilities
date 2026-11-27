@@ -77,7 +77,7 @@ fun PrivateDnsScreen(onBack: () -> Unit) {
         PrivateDns.setHost(context, h); host = h.trim(); draft = host
     }
 
-    OneUiScaffold(title = "Private DNS", onBack = onBack) {
+    OneUiScaffold(title = "Private DNS", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Custom or Automatic", "Custom sends all DNS lookups to the provider below over an encrypted connection, so it works on Wi-Fi and mobile data, and can block ads system-wide. Automatic uses your network's DNS."))) }) {
         item("master") {
             MasterSwitchCard(
                 checked = custom, enabled = canWrite && host.isNotBlank(),
@@ -85,7 +85,6 @@ fun PrivateDnsScreen(onBack: () -> Unit) {
                 onCheckedChange = { PrivateDns.setCustom(context, it); custom = it },
             )
         }
-        description("Custom sends all DNS lookups to the provider below over an encrypted connection, so it works on Wi-Fi and mobile data, and can block ads system-wide. Automatic uses your network's DNS.")
 
         if (!canWrite) card("grant") {
             ListRow("One-time setup needed", summary = "Run the adb grant command shown on the Charge limit page. The same permission covers both.", summaryColor = c.accent)

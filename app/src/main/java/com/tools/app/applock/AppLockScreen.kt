@@ -102,7 +102,7 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
     OneUiScaffold(
         title = "App lock", onBack = onBack, listState = listState,
         actions = {
-            com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide))
+            com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide, com.tools.app.ui.tipsItem(listOf(com.tools.app.ui.Tip("Private by design", "Locked apps ask for your fingerprint, face or PIN when you open them. Good Utilities only sees which app is on screen and which Home screen icon you tap, never what's in an app, and nothing leaves your phone.")))))
         },
         bottomBar = { com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true }, onClose = closeSearch) },
     ) {
@@ -113,7 +113,6 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
                 AppLock.setEnabled(on)
             })
         }
-        description("Locked apps ask for your fingerprint, face or PIN when you open them. Good Utilities only sees which app is on screen and which Home screen icon you tap, never what's in an app, and nothing leaves your phone.")
 
         if (config.enabled && !serviceOn) card("setup") {
             val blocked = AppLock.isToggleOnInSettings(context)

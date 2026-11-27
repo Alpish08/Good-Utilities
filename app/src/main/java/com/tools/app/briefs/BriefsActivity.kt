@@ -167,8 +167,7 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
             if (e == null) { BriefsAccount.save(context, a); onDone() } else error = e
         }
     }
-    OneUiScaffold(title = "Briefs", onBack = onBack) {
-        description("Your newsletters and articles from one Gmail label, as clean, readable pages. Briefs only syncs while it's open: nothing runs in the background and there are no notifications.")
+    OneUiScaffold(title = "Briefs", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(BRIEFS_TIPS) }) {
         card("form") {
             Column(Modifier.padding(16.dp)) {
                 Field(email, { email = it }, "Gmail address", keyboard = KeyboardType.Email)
@@ -187,7 +186,6 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
                 onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://myaccount.google.com/apppasswords"))) },
             )
         }
-        description("Tip: in Gmail, make a filter for your newsletters' senders that applies the label, so new briefs show up here on their own.", key = "tip")
     }
 }
 
@@ -289,7 +287,7 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
                         spinScope.launch { spin.snapTo(0f); spin.animateTo(360f, tween(650, easing = com.tools.app.ui.theme.OneUiEasing)); spin.snapTo(0f) }
                     }
                 }
-                OverflowMenu(listOf("Change label" to { changingLabel = true }, "Sign out" to { signingOut = true }))
+                OverflowMenu(listOf("Change label" to { changingLabel = true }, com.tools.app.ui.tipsItem(BRIEFS_TIPS), "Sign out" to { signingOut = true }))
             },
         ) {
             error?.let { e ->
@@ -655,3 +653,9 @@ private fun timeAgo(t: Long): String {
         else -> DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(t))
     }
 }
+
+/** Briefs' explanations, in ⋮ › Tips on the setup and list pages. */
+private val BRIEFS_TIPS = listOf(
+    com.tools.app.ui.Tip("What it is", "Your newsletters and articles from one Gmail label, as clean, readable pages. Briefs only syncs while it's open: nothing runs in the background and there are no notifications."),
+    com.tools.app.ui.Tip("New briefs on their own", "In Gmail, make a filter for your newsletters' senders that applies the label, so new briefs show up here automatically."),
+)

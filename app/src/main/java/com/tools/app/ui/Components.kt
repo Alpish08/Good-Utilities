@@ -1756,3 +1756,37 @@ fun SelectionCheck(selecting: Boolean, checked: Boolean) {
         }
     }
 }
+
+/** One explanation for a tool's Tips popup: a short heading and its text. */
+class Tip(val title: String, val text: String)
+
+/**
+ * The "Tips" entry for a tool's ⋮ menu. A tool's explanations (how it works, what's supported, notes) live here
+ * instead of on the page, which keeps the page to things you can tap. Opens a frosted popup with the tips.
+ */
+@Composable
+fun tipsItem(tips: List<Tip>): Pair<String, () -> Unit> {
+    var open by remember { mutableStateOf(false) }
+    if (open) TipsDialog(tips) { open = false }
+    return "Tips" to { open = true }
+}
+
+/** A ⋮ menu holding just [tipsItem], for pages with no other menu entries. */
+@Composable
+fun TipsMenu(tips: List<Tip>) = OverflowMenu(listOf(tipsItem(tips)))
+
+@Composable
+private fun TipsDialog(tips: List<Tip>, onDismiss: () -> Unit) {
+    val c = OneUi.colors
+    OneUiDialog("Tips", onDismiss, listOf("Close" to onDismiss)) {
+        Column(Modifier.heightIn(max = 440.dp).verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(top = 2.dp)) {
+            tips.forEachIndexed { i, t ->
+                Text(
+                    t.title, fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                    modifier = Modifier.padding(top = if (i == 0) 0.dp else 16.dp),
+                )
+                Text(t.text, fontSize = 14.sp, lineHeight = 20.sp, color = c.textSecondary, modifier = Modifier.padding(top = 3.dp))
+            }
+        }
+    }
+}

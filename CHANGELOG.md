@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.18 — 2026-11-26
+- Tools' explanations moved off their pages into **⋮ › Tips**, a frosted popup, so pages show only what you can tap: Music downloader (How it works), Video downloader (Supported, audio formats), File converter (What can be converted), Documents (Make it your default), App lock, APK extractor, Japanese reader (sharing, recognition, credits), Private DNS, Charge limit, Battery info, Card balance, Virtual cards, Briefs and QR code. Empty states, errors and setup steps stay on the page.
+
 ## 2.9.17 — 2026-11-26
 - List rows' press highlight is rounded and sits 5 dp inside the row, like the ⋮ menu's items, clear of the card's edges and the dividers.
 

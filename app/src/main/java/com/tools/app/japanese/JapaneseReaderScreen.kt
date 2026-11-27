@@ -102,7 +102,11 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
         if (ok && photoFile.length() > 0) JapaneseReaderActivity.openFile(ctx, photoFile)
     }
 
-    OneUiScaffold(title = "Japanese reader", onBack = onBack) {
+    OneUiScaffold(title = "Japanese reader", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
+        com.tools.app.ui.Tip("Share an image", "Share an image from any app and pick Read Japanese."),
+        com.tools.app.ui.Tip("Recognition", "Text is recognised on this phone. Horizontal text works best; vertical manga text is supported but less reliable."),
+        com.tools.app.ui.Tip("Credits", "Dictionary: JMdict (EDRDG), CC BY-SA 4.0. Word splitting: Kuromoji. Text recognition and translation: ML Kit."),
+    )) }) {
         if (notice != null) card("notice") {
             Text(notice, fontSize = 14.5.sp, lineHeight = 21.sp, color = OneUi.colors.text, modifier = Modifier.padding(18.dp))
         }
@@ -122,7 +126,6 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
                 },
             )
         }
-        description("You can also share an image from any app and pick Read Japanese.")
 
         sectionLabel("Quick Settings tile")
         card("tile") {
@@ -228,7 +231,6 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
                 trailing = { OneUiSwitch(JpPrefs.romaji) }, onClick = { JpPrefs.changeRomaji(!JpPrefs.romaji) },
             )
         }
-        description("Text is recognised on this phone. Horizontal text works best; vertical manga text is supported but less reliable.")
 
         sectionLabel("My words (${words.size})", trailing = {
             if (words.isNotEmpty()) Text("Practice", fontSize = 14.5.sp, fontWeight = FontWeight.Bold, color = OneUi.colors.accent, modifier = Modifier.clip(CircleShape).clickable { practicing = true }.padding(horizontal = 12.dp, vertical = 6.dp))
@@ -248,7 +250,6 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
             }
             cardList(words, key = { "word-" + it.id }) { w -> SavedWordRow(w) }
         }
-        description("Dictionary: JMdict (EDRDG), CC BY-SA 4.0. Word splitting: Kuromoji. Text recognition and translation: ML Kit.")
     }
 }
 
