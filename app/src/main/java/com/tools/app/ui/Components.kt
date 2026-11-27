@@ -195,6 +195,7 @@ val CardMargin = 10.dp
 /** How far lists fade out at the top and bottom edges. */
 val FadeLength = 38.dp
 private val RowPadding = 18.dp
+private val RowHighlightInset = 5.dp
 /** Gap between card groups (each card contributes half). */
 private val CardGap = 20.dp
 private val DividerInset = 16.dp
@@ -761,12 +762,16 @@ fun ListRow(
     Row(
         modifier
             .fillMaxWidth()
+            // The press highlight is a rounded card of its own, 5 dp inside the row (like the ⋮ menu's items), with
+            // corners concentric with the card's; the padding inside shrinks by the same 5 dp so nothing moves.
+            .padding(RowHighlightInset)
+            .clip(RoundedCornerShape(OneUi.CardRadius - RowHighlightInset))
             .then(
                 if (onLongClick != null) Modifier.combinedClickable(source, LocalIndication.current, enabled = enabled, onClick = { onClick?.invoke() }, onLongClick = onLongClick)
                 else if (onClick != null) Modifier.clickable(source, LocalIndication.current, enabled = enabled, onClick = onClick) else Modifier,
             )
-            .heightIn(min = 56.dp)
-            .padding(horizontal = RowPadding, vertical = 15.dp)
+            .heightIn(min = 56.dp - RowHighlightInset * 2)
+            .padding(horizontal = RowPadding - RowHighlightInset, vertical = 15.dp - RowHighlightInset)
             // After clickable, so only the content scales and the press highlight keeps the row's full size.
             .graphicsLayer { alpha = if (dimmed || !enabled) 0.45f else 1f; scaleX = scale; scaleY = scale },
         verticalAlignment = Alignment.CenterVertically,

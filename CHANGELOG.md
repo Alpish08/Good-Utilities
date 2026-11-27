@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.17 — 2026-11-26
+- List rows' press highlight is rounded and sits 5 dp inside the row, like the ⋮ menu's items, clear of the card's edges and the dividers.
+
 ## 2.9.16 — 2026-11-26
 - Every tappable list row in the app (tool pages, About, pickers…) gets Settings' press: the contents ease in to 99.2 % while the highlight fills the row.
 
