@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.19 — 2026-11-27
+- About: a Support card with "Buy me a coffee", opening Good Utilities' Ko-fi page.
+
 ## 2.9.18 — 2026-11-26
 - Tools' explanations moved off their pages into **⋮ › Tips**, a frosted popup, so pages show only what you can tap: Music downloader (How it works), Video downloader (Supported, audio formats), File converter (What can be converted), Documents (Make it your default), App lock, APK extractor, Japanese reader (sharing, recognition, credits), Private DNS, Charge limit, Battery info, Card balance, Virtual cards, Briefs and QR code. Empty states, errors and setup steps stay on the page.
 

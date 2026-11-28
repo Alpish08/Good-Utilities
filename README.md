@@ -12,6 +12,7 @@ tap a tab to show only its tools, tap it again to see everything. Search grows o
 frosted bar above the keyboard.
 
 Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 and newer (arm64).
+Like it? [Support it on Ko-fi](https://ko-fi.com/Alpish08).
 
 ## Tools
 
@@ -56,6 +57,11 @@ Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 a
 
 Everything the app creates is saved in **Internal Storage/Good Utilities/** (Music, Videos, Audio, Pictures, Documents, APKs, Icons).
 If the app ever crashes, About → Crash log keeps the details so they can be shared.
+
+## Support
+
+Good Utilities is free, with no ads and no accounts. If it's useful to you, you can buy me a coffee on
+[Ko-fi](https://ko-fi.com/Alpish08) ☕. It goes toward new tools, widgets and landscape mode.
 
 ## Future plans
 

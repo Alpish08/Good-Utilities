@@ -98,6 +98,14 @@ fun AboutScreen(onBack: () -> Unit) {
                         onClick = { open(d.url) },
                     )
                 }
+                sectionLabel("Support")
+                cardList(listOf(Unit), key = { "ko-fi" }) {
+                    ListRow(
+                        "Buy me a coffee", summary = "Support Good Utilities on Ko-fi",
+                        trailing = { Icon(OneUiIcons.OpenExternal, null, tint = c.textSecondary, modifier = Modifier.size(20.dp)) },
+                        onClick = { open("https://ko-fi.com/Alpish08") },
+                    )
+                }
                 sectionLabel("Diagnostics")
                 cardList(listOf(Unit), key = { "crash-log" }) {
                     val n = crashes
