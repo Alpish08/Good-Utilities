@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.20 — 2026-11-27
+- Home › Background lists the colours by name only, without the colour dots.
+
 ## 2.9.19 — 2026-11-27
 - About: a Support card with "Buy me a coffee", opening Good Utilities' Ko-fi page.
 
