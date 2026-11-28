@@ -117,10 +117,23 @@ object ReaderStore {
         writeRecents(c, (listOf(Recent(info.uri.toString(), info.name, info.size, info.kind, pages, page, now)) + rest).take(MAX_RECENTS))
     }
 
+    /** Takes [uri] off recents. [release] false keeps the file's access for a moment, so Undo can bring it back. */
     @Synchronized
-    fun remove(c: Context, uri: String) {
+    fun remove(c: Context, uri: String, release: Boolean = true) {
         writeRecents(c, recents(c).filterNot { it.uri == uri })
+        if (release) release(c, uri)
+    }
+
+    /** Gives up the lasting access to a removed recent's file. */
+    fun release(c: Context, uri: String) {
         runCatching { c.contentResolver.releasePersistableUriPermission(Uri.parse(uri), Intent_FLAG_READ) }
+    }
+
+    /** Undo: puts removed recents back in their places (newest opened first). */
+    @Synchronized
+    fun restore(c: Context, back: List<Recent>) {
+        val have = recents(c).map { it.uri }.toSet()
+        writeRecents(c, (recents(c) + back.filter { it.uri !in have }).sortedByDescending { it.opened }.take(MAX_RECENTS))
     }
 
     private const val Intent_FLAG_READ = android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION

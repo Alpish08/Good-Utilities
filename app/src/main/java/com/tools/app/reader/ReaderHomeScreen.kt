@@ -14,6 +14,9 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -82,6 +85,24 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
     var recents by remember { mutableStateOf(ReaderStore.recents(ctx)) }
     var docs by remember { mutableStateOf<List<File>>(emptyList()) }
     var broken by remember { mutableStateOf<Recent?>(null) }
+    // Multi-select (long-press a recent), and what was just removed, for Undo.
+    var selecting by remember { mutableStateOf(false) }
+    var selected by remember { mutableStateOf(setOf<String>()) }
+    var removed by remember { mutableStateOf<List<Recent>>(emptyList()) }
+    androidx.activity.compose.BackHandler(enabled = selecting) { selecting = false; selected = emptySet() }
+    fun removeRecents(gone: List<Recent>) {
+        removed.forEach { ReaderStore.release(ctx, it.uri) } // an earlier Undo chance has passed
+        gone.forEach { ReaderStore.remove(ctx, it.uri, release = false) }
+        recents = ReaderStore.recents(ctx); removed = gone
+    }
+    LaunchedEffect(removed) {
+        if (removed.isEmpty()) return@LaunchedEffect
+        kotlinx.coroutines.delay(6000)
+        removed.forEach { ReaderStore.release(ctx, it.uri) }; removed = emptyList()
+    }
+    // Leaving the page ends the Undo chance.
+    val removedNow by androidx.compose.runtime.rememberUpdatedState(removed)
+    androidx.compose.runtime.DisposableEffect(Unit) { onDispose { removedNow.forEach { ReaderStore.release(ctx, it.uri) } } }
 
     LaunchedEffect(Unit) {
         docs = withContext(Dispatchers.IO) {
@@ -111,7 +132,32 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         }
     }
 
-    OneUiScaffold(title = "Documents", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Make it your default", "Open any PDF in My Files, choose One Reader, then tap \"Always\"."))) }) {
+    val allUris = recents.map { it.uri }
+    OneUiScaffold(
+        title = "Documents", onBack = onBack,
+        selection = if (selecting) com.tools.app.ui.Selection(
+            count = selected.size,
+            allSelected = allUris.isNotEmpty() && selected.size == allUris.size,
+            onToggleAll = { selected = if (selected.size == allUris.size) emptySet() else allUris.toSet() },
+            onCancel = { selecting = false; selected = emptySet() },
+        ) else null,
+        bottomBar = if (selecting) ({
+            com.tools.app.ui.SelectionActions(
+                listOf(
+                    Triple(OneUiIcons.Delete, "Remove") {
+                        removeRecents(recents.filter { it.uri in selected }); selecting = false; selected = emptySet()
+                    },
+                ),
+                enabled = selected.isNotEmpty(),
+            )
+        }) else null,
+        actions = {
+            com.tools.app.ui.TipsMenu(listOf(
+                com.tools.app.ui.Tip("Make it your default", "Open any PDF in My Files, choose One Reader, then tap \"Always\"."),
+                com.tools.app.ui.Tip("Clear recents", "Tap the bin beside a document to take it off Recent, or long-press to select several. This only clears the list; the files stay where they are."),
+            ))
+        },
+    ) {
         card("open") {
             ListRow(
                 "Open file", summary = "PDF, Word and text files",
@@ -119,18 +165,41 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
             )
         }
 
+        if (removed.isNotEmpty()) {
+            val gone = removed
+            card("undo") {
+                Row(Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        if (gone.size == 1) "Removed from recents" else "${gone.size} removed from recents",
+                        fontSize = 15.sp, color = OneUi.colors.text, modifier = Modifier.weight(1f),
+                    )
+                    Text(
+                        "Undo", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent,
+                        modifier = Modifier.clip(androidx.compose.foundation.shape.CircleShape)
+                            .clickable { ReaderStore.restore(ctx, gone); recents = ReaderStore.recents(ctx); removed = emptyList() }
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
+                    )
+                }
+            }
+        }
+
         if (recents.isNotEmpty()) {
             sectionLabel("Recent")
             cardList(recents, key = { "r-" + it.uri }) { r ->
                 ListRow(
                     r.name, summary = recentSummary(r),
-                    leading = { Thumb(r.uri, r.size, r.kind) },
-                    trailing = {
-                        OverflowMenu(listOf("Remove from recents" to {
-                            ReaderStore.remove(ctx, r.uri); recents = ReaderStore.recents(ctx)
-                        }))
+                    leading = {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            com.tools.app.ui.SelectionCheck(selecting, r.uri in selected)
+                            Thumb(r.uri, r.size, r.kind)
+                        }
                     },
-                    onClick = { openRecent(r) },
+                    trailing = if (selecting) null else ({ RemoveButton { removeRecents(listOf(r)) } }),
+                    onClick = {
+                        if (selecting) selected = if (r.uri in selected) selected - r.uri else selected + r.uri
+                        else openRecent(r)
+                    },
+                    onLongClick = { if (!selecting) { selecting = true; selected = setOf(r.uri) } },
                 )
             }
         }
@@ -157,6 +226,15 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
             Text("\"${r.name}\" was moved or deleted, or One Reader no longer has access to it. Remove it from recents?", fontSize = 14.5.sp, color = OneUi.colors.textSecondary)
         }
     }
+}
+
+/** The bin beside a recent: takes it off the list (with Undo). */
+@Composable
+private fun RemoveButton(onClick: () -> Unit) {
+    Box(
+        Modifier.size(40.dp).clip(androidx.compose.foundation.shape.CircleShape).clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) { Icon(OneUiIcons.Delete, "Remove from recents", tint = OneUi.colors.text, modifier = Modifier.size(22.dp)) }
 }
 
 private fun kindOfName(n: String) = when (n.substringAfterLast('.', "").lowercase()) {

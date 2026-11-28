@@ -115,6 +115,20 @@ object OneUiIcons {
         }
     }
 
+    /**
+     * Delete / remove: One UI's bin (the launcher's "Remove"), a wide lid with a small handle over a can that
+     * narrows to rounded bottom corners, with two bars inside.
+     */
+    val Delete: ImageVector by lazy {
+        icon("Delete") {
+            line(1.6f) { moveTo(4f, 6.7f); lineTo(20f, 6.7f) }
+            line(1.6f) { moveTo(9.2f, 6.7f); lineTo(9.2f, 4.6f); arcTo(1f, 1f, 0f, false, true, 10.2f, 3.6f); lineTo(13.8f, 3.6f); arcTo(1f, 1f, 0f, false, true, 14.8f, 4.6f); lineTo(14.8f, 6.7f) }
+            line(1.6f) { moveTo(6.1f, 7f); lineTo(6.9f, 18.3f); quadTo(7.1f, 20.4f, 9.2f, 20.4f); lineTo(14.8f, 20.4f); quadTo(16.9f, 20.4f, 17.1f, 18.3f); lineTo(17.9f, 7f) }
+            line(1.6f) { moveTo(10.2f, 11.2f); lineTo(10.2f, 16.2f) }
+            line(1.6f) { moveTo(13.8f, 11.2f); lineTo(13.8f, 16.2f) }
+        }
+    }
+
     /** Opens in a browser: box with an arrow leaving its corner. */
     val OpenExternal: ImageVector by lazy {
         icon("OpenExternal") {

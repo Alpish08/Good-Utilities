@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.21 — 2026-11-27
+- Documents › Recent: a bin beside each document (One UI's, as on the Home screen's Remove) takes it off the list in one tap, with Undo. Long-press to select several, with All and a floating Remove bar. Only the list is cleared; the files stay.
+- Card balance's floating Delete uses the same One UI bin.
+
 ## 2.9.20 — 2026-11-27
 - Home › Background lists the colours by name only, without the colour dots.
 

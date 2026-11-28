@@ -142,7 +142,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         bottomBar = if (selecting) ({
             com.tools.app.ui.SelectionActions(
                 listOf(
-                    Triple(androidx.compose.material.icons.Icons.Outlined.Delete, "Delete") {
+                    Triple(com.tools.app.ui.OneUiIcons.Delete, "Delete") {
                         val gone = card?.entries?.filter { it.id in selected }.orEmpty()
                         gone.forEach { CardStore.deleteEntry(context, it.id) }
                         deleted = gone; selecting = false; selected = emptySet()
