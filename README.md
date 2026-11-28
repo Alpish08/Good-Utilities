@@ -8,7 +8,11 @@ predictive back, and full dark mode. Pressing a row works like Samsung's Setting
 while its icon and text ease inwards (menu items a little more, like Clock's).
 
 Pages keep to what you can tap: each tool's explanations (how it works, what's supported, notes) are in its
-⋮ → Tips popup.
+⋮ → Tips popup. Long-press an icon-only button to see its name.
+
+Landscape works the way Samsung's apps do: a compact title bar and no status bar, content kept clear of the camera,
+and the editors (Color picker, Image blur, Background remover, Icon maker, PDF editor, Compressor, Audio trimmer,
+Random) with the picture on the left and their controls on the right.
 
 Home lists every tool by category, over a soft colour wash you can change from ⋮ → Background (Midnight, Amethyst,
 Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as filters:
@@ -72,7 +76,9 @@ Good Utilities is free, with no ads and no accounts. If it's useful to you, you 
 - **More One UI widgets**: new utility widgets drawn to match Samsung's own (Clock, Weather, Battery), for quick
   glances and one-tap actions from the home screen.
 - **New everyday tools**: more small, focused utilities for things that otherwise need an ad-filled app from the store.
-- **Landscape mode**: the whole app is laid out for landscape; next, polishing it on foldables and tablets.
+- **Easier setup without a computer**: an optional Shizuku setup for Charge limit, Private DNS and Battery info, in
+  place of the adb command and the Mac script.
+- **Foldables and tablets**: building on the landscape layouts for bigger screens.
 
 ## Changes
 

@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.10 — 2026-11-28
+Release of 2.9.22 – 2.9.25: landscape mode, label toasts and One UI guideline fixes.
+
 ## 2.9.25 — 2026-11-28
 - Virtual cards in landscape: cards are sized to the screen's height (about 260 dp tall), so the whole card, the page dots and its name fit, with the neighbours peeking in at the sides. Add card's photo box gets the same limit. Portrait keeps Wallet's size.
 
