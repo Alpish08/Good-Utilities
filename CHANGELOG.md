@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.9.23 — 2026-11-28
+Landscape, following Samsung's own apps and the One UI guidelines:
+- Pages open with the compact title bar in landscape (no big title, which took over half the screen), and the status bar hides (swipe down to see it).
+- Pages keep clear of the camera cutout and a side navigation bar; backgrounds still run edge to edge.
+- The fades at the top and bottom of lists are half as long in landscape.
+- Bottom buttons stay phone-width and centred instead of stretching across the screen.
+- Random, Compressor and Audio trimmer put their result and their controls side by side, so nothing is squeezed under the button.
+
 ## 2.9.22 — 2026-11-27
 From Samsung's One UI design guidelines:
 - Long-press an icon-only button (back, search, ⋮, +, the recents bin…) and its name shows in a small card beside it, like a one-line ⋮ menu; it fades after 1.5 s, and touching anything else goes straight through.

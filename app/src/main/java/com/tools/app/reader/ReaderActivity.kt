@@ -50,7 +50,7 @@ class ReaderActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         take(intent)
-        setContent { OneUiTheme { ReaderRoot(uri, onClose = { finish() }) } }
+        setContent { OneUiTheme(landscapeHidesStatusBar = false) { ReaderRoot(uri, onClose = { finish() }) } }
     }
 
     override fun onNewIntent(intent: Intent) {

@@ -120,8 +120,13 @@ fun OneUiLight(content: @Composable () -> Unit) {
 }
 
 @Composable
-fun OneUiTheme(content: @Composable () -> Unit) {
+fun OneUiTheme(
+    /** Like Samsung's apps, hide the status bar in landscape (swipe down to see it). Off for windows that manage their own bars. */
+    landscapeHidesStatusBar: Boolean = true,
+    content: @Composable () -> Unit,
+) {
     val dark = isSystemInDarkTheme()
+    if (landscapeHidesStatusBar) LandscapeStatusBar()
     val ctx = androidx.compose.ui.platform.LocalContext.current
     androidx.compose.runtime.remember { Glow.load(ctx) }
     val c = if (dark) Dark else Light
@@ -187,3 +192,23 @@ class PressHighlight private constructor(private val color: Color) : androidx.co
 
 /** Samsung's standard motion curve (fast start, long soft settle). */
 val OneUiEasing = androidx.compose.animation.core.CubicBezierEasing(0.22f, 0.25f, 0f, 1f)
+
+/** Hides the status bar while the phone is in landscape (back on a swipe from the top), shows it in portrait. */
+@Composable
+private fun LandscapeStatusBar() {
+    val view = androidx.compose.ui.platform.LocalView.current
+    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.orientation ==
+        android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    androidx.compose.runtime.DisposableEffect(landscape) {
+        var ctx: android.content.Context? = view.context
+        while (ctx is android.content.ContextWrapper && ctx !is android.app.Activity) ctx = ctx.baseContext
+        val window = (ctx as? android.app.Activity)?.window
+        if (window != null) {
+            val bars = androidx.core.view.WindowCompat.getInsetsController(window, view)
+            bars.systemBarsBehavior = androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            if (landscape) bars.hide(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+            else bars.show(androidx.core.view.WindowInsetsCompat.Type.statusBars())
+        }
+        onDispose { }
+    }
+}

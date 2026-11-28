@@ -88,7 +88,7 @@ class LockActivity : FragmentActivity() {
         ui.message = "Enter your Tools PIN"
         val compose = ComposeView(this).apply {
             setContent {
-                OneUiTheme {
+                OneUiTheme(landscapeHidesStatusBar = false) {
                     CustomLockUi(
                         state = ui,
                         onDigit = ::onDigit,

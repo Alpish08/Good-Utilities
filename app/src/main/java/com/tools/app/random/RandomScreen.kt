@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
@@ -89,6 +90,7 @@ import com.tools.app.ui.OneUiSwitch
 import com.tools.app.ui.PillButton
 import com.tools.app.ui.SegmentedControl
 import com.tools.app.ui.ToolPage
+import com.tools.app.ui.ToolSplit
 import com.tools.app.ui.theme.OneUi
 import com.tools.app.ui.theme.OneUiEasing
 import kotlinx.coroutines.Job
@@ -203,8 +205,9 @@ fun RandomScreen(onBack: () -> Unit) {
     if (st.mode == 1) ShakeEffect { rollNow() }
 
     ToolPage("Random", onBack) {
+        val result: @Composable (Modifier) -> Unit = { m ->
         // ---------- Top 40%
-        Column(Modifier.weight(0.4f).fillMaxWidth()) {
+        Column(m) {
             Box(
                 Modifier.weight(1f).fillMaxWidth()
                     .then(
@@ -221,11 +224,12 @@ fun RandomScreen(onBack: () -> Unit) {
             HistoryRow(if (st.mode == 0) st.numberHistory else st.diceHistory)
             Spacer(Modifier.height(8.dp))
         }
+        }
 
+        val controls: @Composable (Modifier) -> Unit = { m ->
         // ---------- Bottom 60%
         Column(
-            Modifier
-                .weight(0.6f)
+            m
                 .padding(horizontal = CardMargin, vertical = 6.dp)
                 .fillMaxWidth()
                 .clip(OneUi.CardShape)
@@ -265,6 +269,9 @@ fun RandomScreen(onBack: () -> Unit) {
                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
             )
         }
+        }
+
+        ToolSplit(0.4f, result, controls)
     }
 }
 

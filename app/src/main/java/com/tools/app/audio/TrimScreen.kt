@@ -43,6 +43,7 @@ import com.tools.app.ui.OneUiIcons
 import com.tools.app.ui.OneUiRangeSlider
 import com.tools.app.ui.PillButton
 import com.tools.app.ui.ToolPage
+import com.tools.app.ui.ToolSplit
 import com.tools.app.ui.ToolbarIcon
 import com.tools.app.ui.theme.OneUi
 import kotlinx.coroutines.delay
@@ -107,9 +108,10 @@ fun TrimScreen(onBack: () -> Unit) {
         }
         val total = cl.durationMs.toFloat()
 
+        ToolSplit(0.4f, top = { m ->
         // Top 40%: what you are cutting.
         Column(
-            Modifier.weight(0.4f).fillMaxWidth().padding(horizontal = 28.dp),
+            m.padding(horizontal = 28.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -120,11 +122,10 @@ fun TrimScreen(onBack: () -> Unit) {
             )
             Text("of ${clock(cl.durationMs)}", fontSize = 15.sp, color = c.textSecondary)
         }
-
+        }, bottom = { m ->
         // Bottom 60%: the controls card.
         Column(
-            Modifier
-                .weight(0.6f)
+            m
                 .padding(horizontal = CardMargin, vertical = 6.dp)
                 .fillMaxWidth()
                 .clip(OneUi.CardShape)
@@ -187,6 +188,7 @@ fun TrimScreen(onBack: () -> Unit) {
                 )
             }
         }
+        })
     }
 }
 

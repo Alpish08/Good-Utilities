@@ -53,6 +53,7 @@ import com.tools.app.ui.PillButton
 import com.tools.app.ui.SegmentedControl
 import com.tools.app.ui.ThinProgress
 import com.tools.app.ui.ToolPage
+import com.tools.app.ui.ToolSplit
 import com.tools.app.ui.ToolbarIcon
 import com.tools.app.ui.formatDuration
 import com.tools.app.ui.theme.OneUi
@@ -101,9 +102,10 @@ fun CompressorScreen(onBack: () -> Unit) {
         "Compressor", onBack,
         actions = { if (hasFile && !running) ToolbarIcon(if (mode == 1) OneUiIcons.Music else OneUiIcons.Gallery, "Choose $noun", choose) },
     ) {
+        ToolSplit(0.385f, top = { m ->
         // Top ~40%: the picked file.
         Column(
-            Modifier.weight(0.385f).fillMaxWidth().padding(horizontal = 28.dp),
+            m.padding(horizontal = 28.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -132,11 +134,10 @@ fun CompressorScreen(onBack: () -> Unit) {
             }
             pickError?.let { Text(it, fontSize = 14.sp, color = c.error, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 8.dp)) }
         }
-
+        }, bottom = { m ->
         // Bottom ~60% (a little more, so the video options fit without scrolling): mode + options + action.
         Column(
-            Modifier
-                .weight(0.615f)
+            m
                 .padding(horizontal = CardMargin, vertical = 6.dp)
                 .fillMaxWidth()
                 .clip(OneUi.CardShape)
@@ -164,6 +165,7 @@ fun CompressorScreen(onBack: () -> Unit) {
                 )
             }
         }
+        })
     }
 }
 

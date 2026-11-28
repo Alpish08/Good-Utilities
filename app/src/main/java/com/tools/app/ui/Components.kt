@@ -4,6 +4,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.displayCutout
+import androidx.compose.foundation.layout.only
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.animation.core.animateFloat
 import dev.chrisbanes.haze.hazeSource
@@ -249,11 +251,13 @@ fun OneUiScaffold(
     // (pull down at the top to expand it, like Samsung apps, for one-handed use).
     val expanded = true
 
-    BoxWithConstraints(Modifier.fillMaxSize().pageBackground()) {
-        val headerHeight = (maxHeight * 0.36f).coerceAtLeast(190.dp)
+    BoxWithConstraints(Modifier.fillMaxSize().pageBackground().landscapeSafe()) {
+        // A short window (a phone in landscape) gets the compact bar only: no big title (One UI guidelines).
+        val headerHeight = if (maxHeight < CompactHeight) ToolbarHeight else (maxHeight * 0.36f).coerceAtLeast(190.dp)
         val rangePx = with(density) { (headerHeight - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
-        val fadePx = with(density) { FadeLength.toPx() }
+        // Landscape has less than half the height, so the edge fades shrink with it (as in Samsung's apps).
+        val fadePx = with(density) { FadeLength.toPx() } * (if (maxHeight < CompactHeight) 0.5f else 1f)
         // Where the list starts fading at the top: right under the status bar (floating) or the toolbar (pinned).
         val fadeTopPx = with(density) { (if (floatingToolbar) statusTop else statusTop + ToolbarHeight).toPx() }
         SideEffect { headerRanges[listState] = rangePx.roundToInt() }
@@ -430,9 +434,9 @@ fun OneUiScaffold(
         ) {
             ExpandingTitle(
                 shownTitle, if (selection != null) null else subtitle, hasBack = onBack != null || selection != null, widthPx = widthPx,
-                t = { headerScroll / rangePx },
+                t = { if (rangePx > 0f) headerScroll / rangePx else 1f },
                 // Expanded: centred in the space above the buttons. Collapsed: on the toolbar's centre line.
-                centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, headerScroll / rangePx) },
+                centerY = { lerpF(statusTopPx + rangePx / 2f + toolbarHalfPx * 0.35f, statusTopPx + toolbarHalfPx, if (rangePx > 0f) headerScroll / rangePx else 1f) },
             )
         }
 
@@ -465,12 +469,14 @@ fun ToolPage(
     val c = OneUi.colors
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-    BoxWithConstraints(Modifier.fillMaxSize().pageBackground()) {
+    BoxWithConstraints(Modifier.fillMaxSize().pageBackground().landscapeSafe()) {
+        // Short windows (landscape) keep the compact bar: there's no room for the big title.
+        val short = maxHeight < CompactHeight
         val rangePx = with(density) { ((maxHeight * 0.36f).coerceAtLeast(190.dp) - ToolbarHeight).toPx() }
         val statusTopPx = with(density) { statusTop.toPx() }
         val toolbarHalfPx = with(density) { ToolbarHeight.toPx() } / 2f
         var extra by remember { mutableFloatStateOf(0f) } // 0 = collapsed … rangePx = expanded
-        val canExpandNow by androidx.compose.runtime.rememberUpdatedState(title.isNotEmpty() && expandable)
+        val canExpandNow by androidx.compose.runtime.rememberUpdatedState(title.isNotEmpty() && expandable && !short)
         val scope = rememberCoroutineScope()
         fun settle(velocity: Float) {
             val target = when {
@@ -482,7 +488,7 @@ fun ToolPage(
             scope.launch { animate(extra, target, animationSpec = tween(300, easing = OneUiEasing)) { v, _ -> extra = v } }
         }
         // A page without a title (About), or one asked not to, has nothing to expand.
-        val canExpand = title.isNotEmpty() && expandable
+        val canExpand = title.isNotEmpty() && expandable && !short
         LaunchedEffect(canExpand) { if (!canExpand) extra = 0f }
         val nested = remember(rangePx, canExpand) {
             object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
@@ -673,7 +679,11 @@ fun BottomBarHost(modifier: Modifier = Modifier, content: @Composable () -> Unit
             .fillMaxWidth()
             .navigationBarsPadding()
             .padding(start = 16.dp, end = 16.dp, top = 22.dp, bottom = 12.dp),
-    ) { content() }
+        contentAlignment = Alignment.Center,
+    ) {
+        // In landscape a full-width button would stretch across the screen: keep bottom bars phone-width, centred.
+        Box(Modifier.widthIn(max = 480.dp)) { content() }
+    }
 }
 
 @Composable
@@ -1859,5 +1869,36 @@ fun IconLabel(text: String, onDismiss: () -> Unit) {
                 )
             }
         }
+    }
+}
+
+
+/** Below this height a page has no room for One UI's big title (the guidelines' 580 dp): the compact bar only. */
+val CompactHeight = 580.dp
+
+/**
+ * Keeps a page's content clear of the camera cutout and a side navigation bar (landscape); the page's background
+ * still runs to the screen's edges. Top and bottom insets are handled by the page itself.
+ */
+fun Modifier.landscapeSafe(): Modifier = composed {
+    windowInsetsPadding(
+        WindowInsets.displayCutout.union(WindowInsets.navigationBars).only(androidx.compose.foundation.layout.WindowInsetsSides.Horizontal),
+    )
+}
+
+
+/**
+ * A tool page's two halves (what you're working on, and its controls card): stacked in portrait, [topWeight] of the
+ * height on top; side by side in landscape, where stacking would squeeze the controls card under its button.
+ */
+@Composable
+fun ColumnScope.ToolSplit(topWeight: Float, top: @Composable (Modifier) -> Unit, bottom: @Composable (Modifier) -> Unit) {
+    val wide = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    if (wide) Row(Modifier.weight(1f).fillMaxWidth()) {
+        top(Modifier.weight(1f).fillMaxHeight())
+        bottom(Modifier.weight(1f).fillMaxHeight())
+    } else {
+        top(Modifier.weight(topWeight).fillMaxWidth())
+        bottom(Modifier.weight(1f - topWeight).fillMaxWidth())
     }
 }
