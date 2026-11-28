@@ -1,5 +1,7 @@
 package com.tools.app.card
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -132,7 +134,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
 
     val allIds = card?.entries?.map { it.id }.orEmpty()
     OneUiScaffold(
-        title = "Card balance", onBack = onBack, listState = list,
+        title = t(R.string.home_card_balance), onBack = onBack, listState = list,
         selection = if (selecting) com.tools.app.ui.Selection(
             count = selected.size,
             allSelected = allIds.isNotEmpty() && selected.size == allIds.size,
@@ -142,7 +144,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         bottomBar = if (selecting) ({
             com.tools.app.ui.SelectionActions(
                 listOf(
-                    Triple(com.tools.app.ui.OneUiIcons.Delete, "Delete") {
+                    Triple(com.tools.app.ui.OneUiIcons.Delete, t(R.string.pdf_delete)) {
                         val gone = card?.entries?.filter { it.id in selected }.orEmpty()
                         gone.forEach { CardStore.deleteEntry(context, it.id) }
                         deleted = gone; selecting = false; selected = emptySet()
@@ -153,18 +155,18 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         }) else null,
         actions = {
             val tips = com.tools.app.ui.tipsItem(listOf(
-                com.tools.app.ui.Tip("What it's for", "Manage your spending: log purchases and deposits, see your balance, and look back through your payment history. Everything stays on this phone."),
-                com.tools.app.ui.Tip("Select and delete", "Long-press a payment to start selecting, then tap others or All. Deleting can be undone."),
+                com.tools.app.ui.Tip(t(R.string.card_what_it_s_for), t(R.string.card_manage_your_spending_log_purchases_and)),
+                com.tools.app.ui.Tip(t(R.string.card_select_and_delete), t(R.string.card_long_press_a_payment_to_start_selectin)),
             ))
             if (card == null) OverflowMenu(listOf(tips))
             else OverflowMenu(
                 buildList {
-                    if (state.cards.size > 1) add("Switch card" to { dialog = Dialog.Switch })
-                    add("Add card" to { dialog = Dialog.Add })
-                    if (!card.primary && state.primary?.id != card.id) add("Make primary" to { CardStore.makePrimary(context) })
-                    add("Rename card" to { dialog = Dialog.Rename })
-                    add("Edit starting balance" to { dialog = Dialog.Start })
-                    add("Delete card" to { dialog = Dialog.Delete })
+                    if (state.cards.size > 1) add(t(R.string.card_switch_card) to { dialog = Dialog.Switch })
+                    add(t(R.string.card_add_card) to { dialog = Dialog.Add })
+                    if (!card.primary && state.primary?.id != card.id) add(t(R.string.card_make_primary) to { CardStore.makePrimary(context) })
+                    add(t(R.string.card_rename_card) to { dialog = Dialog.Rename })
+                    add(t(R.string.card_edit_starting_balance) to { dialog = Dialog.Start })
+                    add(t(R.string.card_delete_card) to { dialog = Dialog.Delete })
                     add(tips)
                 },
             )
@@ -197,7 +199,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Icon(if (many) androidx.compose.material.icons.Icons.Rounded.CreditCard else com.tools.app.ui.OneUiIcons.Add, null, tint = c.text, modifier = Modifier.size(24.dp))
-                    Text(if (many) "Cards" else "Add card", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(top = 4.dp))
+                    Text(if (many) t(R.string.card_cards) else t(R.string.card_add_card), fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(top = 4.dp))
                 }
             }
             // One card: the balance on top, then (under a divider, like a list's rows) the entry row and note.
@@ -213,7 +215,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     )
                     // As wide as the − and + pair (44 + 6 + 44 dp), so the amount box sits centred between them.
                     PillButton(
-                        "Log", onClick = ::logIt,
+                        t(R.string.card_log), onClick = ::logIt,
                         enabled = (CardStore.parse(amount) ?: 0L) > 0L,
                         modifier = Modifier.padding(start = 10.dp).width(94.dp),
                     )
@@ -227,9 +229,9 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             val gone = deleted
             card("undo") {
                 Row(Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text(if (gone.size == 1) "Entry deleted" else "${gone.size} entries deleted", fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
+                    Text(if (gone.size == 1) t(R.string.card_entry_deleted) else t(R.string.card_entries_deleted, gone.size), fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
                     Text(
-                        "Undo", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                        t(R.string.reader_undo), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                         modifier = Modifier.clip(CircleShape).clickable { gone.forEach { CardStore.restoreEntry(context, it) }; deleted = emptyList() }.padding(horizontal = 14.dp, vertical = 10.dp),
                     )
                 }
@@ -240,13 +242,13 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         var running = card.startCents
         val after = card.entries.sortedBy { it.time }.associate { e -> running += e.cents; e.id to running }
         val days = card.entries.sortedByDescending { it.time }.groupBy { dayKey(it.time) }
-        if (days.isEmpty()) description("Your purchases and deposits show up here.", key = "empty-history")
+        if (days.isEmpty()) description(t(R.string.card_your_purchases_and_deposits_show_up_he), key = "empty-history")
         days.forEach { (day, entries) ->
             sectionLabel(dayLabel(entries.first().time), key = "day-$day")
             cardList(entries, key = { it.id }) { e ->
                 ListRow(
-                    e.note.ifBlank { if (e.cents < 0) "Purchase" else "Added" },
-                    summary = timeText(e.time) + " · Balance " + CardStore.format(after[e.id] ?: 0),
+                    e.note.ifBlank { if (e.cents < 0) t(R.string.card_purchase) else t(R.string.card_added) },
+                    summary = timeText(e.time) + t(R.string.card_balance) + CardStore.format(after[e.id] ?: 0),
                     trailing = {
                         Text(
                             CardStore.format(e.cents, sign = true),
@@ -270,7 +272,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
 
     val cur = card
     when (dialog) {
-        Dialog.Switch -> OneUiDialog("Switch card", { dialog = null }, buttons = listOf("Cancel" to { dialog = null })) {
+        Dialog.Switch -> OneUiDialog(t(R.string.card_switch_card), { dialog = null }, buttons = listOf(t(R.string.ui_cancel) to { dialog = null })) {
             state.cards.forEach { k ->
                 Row(
                     Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp)).clickable { CardStore.switchTo(context, k.id); dialog = null }
@@ -280,7 +282,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                     RadioDot(k.id == cur?.id)
                     Column(Modifier.padding(start = 14.dp).weight(1f)) {
                         Text(k.name, fontSize = 16.sp, color = c.text)
-                        if (k.id == state.primary?.id) Text("Primary", fontSize = 13.sp, color = c.textSecondary)
+                        if (k.id == state.primary?.id) Text(t(R.string.card_primary), fontSize = 13.sp, color = c.textSecondary)
                     }
                     Text(CardStore.format(k.balanceCents), fontSize = 15.sp, color = c.textSecondary)
                 }
@@ -290,39 +292,39 @@ fun CardBalanceScreen(onBack: () -> Unit) {
             var name by remember { mutableStateOf("") }
             var start by remember { mutableStateOf("") }
             var primary by remember { mutableStateOf(false) }
-            OneUiDialog("Add card", { dialog = null }, buttons = listOf("Cancel" to { dialog = null }, "Add" to {
+            OneUiDialog(t(R.string.card_add_card), { dialog = null }, buttons = listOf(t(R.string.ui_cancel) to { dialog = null }, t(R.string.pdf_add) to {
                 CardStore.addCard(context, name, CardStore.parse(start) ?: 0L, primary); dialog = null
             })) {
-                com.tools.app.ui.SegmentedControl(listOf("Primary", "Secondary"), if (primary) 0 else 1, { primary = it == 0 }, popup = true)
+                com.tools.app.ui.SegmentedControl(listOf(t(R.string.card_primary), t(R.string.card_secondary)), if (primary) 0 else 1, { primary = it == 0 }, popup = true)
                 Text(
-                    if (primary) "Shown on Home and in the widget" else "Open it from Switch card",
+                    if (primary) t(R.string.card_shown_on_home_and_in_the_widget) else t(R.string.card_open_it_from_switch_card),
                     fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp, bottom = 14.dp),
                 )
-                PlainField(name, { name = it.take(40) }, "Card name", Modifier.fillMaxWidth(), capitalize = true, popup = true)
-                Text("Your starting balance", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp))
+                PlainField(name, { name = it.take(40) }, t(R.string.card_card_name), Modifier.fillMaxWidth(), capitalize = true, popup = true)
+                Text(t(R.string.card_your_starting_balance), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp))
                 MoneyField(start, { if (CardStore.acceptable(it)) start = it }, Modifier.fillMaxWidth(), popup = true)
             }
         }
         Dialog.Rename -> {
             var name by remember { mutableStateOf(cur?.name.orEmpty()) }
-            OneUiDialog("Rename card", { dialog = null }, buttons = listOf("Cancel" to { dialog = null }, "Save" to { CardStore.rename(context, name); dialog = null })) {
-                PlainField(name, { name = it.take(40) }, "Card name", Modifier.fillMaxWidth(), capitalize = true, popup = true)
+            OneUiDialog(t(R.string.card_rename_card), { dialog = null }, buttons = listOf(t(R.string.ui_cancel) to { dialog = null }, t(R.string.dns_save) to { CardStore.rename(context, name); dialog = null })) {
+                PlainField(name, { name = it.take(40) }, t(R.string.card_card_name), Modifier.fillMaxWidth(), capitalize = true, popup = true)
             }
         }
         Dialog.Start -> {
             var start by remember { mutableStateOf(cur?.let { centsText(it.startCents) }.orEmpty()) }
-            OneUiDialog("Starting balance", { dialog = null }, buttons = listOf("Cancel" to { dialog = null }, "Save" to {
+            OneUiDialog(t(R.string.card_starting_balance), { dialog = null }, buttons = listOf(t(R.string.ui_cancel) to { dialog = null }, t(R.string.dns_save) to {
                 CardStore.parse(start)?.let { CardStore.setStart(context, it) }; dialog = null
             })) {
-                Text("What was yours on the card before the first entry.", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 10.dp))
+                Text(t(R.string.card_what_was_yours_on_the_card_before_the), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 10.dp))
                 MoneyField(start, { if (CardStore.acceptable(it)) start = it }, Modifier.fillMaxWidth(), popup = true)
             }
         }
         Dialog.Delete -> OneUiDialog(
-            "Delete ${cur?.name}?", { dialog = null },
-            buttons = listOf("Cancel" to { dialog = null }, "Delete" to { CardStore.deleteCurrent(context); dialog = null }),
+            t(R.string.card_delete, cur?.name), { dialog = null },
+            buttons = listOf(t(R.string.ui_cancel) to { dialog = null }, t(R.string.pdf_delete) to { CardStore.deleteCurrent(context); dialog = null }),
         ) {
-            Text("Its balance and payment history will be removed. This can't be undone.", fontSize = 15.sp, color = c.text)
+            Text(t(R.string.card_its_balance_and_payment_history_will_b), fontSize = 15.sp, color = c.text)
         }
         null -> Unit
     }
@@ -332,11 +334,11 @@ fun CardBalanceScreen(onBack: () -> Unit) {
         var minus by remember(e.id) { mutableStateOf(e.cents < 0) }
         var txt by remember(e.id) { mutableStateOf(e.note) }
         OneUiDialog(
-            "Edit entry", { editing = null },
+            t(R.string.card_edit_entry), { editing = null },
             buttons = listOf(
-                "Delete" to { CardStore.deleteEntry(context, e.id); deleted = listOf(e); editing = null },
-                "Cancel" to { editing = null },
-                "Save" to {
+                t(R.string.pdf_delete) to { CardStore.deleteEntry(context, e.id); deleted = listOf(e); editing = null },
+                t(R.string.ui_cancel) to { editing = null },
+                t(R.string.dns_save) to {
                     val cents = CardStore.parse(amt)
                     if (cents != null && cents > 0) CardStore.editEntry(context, e.copy(cents = if (minus) -cents else cents, note = txt.trim()))
                     editing = null
@@ -348,7 +350,7 @@ fun CardBalanceScreen(onBack: () -> Unit) {
                 ModeButton("+", selected = !minus, modifier = Modifier.padding(start = 8.dp), popup = true) { minus = false }
                 MoneyField(amt, { if (CardStore.acceptable(it)) amt = it }, Modifier.padding(start = 12.dp).weight(1f), popup = true)
             }
-            PlainField(txt, { txt = it.take(60) }, "Note (optional)", Modifier.padding(top = 10.dp).fillMaxWidth(), popup = true)
+            PlainField(txt, { txt = it.take(60) }, t(R.string.card_note_optional), Modifier.padding(top = 10.dp).fillMaxWidth(), popup = true)
             Text(dayLabel(e.time) + ", " + timeText(e.time), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 10.dp))
         }
     }
@@ -361,12 +363,12 @@ private fun SetupCard(onCreate: (String, Long) -> Unit) {
     var name by remember { mutableStateOf("") }
     var start by remember { mutableStateOf("") }
     Column(Modifier.padding(18.dp)) {
-        Text("Set up a card", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text)
-        PlainField(name, { name = it.take(40) }, "Card name (e.g. Debit card)", Modifier.padding(top = 14.dp).fillMaxWidth(), capitalize = true)
-        Text("How much of it is yours right now", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp))
+        Text(t(R.string.card_set_up_a_card), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text)
+        PlainField(name, { name = it.take(40) }, t(R.string.card_card_name_e_g_debit_card), Modifier.padding(top = 14.dp).fillMaxWidth(), capitalize = true)
+        Text(t(R.string.card_how_much_of_it_is_yours_right_now), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 14.dp, bottom = 8.dp))
         MoneyField(start, { if (CardStore.acceptable(it)) start = it }, Modifier.fillMaxWidth())
         PillButton(
-            "Create", onClick = { onCreate(name.ifBlank { "Debit card" }, CardStore.parse(start) ?: 0L) },
+            t(R.string.card_create), onClick = { onCreate(name.ifBlank { t(R.string.card_debit_card) }, CardStore.parse(start) ?: 0L) },
             modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
         )
     }
@@ -453,7 +455,7 @@ private fun NoteField(value: String, onChange: (String) -> Unit, modifier: Modif
             .padding(horizontal = 18.dp, vertical = 13.dp),
         contentAlignment = Alignment.TopStart,
     ) {
-        if (value.isEmpty()) Text("Note (optional)", fontSize = 16.sp, color = c.textSecondary)
+        if (value.isEmpty()) Text(t(R.string.card_note_optional), fontSize = 16.sp, color = c.textSecondary)
         BasicTextField(
             value, onChange, maxLines = 4,
             textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 16.sp, color = c.text),
@@ -482,8 +484,8 @@ private fun dayLabel(t: Long): String {
     val today = dayKey(System.currentTimeMillis())
     val yesterday = dayKey(System.currentTimeMillis() - 86_400_000L)
     return when (dayKey(t)) {
-        today -> "Today"
-        yesterday -> "Yesterday"
+        today -> t(R.string.card_today)
+        yesterday -> t(R.string.card_yesterday)
         else -> SimpleDateFormat(
             if (Calendar.getInstance().apply { timeInMillis = t }.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) "EEE, MMM d" else "MMM d, yyyy",
             Locale.getDefault(),

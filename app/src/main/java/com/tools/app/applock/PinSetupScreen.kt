@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,23 +39,23 @@ fun PinSetupScreen(onDone: () -> Unit) {
 
     fun save(pin: String) {
         PinStore.set(context, pin)
-        Toast.makeText(context, "Tools PIN set", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, t(R.string.lock_tools_pin_set), Toast.LENGTH_SHORT).show()
         onDone()
     }
 
-    ToolPage(if (PinStore.isSet(context)) "Change Tools PIN" else "Set Tools PIN", onBack = onDone) {
+    ToolPage(if (PinStore.isSet(context)) t(R.string.lock_change_tools_pin) else t(R.string.lock_set_tools_pin), onBack = onDone) {
         Column(Modifier.fillMaxWidth().weight(1f).padding(bottom = 16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Box(Modifier.weight(1f))
             Text(
                 when {
-                    error -> "PINs didn't match. Start again"
-                    confirming -> "Confirm your PIN"
-                    else -> "Enter a ${PinStore.MIN}–${PinStore.MAX} digit PIN"
+                    error -> t(R.string.lock_pins_didn_t_match_start_again)
+                    confirming -> t(R.string.lock_confirm_your_pin)
+                    else -> t(R.string.lock_enter_a_digit_pin, PinStore.MIN, PinStore.MAX)
                 },
                 fontSize = 20.sp, fontWeight = FontWeight.Bold, color = if (error) c.error else c.text, textAlign = TextAlign.Center,
             )
             Text(
-                "Used when your fingerprint isn't recognised. Separate from your phone's PIN.",
+                t(R.string.lock_used_when_your_fingerprint_isn_t_recog),
                 fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 40.dp, vertical = 8.dp),
             )
@@ -76,7 +78,7 @@ fun PinSetupScreen(onDone: () -> Unit) {
             )
             Box(Modifier.height(72.dp).padding(top = 14.dp), contentAlignment = Alignment.Center) {
                 if (!confirming) PillButton(
-                    "Continue", enabled = entered.length >= PinStore.MIN, height = 50.dp,
+                    t(R.string.lock_continue), enabled = entered.length >= PinStore.MIN, height = 50.dp,
                     modifier = Modifier.padding(horizontal = 24.dp).fillMaxWidth(),
                     onClick = { first = entered; entered = "" },
                 )

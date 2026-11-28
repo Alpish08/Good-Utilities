@@ -1,5 +1,7 @@
 package com.tools.app.video
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -108,7 +110,7 @@ object VideoDownloader {
         if (_state.value.phase == VPhase.Downloading) return
         val url = extractUrl(raw)
         if (url == null) {
-            _state.update { it.copy(link = raw, error = "Couldn't find a link in that text", phase = VPhase.Idle, info = null) }
+            _state.update { it.copy(link = raw, error = t(R.string.video_couldn_t_find_a_link_in_that_text), phase = VPhase.Idle, info = null) }
             return
         }
         MusicDownloader.prepareEngine()
@@ -176,7 +178,7 @@ object VideoDownloader {
         }
         cancelled = false
         _state.update {
-            it.copy(phase = VPhase.Downloading, error = null, noAccess = false, progress = 0f, status = "Starting…", speed = "",
+            it.copy(phase = VPhase.Downloading, error = null, noAccess = false, progress = 0f, status = t(R.string.video_starting), speed = "",
                 current = 1, total = items.size, saved = emptyList(), failed = 0, savedLabel = Storage.label(folder))
         }
         downloadJob = scope.launch {
@@ -189,13 +191,13 @@ object VideoDownloader {
                 awaitEngine()
                 for ((n, item) in items.withIndex()) {
                     if (cancelled) break
-                    _state.update { it.copy(current = n + 1, progress = n / items.size.toFloat(), status = "Downloading…", speed = "") }
+                    _state.update { it.copy(current = n + 1, progress = n / items.size.toFloat(), status = t(R.string.video_downloading_2), speed = "") }
                     val work = File(root, "v${item.index}").apply { mkdirs() }
                     try {
                         val file = downloadOne(ctx, s, info, item, work) { p, status, speed ->
                             _state.update { it.copy(progress = (n + p) / items.size, status = status, speed = speed) }
                         }
-                        _state.update { it.copy(status = "Saving…", speed = "") }
+                        _state.update { it.copy(status = t(R.string.video_saving), speed = "") }
                         val name = fileName(item.title, file.extension)
                         val savedName = Storage.saveFile(ctx, folder, null, name, file)
                         saved += SavedFile(savedName, scan(ctx, Storage.dir(folder).resolve(savedName)), mimeOf(file.extension))
@@ -215,7 +217,7 @@ object VideoDownloader {
                 _state.update { st ->
                     when {
                         cancelled -> st.copy(phase = VPhase.Ready, error = null)
-                        saved.isEmpty() -> st.copy(phase = VPhase.Ready, error = lastError?.let(::errorText) ?: "Nothing was downloaded")
+                        saved.isEmpty() -> st.copy(phase = VPhase.Ready, error = lastError?.let(::errorText) ?: t(R.string.video_nothing_was_downloaded))
                         else -> st.copy(phase = VPhase.Finished, saved = saved, failed = failed, progress = 1f,
                             error = if (failed > 0) lastError?.let(::errorText) else null)
                     }
@@ -236,7 +238,7 @@ object VideoDownloader {
 
     private suspend fun awaitEngine() {
         val engine = MusicDownloader.state.first { it.engine is EngineState.Ready || it.engine is EngineState.Failed }.engine
-        if (engine is EngineState.Failed) error("The download engine failed to start: ${engine.message}")
+        if (engine is EngineState.Failed) error(t(R.string.video_the_download_engine_failed_to_start, engine.message))
     }
 
     private fun isYouTube(url: String) = Regex("(^|//|\\.)(youtube\\.com|youtu\\.be|youtube-nocookie\\.com)").containsMatchIn(url)
@@ -270,7 +272,7 @@ object VideoDownloader {
             YoutubeDL.getInstance().execute(request, PROCESS_FETCH).out
         })
         val start = out.indexOf('{')
-        if (start < 0) error("Couldn't read that link")
+        if (start < 0) error(t(R.string.video_couldn_t_read_that_link))
         val root = JSONObject(out.substring(start))
         val entries = root.optJSONArray("entries")
         val site = siteName(root.str("extractor_key") ?: root.str("extractor") ?: "")
@@ -283,7 +285,7 @@ object VideoDownloader {
             return VInfo(url, rootTitle, rootUploader, site, rootThumb, listOf(item), multi = false)
         }
         val items = (0 until entries.length()).mapNotNull { i -> entries.optJSONObject(i)?.let { parseItem(it, i + 1, rootTitle) } }
-        if (items.isEmpty()) error("There is no video in this link")
+        if (items.isEmpty()) error(t(R.string.video_there_is_no_video_in_this_link))
         return VInfo(url, rootTitle, rootUploader, site, rootThumb ?: items.firstNotNullOfOrNull { it.thumbnail }, items, multi = true)
     }
 
@@ -373,7 +375,7 @@ object VideoDownloader {
             stage = 0; lastP = 0f; last = -1f
             YoutubeDL.getInstance().execute(request(cookies), PROCESS_DOWNLOAD) { percent, _, line ->
                 Regex("Downloading (\\d+) format").find(line)?.let { streams = it.groupValues[1].toInt().coerceAtLeast(1) }
-                if (POST.any { line.contains(it) }) { onProgress(0.97f, "Processing…", ""); return@execute }
+                if (POST.any { line.contains(it) }) { onProgress(0.97f, t(R.string.video_processing), ""); return@execute }
                 if (percent < 0f) return@execute
                 val p = (percent / 100f).coerceIn(0f, 1f)
                 if (p < lastP - 0.2f) stage++
@@ -385,7 +387,7 @@ object VideoDownloader {
                     val speed = Regex("at\\s+(\\S+/s)").find(line)?.groupValues?.get(1)
                     val eta = Regex("ETA\\s+(\\S+)").find(line)?.groupValues?.get(1)
                     val text = listOfNotNull(speed, eta?.let { "$it left" }).joinToString(" · ")
-                    onProgress(overall, "Downloading…", text)
+                    onProgress(overall, t(R.string.video_downloading_2), text)
                 }
             }
         }
@@ -393,7 +395,7 @@ object VideoDownloader {
 
         val exts = setOf("mp4", "mkv", "webm", "mov", "m4v", "m4a", "mp3", "opus", "ogg", "aac", "flac", "wav", "3gp", "avi", "flv")
         return work.listFiles()?.filter { it.isFile && it.extension.lowercase() in exts }?.maxByOrNull { it.length() }
-            ?: error("The download finished but produced no file")
+            ?: error(t(R.string.video_the_download_finished_but_produced_no))
     }
 
     private val POST = listOf("[Merger]", "[ExtractAudio]", "[VideoConvertor]", "[EmbedThumbnail]", "[Metadata]", "[Fixup", "[ThumbnailsConvertor]")
@@ -432,17 +434,17 @@ object VideoDownloader {
         val raw = e.message ?: ""
         val m = raw.lowercase()
         return when {
-            e is Storage.NoAccess -> e.message ?: "Storage access is needed"
-            "private video" in m || "video is private" in m || "this video is private" in m -> "This video is private."
-            "unsupported url" in m -> "This link isn't supported. Open the page with the video itself and share that link."
-            "no video could be found" in m || "no video formats" in m || "there is no video" in m -> "No video was found in this link."
+            e is Storage.NoAccess -> e.message ?: t(R.string.video_storage_access_is_needed)
+            "private video" in m || "video is private" in m || "this video is private" in m -> t(R.string.video_this_video_is_private)
+            "unsupported url" in m -> t(R.string.video_this_link_isn_t_supported_open_the_pag)
+            "no video could be found" in m || "no video formats" in m || "there is no video" in m -> t(R.string.video_no_video_was_found_in_this_link)
             "login" in m || "log in" in m || "sign in" in m || "rate-limit" in m || "empty media response" in m || "cookies" in m ||
                 "authentication" in m || "restricted video" in m || "protected" in m ->
-                "This post needs you to be signed in. Instagram and X sometimes require it, and signing in isn't supported yet."
+                t(R.string.video_this_post_needs_you_to_be_signed_in_in)
             "unable to download" in m || "urlopen" in m || "timed out" in m || "name or service" in m || "unreachable" in m ||
-                "connection" in m || "network" in m || "resolve" in m -> "Couldn't reach the site. Check your connection and try again."
-            "video unavailable" in m || "has been removed" in m || "not available" in m -> "This video isn't available."
-            "403" in m -> "The site refused the download (HTTP 403). Update yt-dlp in Music downloader settings and try again."
+                "connection" in m || "network" in m || "resolve" in m -> t(R.string.video_couldn_t_reach_the_site_check_your_con)
+            "video unavailable" in m || "has been removed" in m || "not available" in m -> t(R.string.video_this_video_isn_t_available)
+            "403" in m -> t(R.string.video_the_site_refused_the_download_http_403)
             else -> e.friendlyMessage()
         }
     }

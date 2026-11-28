@@ -1,5 +1,6 @@
 package com.tools.app.music
 
+import com.tools.app.ui.t
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -38,7 +39,7 @@ class DownloadService : Service() {
             return START_NOT_STICKY
         }
         nm.createNotificationChannel(
-            NotificationChannel(CHANNEL, "Music downloads", NotificationManager.IMPORTANCE_LOW)
+            NotificationChannel(CHANNEL, t(R.string.music_music_downloads), NotificationManager.IMPORTANCE_LOW)
         )
         ServiceCompat.startForeground(
             this, NOTIF_PROGRESS, build(snapshot(MusicDownloader.state.value)),
@@ -89,14 +90,14 @@ class DownloadService : Service() {
         )
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_spool)
-            .setContentTitle(snap.current ?: "Preparing…")
-            .setContentText("${minOf(snap.done + 1, snap.total)} of ${snap.total}")
+            .setContentTitle(snap.current ?: t(R.string.music_preparing))
+            .setContentText(t(R.string.reader_of, minOf(snap.done + 1, snap.total), snap.total))
             .setProgress(1000, snap.permille, false)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setSilent(true)
             .setContentIntent(openApp)
-            .addAction(0, "Cancel", cancel)
+            .addAction(0, t(R.string.ui_cancel), cancel)
             .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
             .build()
     }
@@ -105,13 +106,13 @@ class DownloadService : Service() {
         val saved = s.count(Status.Done)
         val failed = s.count(Status.Failed)
         val text = buildString {
-            append("$saved saved")
-            s.count(Status.Skipped).takeIf { it > 0 }?.let { append(" · $it already there") }
-            if (failed > 0) append(" · $failed failed")
+            append(t(R.string.music_saved_2, saved))
+            s.count(Status.Skipped).takeIf { it > 0 }?.let { append(t(R.string.music_already_there, it)) }
+            if (failed > 0) append(t(R.string.music_failed_2, failed))
         }
         return NotificationCompat.Builder(this, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_spool)
-            .setContentTitle(s.playlist?.title ?: "Download finished")
+            .setContentTitle(s.playlist?.title ?: t(R.string.music_download_finished))
             .setContentText(text)
             .setAutoCancel(true)
             .setContentIntent(openApp)

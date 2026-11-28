@@ -1,0 +1,170 @@
+reader_isn_t_a_valid_word_document | « %1$s » n'est pas un document Word valide. | "%1$s" geçerli bir Word belgesi değil.
+reader_couldn_t_be_converted_for_viewing | « %1$s » n'a pas pu être converti pour l'affichage. | "%1$s" görüntülemek için dönüştürülemedi.
+reader_increase_text_size | Agrandir le texte | Metni büyüt
+reader_decrease_text_size | Réduire le texte | Metni küçült
+reader_looks_damaged_or_isn_t_a_valid_pdf | « %1$s » semble endommagé ou n'est pas un PDF valide. | "%1$s" hasarlı görünüyor ya da geçerli bir PDF değil.
+reader_file_not_found | Fichier introuvable | Dosya bulunamadı
+reader_was_moved_or_deleted | « %1$s » a été déplacé ou supprimé. | "%1$s" taşınmış ya da silinmiş.
+reader_couldn_t_be_read | « %1$s » n'a pas pu être lu. | "%1$s" okunamadı.
+reader_empty_document | Document vide | Boş belge
+reader_has_no_pages | « %1$s » n'a aucune page. | "%1$s" hiç sayfa içermiyor.
+reader_document | Document | Belge
+pdf_share_pdf | Partager le PDF | PDF'yi paylaş
+pdf_open_another_pdf | Ouvrir un autre PDF | Başka bir PDF aç
+pdf_close_pdf | Fermer le PDF | PDF'yi kapat
+pdf_edit_or_create_a_pdf | Modifier ou créer un PDF | PDF düzenleyin veya oluşturun
+pdf_reorder_rotate_split_and_merge_pages_s | Réorganisez, faites pivoter, divisez et fusionnez des pages, signez-les, annotez-les et ajoutez un mot de passe. Ou transformez des photos en PDF et dessinez dessus. | Sayfaları yeniden sıralayın, döndürün, bölün ve birleştirin; imzalayın, üzerlerine not alın ve şifre ekleyin. Ya da fotoğrafları PDF'ye dönüştürüp üzerlerine çizin.
+pdf_open_pdf | Ouvrir un PDF | PDF aç
+pdf_create_from_images | Créer à partir d'images | Görüntülerden oluştur
+pdf_password_needed | Mot de passe nécessaire | Şifre gerekli
+pdf_that_password_didn_t_work_try_again | Ce mot de passe n'a pas fonctionné. Réessayez. | Bu şifre işe yaramadı. Yeniden deneyin.
+pdf_add | Ajouter | Ekle
+pdf_each_image_becomes_its_own_page | Chaque image devient une page. | Her görüntü ayrı bir sayfa olur.
+pdf_fit_to_a4 | Ajuster au A4 | A4'e sığdır
+pdf_image_size | Taille de l'image | Görüntü boyutu
+pdf_set | Définir | Ayarla
+pdf_use_at_least_4_characters | Utilisez au moins 4 caractères. | En az 4 karakter kullanın.
+pdf_the_passwords_don_t_match | Les mots de passe ne correspondent pas. | Şifreler eşleşmiyor.
+pdf_encrypts_the_saved_copy_with_aes_256 | Chiffre la copie enregistrée en AES-256. | Kaydedilen kopyayı AES-256 ile şifreler.
+pdf_the_original_s_password_is_already_rem |  Le mot de passe de l'original est déjà retiré de la copie ; laissez ceci vide pour qu'il le reste. |  Orijinalin şifresi kopyadan zaten kaldırıldı; böyle kalması için bunu boş bırakın.
+pdf_na_password_is_set_for_the_next_save | \nUn mot de passe est défini pour le prochain enregistrement. | \nBir sonraki kayıt için şifre ayarlandı.
+pdf_new_password | Nouveau mot de passe | Yeni şifre
+pdf_repeat_password | Répéter le mot de passe | Şifreyi tekrarlayın
+pdf_tap_pages_to_select | Touchez des pages pour les sélectionner | Seçmek için sayfalara dokunun
+pdf_rotate_left | Pivoter à gauche | Sola döndür
+pdf_rotate_right | Pivoter à droite | Sağa döndür
+pdf_earlier | Avant | Öne al
+pdf_later | Après | Sona al
+pdf_edit_page | Modifier la page | Sayfayı düzenle
+pdf_extract | Extraire | Ayıkla
+pdf_delete | Supprimer | Sil
+pdf_add_pdfs | Ajouter des PDF | PDF ekle
+pdf_add_images | Ajouter des images | Görüntü ekle
+pdf_password_on | Mot de passe : activé | Şifre: açık
+pdf_allow_access | Autoriser l'accès | Erişime izin ver
+pdf_working | En cours… | İşleniyor…
+pdf_save_a_copy | Enregistrer une copie | Kopyasını kaydet
+pdf_edit_page_2 | Modifier la page %1$s | Sayfa %1$s'i düzenle
+pdf_previous_page | Page précédente | Önceki sayfa
+pdf_next_page | Page suivante | Sonraki sayfa
+pdf_loading_page | Chargement de la page… | Sayfa yükleniyor…
+pdf_text_size | Taille du texte | Metin boyutu
+pdf_eraser_size | Taille de la gomme | Silgi boyutu
+pdf_brush_size | Taille du pinceau | Fırça boyutu
+pdf_tap_the_page_to_draw_your_signature_th | Touchez la page pour dessiner votre signature, puis touchez à nouveau pour la placer. | İmzanızı çizmek için sayfaya dokunun, ardından yerleştirmek için yeniden dokunun.
+pdf_tap_the_page_to_place_your_signature | Touchez la page pour placer votre signature. | İmzanızı yerleştirmek için sayfaya dokunun.
+pdf_redo | Rétablir | Yinele
+pdf_redraw | Redessiner | Yeniden çiz
+pdf_add_text | Ajouter du texte | Metin ekle
+pdf_type_something | Tapez quelque chose | Bir şey yazın
+pdf_your_signature | Votre signature | İmzanız
+pdf_use | Utiliser | Kullan
+pdf_sign_with_your_finger_it_s_kept_until | Signez avec le doigt. Elle est conservée jusqu'à ce que vous quittiez l'appli. | Parmağınızla imzalayın. Uygulamadan çıkana kadar saklanır.
+pdf_can_t_access_pick_it_again_from_the_fi | Impossible d'accéder à « %1$s ». Choisissez-le à nouveau dans le sélecteur de fichiers. | "%1$s" dosyasına erişilemiyor. Dosya seçiciden yeniden seçin.
+pdf_couldn_t_read | Impossible de lire « %1$s ». | "%1$s" okunamadı.
+pdf_doesn_t_look_like_a_valid_pdf_or_it_s | « %1$s » ne semble pas être un PDF valide, ou il est endommagé. | "%1$s" geçerli bir PDF gibi görünmüyor ya da hasarlı.
+pdf_adding_images | Ajout des images… | Görüntüler ekleniyor…
+pdf_couldn_t_read_those_images | Impossible de lire ces images. | Bu görüntüler okunamadı.
+pdf_image_s_couldn_t_be_read | %1$s image(s) illisible(s). | %1$s görüntü okunamadı.
+pdf_couldn_t_add_the_images | Impossible d'ajouter les images. | Görüntüler eklenemedi.
+pdf_ready_to_share | Prêt à partager | Paylaşmaya hazır
+pdf_no_access_to_storage | Pas d'accès au stockage | Depolama erişimi yok
+convert_convert_more_files | Convertir d'autres fichiers | Başka dosya dönüştür
+convert_choose_files | Choisir des fichiers | Dosya seç
+convert_convert | Convertir | Dönüştür
+convert_convert_files | Convertir %1$s fichiers | %1$s dosyayı dönüştür
+convert_allow_access_to_storage | Autoriser l'accès au stockage | Depolama erişimine izin ver
+convert_converted_files_are_saved_in_internal | Les fichiers convertis sont enregistrés dans Stockage interne/%1$s. Touchez pour autoriser l'accès à tous les fichiers. | Dönüştürülen dosyalar Dahili depolama/%1$s klasörüne kaydedilir. Tüm dosyalara erişime izin vermek için dokunun.
+convert_pick_one_or_more_files_of_the_same_typ | Choisissez un ou plusieurs fichiers du même type | Aynı türden bir veya daha fazla dosya seçin
+convert_add_more_files | Ajouter d'autres fichiers | Daha fazla dosya ekle
+convert_convert_to | Convertir en | Şuna dönüştür
+convert_options | Options | Seçenekler
+convert_resolution | Résolution | Çözünürlük
+convert_original | Originale | Orijinal
+convert_smaller_sizes_are_never_enlarged | Les tailles plus petites ne sont jamais agrandies | Daha küçük boyutlar asla büyütülmez
+convert_gif_width | Largeur du GIF | GIF genişliği
+convert_12_frames_per_second | 12 images par seconde | Saniyede 12 kare
+convert_combine_into_one_pdf | Réunir en un seul PDF | Tek bir PDF'de birleştir
+convert_one_page_per_image_in_the_order_shown | Une page par image, dans l'ordre affiché | Görüntü başına bir sayfa, gösterilen sırayla
+convert_this_is_a_text_and_basic_formatting_co | Conversion du texte et de la mise en forme de base : paragraphes, titres, gras et italique, listes à puces et tableaux simples. Les images, zones de texte, en-têtes, pieds de page et mises en page complexes sont omis. | Bu, metin ve temel biçimlendirme dönüşümüdür: paragraflar, başlıklar, kalın ve italik, basit madde işaretleri ve tablolar. Resimler, metin kutuları, üst ve alt bilgiler ile karmaşık düzenler dahil edilmez.
+convert_pictures_and_complex_layout_are_left_o | Les images et mises en page complexes sont omises. Les tableaux deviennent des lignes séparées par des tabulations. | Resimler ve karmaşık düzen dahil edilmez. Tablolar sekmeyle ayrılmış satırlara dönüşür.
+convert_markdown_is_lightly_formatted_headings | Le Markdown est légèrement mis en forme (titres, listes, gras, italique). Le reste devient du texte brut sur des pages A4. | Markdown hafifçe biçimlendirilir (başlıklar, listeler, kalın, italik). Geri kalan her şey A4 sayfalarda düz metin olur.
+convert_only_selectable_text_is_extracted_scan | Seul le texte sélectionnable est extrait. Les PDF numérisés n'en ont pas. La mise en page, les tableaux et les images ne sont pas conservés. | Yalnızca seçilebilir metin çıkarılır. Taranmış PDF'lerde bu yoktur. Düzen, tablolar ve resimler korunmaz.
+convert_each_page_becomes_a_picture_at_about_1 | Chaque page devient une image d'environ 144 ppp. Les fichiers de plusieurs pages sont enregistrés dans leur propre dossier. | Her sayfa yaklaşık 144 dpi'lık bir resme dönüşür. Birden çok sayfalı dosyalar kendi klasörlerine kaydedilir.
+convert_jpg_has_no_transparency_so_transparent | Le JPG ne gère pas la transparence : les zones transparentes deviennent blanches. Seule la première image des GIF est convertie. | JPG saydamlığı desteklemez, bu yüzden saydam alanlar beyaz olur. GIF'lerin yalnızca ilk karesi dönüştürülür.
+convert_images_are_fitted_onto_a4_pages_and_re | Les images sont ajustées sur des pages A4 et réduites à environ 200 ppp. | Görüntüler A4 sayfalara sığdırılır ve yaklaşık 200 dpi'a düşürülür.
+convert_gifs_convert_their_first_frame_only_ph | Seule la première image des GIF est convertie. Les métadonnées des photos autres que l'orientation ne sont pas conservées. | GIF'lerin yalnızca ilk karesi dönüştürülür. Yön dışındaki fotoğraf meta verileri korunmaz.
+convert_webm_vp9_is_slow_to_encode_often_sever | L'encodage WebM (VP9) est lent, souvent plusieurs fois la durée de la vidéo. Gardez l'écran allumé et attendez-vous à ce que le téléphone chauffe. | WebM (VP9) kodlaması yavaştır, çoğu zaman videonun kendisinden birkaç kat uzun sürer. Ekranı açık tutun; telefonunuzun ısınmasını bekleyin.
+convert_uses_the_phone_s_hardware_encoder_when | Utilise l'encodeur matériel du téléphone quand il fonctionne, sinon un encodeur logiciel plus lent. | Çalıştığında telefonun donanım kodlayıcısını, aksi hâlde daha yavaş bir yazılım kodlayıcısını kullanır.
+convert_gifs_are_large_and_limited_to_the_firs | Les GIF sont volumineux et limités aux 30 premières secondes, sans son. | GIF'ler büyüktür ve sessiz olarak ilk 30 saniyeyle sınırlıdır.
+convert_extracts_the_sound_track_videos_withou | Extrait la piste audio. Les vidéos sans son ne peuvent pas être converties ainsi. | Ses parçasını çıkarır. Sesi olmayan videolar bu şekilde dönüştürülemez.
+convert_lossless_output_is_much_larger_than_mp | Un format sans perte est bien plus volumineux que le MP3 et ne peut pas restaurer la qualité perdue dans l'original. | Kayıpsız çıktı MP3'ten çok daha büyüktür ve orijinal dosyada kaybolan kaliteyi geri getiremez.
+convert_converting_lossless_audio_to_a_lossy_f | Convertir un audio sans perte vers un format avec perte réduit le fichier mais fait perdre définitivement un peu de qualité. Les tags et la pochette sont conservés quand le format le permet. | Kayıpsız sesi kayıplı bir biçime dönüştürmek dosyayı küçültür ama kalitenin bir kısmını kalıcı olarak kaybettirir. Etiketler ve kapak resmi biçimin izin verdiği yerde korunur.
+convert_tags_and_cover_art_are_kept_where_the | Les tags et la pochette sont conservés quand le format le permet (pas en OGG, OPUS ni WAV). | Etiketler ve kapak resmi biçimin izin verdiği yerde korunur (OGG, OPUS ve WAV hariç).
+convert_converting_of | Conversion %1$s sur %2$s | Dönüştürülüyor: %1$s / %2$s
+convert_cancelled | Annulé | İptal edildi
+convert_all_done | Terminé | Tamamlandı
+convert_nothing_could_be_converted | Rien n'a pu être converti | Hiçbir şey dönüştürülemedi
+convert_finished_with_problems | Terminé avec des erreurs | Sorunlarla tamamlandı
+convert_not_done |  · %1$s non traités |  · %1$s tamamlanmadı
+convert_you_can_leave_this_page_conversion_con | Vous pouvez quitter cette page. La conversion continue en arrière-plan. | Bu sayfadan çıkabilirsiniz. Dönüştürme arka planda devam eder.
+convert_file | Fichier | Dosya
+convert_files |  · %1$s fichiers |  · %1$s dosya
+convert_the_saved_file_is_no_longer_there | Le fichier enregistré n'existe plus | Kaydedilen dosya artık yok
+convert_no_app_can_open_this_file_try_share_in | Aucune appli ne peut ouvrir ce fichier. Essayez plutôt Partager | Bu dosyayı açabilecek uygulama yok. Bunun yerine Paylaş'ı deneyin
+convert_jpg_png_webp_heic_gif_bmp_to_jpg_png_w | JPG, PNG, WebP, HEIC, GIF, BMP vers JPG, PNG, WebP ou PDF. | JPG, PNG, WebP, HEIC, GIF, BMP'den JPG, PNG, WebP veya PDF'ye.
+convert_word_docx | Word (.docx) | Word (.docx)
+convert_to_pdf_or_text_text_and_basic_formatti | Vers PDF ou texte. Texte et mise en forme de base uniquement. | PDF'ye veya metne. Yalnızca metin ve temel biçimlendirme.
+convert_txt_and_markdown | TXT et Markdown | TXT ve Markdown
+convert_to_pdf | Vers PDF. | PDF'ye.
+convert_audio | Audio | Ses
+convert_mp3_wav_m4a_flac_ogg_opus_amr_to_mp3_w | MP3, WAV, M4A, FLAC, OGG, OPUS, AMR vers MP3, WAV, M4A, FLAC, OGG ou OPUS. | MP3, WAV, M4A, FLAC, OGG, OPUS, AMR'den MP3, WAV, M4A, FLAC, OGG veya OPUS'a.
+convert_mp4_mkv_mov_webm_3gp_avi_to_mp4_webm_g | MP4, MKV, MOV, WebM, 3GP, AVI vers MP4, WebM, GIF, ou l'audio seul. | MP4, MKV, MOV, WebM, 3GP, AVI'den MP4, WebM, GIF'e ya da yalnızca sese.
+convert_converting | Conversion | Dönüştürülüyor
+convert_small_photos_transparency_becomes_whit | Photos légères. La transparence devient blanche | Küçük fotoğraflar. Saydamlık beyaza döner
+convert_lossless_keeps_transparency | Sans perte, conserve la transparence | Kayıpsız, saydamlığı korur
+convert_small_files_supports_transparency | Fichiers légers, gère la transparence | Küçük dosyalar, saydamlığı destekler
+convert_one_page_per_image | Une page par image | Görüntü başına bir sayfa
+convert_jpg_images | Images JPG | JPG görüntüler
+convert_one_picture_per_page_2x_resolution | Une image par page, résolution 2x | Sayfa başına bir resim, 2 kat çözünürlük
+convert_png_images | Images PNG | PNG görüntüler
+convert_text_txt | Texte (TXT) | Metin (TXT)
+convert_selectable_text_only_no_layout | Texte sélectionnable uniquement, sans mise en page | Yalnızca seçilebilir metin, düzen yok
+convert_text_and_basic_formatting_on_a4_pages | Texte et mise en forme de base sur des pages A4 | A4 sayfalarda metin ve temel biçimlendirme
+convert_a4_pages_with_a_readable_font | Pages A4 avec une police lisible | Okunaklı yazı tipiyle A4 sayfalar
+convert_plays_everywhere_lossy | Se lit partout, avec perte | Her yerde oynatılır, kayıplı
+convert_better_quality_than_mp3_at_the_same_si | Meilleure qualité que le MP3 à taille égale | Aynı boyutta MP3'ten daha iyi kalite
+convert_very_efficient_lossy | Très efficace, avec perte | Çok verimli, kayıplı
+convert_open_format_lossy | Format ouvert, avec perte | Açık biçim, kayıplı
+convert_lossless_larger_files | Sans perte, fichiers plus gros | Kayıpsız, daha büyük dosyalar
+convert_uncompressed_very_large_files | Non compressé, fichiers très gros | Sıkıştırılmamış, çok büyük dosyalar
+convert_h_264_aac_plays_everywhere | H.264 + AAC, se lit partout | H.264 + AAC, her yerde oynatılır
+convert_vp9_opus_much_slower_to_convert | VP9 + Opus. Conversion bien plus lente | VP9 + Opus. Dönüştürmesi çok daha yavaş
+convert_animated_picture_first_30_seconds_no_s | Image animée, 30 premières secondes, sans son | Hareketli resim, ilk 30 saniye, sessiz
+convert_audio_only_mp3 | Audio seul · MP3 | Yalnızca ses · MP3
+convert_extract_the_sound_track | Extraire la piste audio | Ses parçasını çıkar
+convert_audio_only_m4a | Audio seul · M4A | Yalnızca ses · M4A
+convert_extract_the_sound_track_as_aac | Extraire la piste audio en AAC | Ses parçasını AAC olarak çıkar
+convert_old_doc_files_aren_t_supported_save_it | %1$s : les anciens fichiers .doc ne sont pas pris en charge. Enregistrez-le d'abord en .docx. | %1$s: eski .doc dosyaları desteklenmiyor. Önce .docx olarak kaydedin.
+convert_images_into_one_pdf | %1$s images en un seul PDF | %1$s görüntü tek bir PDF'de
+convert_this_pdf_is_password_protected_remove | Ce PDF est protégé par mot de passe. Retirez d'abord le mot de passe. | Bu PDF şifre korumalı. Önce şifreyi kaldırın.
+convert_not_enough_memory_for_a_file_this_larg | Mémoire insuffisante pour un fichier aussi volumineux. | Bu kadar büyük bir dosya için bellek yetersiz.
+convert_this_file_has_no_audio_track | Ce fichier n'a pas de piste audio. | Bu dosyada ses parçası yok.
+convert_couldn_t_read_this_file_it_may_be_dama | Impossible de lire ce fichier. Il est peut-être endommagé ou dans un format non pris en charge. | Bu dosya okunamadı. Hasarlı ya da desteklenmeyen bir biçimde olabilir.
+convert_conversion_failed | Échec de la conversion : %1$s | Dönüştürme başarısız: %1$s
+convert_not_enough_free_storage_space | Espace de stockage insuffisant. | Yeterli boş depolama alanı yok.
+convert_couldn_t_read_this_image_it_may_be_dam | Impossible de lire cette image. Elle est peut-être endommagée ou dans un format non pris en charge. | Bu görüntü okunamadı. Hasarlı ya da desteklenmeyen bir biçimde olabilir.
+convert_conversion_failed_2 | Échec de la conversion. | Dönüştürme başarısız.
+convert_couldn_t_open | Impossible d'ouvrir %1$s | %1$s açılamadı
+convert_couldn_t_encode_the_image | Impossible d'encoder l'image %1$s | %1$s görüntüsü kodlanamadı
+convert_this_pdf_has_no_pages | Ce PDF n'a aucune page. | Bu PDF'de sayfa yok.
+convert_no_selectable_text_found_this_pdf_may | Aucun texte sélectionnable. Ce PDF contient peut-être des pages numérisées. | Seçilebilir metin bulunamadı. Bu PDF taranmış sayfa resimlerinden oluşuyor olabilir.
+print_print_a_document_or_photo | Imprimer un document ou une photo | Bir belge veya fotoğraf yazdırın
+print_choose_pdfs_or_images_here_you_can_als | Choisissez des PDF ou des images ici. Vous pouvez aussi partager des fichiers depuis n'importe quelle appli et choisir « Imprimer ». | PDF'leri veya görüntüleri buradan seçin. Herhangi bir uygulamadan dosya paylaşıp "Yazdır"ı da seçebilirsiniz.
+print_choose_photos | Choisir des photos | Fotoğraf seç
+print_add_photos | Ajouter des photos | Fotoğraf ekle
+print_add_files | Ajouter des fichiers | Dosya ekle
+print_printing | Impression… | Yazdırılıyor…
+print_choose_a_printer | Choisir une imprimante | Bir yazıcı seçin
+print_print_pages | Imprimer %1$s pages | %1$s sayfayı yazdır
+print_printer | Imprimante | Yazıcı

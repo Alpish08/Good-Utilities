@@ -1,0 +1,170 @@
+battery_battery_made | Fabrication de la batterie | Pilin üretimi
+battery_condition | État général | Durum
+battery_capacity_when_new | Capacité à l'état neuf | Yeniyken kapasite
+battery_mah_typical_mah_rated | %1$s mAh typique · %2$s mAh nominal | %1$s mAh tipik · %2$s mAh nominal
+battery_charger | Chargeur | Şarj aleti
+battery_wireless | Sans fil | Kablosuz
+battery_dock | Station | Yuva
+battery_good | Bon | İyi
+battery_overheating | Surchauffe | Aşırı ısınma
+battery_too_cold | Trop froide | Çok soğuk
+battery_dead | Hors d'usage | Ölü
+battery_over_voltage | Surtension | Aşırı gerilim
+battery_unknown | Inconnu | Bilinmiyor
+charge_bypass_charging_on_holding_at | Charge directe activée · maintien à %1$s %% | Doğrudan şarj açık · %%%1$s seviyesinde tutuluyor
+charge_bypass_charging_off | Charge directe désactivée | Doğrudan şarj kapalı
+charge_maximum | Maximale | Maksimum
+charge_adaptive | Adaptative | Uyarlanabilir
+charge_basic | Basique | Temel
+charge_mode | Mode %1$s | Mod %1$s
+charge_bypass_charging_on_battery_at | Charge directe activée · batterie à %1$s | Doğrudan şarj açık · pil %1$s
+charge_bypass_charging_off_battery_cooled_to | Charge directe désactivée · batterie redescendue à %1$s | Doğrudan şarj kapalı · pil %1$s değerine soğudu
+guide_turn_on_usb_debugging | Activer le débogage USB | USB hata ayıklamasını açın
+guide_settings_about_phone_software_informat | Paramètres › À propos du téléphone › Informations sur le logiciel › touchez 7 fois Numéro de version. Puis Paramètres › Options de développement › Débogage USB. Branchez le téléphone à votre ordinateur et autorisez-le. | Ayarlar › Telefon hakkında › Yazılım bilgileri › Yapım numarası'na 7 kez dokunun. Ardından Ayarlar › Geliştirici seçenekleri › USB hata ayıklama. Telefonu bilgisayarınıza bağlayıp izin verin.
+guide_install_adb_on_your_mac_once | Installer adb sur votre Mac (une fois) | Mac'inize adb yükleyin (bir kez)
+guide_homebrew_installs_google_s_platform_to | Homebrew installe les outils de plateforme de Google. Vérifiez que le téléphone apparaît comme « device ». | Homebrew, Google'ın platform araçlarını yükler. Telefonun "device" olarak göründüğünü kontrol edin.
+guide_app_lock_setup | Configuration du verrouillage d'applis | Uygulama kilidi kurulumu
+guide_app_lock_needs_its_accessibility_servi | Le verrouillage d'applis a besoin de son service d'accessibilité, qu'Android 16 bloque pour les applis installées hors du Play Store. Il désactive aussi ce service à chaque réinstallation ou mise à jour via adb : relancez ceci après chaque mise à jour. | Uygulama kilidinin erişilebilirlik hizmetine ihtiyacı var ve Android 16 bunu Play Store dışından yüklenen uygulamalar için engelliyor. Ayrıca uygulama adb ile her yeniden yüklendiğinde veya güncellendiğinde hizmeti kapatıyor; bu yüzden her güncellemeden sonra bunu çalıştırın.
+guide_run_the_app_lock_script | Lancer le script du verrouillage d'applis | Uygulama kilidi betiğini çalıştırın
+guide_if_you_have_it_on_your_mac_this_does_e | S'il est sur votre Mac, il fait tout ce qui suit en une fois. | Mac'inizde varsa aşağıdakilerin hepsini tek seferde yapar.
+guide_or_run_the_commands_yourself | Ou lancez les commandes vous-même | Ya da komutları kendiniz çalıştırın
+guide_allows_restricted_settings_for_good_ut | Autorise les paramètres restreints pour Good Utilities, puis active son service d'accessibilité. | Good Utilities için kısıtlı ayarlara izin verir, ardından erişilebilirlik hizmetini açar.
+guide_the_second_command_replaces_your_list | La deuxième commande remplace votre liste de services d'accessibilité activés ; si vous en utilisez d'autres, réactivez-les dans Paramètres › Accessibilité. Sans ordinateur : Infos sur l'appli › ⋮ › Autoriser les paramètres restreints, puis Paramètres › Accessibilité › Applis installées › Good Utilities app lock. | İkinci komut etkin erişilebilirlik hizmetleri listenizi değiştirir; başkalarını kullanıyorsanız Ayarlar › Erişilebilirlik'ten yeniden açın. Bilgisayar olmadan: Uygulama bilgisi › ⋮ › Kısıtlı ayarlara izin ver, ardından Ayarlar › Erişilebilirlik › Yüklü uygulamalar › Good Utilities app lock.
+guide_battery_setup | Configuration de la batterie | Pil kurulumu
+guide_samsung_keeps_its_battery_health_asoc | Samsung conserve l'état de la batterie (ASOC) et le nombre total de cycles dans un service système illisible par les applis : ils passent donc par adb depuis votre ordinateur. L'état évolue lentement ; synchroniser toutes les quelques semaines suffit. | Samsung pil sağlığını (ASOC) ve toplam döngü sayısını uygulamaların okuyamadığı bir sistem hizmetinde tutar; bu yüzden değerler bilgisayarınızdan adb ile gelir. Sağlık yavaş değişir; birkaç haftada bir eşitlemek yeterlidir.
+guide_run_the_sync_script | Lancer le script de synchronisation | Eşitleme betiğini çalıştırın
+guide_reads_samsung_s_battery_report_and_sen | Lit le rapport de batterie de Samsung et envoie l'état, les cycles, les dates de première utilisation et de fabrication à Good Utilities. Il se trouve dans le dépôt de Good Utilities. | Samsung'un pil raporunu okur ve sağlık, döngü, ilk kullanım ve üretim tarihlerini Good Utilities'e gönderir. Good Utilities deposunda bulunur.
+guide_or_see_the_figures_yourself | Ou consultez les valeurs vous-même | Ya da değerlere kendiniz bakın
+guide_msavedbatteryasoc_is_health_in_msavedb | mSavedBatteryAsoc est l'état en %. mSavedBatteryUsage ÷ 100 est le nombre de cycles. | mSavedBatteryAsoc yüzde (%) cinsinden sağlıktır. mSavedBatteryUsage ÷ 100 döngü sayısıdır.
+guide_and_send_them_by_hand | …et envoyez-les à la main | …ve bunları elle gönderin
+guide_replace_97_and_75808_with_your_own_aso | Remplacez 97 et 75808 par vos propres valeurs Asoc et Usage. | 97 ve 75808'i kendi Asoc ve Usage değerlerinizle değiştirin.
+guide_only_adb_or_the_system_can_send_these | Seul adb (ou le système) peut envoyer ces valeurs ; les autres applis ne le peuvent pas. Jusqu'à la première synchronisation, la page Batterie affiche sa propre estimation, qui surestime de quelques points sur les Galaxy. | Bu değerleri yalnızca adb (veya sistem) gönderebilir; diğer uygulamalar gönderemez. İlk eşitlemeye kadar Pil sayfası kendi tahminini gösterir; bu da Galaxy telefonlarda birkaç puan yüksek okunur.
+guide_before_you_start | Avant de commencer | Başlamadan önce
+guide_each_time | À chaque fois | Her seferinde
+guide_command | Commande | Komut
+card_what_it_s_for | À quoi ça sert | Ne işe yarar
+card_manage_your_spending_log_purchases_and | Gérez vos dépenses : enregistrez achats et dépôts, consultez votre solde et parcourez l'historique de vos paiements. Tout reste sur ce téléphone. | Harcamalarınızı yönetin: alışverişleri ve para yatırmaları kaydedin, bakiyenizi görün ve ödeme geçmişinize göz atın. Her şey bu telefonda kalır.
+card_select_and_delete | Sélectionner et supprimer | Seçme ve silme
+card_long_press_a_payment_to_start_selectin | Appuyez longuement sur un paiement pour commencer la sélection, puis touchez-en d'autres ou Tout. La suppression peut être annulée. | Seçmeye başlamak için bir ödemeye uzun basın, ardından diğerlerine veya Tümü'ne dokunun. Silme işlemi geri alınabilir.
+card_switch_card | Changer de carte | Kart değiştir
+card_add_card | Ajouter une carte | Kart ekle
+card_make_primary | Définir comme principale | Ana kart yap
+card_rename_card | Renommer la carte | Kartı yeniden adlandır
+card_edit_starting_balance | Modifier le solde de départ | Başlangıç bakiyesini düzenle
+card_delete_card | Supprimer la carte | Kartı sil
+card_cards | Cartes | Kartlar
+card_log | Noter | Ekle
+card_entry_deleted | Entrée supprimée | Kayıt silindi
+card_entries_deleted | %1$s entrées supprimées | %1$s kayıt silindi
+card_your_purchases_and_deposits_show_up_he | Vos achats et dépôts apparaissent ici. | Alışverişleriniz ve para yatırmalarınız burada görünür.
+card_purchase | Achat | Alışveriş
+card_added | Ajout | Eklenen
+card_balance |  · Solde  |  · Bakiye 
+card_primary | Principale | Ana
+card_secondary | Secondaire | İkincil
+card_shown_on_home_and_in_the_widget | Affichée sur l'accueil et dans le widget | Ana sayfada ve widget'ta gösterilir
+card_open_it_from_switch_card | Ouvrez-la depuis Changer de carte | Kart değiştir'den açın
+card_card_name | Nom de la carte | Kart adı
+card_your_starting_balance | Votre solde de départ | Başlangıç bakiyeniz
+card_starting_balance | Solde de départ | Başlangıç bakiyesi
+card_what_was_yours_on_the_card_before_the | Ce qui vous appartenait sur la carte avant la première entrée. | İlk kayıttan önce karttaki size ait tutar.
+card_delete | Supprimer %1$s ? | %1$s silinsin mi?
+card_its_balance_and_payment_history_will_b | Son solde et son historique de paiements seront supprimés. Cette action est irréversible. | Bakiyesi ve ödeme geçmişi silinecek. Bu işlem geri alınamaz.
+card_edit_entry | Modifier l'entrée | Kaydı düzenle
+card_note_optional | Note (facultatif) | Not (isteğe bağlı)
+card_set_up_a_card | Configurer une carte | Bir kart oluşturun
+card_card_name_e_g_debit_card | Nom de la carte (par ex. Carte de débit) | Kart adı (ör. Banka kartı)
+card_how_much_of_it_is_yours_right_now | Combien vous appartient en ce moment | Şu anda ne kadarı size ait
+card_create | Créer | Oluştur
+card_debit_card | Carte de débit | Banka kartı
+card_today | Aujourd'hui | Bugün
+card_yesterday | Hier | Dün
+card_card | Carte | Kart
+card_tap_to_set_up_a_card | Touchez pour configurer une carte | Kart oluşturmak için dokunun
+id_1_card | 1 carte | 1 kart
+id_cards | %1$s cartes | %1$s kart
+id_rename | Renommer | Yeniden adlandır
+id_replace_front | Remplacer le recto | Ön yüzü değiştir
+id_replace_back | Remplacer le verso | Arka yüzü değiştir
+id_add_back | Ajouter le verso | Arka yüz ekle
+id_remove_back | Retirer le verso | Arka yüzü kaldır
+id_add_a_card | Ajouter une carte | Kart ekleyin
+id_pick_the_front_and_back_from_your_phot | Choisissez le recto (et le verso) dans vos photos | Ön (ve arka) yüzü fotoğraflarınızdan seçin
+id_front_only | Recto seul | Yalnızca ön yüz
+id_back | Verso | Arka
+id_front | Recto | Ön
+id_both_photos_are_removed_from_this_phon | Les deux photos sont supprimées de ce téléphone. Vos copies dans la Galerie, s'il y en a, restent où elles sont. | Her iki fotoğraf da bu telefondan silinir. Varsa Galeri'deki kopyalarınız yerinde kalır.
+id_optional | Facultatif | İsteğe bağlı
+id_choose_from_photos | Choisir dans les photos | Fotoğraflardan seç
+id_e_g_driver_s_license | par ex. Permis de conduire | ör. Ehliyet
+id_name_e_g_driver_s_license | Nom (par ex. Permis de conduire) | Ad (ör. Ehliyet)
+id_your_ids_front_and_back | Vos papiers, recto et verso | Kimlikleriniz, ön ve arka yüz
+id_keep_a_copy_of_your_ids_here_they_re_l | Gardez ici une copie de vos papiers. Ils sont verrouillés par votre empreinte et chiffrés sur ce téléphone, et les captures d'écran sont bloquées. | Kimliklerinizin bir kopyasını burada saklayın. Parmak izinizle kilitlenir ve bu telefonda şifrelenir; ekran görüntüleri engellenir.
+id_crop_in_gallery_first | Recadrez d'abord dans la Galerie | Önce Galeri'de kırpın
+id_crop_and_straighten_the_photos_in_gall | Recadrez et redressez les photos dans la Galerie (Modifier › recadrage détecte les bords de la carte), puis choisissez-les ici, ou partagez une photo vers « Ajouter aux cartes virtuelles ». | Fotoğrafları Galeri'de kırpıp düzeltin (Düzenle › kırpma kartın kenarlarını bulur), ardından buradan seçin ya da bir fotoğrafı "Sanal kartlara ekle"ye paylaşın.
+id_turn_a_card_over | Retourner une carte | Kartı çevirin
+id_swipe_down_or_up_on_a_card_to_see_its | Balayez une carte vers le bas ou le haut pour voir son verso. | Arka yüzünü görmek için kartı aşağı veya yukarı kaydırın.
+id_id_card | Pièce d'identité | Kimlik kartı
+qr_share_to_qr_code | Partager vers Code QR | QR koda paylaşın
+qr_share_a_link_or_text_from_any_app_and | Partagez un lien ou un texte depuis n'importe quelle appli et choisissez « Code QR ». | Herhangi bir uygulamadan bir bağlantı veya metin paylaşıp "QR kod"u seçin.
+qr_couldn_t_save | Impossible d'enregistrer | Kaydedilemedi
+qr_link_or_text | Lien ou texte | Bağlantı veya metin
+qr_type_or_paste_anything | Tapez ou collez ce que vous voulez | İstediğinizi yazın veya yapıştırın
+qr_this_is_too_long_for_a_qr_code_try_a_s | C'est trop long pour un code QR. Essayez un lien plus court ou moins de texte. | Bu bir QR kod için çok uzun. Daha kısa bir bağlantı veya daha az metin deneyin.
+qr_this_text_is_too_long_for_a_qr_code | Ce texte est trop long pour un code QR. | Bu metin bir QR kod için çok uzun.
+random_enter_a_minimum_and_a_maximum | Saisissez un minimum et un maximum | Bir en küçük ve bir en büyük değer girin
+random_numbers_up_to_12_digits_only | Nombres de 12 chiffres maximum | En fazla 12 basamaklı sayılar
+random_with_d | %1$s (%2$s) avec %3$sd%4$s | %1$s (%2$s), %3$sd%4$s ile
+random_number | Nombre | Sayı
+random_dice | Dés | Zar
+random_min | Min | En az
+random_max | Max | En çok
+random_how_many | Combien | Kaç tane
+random_no_repeats | Sans doublons | Tekrarsız
+random_tap_the_dice_or_shake_your_phone_to_ro | Touchez les dés ou secouez le téléphone pour lancer | Atmak için zarlara dokunun veya telefonu sallayın
+random_generate | Générer | Oluştur
+random_roll | Lancer | At
+random_tap_generate | Touchez Générer | Oluştur'a dokunun
+random_total | Total | Toplam
+random_random_result | Résultat aléatoire | Rastgele sonuç
+briefs_gmail_address | Adresse Gmail | Gmail adresi
+briefs_app_password | Mot de passe d'application | Uygulama şifresi
+briefs_gmail_label | Libellé Gmail | Gmail etiketi
+briefs_connect | Connecter | Bağlan
+briefs_make_an_app_password | Créer un mot de passe d'application | Uygulama şifresi oluşturun
+briefs_google_account_security_2_step_verific | Compte Google › Sécurité › Validation en deux étapes › Mots de passe des applications. Briefs le garde chiffré sur ce téléphone. | Google Hesabı › Güvenlik › 2 Adımlı Doğrulama › Uygulama şifreleri. Bültenler bunu bu telefonda şifreli tutar.
+briefs_syncing | Synchronisation… | Eşitleniyor…
+briefs_unread | %1$s non lus | %1$s okunmamış
+briefs_all_caught_up | Tout est lu | Hepsi okundu
+briefs_sync | Synchroniser | Eşitle
+briefs_change_label | Changer de libellé | Etiketi değiştir
+briefs_couldn_t_sync | Synchronisation impossible | Eşitlenemedi
+briefs_nothing_under_yet_label_an_email_in_gm | Rien sous « %1$s » pour l'instant. Ajoutez ce libellé à un e-mail dans Gmail et il apparaîtra ici à la prochaine ouverture de Briefs. | "%1$s" altında henüz bir şey yok. Gmail'de bir e-postaya bu etiketi ekleyin; Bültenler'i bir sonraki açışınızda burada görünür.
+briefs_min_read | %1$s min de lecture | %1$s dk okuma
+briefs_synced | Synchronisé %1$s · %2$s | Eşitlendi: %1$s · %2$s
+briefs_checking | Vérification… | Kontrol ediliyor…
+briefs_sign_out | Se déconnecter ? | Oturum kapatılsın mı?
+briefs_briefs_forgets_the_app_password_and_re | Briefs oublie le mot de passe d'application et supprime les e-mails synchronisés de ce téléphone. Rien ne change dans Gmail. | Bültenler uygulama şifresini unutur ve eşitlenen e-postaları bu telefondan siler. Gmail'de hiçbir şey değişmez.
+briefs_show_in_dark | Afficher en sombre | Koyu göster
+briefs_show_in_light | Afficher en clair | Açık göster
+briefs_stop_reading | Arrêter la lecture | Okumayı durdur
+briefs_read_aloud | Lire à voix haute | Sesli oku
+briefs_hide_images | Masquer les images | Görüntüleri gizle
+briefs_show_images | Afficher les images | Görüntüleri göster
+briefs_stop_always_showing_images | Ne plus toujours afficher les images | Görüntüleri her zaman göstermeyi bırak
+briefs_always_show_images | Toujours afficher les images | Görüntüleri her zaman göster
+briefs_min_ago | il y a %1$s min | %1$s dk önce
+briefs_h_ago | il y a %1$s h | %1$s sa önce
+briefs_what_it_is | Qu'est-ce que c'est | Nedir
+briefs_your_newsletters_and_articles_from_one | Vos newsletters et articles d'un libellé Gmail, en pages claires et lisibles. Briefs ne se synchronise que lorsqu'il est ouvert : rien ne tourne en arrière-plan et aucune notification. | Tek bir Gmail etiketindeki bültenleriniz ve makaleleriniz, temiz ve okunaklı sayfalar olarak. Bültenler yalnızca açıkken eşitlenir: arka planda hiçbir şey çalışmaz ve bildirim yoktur.
+briefs_new_briefs_on_their_own | Nouveaux briefs automatiquement | Yeni bültenler kendiliğinden
+briefs_in_gmail_make_a_filter_for_your_newsle | Dans Gmail, créez un filtre qui applique le libellé aux expéditeurs de vos newsletters, et les nouveaux briefs apparaîtront ici automatiquement. | Gmail'de bültenlerinizin gönderenlerine etiketi uygulayan bir filtre oluşturun; yeni bültenler burada kendiliğinden görünür.
+briefs_p_this_email_has_no_readable_text_p | <p>(Cet e-mail ne contient pas de texte lisible.)</p> | <p>(Bu e-postada okunabilir metin yok.)</p>
+briefs_no_subject | (Sans objet) | (Konu yok)
+briefs_gmail_has_no_label_called_check_the_sp | Gmail n'a aucun libellé nommé « %1$s ». Vérifiez l'orthographe (les libellés imbriqués s'écrivent Parent/Libellé). | Gmail'de "%1$s" adında bir etiket yok. Yazımı kontrol edin (iç içe etiketler Üst/Etiket şeklinde yazılır).
+briefs_gmail_didn_t_accept_the_address_or_app | Gmail n'a pas accepté l'adresse ou le mot de passe d'application. Ces mots de passe font 16 lettres et se créent dans Compte Google › Sécurité. | Gmail adresi veya uygulama şifresini kabul etmedi. Uygulama şifreleri 16 harftir ve Google Hesabı › Güvenlik'te oluşturulur.
+briefs_no_internet_connection | Pas de connexion Internet. | İnternet bağlantısı yok.
+jp_share_an_image | Partager une image | Görüntü paylaşın
+jp_share_an_image_from_any_app_and_pick_r | Partagez une image depuis n'importe quelle appli et choisissez Lecteur de japonais. | Herhangi bir uygulamadan bir görüntü paylaşıp Japonca okuyucu'yu seçin.
+jp_recognition | Reconnaissance | Tanıma
+jp_text_is_recognised_on_this_phone_horiz | Le texte est reconnu sur ce téléphone. Le texte horizontal fonctionne le mieux ; le texte vertical des mangas est pris en charge mais moins fiable. | Metin bu telefonda tanınır. Yatay metin en iyi sonucu verir; dikey manga metni desteklenir ama daha az güvenilirdir.

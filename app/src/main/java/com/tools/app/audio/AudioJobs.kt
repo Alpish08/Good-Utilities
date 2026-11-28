@@ -1,5 +1,7 @@
 package com.tools.app.audio
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -74,14 +76,14 @@ object AudioJobs {
                 args += listOf("-filter_complex", graph, "-map", "[out]")
                 // Keep the first song's cover art when it is an MP3 with one.
                 if (list.first().ext == "mp3") args += listOf("-map", "0:v?", "-c:v", "copy", "-disposition:v", "attached_pic")
-                val title = list.first().name + " (merged)"
+                val title = list.first().name + t(R.string.audio_merged)
                 args += listOf("-c:a", "libmp3lame", "-q:a", "0", "-id3v2_version", "3", "-metadata", "title=$title", out.absolutePath)
                 Ffmpeg.run(app, args, total) { _merge.value = Work.Running(it) }
                 Work.Done(Ffmpeg.publish(app, out, title))
             } catch (e: CancellationException) {
                 Work.Idle
             } catch (e: Exception) {
-                Work.Failed(e.message ?: "Merging failed")
+                Work.Failed(e.message ?: t(R.string.audio_merging_failed))
             }
         }
     }
@@ -106,7 +108,7 @@ object AudioJobs {
             _trim.value = Work.Running(0f)
             _trim.value = try {
                 val out = Ffmpeg.scratch(app, "trimmed.${clip.ext}")
-                val title = clip.name + " (trimmed)"
+                val title = clip.name + t(R.string.audio_trimmed)
                 // Stream copy: no re-encoding, so it is instant and lossless.
                 val args = listOf(
                     "-y", "-ss", Ffmpeg.seconds(start), "-i", clip.file.absolutePath,
@@ -119,7 +121,7 @@ object AudioJobs {
             } catch (e: CancellationException) {
                 Work.Idle
             } catch (e: Exception) {
-                Work.Failed(e.message ?: "Trimming failed")
+                Work.Failed(e.message ?: t(R.string.audio_trimming_failed))
             }
         }
     }

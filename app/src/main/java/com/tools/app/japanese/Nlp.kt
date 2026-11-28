@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.atilika.kuromoji.ipadic.Tokenizer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
@@ -133,28 +135,28 @@ object Nlp {
     private fun classify(l1: String, l2: String): Pair<PosGroup, String> = when (l1) {
         "名詞" -> when (l2) {
             "代名詞" -> PosGroup.Pronoun to "pronoun"
-            "固有名詞" -> PosGroup.Noun to "proper noun"
+            "固有名詞" -> PosGroup.Noun to t(R.string.jp_proper_noun)
             "数" -> PosGroup.Noun to "number"
             "接尾" -> PosGroup.Suffix to "suffix"
             "形容動詞語幹" -> PosGroup.Adjective to "na-adjective"
-            "非自立" -> PosGroup.Noun to "dependent noun"
-            "副詞可能" -> PosGroup.Noun to "noun (adverbial)"
+            "非自立" -> PosGroup.Noun to t(R.string.jp_dependent_noun)
+            "副詞可能" -> PosGroup.Noun to t(R.string.jp_noun_adverbial)
             else -> PosGroup.Noun to "noun"
         }
-        "動詞" -> if (l2 == "非自立") PosGroup.Verb to "helper verb" else if (l2 == "接尾") PosGroup.Suffix to "verb suffix" else PosGroup.Verb to "verb"
+        "動詞" -> if (l2 == "非自立") PosGroup.Verb to t(R.string.jp_helper_verb) else if (l2 == "接尾") PosGroup.Suffix to t(R.string.jp_verb_suffix) else PosGroup.Verb to "verb"
         "形容詞" -> PosGroup.Adjective to "i-adjective"
         "副詞" -> PosGroup.Adverb to "adverb"
         "助詞" -> PosGroup.Particle to when (l2) {
-            "格助詞" -> "case particle"
-            "係助詞" -> "topic particle"
-            "接続助詞" -> "conjunctive particle"
-            "終助詞" -> "sentence-ending particle"
-            "副助詞" -> "adverbial particle"
+            "格助詞" -> t(R.string.jp_case_particle)
+            "係助詞" -> t(R.string.jp_topic_particle)
+            "接続助詞" -> t(R.string.jp_conjunctive_particle)
+            "終助詞" -> t(R.string.jp_sentence_ending_particle)
+            "副助詞" -> t(R.string.jp_adverbial_particle)
             else -> "particle"
         }
-        "助動詞" -> PosGroup.Auxiliary to "auxiliary verb"
+        "助動詞" -> PosGroup.Auxiliary to t(R.string.jp_auxiliary_verb)
         "接続詞" -> PosGroup.Conjunction to "conjunction"
-        "連体詞" -> PosGroup.Adjective to "pre-noun adjective"
+        "連体詞" -> PosGroup.Adjective to t(R.string.jp_pre_noun_adjective)
         "感動詞" -> PosGroup.Interjection to "interjection"
         "接頭詞" -> PosGroup.Prefix to "prefix"
         "記号" -> PosGroup.Symbol to "symbol"

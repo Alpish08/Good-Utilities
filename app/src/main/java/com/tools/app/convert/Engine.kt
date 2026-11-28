@@ -1,5 +1,7 @@
 package com.tools.app.convert
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -38,16 +40,16 @@ internal object Engine {
         return when {
             t is Storage.NoAccess -> msg
             t is Docx.Invalid -> msg
-            t is InvalidPasswordException || t is SecurityException -> "This PDF is password-protected. Remove the password first."
-            t is OutOfMemoryError -> "Not enough memory for a file this large."
+            t is InvalidPasswordException || t is SecurityException -> t(R.string.convert_this_pdf_is_password_protected_remove)
+            t is OutOfMemoryError -> t(R.string.convert_not_enough_memory_for_a_file_this_larg)
             t is Ffmpeg.Failed -> when {
-                "matches no streams" in msg || "does not contain any stream" in msg -> "This file has no audio track."
-                "doesn't look like audio" in msg || "Invalid data" in msg -> "Couldn't read this file. It may be damaged or in an unsupported format."
-                else -> "Conversion failed: $msg"
+                "matches no streams" in msg || "does not contain any stream" in msg -> t(R.string.convert_this_file_has_no_audio_track)
+                "doesn't look like audio" in msg || "Invalid data" in msg -> t(R.string.convert_couldn_t_read_this_file_it_may_be_dama)
+                else -> t(R.string.convert_conversion_failed, msg)
             }
-            t is java.io.IOException && "ENOSPC" in msg -> "Not enough free storage space."
-            t is android.graphics.ImageDecoder.DecodeException -> "Couldn't read this image. It may be damaged or in an unsupported format."
-            else -> msg.ifBlank { "Conversion failed." }
+            t is java.io.IOException && "ENOSPC" in msg -> t(R.string.convert_not_enough_free_storage_space)
+            t is android.graphics.ImageDecoder.DecodeException -> t(R.string.convert_couldn_t_read_this_image_it_may_be_dam)
+            else -> msg.ifBlank { t(R.string.convert_conversion_failed_2) }
         }
     }
 
@@ -56,7 +58,7 @@ internal object Engine {
 
     private fun copyToCache(context: Context, src: Source): File {
         val f = File(work(context), "in-${src.id}.${src.ext.ifEmpty { "bin" }}")
-        val input = context.contentResolver.openInputStream(src.uri) ?: error("Couldn't open ${src.name}")
+        val input = context.contentResolver.openInputStream(src.uri) ?: error(t(R.string.convert_couldn_t_open, src.name))
         input.use { i -> f.outputStream().use { i.copyTo(it) } }
         return f
     }
@@ -83,7 +85,7 @@ internal object Engine {
                 if (quality >= 100) Bitmap.CompressFormat.WEBP_LOSSLESS else Bitmap.CompressFormat.WEBP_LOSSY
             } else @Suppress("DEPRECATION") Bitmap.CompressFormat.WEBP
         }
-        if (!bmp.compress(format, quality.coerceIn(1, 100), out)) error("Couldn't encode the ${fmt.label} image")
+        if (!bmp.compress(format, quality.coerceIn(1, 100), out)) error(t(R.string.convert_couldn_t_encode_the_image, fmt.label))
     }
 
     private fun onWhite(bmp: Bitmap): Bitmap {
@@ -144,7 +146,7 @@ internal object Engine {
         try {
             PdfRenderer(pfd).use { renderer ->
                 val count = renderer.pageCount
-                if (count == 0) error("This PDF has no pages.")
+                if (count == 0) error(t(R.string.convert_this_pdf_has_no_pages))
                 sub = if (count > 1) Storage.safe(src.base) else null
                 val pad = count.toString().length
                 for (i in 0 until count) {
@@ -181,7 +183,7 @@ internal object Engine {
                     text.append(stripper.getText(pdf).trim()).append("\n\n")
                     progress(i / pages.toFloat() * 0.95f)
                 }
-                if (text.isBlank()) error("No selectable text found. This PDF may be scanned pictures of pages.")
+                if (text.isBlank()) error(t(R.string.convert_no_selectable_text_found_this_pdf_may))
                 val name = Storage.save(context, Fmt.Txt.folder, null, "${src.base}.txt") { it.write(text.toString().trim().plus("\n").toByteArray()) }
                 return mkOutput(Fmt.Txt, null, listOf(name))
             }

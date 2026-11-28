@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.material.icons.automirrored.rounded.MenuBook
 import android.content.Context
 import android.content.Intent
@@ -135,7 +137,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
 
     val allUris = recents.map { it.uri }
     OneUiScaffold(
-        title = "Documents", onBack = onBack,
+        title = t(R.string.reader_documents), onBack = onBack,
         selection = if (selecting) com.tools.app.ui.Selection(
             count = selected.size,
             allSelected = allUris.isNotEmpty() && selected.size == allUris.size,
@@ -145,7 +147,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         bottomBar = if (selecting) ({
             com.tools.app.ui.SelectionActions(
                 listOf(
-                    Triple(OneUiIcons.Delete, "Remove") {
+                    Triple(OneUiIcons.Delete, t(R.string.audio_remove)) {
                         removeRecents(recents.filter { it.uri in selected }); selecting = false; selected = emptySet()
                     },
                 ),
@@ -154,14 +156,14 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         }) else null,
         actions = {
             com.tools.app.ui.TipsMenu(listOf(
-                com.tools.app.ui.Tip("Make it your default", "Open any PDF in My Files, choose One Reader, then tap \"Always\"."),
-                com.tools.app.ui.Tip("Clear recents", "Tap the bin beside a document to take it off Recent, or long-press to select several. This only clears the list; the files stay where they are."),
+                com.tools.app.ui.Tip(t(R.string.reader_make_it_your_default), t(R.string.reader_open_any_pdf_in_my_files_choose_one_re)),
+                com.tools.app.ui.Tip(t(R.string.reader_clear_recents), t(R.string.reader_tap_the_bin_beside_a_document_to_take)),
             ))
         },
     ) {
         card("open") {
             ListRow(
-                "Open file", summary = "PDF, Word and text files",
+                t(R.string.reader_open_file), summary = t(R.string.reader_pdf_word_and_text_files),
                 onClick = { picker.launch(SupportedMimes) },
             )
         }
@@ -171,11 +173,11 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
             card("undo") {
                 Row(Modifier.padding(start = 20.dp, end = 8.dp, top = 6.dp, bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        if (gone.size == 1) "Removed from recents" else "${gone.size} removed from recents",
+                        if (gone.size == 1) t(R.string.reader_removed_from_recents) else t(R.string.reader_removed_from_recents_2, gone.size),
                         fontSize = 15.sp, color = OneUi.colors.text, modifier = Modifier.weight(1f),
                     )
                     Text(
-                        "Undo", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent,
+                        t(R.string.reader_undo), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent,
                         modifier = Modifier.clip(androidx.compose.foundation.shape.CircleShape)
                             .clickable { ReaderStore.restore(ctx, gone); recents = ReaderStore.recents(ctx); removed = emptyList() }
                             .padding(horizontal = 14.dp, vertical = 10.dp),
@@ -185,7 +187,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         }
 
         if (recents.isNotEmpty()) {
-            sectionLabel("Recent")
+            sectionLabel(t(R.string.reader_recent))
             cardList(recents, key = { "r-" + it.uri }) { r ->
                 ListRow(
                     r.name, summary = recentSummary(r),
@@ -206,7 +208,7 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
         }
 
         if (docs.isNotEmpty()) {
-            sectionLabel("Good Utilities documents")
+            sectionLabel(t(R.string.reader_good_utilities_documents))
             cardList(docs, key = { "d-" + it.path }) { f ->
                 val kind = kindOfName(f.name)
                 ListRow(
@@ -216,15 +218,15 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
                 )
             }
         }
-        if (recents.isEmpty() && docs.isEmpty()) description("Documents you open show up here, with the page you were on.")
+        if (recents.isEmpty() && docs.isEmpty()) description(t(R.string.reader_documents_you_open_show_up_here_with_t))
     }
 
     broken?.let { r ->
         OneUiDialog(
-            "Can't open file", { broken = null },
-            listOf("Cancel" to { broken = null }, "Remove" to { ReaderStore.remove(ctx, r.uri); recents = ReaderStore.recents(ctx); broken = null }),
+            t(R.string.reader_can_t_open_file), { broken = null },
+            listOf(t(R.string.ui_cancel) to { broken = null }, t(R.string.audio_remove) to { ReaderStore.remove(ctx, r.uri); recents = ReaderStore.recents(ctx); broken = null }),
         ) {
-            Text("\"${r.name}\" was moved or deleted, or One Reader no longer has access to it. Remove it from recents?", fontSize = 14.5.sp, color = OneUi.colors.textSecondary)
+            Text(t(R.string.reader_was_moved_or_deleted_or_one_reader_no, r.name), fontSize = 14.5.sp, color = OneUi.colors.textSecondary)
         }
     }
 }
@@ -240,8 +242,8 @@ private fun RemoveButton(onClick: () -> Unit) {
         }),
         contentAlignment = Alignment.Center,
     ) {
-        if (label) com.tools.app.ui.IconLabel("Remove from recents") { label = false }
-        Icon(OneUiIcons.Delete, "Remove from recents", tint = OneUi.colors.text, modifier = Modifier.size(22.dp))
+        if (label) com.tools.app.ui.IconLabel(t(R.string.reader_remove_from_recents)) { label = false }
+        Icon(OneUiIcons.Delete, t(R.string.reader_remove_from_recents), tint = OneUi.colors.text, modifier = Modifier.size(22.dp))
     }
 }
 
@@ -252,13 +254,13 @@ private fun kindOfName(n: String) = when (n.substringAfterLast('.', "").lowercas
 private fun recentSummary(r: Recent): String {
     val whenText = relative(r.opened)
     return if (r.kind == Kind.Pdf || r.kind == Kind.Docx) {
-        if (r.pages > 0) "Page ${r.page + 1} of ${r.pages} · $whenText" else whenText
+        if (r.pages > 0) t(R.string.reader_page_of, r.page + 1, r.pages, whenText) else whenText
     } else whenText
 }
 
 private fun relative(t: Long): String {
     val now = System.currentTimeMillis()
-    if (now - t < 60_000) return "just now"
+    if (now - t < 60_000) return t(R.string.reader_just_now)
     val a = Calendar.getInstance().apply { timeInMillis = t }
     val b = Calendar.getInstance()
     val days = (startOfDay(b) - startOfDay(a)) / 86_400_000L

@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.OneUiIcons
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
@@ -37,7 +39,7 @@ class CustomLockState {
     var revealed by mutableStateOf(false)
     var pinMode by mutableStateOf(false)
     var fingerprintAvailable by mutableStateOf(true)
-    var message by mutableStateOf("Enter your Tools PIN")
+    var message by mutableStateOf(t(R.string.lock_enter_your_tools_pin))
     var error by mutableStateOf(false)
     var entered by mutableStateOf("")
     var pinLength by mutableIntStateOf(0)
@@ -89,7 +91,7 @@ private fun PinPanel(state: CustomLockState, onDigit: (Char) -> Unit, onDelete: 
                 Box(
                     Modifier.size(64.dp).clip(CircleShape).clickable(onClick = onUseFingerprint),
                     contentAlignment = Alignment.Center,
-                ) { Icon(OneUiIcons.Fingerprint, "Use fingerprint", tint = White, modifier = Modifier.size(30.dp)) }
+                ) { Icon(OneUiIcons.Fingerprint, t(R.string.lock_use_fingerprint), tint = White, modifier = Modifier.size(30.dp)) }
             }) else null,
         )
     }

@@ -1,0 +1,170 @@
+print_image | Image | Görüntü
+print_page_of | Page %1$s sur %2$s | Sayfa %1$s / %2$s
+print_selected |   ·  %1$s sélectionnées |   ·  %1$s seçili
+print_searching_your_wi_fi_network | Recherche sur votre réseau Wi-Fi… | Wi-Fi ağınız taranıyor…
+print_can_t_refresh |  · actualisation impossible |  · yenilenemiyor
+print_connecting | Connexion… | Bağlanıyor…
+print_change | Changer | Değiştir
+print_toner | Toner | Toner
+print_copies | Copies | Kopya
+print_paper_size | Format du papier | Kâğıt boyutu
+print_two_sided | Recto verso | Çift taraflı
+print_long_edge | Bord long | Uzun kenar
+print_short_edge | Bord court | Kısa kenar
+print_color | Couleur | Renkli
+print_black_white | Noir et blanc | Siyah beyaz
+print_orientation | Orientation | Yön
+print_auto | Auto | Otomatik
+print_portrait | Portrait | Dikey
+print_landscape | Paysage | Yatay
+print_draft | Brouillon | Taslak
+print_normal | Normale | Normal
+print_high | Élevée | Yüksek
+print_fit_to_page | Ajuster à la page | Sayfaya sığdır
+print_loaded_in_the_printer | Chargé dans l'imprimante | Yazıcıda takılı
+print_all | Toutes (%1$s) | Tümü (%1$s)
+print_range | Plage | Aralık
+print_use_page_numbers_and_ranges_like_1_3_5 | Utilisez des numéros et des plages de pages, par ex. 1-3, 5 | Sayfa numaraları ve aralıklar kullanın, ör. 1-3, 5
+print_printers | Imprimantes | Yazıcılar
+print_not_reachable |  · injoignable |  · ulaşılamıyor
+print_looking_for_printers | Recherche d'imprimantes… | Yazıcı aranıyor…
+print_still_looking | Recherche en cours… | Hâlâ aranıyor…
+print_no_printers_found_make_sure_the_printe | Aucune imprimante trouvée. Vérifiez qu'elle est allumée et sur ce Wi-Fi. | Yazıcı bulunamadı. Yazıcının açık ve bu Wi-Fi'ye bağlı olduğundan emin olun.
+print_search_again | Rechercher à nouveau | Yeniden ara
+print_add_printer_by_ip_address | Ajouter une imprimante par adresse IP | IP adresiyle yazıcı ekle
+print_add_printer | Ajouter une imprimante | Yazıcı ekle
+print_enter_the_ip_address_shown_on_the_prin | Saisissez l'adresse IP affichée dans les paramètres réseau de l'imprimante. | Yazıcının ağ ayarları sayfasında gösterilen IP adresini girin.
+print_contacting_the_printer | Connexion à l'imprimante… | Yazıcıyla bağlantı kuruluyor…
+print_couldn_t_open_that_file | Impossible d'ouvrir ce fichier. | Bu dosya açılamadı.
+print_couldn_t_open | Impossible d'ouvrir %1$s. | %1$s açılamadı.
+print_is_password_protected | %1$s est protégé par mot de passe. | %1$s şifre korumalı.
+print_couldn_t_read | Impossible de lire %1$s. | %1$s okunamadı.
+print_has_no_pages | %1$s n'a aucune page. | %1$s hiç sayfa içermiyor.
+print_isn_t_a_pdf_or_an_image_i_can_print | %1$s n'est ni un PDF ni une image imprimable. | %1$s yazdırabileceğim bir PDF veya görüntü değil.
+print_enter_the_printer_s_ip_address_like_19 | Saisissez l'adresse IP de l'imprimante, par ex. 192.168.1.50. | Yazıcının IP adresini girin, ör. 192.168.1.50.
+print_found_something_at_but_it_didn_t_answe | Un appareil a été trouvé à %1$s, mais il n'a pas répondu comme une imprimante. | %1$s adresinde bir şey bulundu ama bir yazıcı gibi yanıt vermedi.
+print_can_t_reach_the_printer_check_that_it | Imprimante injoignable. Vérifiez qu'elle est allumée et sur le même Wi-Fi que ce téléphone. | Yazıcıya ulaşılamıyor. Açık olduğundan ve bu telefonla aynı Wi-Fi'ye bağlı olduğundan emin olun.
+print_the_printer_reported_an_error | L'imprimante a signalé une erreur. | Yazıcı bir hata bildirdi.
+print_the_connection_to_the_printer_was_inte | La connexion à l'imprimante a été interrompue. | Yazıcıyla bağlantı kesildi.
+print_something_went_wrong | Un problème est survenu. | Bir sorun oluştu.
+print_cancelling | Annulation… | İptal ediliyor…
+print_print_cancelled | Impression annulée. | Yazdırma iptal edildi.
+print_not_enough_memory_to_prepare_this_docu | Mémoire insuffisante pour préparer ce document. | Bu belgeyi hazırlamak için bellek yetersiz.
+print_choose_a_printer_first | Choisissez d'abord une imprimante. | Önce bir yazıcı seçin.
+print_waiting_for_the_printer_s_details | En attente des informations de l'imprimante… | Yazıcı bilgileri bekleniyor…
+print_select_at_least_one_page | Sélectionnez au moins une page. | En az bir sayfa seçin.
+print_this_printer_only_accepts_documents_th | Cette imprimante n'accepte les documents que via son propre pilote. Elle ne gère pas PDF, PWG raster, URF ni JPEG. | Bu yazıcı belgeleri yalnızca kendi sürücüsüyle kabul ediyor. PDF, PWG raster, URF veya JPEG desteklemiyor.
+print_sending | Envoi… %1$s %% | Gönderiliyor… %%%1$s
+print_sending_2 | Envoi… | Gönderiliyor…
+print_sent_to_the_printer | Envoyé à l'imprimante. | Yazıcıya gönderildi.
+print_waiting_for_the_printer | En attente de l'imprimante… | Yazıcı bekleniyor…
+print_printed | Imprimé. | Yazdırıldı.
+print_the_printer_couldn_t_finish_the_job | L'imprimante n'a pas pu terminer la tâche | Yazıcı işi tamamlayamadı
+print_printing_of | Impression… %1$s sur %2$s | Yazdırılıyor… %1$s / %2$s
+print_paper_jam | bourrage papier | kâğıt sıkışması
+print_out_of_paper | plus de papier | kâğıt bitti
+print_out_of_toner | plus de toner | toner bitti
+print_cover_open | capot ouvert | kapak açık
+print_receiving_data | réception des données | veri alınıyor
+print_paper_jam_2 | Bourrage papier | Kâğıt sıkışması
+print_out_of_paper_2 | Plus de papier | Kâğıt bitti
+print_out_of_toner_2 | Plus de toner | Toner bitti
+print_cover_open_2 | Capot ouvert | Kapak açık
+print_offline | Hors ligne | Çevrimdışı
+print_output_tray_full | Bac de sortie plein | Çıkış tepsisi dolu
+print_stopped | Arrêtée | Durduruldu
+print_not_accepting_jobs | N'accepte pas les tâches | İş kabul etmiyor
+print_printing_2 | Impression | Yazdırılıyor
+print_toner_low | Toner faible | Toner az
+print_paper_low | Papier faible | Kâğıt az
+print_ready_replace_drum_soon | Prête · remplacez bientôt le tambour | Hazır · tamburu yakında değiştirin
+print_ready_sleeping | Prête (en veille) | Hazır (uyku modunda)
+print_ready | Prête | Hazır
+print_the_printer_didn_t_understand_the_requ | L'imprimante n'a pas compris la demande. | Yazıcı isteği anlamadı.
+print_the_printer_needs_a_login_or_doesn_t_a | L'imprimante exige une connexion ou n'autorise pas ce téléphone. | Yazıcı oturum açılmasını istiyor ya da bu telefona izin vermiyor.
+print_the_printer_couldn_t_find_the_print_qu | L'imprimante n'a pas trouvé la file d'impression. | Yazıcı yazdırma kuyruğunu bulamadı.
+print_the_printer_is_busy_try_again_in_a_mom | L'imprimante est occupée. Réessayez dans un instant. | Yazıcı meşgul. Biraz sonra yeniden deneyin.
+print_the_printer_doesn_t_know_this_job_any | L'imprimante ne connaît plus cette tâche. | Yazıcı artık bu işi tanımıyor.
+print_the_document_is_too_large_for_the_prin | Le document est trop volumineux pour l'imprimante. | Belge yazıcı için çok büyük.
+print_the_printer_doesn_t_accept_this_kind_o | L'imprimante n'accepte pas ce type de document. | Yazıcı bu tür belgeleri kabul etmiyor.
+print_the_printer_rejected_some_print_settin | L'imprimante a refusé certains réglages d'impression. | Yazıcı bazı yazdırma ayarlarını reddetti.
+print_the_printer_doesn_t_support_this_ipp_v | L'imprimante ne gère pas cette version d'IPP. | Yazıcı bu IPP sürümünü desteklemiyor.
+print_the_printer_is_not_accepting_jobs_righ | L'imprimante n'accepte pas de tâches pour le moment. | Yazıcı şu anda iş kabul etmiyor.
+print_the_printer_reported_an_error_0x | L'imprimante a signalé une erreur (0x%1$s). | Yazıcı bir hata bildirdi (0x%1$s).
+print_this_printer_needs_an_encrypted_connec | Cette imprimante exige une connexion chiffrée | Bu yazıcı şifreli bağlantı gerektiriyor
+print_the_printer_answered_http | L'imprimante a répondu HTTP %1$s | Yazıcı HTTP %1$s ile yanıt verdi
+print_the_printer_refused_the_request_0x | L'imprimante a refusé la demande (0x%1$s) | Yazıcı isteği reddetti (0x%1$s)
+print_the_printer_did_not_send_its_attribute | L'imprimante n'a pas envoyé ses attributs | Yazıcı özelliklerini göndermedi
+print_black | Noir | Siyah
+print_cyan | Cyan | Camgöbeği
+print_magenta | Magenta | Macenta
+print_yellow | Jaune | Sarı
+compress_shrink_a_video | Réduire une vidéo | Bir videoyu küçültün
+compress_shrink_an_audio_file | Réduire un fichier audio | Bir ses dosyasını küçültün
+compress_shrink_photos | Réduire des photos | Fotoğrafları küçültün
+compress_re_encode_with_the_phone_s_hardware_en | Réencodez avec l'encodeur matériel du téléphone pour alléger fortement les grosses vidéos. | Büyük videoları çok daha küçük hâle getirmek için telefonun donanım kodlayıcısıyla yeniden kodlayın.
+compress_convert_to_mp3_aac_or_opus_at_a_lower | Convertissez en MP3, AAC ou Opus à un débit plus faible. | Daha düşük bit hızında MP3, AAC veya Opus'a dönüştürün.
+compress_smaller_photos_for_sites_with_upload_l | Des photos plus légères pour les sites qui limitent la taille : redimensionnées, en JPEG, sans données de localisation. | Yükleme sınırı olan siteler için daha küçük fotoğraflar: yeniden boyutlandırılmış, JPEG, konum bilgisi olmadan.
+compress_photo | Photo | Fotoğraf
+compress_compressing | Compression… | Sıkıştırılıyor…
+compress_compress | Compresser | Sıkıştır
+compress_kbps | %1$s · %2$s kbps · %3$s | %1$s · %2$s kbps · %3$s
+compress_codec | Codec | Codec
+compress_h_264_compatible | H.264 · compatible | H.264 · uyumlu
+compress_hevc_smaller | HEVC · plus léger | HEVC · daha küçük
+compress_remove_audio | Supprimer le son | Sesi kaldır
+compress_choose_a_video_to_see_the_estimated_si | Choisissez une vidéo pour voir la taille estimée. | Tahmini boyutu görmek için bir video seçin.
+compress_photos | %1$s photos | %1$s fotoğraf
+compress_longest_side_px | Plus grand côté (px) | En uzun kenar (px)
+compress_max_file_size | Taille de fichier max. | Azami dosya boyutu
+compress_choose_photos_to_compress_saved_as_jpe | Choisissez des photos à compresser. Enregistrées en JPEG ; la localisation et les infos de l'appareil photo sont supprimées. | Sıkıştırılacak fotoğrafları seçin. JPEG olarak kaydedilir; konum ve kamera bilgileri kaldırılır.
+compress_saved_as_jpeg_to_location_and_camera_d | Enregistrées en JPEG dans %1$s. La localisation et les infos de l'appareil photo sont supprimées. | JPEG olarak %1$s konumuna kaydedilir. Konum ve kamera bilgileri kaldırılır.
+compress_bitrate | Débit | Bit hızı
+compress_mono | Mono | Mono
+compress_keep_tags | Conserver les tags | Etiketleri koru
+compress_keep_tags_and_cover_art | Conserver les tags et la pochette | Etiketleri ve kapak resmini koru
+compress_choose_a_file_to_see_the_estimated_siz | Choisissez un fichier pour voir la taille estimée. | Tahmini boyutu görmek için bir dosya seçin.
+compress_estimated_size_about_smaller | Taille estimée : ≈ %1$s (environ %2$s %% de moins) | Tahmini boyut: ≈ %1$s (yaklaşık %%%2$s daha küçük)
+compress_estimated_size_that_isn_t_smaller_than | Taille estimée : ≈ %1$s. Ce n'est pas plus petit que l'original ; choisissez un réglage plus bas. | Tahmini boyut: ≈ %1$s. Bu, orijinalden küçük değil; daha düşük bir ayar seçin.
+compress_estimated_size | Taille estimée : ≈ %1$s | Tahmini boyut: ≈ %1$s
+compress_saved |  · %1$s %% économisés |  · %%%1$s tasarruf
+compress_balanced | Équilibrée | Dengeli
+compress_small | Légère | Küçük
+compress_couldn_t_open_those_photos | Impossible d'ouvrir ces photos | Bu fotoğraflar açılamadı
+compress_compressing_of | Compression %1$s sur %2$s… | Sıkıştırılıyor: %1$s / %2$s…
+compress_not_enough_memory_for_a_photo_this_lar | Mémoire insuffisante pour une photo aussi grande. Choisissez une taille plus petite. | Bu kadar büyük bir fotoğraf için bellek yetersiz. Daha küçük bir boyut seçin.
+compress_couldn_t_open_that_video | Impossible d'ouvrir cette vidéo | Bu video açılamadı
+compress_that_file_doesn_t_look_like_a_video | Ce fichier ne semble pas être une vidéo | Bu dosya bir videoya benzemiyor
+compress_that_video_can_t_be_read | Cette vidéo est illisible | Bu video okunamıyor
+compress_retrying_with_h_264 | Nouvel essai en H.264… | H.264 ile yeniden deneniyor…
+compress_allow_all_files_access_to_save | Autorisez l'accès à tous les fichiers pour enregistrer | Kaydetmek için tüm dosyalara erişime izin verin
+compress_this_video_s_format_isn_t_supported_on | Le format de cette vidéo n'est pas pris en charge sur ce téléphone. | Bu videonun biçimi bu telefonda desteklenmiyor.
+compress_this_phone_couldn_t_start_the_encoder | Ce téléphone n'a pas pu démarrer l'encodeur. Essayez H.264 ou une autre résolution. | Bu telefon kodlayıcıyı başlatamadı. H.264'ü veya farklı bir çözünürlüğü deneyin.
+compress_couldn_t_read_the_video_any_more_pick | Impossible de relire la vidéo. Choisissez-la à nouveau. | Video artık okunamıyor. Yeniden seçin.
+compress_compression_failed_try_h_264 | Échec de la compression (%1$s). Essayez H.264. | Sıkıştırma başarısız (%1$s). H.264'ü deneyin.
+compress_couldn_t_compress_this_audio | Impossible de compresser cet audio : %1$s | Bu ses sıkıştırılamadı: %1$s
+compress_compression_failed | Échec de la compression | Sıkıştırma başarısız
+compress_no_limit | Aucune limite | Sınır yok
+apk_this_app_is_too_large_to_merge_on_the | Cette appli est trop volumineuse pour être fusionnée sur le téléphone | Bu uygulama telefonda birleştirilemeyecek kadar büyük
+apk_where_they_go | Où ils sont enregistrés | Nereye kaydedilir
+apk_apps_are_saved_as_apk_files_in | Les applis sont enregistrées en fichiers APK dans %1$s. | Uygulamalar APK dosyası olarak %1$s konumuna kaydedilir.
+apk_split_apps | Applis fractionnées | Bölünmüş uygulamalar
+apk_split_apps_and_bundle_files_apks_xapk | Les applis fractionnées et les paquets (.apks, .xapk, .apkm) sont fusionnés en un seul APK installable partout. | Bölünmüş uygulamalar ve paket dosyaları (.apks, .xapk, .apkm) her yere yükleyebileceğiniz tek bir APK'de birleştirilir.
+apk_merge_a_split_apk_file | Fusionner un fichier APK fractionné | Bölünmüş bir APK dosyasını birleştir
+apk_no_apps_found | Aucune appli trouvée | Uygulama bulunamadı
+apk_installed_apps | Applis installées | Yüklü uygulamalar
+apk_loading_apps | Chargement des applis… | Uygulamalar yükleniyor…
+apk_split_parts | Fractionnée · %1$s parties | Bölünmüş · %1$s parça
+apk_saved_to_n | Enregistré dans %1$s\n%2$s | %1$s konumuna kaydedildi\n%2$s
+apk_the_merged_apk_is_signed_by_good_utili | L'APK fusionné est signé par Good Utilities, pas par le développeur d'origine. Désinstallez toute version installée avant de l'installer ; il ne recevra pas les mises à jour du Play Store. | Birleştirilen APK, asıl geliştirici tarafından değil Good Utilities tarafından imzalanır. Yüklemeden önce yüklü sürümü kaldırın; Play güncellemelerini almaz.
+apk_couldn_t_save_this_n | Impossible d'enregistrer.\n%1$s | Kaydedilemedi.\n%1$s
+apk_save_apks | Enregistrer en .apks | .apks olarak kaydet
+apk_merge_apk | Fusionner l'APK | APK'yi birleştir
+apk_save_apk | Enregistrer l'APK | APK'yi kaydet
+apk_installed_as_parts_n_n | Installée en %1$s parties (%2$s).\n\n | %1$s parça olarak yüklü (%2$s).\n\n
+apk_merge_apk_one_installable_apk_re_signe | Fusionner l'APK : un seul APK installable, re-signé par Good Utilities.\n | APK'yi birleştir: Good Utilities tarafından yeniden imzalanan, yüklenebilir tek bir APK.\n
+apk_save_apks_all_parts_zipped_with_the_or | Enregistrer en .apks : toutes les parties zippées avec la signature d'origine, pour les installeurs comme SAI. | .apks olarak kaydet: tüm parçalar orijinal imzayla sıkıştırılır; SAI gibi bölünmüş yükleyiciler için.
+apk_single_apk_it_is_copied_with_its_origi | APK unique, %1$s. Il est copié avec sa signature d'origine. | Tek APK, %1$s. Orijinal imzasıyla kopyalanır.
+apk_packing_parts | Empaquetage de %1$s parties… | %1$s parça paketleniyor…
+apk_copying_parts | Copie de %1$s parties… | %1$s parça kopyalanıyor…
+apk_unpacking | Décompression… | Açılıyor…

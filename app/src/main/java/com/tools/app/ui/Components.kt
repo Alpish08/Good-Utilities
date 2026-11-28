@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import com.tools.app.R
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.layout.ime
@@ -246,7 +247,7 @@ fun OneUiScaffold(
     val density = LocalDensity.current
     val statusTop = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     val navBottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-    val shownTitle = selection?.let { if (it.count == 0) "Select items" else "${it.count} selected" } ?: title
+    val shownTitle = selection?.let { if (it.count == 0) t(R.string.ui_select_items) else t(R.string.ui_selected, it.count) } ?: title
     // Every page can show the big title; expandedTitle = false only means it starts collapsed
     // (pull down at the top to expand it, like Samsung apps, for one-handed use).
     val expanded = true
@@ -633,11 +634,11 @@ private fun Toolbar(
                     }),
                 contentAlignment = Alignment.Center,
             ) {
-                if (backLabel) IconLabel("Navigate up") { backLabel = false }
+                if (backLabel) IconLabel(t(R.string.ui_navigate_up)) { backLabel = false }
                 FrostBackground(Modifier.size(46.dp), CircleShape, LocalToolbarChip.current)
                 // Press highlight the same 46 dp circle as the floating chip.
                 Box(Modifier.size(46.dp).clip(CircleShape).indication(backSource, LocalIndication.current), contentAlignment = Alignment.Center) {
-                    Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
+                    Icon(OneUiIcons.ArrowBack, t(R.string.ui_navigate_up), tint = c.text, modifier = Modifier.size(24.dp))
                 }
             }
         } else Spacer(Modifier.width(20.dp))
@@ -842,7 +843,7 @@ fun IconBadge(icon: ImageVector) {
 
 /** The "On / Off" card at the top of Samsung feature pages (e.g. Battery protection). */
 @Composable
-fun MasterSwitchCard(checked: Boolean, onCheckedChange: (Boolean) -> Unit, enabled: Boolean = true, onText: String = "On", offText: String = "Off") {
+fun MasterSwitchCard(checked: Boolean, onCheckedChange: (Boolean) -> Unit, enabled: Boolean = true, onText: String = t(R.string.ui_on), offText: String = t(R.string.ui_off)) {
     val c = OneUi.colors
     Row(
         Modifier
@@ -1295,7 +1296,7 @@ fun formatDuration(seconds: Int): String {
 
 fun formatTotal(seconds: Int): String {
     val h = seconds / 3600; val m = (seconds % 3600) / 60
-    return if (h > 0) "$h h $m min" else if (m > 0) "$m min" else "$seconds sec"
+    return if (h > 0) t(R.string.ui_h_min, h, m) else if (m > 0) t(R.string.ui_min, m) else t(R.string.ui_sec, seconds)
 }
 
 /**
@@ -1312,7 +1313,7 @@ fun OverflowMenu(items: List<Pair<String, () -> Unit>>) {
     var anchor by remember { mutableStateOf(androidx.compose.ui.geometry.Rect.Zero) }
     val view = LocalView.current
     Box(Modifier.onGloballyPositioned { anchor = it.boundsInWindow() }) {
-        ToolbarIcon(OneUiIcons.More, "More options") {
+        ToolbarIcon(OneUiIcons.More, t(R.string.ui_more_options)) {
             val window = view.context.findActivityWindow()
             if (window == null || view.width == 0 || android.os.Build.VERSION.SDK_INT < 31) { backdrop = null; open = true; return@ToolbarIcon }
             val bmp = android.graphics.Bitmap.createBitmap(view.width, view.height, android.graphics.Bitmap.Config.ARGB_8888)
@@ -1497,15 +1498,15 @@ fun JobStatus(running: Float?, done: String?, error: String?, onCancel: () -> Un
         when {
             running != null -> {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Working… ${(running * 100).roundToInt()}%", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.weight(1f))
+                    Text(t(R.string.ui_working, (running * 100).roundToInt()), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.weight(1f))
                     Text(
-                        "Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                        t(R.string.ui_cancel), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                         modifier = Modifier.clip(CircleShape).clickable(onClick = onCancel).padding(horizontal = 10.dp, vertical = 4.dp),
                     )
                 }
                 ThinProgress(running, Modifier.padding(top = 8.dp))
             }
-            done != null -> Text("Saved to ${com.tools.app.Storage.label(com.tools.app.Storage.Folder.Audio)} · $done", fontSize = 14.sp, color = c.success)
+            done != null -> Text(t(R.string.ui_saved_to, com.tools.app.Storage.label(com.tools.app.Storage.Folder.Audio), done), fontSize = 14.sp, color = c.success)
             error != null -> Text(error, fontSize = 14.sp, color = c.error)
         }
     }
@@ -1678,7 +1679,7 @@ private fun SelectAllCheck(all: Boolean, count: Int, onToggle: () -> Unit) {
                 // and the circle settles into the chip's centre line.
                 RoundCheck(all, Modifier.size(22.dp).graphicsLayer { translationY = (1f - chip()) * -3.dp.toPx() })
                 Text(
-                    "All", fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                    t(R.string.ui_all), fontSize = 10.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
                     modifier = Modifier.graphicsLayer { translationY = 17.dp.toPx(); alpha = 1f - chip() },
                 )
             }
@@ -1704,7 +1705,7 @@ private fun SelectAllCheck(all: Boolean, count: Int, onToggle: () -> Unit) {
 private fun SelectionCancel(onCancel: () -> Unit) {
     val c = OneUi.colors
     Text(
-        "Cancel", fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = c.text,
+        t(R.string.ui_cancel), fontSize = 16.5.sp, fontWeight = FontWeight.Bold, color = c.text,
         modifier = Modifier.clip(CircleShape).clickable(onClick = onCancel).padding(horizontal = 14.dp, vertical = 12.dp),
     )
 }
@@ -1794,7 +1795,7 @@ class Tip(val title: String, val text: String)
 fun tipsItem(tips: List<Tip>): Pair<String, () -> Unit> {
     var open by remember { mutableStateOf(false) }
     if (open) TipsDialog(tips) { open = false }
-    return "Tips" to { open = true }
+    return t(R.string.ui_tips) to { open = true }
 }
 
 /** A ⋮ menu holding just [tipsItem], for pages with no other menu entries. */
@@ -1804,7 +1805,7 @@ fun TipsMenu(tips: List<Tip>) = OverflowMenu(listOf(tipsItem(tips)))
 @Composable
 private fun TipsDialog(tips: List<Tip>, onDismiss: () -> Unit) {
     val c = OneUi.colors
-    OneUiDialog("Tips", onDismiss, listOf("Close" to onDismiss)) {
+    OneUiDialog(t(R.string.ui_tips), onDismiss, listOf(t(R.string.ui_close) to onDismiss)) {
         Column(Modifier.heightIn(max = 440.dp).verticalScroll(androidx.compose.foundation.rememberScrollState()).padding(top = 2.dp)) {
             tips.forEachIndexed { i, t ->
                 Text(

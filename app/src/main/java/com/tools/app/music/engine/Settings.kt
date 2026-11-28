@@ -5,11 +5,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class Quality(val arg: String, val label: String, val summary: String) {
-    Best("0", "Best", "Variable bitrate, around 245 kbps"),
-    K320("320K", "320 kbps", "Constant bitrate, largest files"),
-    K192("192K", "192 kbps", "Good balance of size and quality"),
-    K128("128K", "128 kbps", "Smallest files"),
+enum class Quality(val arg: String, private val labelRes: Int, private val summaryRes: Int) {
+    Best("0", com.tools.app.R.string.music_q_best, com.tools.app.R.string.music_q_best_summary),
+    K320("320K", com.tools.app.R.string.music_q_320, com.tools.app.R.string.music_q_320_summary),
+    K192("192K", com.tools.app.R.string.music_q_192, com.tools.app.R.string.music_q_192_summary),
+    K128("128K", com.tools.app.R.string.music_q_128, com.tools.app.R.string.music_q_128_summary),
+    ;
+    val label get() = com.tools.app.ui.t(labelRes)
+    val summary get() = com.tools.app.ui.t(summaryRes)
 }
 
 data class Options(

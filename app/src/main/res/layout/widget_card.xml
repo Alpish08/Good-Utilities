@@ -49,7 +49,7 @@
                 android:layout_height="48dp"
                 
                 android:background="@drawable/widget_card_button"
-                android:contentDescription="Log a purchase"
+                android:contentDescription="@string/widget_log_a_purchase"
                 android:fontFamily="sec"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -63,7 +63,7 @@
                 android:layout_height="48dp"
                 android:layout_marginStart="8dp"
                 android:background="@drawable/widget_card_button"
-                android:contentDescription="Add money"
+                android:contentDescription="@string/widget_add_money"
                 android:fontFamily="sec"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -159,7 +159,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:fontFamily="sec"
-            android:text="No entries yet"
+            android:text="@string/widget_no_entries_yet"
             android:textColor="@color/widget_card_sub"
             android:textSize="14sp"
             android:visibility="gone" />

@@ -1,5 +1,7 @@
 package com.tools.app.home
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.widget.Toast
@@ -46,64 +48,64 @@ enum class GuideKind { AppLock, Battery }
 fun GuideScreen(kind: GuideKind, onBack: () -> Unit) {
     val before = listOf(
         Step(
-            "Turn on USB debugging",
-            "Settings › About phone › Software information › tap Build number 7 times. Then Settings › Developer options › USB debugging. Connect the phone to your computer and allow it.",
+            t(R.string.guide_turn_on_usb_debugging),
+            t(R.string.guide_settings_about_phone_software_informat),
         ),
         Step(
-            "Install adb on your Mac (once)",
-            "Homebrew installs Google's platform tools. Check that the phone shows up as \"device\".",
+            t(R.string.guide_install_adb_on_your_mac_once),
+            t(R.string.guide_homebrew_installs_google_s_platform_to),
             "brew install android-platform-tools\nadb devices",
         ),
     )
     val (title, intro, steps, note) = when (kind) {
         GuideKind.AppLock -> Quad(
-            "App lock setup",
-            "App lock needs its accessibility service, and Android 16 blocks that for apps installed outside the Play Store. It also switches the service off every time the app is reinstalled or updated over adb, so run this after each update.",
+            t(R.string.guide_app_lock_setup),
+            t(R.string.guide_app_lock_needs_its_accessibility_servi),
             listOf(
                 Step(
-                    "Run the App lock script",
-                    "If you have it on your Mac, this does everything below in one go.",
+                    t(R.string.guide_run_the_app_lock_script),
+                    t(R.string.guide_if_you_have_it_on_your_mac_this_does_e),
                     "~/enable-applock.sh",
                 ),
                 Step(
-                    "Or run the commands yourself",
-                    "Allows restricted settings for Good Utilities, then turns its accessibility service on.",
+                    t(R.string.guide_or_run_the_commands_yourself),
+                    t(R.string.guide_allows_restricted_settings_for_good_ut),
                     "adb shell appops set com.tools.app ACCESS_RESTRICTED_SETTINGS allow\n" +
                         "adb shell settings put secure enabled_accessibility_services com.tools.app/com.tools.app.applock.AppLockService\n" +
                         "adb shell settings put secure accessibility_enabled 1",
                 ),
             ),
-            "The second command replaces your list of enabled accessibility services; if you use others, turn them back on in Settings › Accessibility. Without a computer: App info › ⋮ › Allow restricted settings, then Settings › Accessibility › Installed apps › Good Utilities app lock.",
+            t(R.string.guide_the_second_command_replaces_your_list),
         )
         GuideKind.Battery -> Quad(
-            "Battery setup",
-            "Samsung keeps its battery health (ASOC) and lifetime cycle count in a system service apps can't read, so they come over adb from your computer. Health changes slowly; syncing every few weeks is plenty.",
+            t(R.string.guide_battery_setup),
+            t(R.string.guide_samsung_keeps_its_battery_health_asoc),
             listOf(
                 Step(
-                    "Run the sync script",
-                    "Reads Samsung's battery report and sends health, cycles, first-use and manufacture dates to Good Utilities. It's in the Good Utilities repository.",
+                    t(R.string.guide_run_the_sync_script),
+                    t(R.string.guide_reads_samsung_s_battery_report_and_sen),
                     "~/sync-battery.sh",
                 ),
                 Step(
-                    "Or see the figures yourself",
-                    "mSavedBatteryAsoc is health in %. mSavedBatteryUsage ÷ 100 is the cycle count.",
+                    t(R.string.guide_or_see_the_figures_yourself),
+                    t(R.string.guide_msavedbatteryasoc_is_health_in_msavedb),
                     "adb shell dumpsys battery | grep -E \"Asoc|Usage|FirstUseDate|LLB MAN\"",
                 ),
                 Step(
-                    "…and send them by hand",
-                    "Replace 97 and 75808 with your own Asoc and Usage values.",
+                    t(R.string.guide_and_send_them_by_hand),
+                    t(R.string.guide_replace_97_and_75808_with_your_own_aso),
                     "adb shell am broadcast -f 32 -a com.tools.app.SAMSUNG_BATTERY -n com.tools.app/.battery.SamsungBatterySync --ei asoc 97 --ei usage 75808",
                 ),
             ),
-            "Only adb (or the system) can send these figures; other apps can't. Until the first sync, the Battery page shows its own estimate, which reads a couple of points high on Galaxy phones.",
+            t(R.string.guide_only_adb_or_the_system_can_send_these),
         )
     }
 
     OneUiScaffold(title = title, onBack = onBack) {
         description(intro, key = "intro")
-        sectionLabel("Before you start", key = "before")
+        sectionLabel(t(R.string.guide_before_you_start), key = "before")
         before.forEachIndexed { i, s -> item(key = "b$i") { StepCard(s) } }
-        sectionLabel("Each time", key = "each")
+        sectionLabel(t(R.string.guide_each_time), key = "each")
         steps.forEachIndexed { i, s -> item(key = "s$i") { StepCard(s) } }
         description(note, key = "note")
     }
@@ -130,11 +132,11 @@ private fun StepCard(step: Step) {
                     )
                     Box(
                         Modifier.padding(end = 6.dp).size(40.dp).clip(CircleShape).clickable {
-                            context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("Command", cmd))
-                            Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
+                            context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(t(R.string.guide_command), cmd))
+                            Toast.makeText(context, t(R.string.reader_copied), Toast.LENGTH_SHORT).show()
                         },
                         contentAlignment = Alignment.Center,
-                    ) { Icon(OneUiIcons.Copy, "Copy", tint = c.textSecondary, modifier = Modifier.size(20.dp)) }
+                    ) { Icon(OneUiIcons.Copy, t(R.string.reader_copy), tint = c.textSecondary, modifier = Modifier.size(20.dp)) }
                 }
             }
         }

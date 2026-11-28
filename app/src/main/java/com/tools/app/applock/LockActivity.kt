@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Intent
 import android.os.Bundle
 import android.view.HapticFeedbackConstants
@@ -85,7 +87,7 @@ class LockActivity : FragmentActivity() {
         ui.pinLength = PinStore.length(this)
         ui.fingerprintAvailable = fingerprintReady()
         ui.pinMode = !ui.fingerprintAvailable
-        ui.message = "Enter your Tools PIN"
+        ui.message = t(R.string.lock_enter_your_tools_pin)
         val compose = ComposeView(this).apply {
             setContent {
                 OneUiTheme(landscapeHidesStatusBar = false) {
@@ -153,14 +155,14 @@ class LockActivity : FragmentActivity() {
     private fun prompt() {
         if (prompting || unlocking || target.isEmpty() || isFinishing) return
         if (!fingerprintReady()) { // no fingerprint enrolled
-            if (hasPin) showPin("Enter your Tools PIN", error = false) else credentialPrompt()
+            if (hasPin) showPin(t(R.string.lock_enter_your_tools_pin), error = false) else credentialPrompt()
             return
         }
         prompting = true
         // Only Samsung's fingerprint icon shows: the cover stays over its card.
         AppLockService.instance?.coverPrompt(target)
-        val info = BiometricPrompt.PromptInfo.Builder().setTitle("Unlock $label")
-            .setAllowedAuthenticators(BIOMETRIC_STRONG).setNegativeButtonText("Use PIN")
+        val info = BiometricPrompt.PromptInfo.Builder().setTitle(t(R.string.lock_unlock, label))
+            .setAllowedAuthenticators(BIOMETRIC_STRONG).setNegativeButtonText(t(R.string.lock_use_pin))
         prompt = BiometricPrompt(this, mainExecutor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 prompting = false
@@ -168,7 +170,7 @@ class LockActivity : FragmentActivity() {
             }
 
             override fun onAuthenticationFailed() {
-                AppLockService.instance?.promptFeedback("Fingerprint not recognised")
+                AppLockService.instance?.promptFeedback(t(R.string.lock_fingerprint_not_recognised))
             }
 
             override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -179,9 +181,9 @@ class LockActivity : FragmentActivity() {
                 when (errorCode) {
                     // "Use PIN": Tools' own pad, or the phone's PIN screen.
                     BiometricPrompt.ERROR_NEGATIVE_BUTTON ->
-                        if (hasPin) showPin("Enter your Tools PIN", error = false) else credentialPrompt()
+                        if (hasPin) showPin(t(R.string.lock_enter_your_tools_pin), error = false) else credentialPrompt()
                     BiometricPrompt.ERROR_LOCKOUT, BiometricPrompt.ERROR_LOCKOUT_PERMANENT ->
-                        if (hasPin) showPin("Too many attempts. Enter your Tools PIN", error = true) else credentialPrompt()
+                        if (hasPin) showPin(t(R.string.lock_too_many_attempts_enter_your_tools_pin), error = true) else credentialPrompt()
                     else -> goHome() // Back / swipe away
                 }
             }
@@ -193,7 +195,7 @@ class LockActivity : FragmentActivity() {
         if (prompting || unlocking || isFinishing) return
         prompting = true
         AppLockService.instance?.hideShield()
-        val info = BiometricPrompt.PromptInfo.Builder().setTitle("Unlock $label").setAllowedAuthenticators(DEVICE_CREDENTIAL)
+        val info = BiometricPrompt.PromptInfo.Builder().setTitle(t(R.string.lock_unlock, label)).setAllowedAuthenticators(DEVICE_CREDENTIAL)
         prompt = BiometricPrompt(this, mainExecutor, object : BiometricPrompt.AuthenticationCallback() {
             override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                 prompting = false
@@ -221,7 +223,7 @@ class LockActivity : FragmentActivity() {
     private fun onDigit(d: Char) {
         if (ui.busy || ui.entered.length >= PinStore.MAX) return
         val wait = PinStore.blockedForMs()
-        if (wait > 0) { ui.error = true; ui.message = "Try again in ${(wait + 999) / 1000} s"; ui.shake++; return }
+        if (wait > 0) { ui.error = true; ui.message = t(R.string.lock_try_again_in_s, (wait + 999) / 1000); ui.shake++; return }
         ui.error = false
         ui.entered += d
         if (ui.entered.length < ui.pinLength) return
@@ -238,7 +240,7 @@ class LockActivity : FragmentActivity() {
             delay(120)
             ui.entered = ""
             val wait = PinStore.blockedForMs()
-            ui.message = if (wait > 0) "Too many attempts. Try again in ${(wait + 999) / 1000} s" else "Wrong PIN. Try again"
+            ui.message = if (wait > 0) t(R.string.lock_too_many_attempts_try_again_in_s, (wait + 999) / 1000) else t(R.string.lock_wrong_pin_try_again)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.tools.app
 
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -62,9 +63,9 @@ object CrashLog {
         val uri = FileProvider.getUriForFile(c, "com.tools.app.files", out)
         val send = Intent(Intent.ACTION_SEND).setType("text/plain")
             .putExtra(Intent.EXTRA_STREAM, uri)
-            .putExtra(Intent.EXTRA_SUBJECT, "Good Utilities crash log")
+            .putExtra(Intent.EXTRA_SUBJECT, t(R.string.about_good_utilities_crash_log))
             .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        c.startActivity(Intent.createChooser(send, "Share crash log").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        c.startActivity(Intent.createChooser(send, t(R.string.about_share_crash_log)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     fun clear(c: Context) { file(c).delete() }

@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.OneUiIcons
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.keyframes
@@ -79,7 +81,7 @@ fun PinKeypad(
             Box(
                 Modifier.size(80.dp).clip(CircleShape).clickable(enabled = enabled, onClick = onDelete),
                 contentAlignment = Alignment.Center,
-            ) { Icon(OneUiIcons.Backspace, "Delete", tint = color, modifier = Modifier.size(26.dp)) }
+            ) { Icon(OneUiIcons.Backspace, t(R.string.pdf_delete), tint = color, modifier = Modifier.size(26.dp)) }
         }
     }
 }

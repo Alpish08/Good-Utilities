@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.ui.graphics.Color
 import dev.chrisbanes.haze.blur.hazeBlur
 import android.app.Activity
@@ -89,7 +91,7 @@ internal fun ReaderBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(52.dp).clip(CircleShape).clickable(onClick = onBack), contentAlignment = Alignment.Center) {
-            Icon(OneUiIcons.ArrowBack, "Navigate up", tint = c.text, modifier = Modifier.size(24.dp))
+            Icon(OneUiIcons.ArrowBack, t(R.string.ui_navigate_up), tint = c.text, modifier = Modifier.size(24.dp))
         }
         Text(
             title, fontSize = 19.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis,
@@ -114,7 +116,7 @@ internal fun SearchBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(Modifier.size(48.dp).clip(CircleShape).clickable(onClick = onClose), contentAlignment = Alignment.Center) {
-            Icon(OneUiIcons.ArrowBack, "Close search", tint = c.text, modifier = Modifier.size(24.dp))
+            Icon(OneUiIcons.ArrowBack, t(R.string.reader_close_search), tint = c.text, modifier = Modifier.size(24.dp))
         }
         Box(
             Modifier.weight(1f).height(44.dp).clip(CircleShape).background(c.tonal).padding(horizontal = 16.dp),
@@ -129,7 +131,7 @@ internal fun SearchBar(
                 decorationBox = { inner ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(Modifier.weight(1f)) {
-                            if (query.isEmpty()) Text("Search", fontSize = 16.sp, color = c.textSecondary)
+                            if (query.isEmpty()) Text(t(R.string.home_search), fontSize = 16.sp, color = c.textSecondary)
                             inner()
                         }
                         if (status.isNotEmpty()) Text(status, fontSize = 13.sp, color = c.textSecondary, maxLines = 1, modifier = Modifier.padding(start = 8.dp))
@@ -137,8 +139,8 @@ internal fun SearchBar(
                 },
             )
         }
-        ToolbarIcon(OneUiIcons.ChevronUp, "Previous result", onPrev)
-        ToolbarIcon(OneUiIcons.ChevronDown, "Next result", onNext)
+        ToolbarIcon(OneUiIcons.ChevronUp, t(R.string.reader_previous_result), onPrev)
+        ToolbarIcon(OneUiIcons.ChevronDown, t(R.string.reader_next_result), onNext)
     }
 }
 
@@ -175,12 +177,12 @@ internal fun PasswordDialog(name: String, wrong: Boolean, onSubmit: (String?) ->
     val c = OneUi.colors
     var text = remember { androidx.compose.runtime.mutableStateOf("") }
     OneUiDialog(
-        "Password required", onDismiss = { onSubmit(null) }, dismissible = false,
-        buttons = listOf("Cancel" to { onSubmit(null) }, "OK" to { if (text.value.isNotEmpty()) onSubmit(text.value) }),
+        t(R.string.reader_password_required), onDismiss = { onSubmit(null) }, dismissible = false,
+        buttons = listOf(t(R.string.ui_cancel) to { onSubmit(null) }, "OK" to { if (text.value.isNotEmpty()) onSubmit(text.value) }),
     ) {
-        Text("\"$name\" is protected. Enter its password to open it.", fontSize = 14.5.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 14.dp))
-        OneUiField(text.value, { text.value = it }, "Password", password = true, error = wrong, onDone = { if (text.value.isNotEmpty()) onSubmit(text.value) })
-        if (wrong) Text("Wrong password. Try again.", fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp, start = 6.dp))
+        Text(t(R.string.reader_is_protected_enter_its_password_to_ope, name), fontSize = 14.5.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 14.dp))
+        OneUiField(text.value, { text.value = it }, t(R.string.reader_password), password = true, error = wrong, onDone = { if (text.value.isNotEmpty()) onSubmit(text.value) })
+        if (wrong) Text(t(R.string.reader_wrong_password_try_again), fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp, start = 6.dp))
     }
 }
 
@@ -188,7 +190,7 @@ internal fun PasswordDialog(name: String, wrong: Boolean, onSubmit: (String?) ->
 internal fun InfoDialog(info: DocInfo, pages: Int?, meta: PdfMeta?, onDismiss: () -> Unit) {
     val c = OneUi.colors
     val ctx = androidx.compose.ui.platform.LocalContext.current
-    OneUiDialog("File info", onDismiss, listOf("Close" to onDismiss)) {
+    OneUiDialog(t(R.string.reader_file_info), onDismiss, listOf(t(R.string.ui_close) to onDismiss)) {
         @Composable fun row(k: String, v: String?) {
             if (v.isNullOrBlank()) return
             Column(Modifier.padding(bottom = 10.dp)) {
@@ -196,12 +198,12 @@ internal fun InfoDialog(info: DocInfo, pages: Int?, meta: PdfMeta?, onDismiss: (
                 Text(v, fontSize = 15.5.sp, color = c.text, fontWeight = FontWeight.SemiBold)
             }
         }
-        row("Name", info.name)
-        row("Size", if (info.size >= 0) Formatter.formatFileSize(ctx, info.size) else null)
-        row("Type", when (info.kind) { Kind.Pdf -> "PDF document"; Kind.Docx -> "Word document"; Kind.Markdown -> "Markdown"; Kind.Text -> "Plain text" })
-        row("Pages", pages?.toString())
-        row("Title", meta?.title)
-        row("Author", meta?.author)
+        row(t(R.string.reader_name), info.name)
+        row(t(R.string.reader_size), if (info.size >= 0) Formatter.formatFileSize(ctx, info.size) else null)
+        row(t(R.string.video_type), when (info.kind) { Kind.Pdf -> t(R.string.reader_pdf_document); Kind.Docx -> t(R.string.reader_word_document); Kind.Markdown -> t(R.string.reader_markdown); Kind.Text -> t(R.string.reader_plain_text) })
+        row(t(R.string.reader_pages), pages?.toString())
+        row(t(R.string.reader_title), meta?.title)
+        row(t(R.string.reader_author), meta?.author)
     }
 }
 
@@ -214,15 +216,15 @@ fun shareDocument(ctx: Context, info: DocInfo) {
             clipData = ClipData.newRawUri(info.name, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        ctx.startActivity(Intent.createChooser(send, "Share"))
+        ctx.startActivity(Intent.createChooser(send, t(R.string.video_share)))
     } catch (e: Exception) {
-        Toast.makeText(ctx, "Can't share this file", Toast.LENGTH_SHORT).show()
+        Toast.makeText(ctx, t(R.string.reader_can_t_share_this_file), Toast.LENGTH_SHORT).show()
     }
 }
 
 fun copyToClipboard(ctx: Context, label: String, text: String) {
     ctx.getSystemService<ClipboardManager>()?.setPrimaryClip(ClipData.newPlainText(label, text))
-    Toast.makeText(ctx, "Copied", Toast.LENGTH_SHORT).show()
+    Toast.makeText(ctx, t(R.string.reader_copied), Toast.LENGTH_SHORT).show()
 }
 
 /** Prints the PDF by streaming its bytes to the print framework. */

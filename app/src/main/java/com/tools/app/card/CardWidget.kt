@@ -1,5 +1,6 @@
 package com.tools.app.card
 
+import com.tools.app.ui.t
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -23,8 +24,8 @@ class CardWidget : AppWidgetProvider() {
     private fun views(context: Context): RemoteViews {
         val v = RemoteViews(context.packageName, R.layout.widget_card)
         val card = CardStore.load(context).primary
-        v.setTextViewText(R.id.balance, card?.let { CardStore.format(it.balanceCents) } ?: "Card balance")
-        v.setTextViewText(R.id.name, card?.name ?: "Tap to set up a card")
+        v.setTextViewText(R.id.balance, card?.let { CardStore.format(it.balanceCents) } ?: t(R.string.home_card_balance))
+        v.setTextViewText(R.id.name, card?.name ?: t(R.string.card_tap_to_set_up_a_card))
         val recent = card?.entries?.sortedByDescending { it.time }?.take(3).orEmpty()
         val rows = intArrayOf(R.id.row0, R.id.row1, R.id.row2)
         val notes = intArrayOf(R.id.note0, R.id.note1, R.id.note2)
@@ -33,7 +34,7 @@ class CardWidget : AppWidgetProvider() {
             val e = recent.getOrNull(i)
             v.setViewVisibility(row, if (e == null) View.GONE else View.VISIBLE)
             if (e != null) {
-                v.setTextViewText(notes[i], e.note.ifBlank { if (e.cents < 0) "Purchase" else "Added" })
+                v.setTextViewText(notes[i], e.note.ifBlank { if (e.cents < 0) t(R.string.card_purchase) else t(R.string.card_added) })
                 v.setTextViewText(amounts[i], if (e.cents < 0) CardStore.format(-e.cents) else CardStore.format(e.cents, sign = true))
                 v.setTextColor(amounts[i], context.getColor(if (e.cents > 0) R.color.widget_card_plus else R.color.widget_card_text))
             }

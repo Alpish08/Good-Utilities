@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.0 — 2026-11-28
+- **French and Turkish.** Every page, menu, popup, notification and widget is translated (about 1,250 texts). The app follows the phone's language; on Android 13 and newer you can also pick a language just for Good Utilities in Settings › Apps › Good Utilities › Language.
+- Counts read naturally in each language ("1 outil", "24 outils", "24 araç") instead of English plurals.
+- Names (Good Utilities, One Reader, One Brief), folder names on storage and adb commands stay as they are. The Japanese reader's dictionary and translation are still English.
+
 ## 2.10 — 2026-11-28
 Release of 2.9.22 – 2.9.25: landscape mode, label toasts and One UI guideline fixes.
 

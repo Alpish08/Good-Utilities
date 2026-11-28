@@ -1,5 +1,6 @@
 package com.tools.app
 
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.media.MediaScannerConnection
@@ -27,7 +28,7 @@ object Storage {
         Icons("Icons"),       // Icon maker
     }
 
-    class NoAccess : Exception("Allow \"All files access\" for Good Utilities to save into Internal Storage/$ROOT")
+    class NoAccess : Exception(t(R.string.storage_allow_all_files_access_for_good_utilit, ROOT))
 
     fun hasAccess() = Environment.isExternalStorageManager()
 
@@ -54,7 +55,7 @@ object Storage {
         val part = File(dir, ".${target.name}.part")
         try {
             part.outputStream().buffered().use(write)
-            if (!part.renameTo(target)) error("Couldn't save ${target.name}")
+            if (!part.renameTo(target)) error(t(R.string.storage_couldn_t_save, target.name))
         } catch (e: Exception) {
             part.delete(); throw e
         }

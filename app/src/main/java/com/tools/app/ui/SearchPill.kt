@@ -1,5 +1,6 @@
 package com.tools.app.ui
 
+import com.tools.app.R
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import dev.chrisbanes.haze.blur.hazeBlur
@@ -80,7 +81,7 @@ fun SearchBar(
     query: String,
     onQueryChange: (String) -> Unit,
     onClose: () -> Unit,
-    placeholder: String = "Search",
+    placeholder: String = t(R.string.home_search),
     modifier: Modifier = Modifier,
 ) {
     val c = OneUi.colors
@@ -161,7 +162,7 @@ fun SearchBar(
                 )
             }
             if (query.isNotEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).clickable { onQueryChange("") }, contentAlignment = Alignment.Center) {
-                Icon(OneUiIcons.Close, "Clear", tint = c.text, modifier = Modifier.size(22.dp))
+                Icon(OneUiIcons.Close, t(R.string.about_clear), tint = c.text, modifier = Modifier.size(22.dp))
             } else Spacer(Modifier.width(16.dp))
         }
     }
@@ -352,7 +353,7 @@ fun PageSearch(
     onQueryChange: (String) -> Unit,
     onOpen: () -> Unit,
     onClose: () -> Unit,
-    label: String = "Search",
+    label: String = t(R.string.home_search),
 ) = SearchMorph(searching, query, onQueryChange, onOpen, onClose, label)
 
 /** How far a [SearchMorph] has opened (0 = resting shape, 1 = search bar), for what's drawn around it. */
@@ -375,7 +376,7 @@ fun SearchMorph(
     onQueryChange: (String) -> Unit,
     onOpen: () -> Unit,
     onClose: () -> Unit,
-    label: String = "Search",
+    label: String = t(R.string.home_search),
     restWidth: androidx.compose.ui.unit.Dp = 240.dp,
     restHeight: androidx.compose.ui.unit.Dp = 52.dp,
     restOffset: androidx.compose.ui.unit.Dp = 4.dp,
@@ -480,7 +481,7 @@ fun SearchMorph(
                 )
             }
             if (searching && query.isNotEmpty()) Box(Modifier.size(40.dp).clip(CircleShape).clickable { onQueryChange("") }, contentAlignment = Alignment.Center) {
-                Icon(OneUiIcons.Close, "Clear", tint = c.text, modifier = Modifier.size(22.dp))
+                Icon(OneUiIcons.Close, t(R.string.about_clear), tint = c.text, modifier = Modifier.size(22.dp))
             } else Spacer(Modifier.width(16.dp))
         }
     }

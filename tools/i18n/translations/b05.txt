@@ -1,0 +1,170 @@
+apk_this_apkm_is_encrypted_by_apkmirror_op | Ce .apkm est chiffré par APKMirror. Ouvrez-le une fois dans APKMirror Installer, ou téléchargez la version .apks. | Bu .apkm APKMirror tarafından şifrelenmiş. Bir kez APKMirror Installer'da açın ya da .apks sürümünü indirin.
+apk_no_apk_files_inside_pick_a_apks_xapk_o | Aucun fichier APK à l'intérieur. Choisissez un paquet .apks, .xapk ou .apkm. | İçinde APK dosyası yok. Bir .apks, .xapk veya .apkm paketi seçin.
+apk_only_one_apk_inside_re_saving_it | Un seul APK à l'intérieur ; réenregistrement… | İçinde yalnızca bir APK var; yeniden kaydediliyor…
+apk_merging_splits | Fusion des parties… | Parçalar birleştiriliyor…
+apk_signing | Signature… | İmzalanıyor…
+color_choose_image | Choisir une image | Görüntü seç
+color_pick_colors_from_any_image | Prélevez des couleurs dans n'importe quelle image | Herhangi bir görüntüden renk seçin
+color_drag_over_the_photo_to_sample_a_pixel | Faites glisser sur la photo pour prélever un pixel, avec une loupe pour plus de précision. | Bir pikseli seçmek için fotoğrafın üzerinde sürükleyin; hassasiyet için büyüteç kullanılır.
+color_copy_hex | Copier le HEX | HEX'i kopyala
+color_save_color | Enregistrer la couleur | Rengi kaydet
+color_from_this_image | De cette image | Bu görüntüden
+color_saved_hold_to_remove | Enregistrées · appui long pour retirer | Kaydedilenler · kaldırmak için basılı tutun
+color_copied | %1$s copié | %1$s kopyalandı
+blur_blur_a_photo | Flouter une photo | Bir fotoğrafı bulanıklaştırın
+blur_blur_the_whole_image_or_paint_over_fac | Floutez toute l'image, ou peignez sur les visages, plaques et détails pour les masquer. | Görüntünün tamamını bulanıklaştırın ya da gizlemek için yüzlerin, plakaların ve ayrıntıların üzerini boyayın.
+blur_whole_image | Image entière | Tüm görüntü
+blur_brush | Pinceau | Fırça
+blur_strength | Intensité | Yoğunluk
+blur_paint_over_the_parts_you_want_to_hide | Peignez sur les zones à masquer. | Gizlemek istediğiniz yerlerin üzerini boyayın.
+blur_save_image | Enregistrer l'image | Görüntüyü kaydet
+blur_couldn_t_save_the_image | Impossible d'enregistrer l'image | Görüntü kaydedilemedi
+cutout_no_subject_found_in_this_photo | Aucun sujet trouvé dans cette photo | Bu fotoğrafta özne bulunamadı
+cutout_couldn_t_open_that_image | Impossible d'ouvrir cette image | Bu görüntü açılamadı
+cutout_getting_the_model_ready | Préparation du modèle… | Model hazırlanıyor…
+cutout_downloading_the_model | Téléchargement du modèle… %1$s %% | Model indiriliyor… %%%1$s
+cutout_finding_the_subject | Recherche du sujet… | Özne aranıyor…
+cutout_couldn_t_remove_the_background | Impossible de supprimer l'arrière-plan | Arka plan kaldırılamadı
+cutout_remove_a_background | Supprimer un arrière-plan | Arka planı kaldırın
+cutout_pick_a_photo_and_the_person_pet_or_obj | Choisissez une photo : la personne, l'animal ou l'objet est détouré en PNG transparent. | Bir fotoğraf seçin; içindeki kişi, evcil hayvan veya nesne saydam bir PNG olarak kesilir.
+cutout_cut_out | Détouré | Kesilmiş
+cutout_crop_to_subject | Recadrer sur le sujet | Özneye göre kırp
+cutout_keep_size | Garder la taille | Boyutu koru
+cutout_save_png | Enregistrer en PNG | PNG olarak kaydet
+icon_cutting_out | Détourage… | Kesiliyor…
+icon_couldn_t_process_the_logo | Impossible de traiter le logo | Logo işlenemedi
+icon_choose_logo | Choisir un logo | Logo seç
+icon_no_icon_packs_installed | Aucun pack d'icônes installé | Yüklü simge paketi yok
+icon_install_an_icon_pack_to_build_matching | Installez un pack d'icônes pour créer des icônes assorties à partir de sa tuile vide. | Boş karosundan uyumlu simgeler oluşturmak için bir simge paketi yükleyin.
+icon_choose_logo_anyway | Choisir un logo quand même | Yine de logo seç
+icon_make_a_matching_icon | Créer une icône assortie | Uyumlu bir simge oluşturun
+icon_pick_a_logo_and_it_s_placed_on_your_ic | Choisissez un logo : il est placé sur la tuile vide de votre pack d'icônes, prêt à être choisi dans votre lanceur. | Bir logo seçin; simge paketinizin boş karosuna yerleştirilir ve başlatıcınızda seçilmeye hazır olur.
+icon_make_white | Rendre blanc | Beyaz yap
+icon_for_dark_one_colour_logos | Pour les logos sombres d'une seule couleur | Koyu, tek renkli logolar için
+icon_round_into_a_circle | Arrondir en cercle | Daireye yuvarla
+icon_keeps_the_whole_logo_rounded | Garde tout le logo, arrondi | Logonun tamamını korur, yuvarlatılmış
+icon_position | Position | Konum
+icon_left | Gauche | Sol
+icon_up | Haut | Yukarı
+icon_down | Bas | Aşağı
+icon_right | Droite | Sağ
+icon_reset | Réinitialiser | Sıfırla
+icon_save_icon | Enregistrer l'icône | Simgeyi kaydet
+icon_saved_to | Enregistrée dans %1$s/%2$s | %1$s/%2$s konumuna kaydedildi
+icon_couldn_t_save_the_icon | Impossible d'enregistrer l'icône | Simge kaydedilemedi
+icon_icon_pack | Pack d'icônes | Simge paketi
+icon_loading | Chargement… | Yükleniyor…
+icon_base_icon | Icône de base | Temel simge
+icon_choose_the_pack_s_empty_tile | Choisissez la tuile vide du pack | Paketin boş karosunu seçin
+icon_preview_at_home_screen_size | Aperçu à la taille de l'écran d'accueil | Ana ekran boyutunda önizleme
+icon_search_the_pack_e_g_folder | Rechercher dans le pack (par ex. folder) | Pakette ara (ör. folder)
+icon_no_icons_match | Aucune icône ne correspond | Eşleşen simge yok
+lock_setup_guide | Guide de configuration | Kurulum rehberi
+lock_private_by_design | Confidentiel par conception | Tasarımı gereği gizli
+lock_locked_apps_ask_for_your_fingerprint_f | Les applis verrouillées demandent votre empreinte, votre visage ou votre PIN à l'ouverture. Good Utilities voit seulement quelle appli est à l'écran et quelle icône de l'écran d'accueil vous touchez, jamais le contenu d'une appli, et rien ne quitte votre téléphone. | Kilitli uygulamalar açılırken parmak izinizi, yüzünüzü veya PIN'inizi ister. Good Utilities yalnızca ekrandaki uygulamayı ve dokunduğunuz Ana ekran simgesini görür; bir uygulamanın içeriğini asla görmez ve hiçbir şey telefonunuzdan çıkmaz.
+lock_android_blocked_app_lock | Android a bloqué le verrouillage d'applis | Android Uygulama kilidini engelledi
+lock_allow_app_lock_in_accessibility | Autorisez le verrouillage d'applis dans Accessibilité | Erişilebilirlik'te Uygulama kilidine izin verin
+lock_apps_installed_outside_the_play_store | Les applis installées hors du Play Store demandent une étape de plus : ouvrez Infos sur l'appli › ⋮ › Autoriser les paramètres restreints, puis désactivez et réactivez Good Utilities app lock. | Play Store dışından yüklenen uygulamalar bir adım daha ister: Uygulama bilgisi › ⋮ › Kısıtlı ayarlara izin ver'i açın, ardından Good Utilities app lock'u kapatıp yeniden açın.
+lock_settings_accessibility_installed_apps | Paramètres › Accessibilité › Applis installées › Good Utilities app lock › Activé | Ayarlar › Erişilebilirlik › Yüklü uygulamalar › Good Utilities app lock › Açık
+lock_unlock_screen | Écran de déverrouillage | Kilit açma ekranı
+lock_change_tools_pin | Modifier le PIN Tools | Tools PIN'ini değiştir
+lock_set_tools_pin | Définir un PIN Tools | Tools PIN'i ayarla
+lock_on_use_tools_pin_on_the_fingerprint_sh | Activé · « Utiliser le PIN Tools » sur la fenêtre d'empreinte ouvre le pavé PIN de Tools, sans assombrissement | Açık · Parmak izi penceresindeki "Tools PIN'ini kullan" Tools'un PIN tuş takımını karartma olmadan açar
+lock_off_locked_apps_use_samsung_s_prompt_w | Désactivé · les applis verrouillées utilisent la fenêtre de Samsung avec le PIN du téléphone | Kapalı · kilitli uygulamalar telefon PIN'inizle Samsung'un istemini kullanır
+lock_remove_tools_pin | Supprimer le PIN Tools | Tools PIN'ini kaldır
+lock_go_back_to_samsung_s_prompt | Revenir à la fenêtre de Samsung | Samsung'un istemine geri dön
+lock_lock_again | Reverrouiller | Yeniden kilitle
+lock_apps | Applis | Uygulamalar
+lock_locked | %1$s verrouillées | %1$s kilitli
+lock_locked_2 | Verrouillée | Kilitli
+lock_confirm_it_s_you | Confirmez votre identité | Siz olduğunuzu doğrulayın
+lock_enter_your_tools_pin | Saisissez votre PIN Tools | Tools PIN'inizi girin
+lock_unlock | Déverrouiller %1$s | %1$s kilidini aç
+lock_use_pin | Utiliser le PIN | PIN kullan
+lock_fingerprint_not_recognised | Empreinte non reconnue | Parmak izi tanınmadı
+lock_too_many_attempts_enter_your_tools_pin | Trop de tentatives. Saisissez votre PIN Tools | Çok fazla deneme. Tools PIN'inizi girin
+lock_try_again_in_s | Réessayez dans %1$s s | %1$s sn sonra yeniden deneyin
+lock_too_many_attempts_try_again_in_s | Trop de tentatives. Réessayez dans %1$s s | Çok fazla deneme. %1$s sn sonra yeniden deneyin
+lock_wrong_pin_try_again | PIN incorrect. Réessayez | Yanlış PIN. Yeniden deneyin
+lock_tools_pin_set | PIN Tools défini | Tools PIN'i ayarlandı
+lock_pins_didn_t_match_start_again | Les PIN ne correspondent pas. Recommencez | PIN'ler eşleşmedi. Baştan başlayın
+lock_confirm_your_pin | Confirmez votre PIN | PIN'inizi doğrulayın
+lock_enter_a_digit_pin | Saisissez un PIN de %1$s à %2$s chiffres | %1$s–%2$s haneli bir PIN girin
+lock_used_when_your_fingerprint_isn_t_recog | Utilisé quand votre empreinte n'est pas reconnue. Distinct du PIN de votre téléphone. | Parmak iziniz tanınmadığında kullanılır. Telefonunuzun PIN'inden ayrıdır.
+lock_continue | Continuer | Devam
+lock_use_fingerprint | Utiliser l'empreinte | Parmak izi kullan
+lock_your_launcher_doesn_t_support_shortcut | Votre lanceur ne prend pas en charge les raccourcis | Başlatıcınız kısayolları desteklemiyor
+dns_custom_or_automatic | Personnalisé ou automatique | Özel veya otomatik
+dns_custom_sends_all_dns_lookups_to_the_pr | Personnalisé envoie toutes les requêtes DNS au fournisseur ci-dessous via une connexion chiffrée : cela fonctionne en Wi-Fi comme en données mobiles et peut bloquer les pubs dans tout le système. Automatique utilise le DNS de votre réseau. | Özel, tüm DNS sorgularını aşağıdaki sağlayıcıya şifreli bir bağlantıyla gönderir; böylece Wi-Fi'de ve mobil veride çalışır ve reklamları sistem genelinde engelleyebilir. Otomatik, ağınızın DNS'ini kullanır.
+dns_custom | Personnalisé | Özel
+dns_one_time_setup_needed | Configuration unique nécessaire | Tek seferlik kurulum gerekli
+dns_run_the_adb_grant_command_shown_on_the | Exécutez la commande adb grant indiquée sur la page Limite de charge. La même autorisation couvre les deux. | Şarj sınırı sayfasında gösterilen adb grant komutunu çalıştırın. Aynı izin ikisini de kapsar.
+dns_provider_hostname | Nom d'hôte du fournisseur | Sağlayıcı ana makine adı
+dns_save | Enregistrer | Kaydet
+dns_presets | Préréglages | Hazır ayarlar
+dns_quick_panel | Volet rapide | Hızlı panel
+dns_add_private_dns_to_quick_panel | Ajouter DNS privé au volet rapide | Özel DNS'i Hızlı panele ekle
+dns_tap_to_switch_between_custom_and_autom | Touchez pour basculer entre Personnalisé et Automatique. Appuyez longuement pour ouvrir cette page. | Özel ile Otomatik arasında geçiş yapmak için dokunun. Bu sayfayı açmak için basılı tutun.
+dns_adguard_blocks_ads_and_trackers | AdGuard · bloque pubs et traqueurs | AdGuard · reklamları ve izleyicileri engeller
+dns_adguard_new_address | AdGuard (nouvelle adresse) | AdGuard (yeni adres)
+dns_cloudflare_fast_no_filtering | Cloudflare · rapide, sans filtrage | Cloudflare · hızlı, filtresiz
+dns_cloudflare_blocks_malware | Cloudflare · bloque les logiciels malveillants | Cloudflare · kötü amaçlı yazılımları engeller
+dns_quad9_blocks_malware | Quad9 · bloque les logiciels malveillants | Quad9 · kötü amaçlı yazılımları engeller
+dns_mullvad_no_logging | Mullvad · aucune journalisation | Mullvad · kayıt tutmaz
+dns_setup_needed | Configuration nécessaire | Kurulum gerekli
+charge_how_it_works | Fonctionnement | Nasıl çalışır
+charge_stops_charging_at_any_level_you_choose | Arrête la charge au niveau de votre choix, grâce à la Protection de la batterie de Samsung. Branché à la limite, le téléphone fonctionne directement sur le chargeur : idéal pour le jeu, DeX ou la navigation longue durée. | Samsung'un kendi Pil koruması ile şarjı istediğiniz seviyede durdurur. Sınırda prize takılıyken telefon doğrudan şarj aletinden çalışır: oyun, DeX veya uzun navigasyon için ideal.
+charge_the_now_chip | Le bouton « Maintenant » | "Şimdi" düğmesi
+charge_now_holds_the_battery_where_it_is_so_t | « Maintenant » maintient la batterie à son niveau actuel : le chargeur alimente directement le téléphone. | "Şimdi" pili olduğu yerde tutar; böylece şarj aleti telefonu doğrudan besler.
+charge_auto_bypass_when_hot | Charge directe auto en cas de chaleur | Isınınca otomatik doğrudan şarj
+charge_uses_app_lock_s_background_service_to | Utilise le service en arrière-plan du verrouillage d'applis pour surveiller la batterie : celui-ci doit rester activé. La charge directe que vous activez vous-même n'est jamais coupée par cette option. | Pili izlemek için Uygulama kilidinin arka plan hizmetini kullanır, bu yüzden Uygulama kilidi açık kalmalıdır. Kendiniz açtığınız doğrudan şarj bu özellikle asla kapatılmaz.
+charge_turning_it_off | Désactivation | Kapatma
+charge_turning_this_off_restores_your_previou | La désactivation rétablit votre précédent réglage de Protection de la batterie. Si vous le modifiez dans la page Protection de la batterie de Samsung, la limite personnalisée peut être remplacée. | Bunu kapatmak önceki Pil koruması ayarınızı geri yükler. Samsung'un Pil koruması sayfasını açıp orada değiştirirseniz özel sınırın üzerine yazılabilir.
+charge_bypass_charging_running_on_the_charger | Charge directe · alimenté par le chargeur, batterie au repos | Doğrudan şarj · şarj aletiyle çalışıyor, pil boşta
+charge_charging | En charge | Şarj oluyor
+charge_plugged_in_not_charging | Branché · pas en charge | Prize takılı · şarj olmuyor
+charge_on_battery | Sur batterie | Pilde
+charge_one_time_setup | Configuration unique | Tek seferlik kurulum
+charge_samsung_protects_this_setting_connect | Samsung protège ce réglage. Branchez votre téléphone à un ordinateur avec le débogage USB activé et exécutez : | Samsung bu ayarı korur. Telefonunuzu USB hata ayıklaması açıkken bir bilgisayara bağlayın ve şunu çalıştırın:
+charge_copy_command | Copier la commande | Komutu kopyala
+charge_stop_charging_at | Arrêter la charge à | Şarjı şurada durdur
+charge_add_bypass_charging_to_quick_panel | Ajouter la charge directe au volet rapide | Doğrudan şarjı Hızlı panele ekle
+charge_one_tap_holds_the_battery_at_its_curre | Une touche maintient la batterie à son niveau actuel. Appuyez longuement sur la vignette pour ouvrir cette page. | Tek dokunuş pili mevcut seviyesinde tutar. Bu sayfayı açmak için kutucuğa basılı tutun.
+charge_bypass_charging | Charge directe | Doğrudan şarj
+charge_while_plugged_in_run_from_the_charger | Une fois branché, fonctionner sur le chargeur dès que la batterie atteint %1$s °C.  | Prize takılıyken pil %1$s°C'ye ulaşınca şarj aletinden çalış. 
+charge_charging_resumes_when_it_cools_to_c_or | La charge reprend quand elle redescend à %1$s °C ou quand vous débranchez. | Pil %1$s°C'ye soğuyunca ya da fişi çektiğinizde şarj devam eder.
+charge_turn_on_at | Activer à | Şurada aç
+charge_turn_off_when_cooled_to | Désactiver une fois refroidie à | Şuraya soğuyunca kapat
+charge_skip_at_night | Ignorer la nuit | Gece atla
+charge_leaves_to_your_night_routine_s_slow_ch | Laisse %1$s à la charge lente de votre routine Nuit | %1$s aralığını Gece rutininizin yavaş şarjına bırakır
+charge_samsung_setting_right_now | Réglage Samsung actuel | Şu anki Samsung ayarı
+charge_battery_protection | Protection de la batterie : %1$s | Pil koruması: %1$s
+charge_stops_at_resumes_below | S'arrête à %1$s %% · reprend sous %2$s %% | %%%1$s'de durur · %%%2$s'nin altında devam eder
+charge_nsamsung_changed_it_tap_to_apply_your | \nSamsung l'a modifié. Touchez pour réappliquer votre limite | \nSamsung bunu değiştirdi. Sınırınızı yeniden uygulamak için dokunun
+charge_couldn_t_change_the_setting | Impossible de modifier le réglage : %1$s | Ayar değiştirilemedi: %1$s
+battery_estimated_health | État estimé | Tahmini sağlık
+battery_health_is_estimated_from_the_fuel_gaug | L'état est estimé à partir de la jauge (charge stockée ÷ niveau), qui surestime de quelques points sur les Galaxy.  | Sağlık, yakıt göstergesinden (depolanan şarj ÷ seviye) tahmin edilir; bu da Galaxy telefonlarda birkaç puan yüksek okunur. 
+battery_for_samsung_s_exact_health_and_lifetim | Pour l'état exact et le nombre total de cycles de Samsung, branchez votre téléphone à votre Mac et exécutez sync-battery.sh. | Samsung'un kesin sağlık değeri ve toplam döngü sayısı için telefonunuzu Mac'inize bağlayıp sync-battery.sh'yi çalıştırın.
+battery_samsung_s_figures | Valeurs de Samsung | Samsung'un değerleri
+battery_health_and_cycles_are_samsung_s_own_it | L'état et les cycles sont ceux de Samsung (la capacité apprise par sa jauge, en part des %1$s mAh d'origine),  | Sağlık ve döngüler Samsung'un kendi değerleridir (yakıt göstergesinin öğrendiği kapasitenin %1$s mAh tasarım değerine oranı), 
+battery_as_of_the_last_sync_run_sync_battery_s | à la dernière synchronisation. Relancez sync-battery.sh toutes les quelques semaines pour les actualiser. Les cycles incluent ceux d'un éventuel propriétaire précédent. | son eşitlemeye göre. Yenilemek için birkaç haftada bir sync-battery.sh'yi yeniden çalıştırın. Döngüler önceki sahiplerinkini de içerir.
+battery_battery_health | État de la batterie | Pil sağlığı
+battery_charge_above_20_to_estimate | Chargez au-dessus de 20 % pour estimer | Tahmin için %20'nin üzerine şarj edin
+battery_of_mah_when_new | sur %1$s mAh à l'état neuf | yeniyken %1$s mAh'ın
+battery_charge_cycles | %1$s cycles de charge | %1$s şarj döngüsü
+battery_right_now | En ce moment | Şu anda
+battery_plugged_in_not_charging | Branché, pas en charge (%1$s) | Prize takılı, şarj olmuyor (%1$s)
+battery_not_reported | Non indiqué | Bildirilmiyor
+battery_level | Niveau | Seviye
+battery_status | État | Durum
+battery_current | Courant | Akım
+battery_temperature | Température | Sıcaklık
+battery_warm |  · chaude |  · sıcak
+battery_voltage | Tension | Gerilim
+battery_battery | Batterie | Pil
+battery_charge_cycles_2 | Cycles de charge | Şarj döngüleri
+battery_samsung_figures | Valeurs Samsung | Samsung değerleri
+battery_synced | Synchronisé le  | Eşitlendi: 
+battery_today_s_estimate | Estimation du jour | Bugünkü tahmin
+battery_adjusted_to_samsung_s |  (ajustée sur Samsung) |  (Samsung'unkine göre ayarlandı)
+battery_first_used | Première utilisation | İlk kullanım

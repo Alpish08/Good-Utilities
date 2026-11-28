@@ -1,5 +1,7 @@
 package com.tools.app.music.engine
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ContentValues
 import android.content.Context
 import android.os.Environment
@@ -29,19 +31,19 @@ object Engine {
 
         if (entries == null) {
             // A single video link: treat it as a one-song "playlist".
-            val track = parseEntry(root, 1) ?: error("Couldn't read that video")
+            val track = parseEntry(root, 1) ?: error(t(R.string.music_couldn_t_read_that_video))
             return Playlist(track.id, track.title, track.artist, track.thumbnail, listOf(track))
         }
         val tracks = (0 until entries.length())
             .mapNotNull { i -> entries.optJSONObject(i)?.let { parseEntry(it, i + 1) } }
             .filterNot { it.title in UNAVAILABLE }
-        if (tracks.isEmpty()) error("This playlist is empty or private")
+        if (tracks.isEmpty()) error(t(R.string.music_this_playlist_is_empty_or_private))
 
         val thumbs = root.optJSONArray("thumbnails")
         val cover = thumbs?.optJSONObject(thumbs.length() - 1)?.str("url") ?: tracks.first().thumbnail
         return Playlist(
             id = root.str("id") ?: "playlist",
-            title = root.str("title") ?: "YouTube playlist",
+            title = root.str("title") ?: t(R.string.music_youtube_playlist),
             uploader = (root.str("uploader") ?: root.str("channel") ?: "").removeSuffix(" - Topic"),
             thumbnail = cover,
             tracks = tracks,
@@ -127,7 +129,7 @@ object Engine {
         } else run(false)
 
         val mp3 = File(work, "track.mp3")
-        if (!mp3.exists()) error("yt-dlp finished but produced no MP3")
+        if (!mp3.exists()) error(t(R.string.music_yt_dlp_finished_but_produced_no_mp3))
         onProgress(1f, Status.Converting)
         com.tools.app.Storage.saveFile(context, com.tools.app.Storage.Folder.Music, sub, fileName, mp3)
         work.deleteRecursively()
@@ -163,7 +165,7 @@ fun Throwable.friendlyMessage(): String {
     val line = text.lines().lastOrNull { it.startsWith("ERROR:") }
         ?: text.lines().firstOrNull { it.isNotBlank() } ?: text
     val clean = line.removePrefix("ERROR: ").replace(Regex("^\\[[^]]+] [\\w-]+: "), "").take(240)
-    return if ("403" in clean) "YouTube refused the download (HTTP 403). Update yt-dlp in Music downloader settings and retry." else clean
+    return if ("403" in clean) t(R.string.music_youtube_refused_the_download_http_403) else clean
 }
 
 /** Writes into the shared Music collection — no storage permission needed on Android 10+. */
@@ -187,7 +189,7 @@ object MusicStore {
             put(MediaStore.MediaColumns.RELATIVE_PATH, relativePath)
             put(MediaStore.MediaColumns.IS_PENDING, 1)
         }
-        val uri = resolver.insert(collection, values) ?: error("Couldn't create the file in Music")
+        val uri = resolver.insert(collection, values) ?: error(t(R.string.music_couldn_t_create_the_file_in_music))
         try {
             resolver.openOutputStream(uri)!!.use { out -> file.inputStream().use { it.copyTo(out) } }
             resolver.update(uri, ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }, null, null)

@@ -1,5 +1,6 @@
 package com.tools.app.applock
 
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -45,7 +46,7 @@ object LockCard {
         val dp = context.resources.displayMetrics.density
         val sec = Typeface.create("sec", Typeface.NORMAL)
         val button = TextView(context).apply {
-            text = "Use PIN"
+            text = t(R.string.lock_use_pin)
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             typeface = Typeface.create(sec, 600, false)
@@ -102,7 +103,7 @@ object LockCard {
             topMargin = (20 * dp).toInt()
         })
         column.addView(TextView(context).apply {
-            text = "Locked"
+            text = t(R.string.lock_locked_2)
             setTextColor(Color.argb(170, 255, 255, 255))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 15f)
             typeface = Typeface.create(sec, 500, false)

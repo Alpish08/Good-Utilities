@@ -1,5 +1,6 @@
 package com.tools.app.dns
 
+import com.tools.app.ui.t
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
@@ -31,9 +32,9 @@ class PrivateDnsTileService : TileService() {
             else -> Tile.STATE_INACTIVE
         }
         tile.subtitle = when {
-            !PrivateDns.canWrite(this) -> "Setup needed"
+            !PrivateDns.canWrite(this) -> t(R.string.dns_setup_needed)
             custom -> PrivateDns.host(this)
-            else -> "Automatic"
+            else -> t(R.string.home_automatic)
         }
         tile.updateTile()
     }

@@ -1,5 +1,7 @@
 package com.tools.app.iconmaker
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
@@ -87,7 +89,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.roundToInt
 
-private enum class Backdrop(val label: String) { Keep("Keep"), Colour("Color"), Subject("Cut out") }
+private enum class Backdrop(private val labelRes: Int) {
+    Keep(R.string.icon_backdrop_keep), Colour(R.string.icon_backdrop_color), Subject(R.string.icon_backdrop_cut_out);
+    val label get() = t(labelRes)
+}
 
 private fun prefs(c: Context) = c.getSharedPreferences("iconmaker", Context.MODE_PRIVATE)
 
@@ -142,9 +147,9 @@ fun IconMakerScreen(onBack: () -> Unit) {
                 Backdrop.Keep -> src
                 Backdrop.Colour -> withContext(Dispatchers.Default) { IconComposer.removeFlatBackground(src) }
                 Backdrop.Subject -> {
-                    status = "Getting the model ready…"
-                    Cutout.ensureModel(context) { status = "Downloading the model… ${(it * 100).roundToInt()}%" }
-                    status = "Cutting out…"
+                    status = t(R.string.cutout_getting_the_model_ready)
+                    Cutout.ensureModel(context) { status = t(R.string.cutout_downloading_the_model, (it * 100).roundToInt()) }
+                    status = t(R.string.icon_cutting_out)
                     Cutout.cut(src)
                 }
             }
@@ -156,7 +161,7 @@ fun IconMakerScreen(onBack: () -> Unit) {
             logo = b
             status = null
         } catch (e: Exception) {
-            status = e.message ?: "Couldn't process the logo"
+            status = e.message ?: t(R.string.icon_couldn_t_process_the_logo)
         }
     }
     val result by produceState<Bitmap?>(null, base, logo, size, dx, dy) {
@@ -168,7 +173,7 @@ fun IconMakerScreen(onBack: () -> Unit) {
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             val bmp = withContext(Dispatchers.IO) { runCatching { Images.load(context, uri, 1024) }.getOrNull() }
-            if (bmp == null) { Toast.makeText(context, "Couldn't open that image", Toast.LENGTH_SHORT).show(); return@launch }
+            if (bmp == null) { Toast.makeText(context, t(R.string.cutout_couldn_t_open_that_image), Toast.LENGTH_SHORT).show(); return@launch }
             logoName = displayName(context, uri)
             dx = 0; dy = 0
             logo = null
@@ -178,14 +183,14 @@ fun IconMakerScreen(onBack: () -> Unit) {
     val choose = { chooser.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 
     ToolPage(
-        "Icon maker", onBack, expandable = logoSrc != null,
-        actions = { if (logoSrc != null) ToolbarIcon(OneUiIcons.Gallery, "Choose logo", choose) },
+        t(R.string.home_icon_maker), onBack, expandable = logoSrc != null,
+        actions = { if (logoSrc != null) ToolbarIcon(OneUiIcons.Gallery, t(R.string.icon_choose_logo), choose) },
     ) {
         val list = packs
         if (list != null && list.isEmpty()) {
             EmptyState(
-                Icons.Rounded.Category, IconColors.Orange, "No icon packs installed",
-                "Install an icon pack to build matching icons from its empty tile.", "Choose logo anyway", choose,
+                Icons.Rounded.Category, IconColors.Orange, t(R.string.icon_no_icon_packs_installed),
+                t(R.string.icon_install_an_icon_pack_to_build_matching), t(R.string.icon_choose_logo_anyway), choose,
             )
             return@ToolPage
         }
@@ -194,15 +199,15 @@ fun IconMakerScreen(onBack: () -> Unit) {
             // Landscape has no room for both stacked (the button got squashed): the intro beside the pack card.
             if (wideStart) Row(Modifier.weight(1f).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 EmptyState(
-                    Icons.Rounded.Category, IconColors.Orange, "Make a matching icon",
-                    "Pick a logo and it's placed on your icon pack's empty tile, ready to choose in your launcher.", "Choose logo", choose,
+                    Icons.Rounded.Category, IconColors.Orange, t(R.string.icon_make_a_matching_icon),
+                    t(R.string.icon_pick_a_logo_and_it_s_placed_on_your_ic), t(R.string.icon_choose_logo), choose,
                     modifier = Modifier.weight(1f).fillMaxHeight(),
                 )
                 Box(Modifier.weight(1f)) { Column { PackCard(list, pack, baseName, onPack = { choosingPack = true }, onBase = { choosingBase = true }) } }
             } else {
             EmptyState(
-                Icons.Rounded.Category, IconColors.Orange, "Make a matching icon",
-                "Pick a logo and it's placed on your icon pack's empty tile, ready to choose in your launcher.", "Choose logo", choose,
+                Icons.Rounded.Category, IconColors.Orange, t(R.string.icon_make_a_matching_icon),
+                t(R.string.icon_pick_a_logo_and_it_s_placed_on_your_ic), t(R.string.icon_choose_logo), choose,
                 modifier = Modifier.weight(1f),
             )
             PackCard(list, pack, baseName, onPack = { choosingPack = true }, onBase = { choosingBase = true })
@@ -215,16 +220,16 @@ fun IconMakerScreen(onBack: () -> Unit) {
             Column(
                 Modifier.padding(horizontal = CardMargin, vertical = 6.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card).padding(vertical = 14.dp),
             ) {
-                Text("Background", fontSize = 15.sp, color = c.text, modifier = Modifier.padding(horizontal = 18.dp))
+                Text(t(R.string.home_background), fontSize = 15.sp, color = c.text, modifier = Modifier.padding(horizontal = 18.dp))
                 SegmentedControl(
                     Backdrop.entries.map { it.label }, backdrop.ordinal,
                     { backdrop = Backdrop.entries[it]; p.edit().putInt("backdrop", it).apply() },
                     modifier = Modifier.padding(horizontal = 18.dp).padding(top = 10.dp, bottom = 6.dp),
                 )
-                ListRow("Make white", summary = "For dark one-colour logos", trailing = { OneUiSwitch(white) }, onClick = { white = !white })
-                ListRow("Round into a circle", summary = "Keeps the whole logo, rounded", trailing = { OneUiSwitch(round) }, onClick = { round = !round })
+                ListRow(t(R.string.icon_make_white), summary = t(R.string.icon_for_dark_one_colour_logos), trailing = { OneUiSwitch(white) }, onClick = { white = !white })
+                ListRow(t(R.string.icon_round_into_a_circle), summary = t(R.string.icon_keeps_the_whole_logo_rounded), trailing = { OneUiSwitch(round) }, onClick = { round = !round })
                 Row(Modifier.padding(horizontal = 18.dp).padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Size", fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
+                    Text(t(R.string.reader_size), fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
                     Text("${(size * 100).roundToInt()}%", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent)
                 }
                 OneUiSlider(
@@ -235,20 +240,20 @@ fun IconMakerScreen(onBack: () -> Unit) {
                     Modifier.padding(horizontal = 18.dp).padding(top = 12.dp).fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("Position", fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
-                    Nudge(Icons.Rounded.KeyboardArrowLeft, "Left") { dx-- }
-                    Nudge(Icons.Rounded.KeyboardArrowUp, "Up") { dy-- }
-                    Nudge(Icons.Rounded.KeyboardArrowDown, "Down") { dy++ }
-                    Nudge(Icons.Rounded.KeyboardArrowRight, "Right") { dx++ }
+                    Text(t(R.string.icon_position), fontSize = 15.sp, color = c.text, modifier = Modifier.weight(1f))
+                    Nudge(Icons.Rounded.KeyboardArrowLeft, t(R.string.icon_left)) { dx-- }
+                    Nudge(Icons.Rounded.KeyboardArrowUp, t(R.string.icon_up)) { dy-- }
+                    Nudge(Icons.Rounded.KeyboardArrowDown, t(R.string.icon_down)) { dy++ }
+                    Nudge(Icons.Rounded.KeyboardArrowRight, t(R.string.icon_right)) { dx++ }
                     Text(
-                        "Reset", fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                        t(R.string.icon_reset), fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                         color = if (dx != 0 || dy != 0) c.accent else c.textSecondary,
                         modifier = Modifier.clip(CircleShape).clickable { dx = 0; dy = 0 }.padding(horizontal = 10.dp, vertical = 8.dp),
                     )
                 }
             }
             PillButton(
-                if (saving) "Saving…" else "Save icon",
+                if (saving) t(R.string.video_saving) else t(R.string.icon_save_icon),
                 enabled = result != null && logo != null && !saving,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = CardMargin + 8.dp, vertical = 14.dp),
                 onClick = {
@@ -265,7 +270,7 @@ fun IconMakerScreen(onBack: () -> Unit) {
                         saving = false
                         Toast.makeText(
                             context,
-                            saved.fold({ "Saved to ${Storage.label(Storage.Folder.Icons)}/$it" }, { it.message ?: "Couldn't save the icon" }),
+                            saved.fold({ t(R.string.icon_saved_to, Storage.label(Storage.Folder.Icons), it) }, { it.message ?: t(R.string.icon_couldn_t_save_the_icon) }),
                             Toast.LENGTH_SHORT,
                         ).show()
                     }
@@ -283,7 +288,7 @@ fun IconMakerScreen(onBack: () -> Unit) {
         }
     }
 
-    if (choosingPack) OneUiDialog("Icon pack", { choosingPack = false }, buttons = listOf("Cancel" to { choosingPack = false })) {
+    if (choosingPack) OneUiDialog(t(R.string.icon_icon_pack), { choosingPack = false }, buttons = listOf(t(R.string.ui_cancel) to { choosingPack = false })) {
         packs.orEmpty().forEach { ip ->
             Row(
                 Modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
@@ -304,8 +309,8 @@ fun IconMakerScreen(onBack: () -> Unit) {
 private fun PackCard(packs: List<IconPack>?, pack: String?, baseName: String?, onPack: () -> Unit, onBase: () -> Unit) {
     val c = OneUi.colors
     Column(Modifier.padding(horizontal = CardMargin, vertical = 6.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card)) {
-        ListRow("Icon pack", summary = packs?.firstOrNull { it.pkg == pack }?.label ?: "Loading…", onClick = onPack)
-        ListRow("Base icon", summary = baseName?.let { "\"$it\"" } ?: "Choose the pack's empty tile", onClick = onBase)
+        ListRow(t(R.string.icon_icon_pack), summary = packs?.firstOrNull { it.pkg == pack }?.label ?: t(R.string.icon_loading), onClick = onPack)
+        ListRow(t(R.string.icon_base_icon), summary = baseName?.let { "\"$it\"" } ?: t(R.string.icon_choose_the_pack_s_empty_tile), onClick = onBase)
     }
 }
 
@@ -333,7 +338,7 @@ private fun Preview(icon: Bitmap?, status: String?) {
                 }
             }
         }
-        Text(status ?: "Preview at Home screen size", fontSize = 13.sp, color = Color.White.copy(alpha = 0.7f), modifier = Modifier.padding(top = 12.dp))
+        Text(status ?: t(R.string.icon_preview_at_home_screen_size), fontSize = 13.sp, color = Color.White.copy(alpha = 0.7f), modifier = Modifier.padding(top = 12.dp))
     }
 }
 
@@ -354,7 +359,7 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
     val focus = remember { androidx.compose.ui.focus.FocusRequester() }
     val names by produceState<List<String>?>(null, pkg) { value = withContext(Dispatchers.IO) { IconPacks.drawableNames(context, pkg) } }
     val thumbs = remember(pkg) { android.util.LruCache<String, Bitmap>(120) }
-    OneUiDialog("Base icon", onDismiss, buttons = listOf("Cancel" to onDismiss)) {
+    OneUiDialog(t(R.string.icon_base_icon), onDismiss, buttons = listOf(t(R.string.ui_cancel) to onDismiss)) {
         Row(
             Modifier.fillMaxWidth().clip(CircleShape).background(com.tools.app.ui.popupFieldFill(c.isDark))
                 .border(0.6.dp, com.tools.app.ui.pillEdge(c.isDark), CircleShape)
@@ -364,7 +369,7 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
         ) {
             Icon(OneUiIcons.Search, null, tint = c.textSecondary, modifier = Modifier.size(20.dp))
             Box(Modifier.padding(start = 10.dp).weight(1f)) {
-                if (query.isEmpty()) Text("Search the pack (e.g. folder)", fontSize = 16.sp, color = c.textSecondary)
+                if (query.isEmpty()) Text(t(R.string.icon_search_the_pack_e_g_folder), fontSize = 16.sp, color = c.textSecondary)
                 BasicTextField(
                     query, { query = it }, singleLine = true,
                     textStyle = TextStyle(fontFamily = com.tools.app.ui.theme.SamsungFont, fontSize = 16.sp, color = c.text),
@@ -381,8 +386,8 @@ private fun BasePicker(pkg: String, current: String?, onPick: (String) -> Unit, 
                 .sortedByDescending { if (q.isEmpty()) it.contains("folder") else it.lowercase() == q }
                 .take(120)
         }
-        if (all == null) Text("Loading…", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
-        else if (shown.isEmpty()) Text("No icons match", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
+        if (all == null) Text(t(R.string.icon_loading), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
+        else if (shown.isEmpty()) Text(t(R.string.icon_no_icons_match), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(vertical = 20.dp))
         else {
             val grid = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
             LazyVerticalGrid(GridCells.Adaptive(76.dp), Modifier.padding(top = 12.dp).heightIn(max = 380.dp).fadingEdges(grid), state = grid) {

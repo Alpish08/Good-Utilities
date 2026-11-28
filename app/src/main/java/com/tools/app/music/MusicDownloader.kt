@@ -1,5 +1,7 @@
 package com.tools.app.music
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.ContextCompat
@@ -71,7 +73,7 @@ object MusicDownloader {
         if (_state.value.phase == Phase.Downloading) return
         val url = Engine.extractUrl(raw)
         if (url == null) {
-            _state.update { it.copy(link = raw, error = "That doesn't look like a YouTube link") }
+            _state.update { it.copy(link = raw, error = t(R.string.music_that_doesn_t_look_like_a_youtube_link)) }
             return
         }
         prepareEngine()
@@ -180,7 +182,7 @@ object MusicDownloader {
         val prefs = app.getSharedPreferences("music", Context.MODE_PRIVATE)
         val now = System.currentTimeMillis()
         if (now - prefs.getLong("ytdlpChecked", 0) < 24 * 3600_000L) return
-        _state.update { it.copy(engineMessage = "Updating yt-dlp…") }
+        _state.update { it.copy(engineMessage = t(R.string.music_updating_yt_dlp)) }
         runCatching { YoutubeDL.getInstance().updateYoutubeDL(app, YoutubeDL.UpdateChannel._STABLE) }
             .onSuccess { prefs.edit().putLong("ytdlpChecked", now).apply() }
         _state.update { it.copy(engineMessage = null) }
@@ -192,9 +194,9 @@ object MusicDownloader {
         scope.launch {
             val message = try {
                 val status = YoutubeDL.getInstance().updateYoutubeDL(app, YoutubeDL.UpdateChannel._STABLE)
-                if (status == YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE) "Already up to date" else "Updated"
+                if (status == YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE) t(R.string.music_already_up_to_date) else t(R.string.music_updated)
             } catch (e: Exception) {
-                "Update failed: ${e.friendlyMessage()}"
+                t(R.string.music_update_failed, e.friendlyMessage())
             }
             _state.update {
                 it.copy(engine = EngineState.Ready(YoutubeDL.getInstance().version(app)), engineMessage = message)

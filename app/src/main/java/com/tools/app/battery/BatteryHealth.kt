@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -73,10 +75,10 @@ object BatteryHealth {
             level = level,
             charging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL,
             plugged = when (plug) {
-                BatteryManager.BATTERY_PLUGGED_AC -> "Charger"
+                BatteryManager.BATTERY_PLUGGED_AC -> t(R.string.battery_charger)
                 BatteryManager.BATTERY_PLUGGED_USB -> "USB"
-                BatteryManager.BATTERY_PLUGGED_WIRELESS -> "Wireless"
-                BatteryManager.BATTERY_PLUGGED_DOCK -> "Dock"
+                BatteryManager.BATTERY_PLUGGED_WIRELESS -> t(R.string.battery_wireless)
+                BatteryManager.BATTERY_PLUGGED_DOCK -> t(R.string.battery_dock)
                 else -> null
             },
             temperatureC = (i?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 0) ?: 0) / 10f,
@@ -84,12 +86,12 @@ object BatteryHealth {
             currentMa = current,
             cycles = cycles,
             health = when (i?.getIntExtra(BatteryManager.EXTRA_HEALTH, 0)) {
-                BatteryManager.BATTERY_HEALTH_GOOD -> "Good"
-                BatteryManager.BATTERY_HEALTH_OVERHEAT -> "Overheating"
-                BatteryManager.BATTERY_HEALTH_COLD -> "Too cold"
-                BatteryManager.BATTERY_HEALTH_DEAD -> "Dead"
-                BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> "Over voltage"
-                else -> "Unknown"
+                BatteryManager.BATTERY_HEALTH_GOOD -> t(R.string.battery_good)
+                BatteryManager.BATTERY_HEALTH_OVERHEAT -> t(R.string.battery_overheating)
+                BatteryManager.BATTERY_HEALTH_COLD -> t(R.string.battery_too_cold)
+                BatteryManager.BATTERY_HEALTH_DEAD -> t(R.string.battery_dead)
+                BatteryManager.BATTERY_HEALTH_OVER_VOLTAGE -> t(R.string.battery_over_voltage)
+                else -> t(R.string.battery_unknown)
             },
             technology = i?.getStringExtra(BatteryManager.EXTRA_TECHNOLOGY).orEmpty().ifBlank { "Li-ion" },
             estimatedMah = if (counterUah > 0 && level >= 20) (counterUah / 1000f / (level / 100f)).roundToInt() else null,

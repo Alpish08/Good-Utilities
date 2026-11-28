@@ -1,5 +1,8 @@
 package com.tools.app.home
 
+import com.tools.app.R
+import com.tools.app.ui.t
+import com.tools.app.ui.tp
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.rounded.CreditCard
@@ -99,63 +102,63 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     }
 
     val musicSummary = when (music.phase) {
-        Phase.Downloading -> "Downloading ${minOf(music.finishedCount + 1, music.totalQueued)} of ${music.totalQueued}…"
-        else -> "YouTube songs and playlists to MP3"
+        Phase.Downloading -> t(R.string.home_downloading_of, minOf(music.finishedCount + 1, music.totalQueued), music.totalQueued)
+        else -> t(R.string.home_youtube_songs_and_playlists_to_mp3)
     }
     val groups = listOf(
-        "Media" to listOf(
-            Tool(Route.Music, "Music downloader", musicSummary, Icons.Rounded.MusicNote, IconColors.Red),
-            Tool(Route.VideoDownloader, "Video downloader", "YouTube, TikTok, Instagram, X and more", Icons.Rounded.VideoLibrary, IconColors.Blue),
-            Tool(Route.AudioMerge, "Audio merger", "Join songs into one MP3 with a crossfade", Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange),
-            Tool(Route.AudioTrim, "Audio trimmer", "Cut a song without losing quality", Icons.Rounded.ContentCut, IconColors.Purple),
+        t(R.string.home_media) to listOf(
+            Tool(Route.Music, t(R.string.home_music_downloader), musicSummary, Icons.Rounded.MusicNote, IconColors.Red),
+            Tool(Route.VideoDownloader, t(R.string.home_video_downloader), t(R.string.home_youtube_tiktok_instagram_x_and_more), Icons.Rounded.VideoLibrary, IconColors.Blue),
+            Tool(Route.AudioMerge, t(R.string.home_audio_merger), t(R.string.home_join_songs_into_one_mp3_with_a_crossfa), Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange),
+            Tool(Route.AudioTrim, t(R.string.home_audio_trimmer), t(R.string.home_cut_a_song_without_losing_quality), Icons.Rounded.ContentCut, IconColors.Purple),
         ),
-        "Files" to listOf(
-            Tool(Route.Reader, "Document reader", "PDFs, Word files and text, One UI style", Icons.AutoMirrored.Rounded.MenuBook, IconColors.Orange),
-            Tool(Route.PdfEditor, "PDF editor", "Merge, split, reorder, sign and annotate PDFs", Icons.Rounded.PictureAsPdf, IconColors.Red),
-            Tool(Route.Converter, "File converter", "Images, documents, audio and video", Icons.Rounded.SwapHoriz, IconColors.Teal),
-            Tool(Route.Print, "Print", "Print PDFs, photos and documents", Icons.Rounded.Print, IconColors.Blue),
-            Tool(Route.Compressor, "Compressor", "Shrink videos, audio and photos", Icons.Rounded.Compress, IconColors.Purple),
-            Tool(Route.ApkExtractor, "APK extractor", "Save apps as APK, merging split bundles", Icons.Rounded.Android, IconColors.Green),
+        t(R.string.home_files) to listOf(
+            Tool(Route.Reader, t(R.string.home_document_reader), t(R.string.home_pdfs_word_files_and_text_one_ui_style), Icons.AutoMirrored.Rounded.MenuBook, IconColors.Orange),
+            Tool(Route.PdfEditor, t(R.string.home_pdf_editor), t(R.string.home_merge_split_reorder_sign_and_annotate), Icons.Rounded.PictureAsPdf, IconColors.Red),
+            Tool(Route.Converter, t(R.string.home_file_converter), t(R.string.home_images_documents_audio_and_video), Icons.Rounded.SwapHoriz, IconColors.Teal),
+            Tool(Route.Print, t(R.string.home_print), t(R.string.home_print_pdfs_photos_and_documents), Icons.Rounded.Print, IconColors.Blue),
+            Tool(Route.Compressor, t(R.string.home_compressor), t(R.string.home_shrink_videos_audio_and_photos), Icons.Rounded.Compress, IconColors.Purple),
+            Tool(Route.ApkExtractor, t(R.string.home_apk_extractor), t(R.string.home_save_apps_as_apk_merging_split_bundles), Icons.Rounded.Android, IconColors.Green),
         ),
-        "Images" to listOf(
-            Tool(Route.ColorPicker, "Color picker", "Sample any pixel, get HEX, RGB and palette", Icons.Rounded.Colorize, IconColors.Pink),
-            Tool(Route.Blur, "Image blur", "Blur a whole photo or brush over details", Icons.Rounded.BlurOn, IconColors.Purple),
-            Tool(Route.BackgroundRemover, "Background remover", "Cut out people, pets and objects as PNG", Icons.Rounded.AutoFixHigh, IconColors.Teal),
-            Tool(Route.IconMaker, "Icon maker", "Put any logo on your icon pack's empty tile", Icons.Rounded.Category, IconColors.Orange),
+        t(R.string.home_images) to listOf(
+            Tool(Route.ColorPicker, t(R.string.home_color_picker), t(R.string.home_sample_any_pixel_get_hex_rgb_and_palet), Icons.Rounded.Colorize, IconColors.Pink),
+            Tool(Route.Blur, t(R.string.home_image_blur), t(R.string.home_blur_a_whole_photo_or_brush_over_detai), Icons.Rounded.BlurOn, IconColors.Purple),
+            Tool(Route.BackgroundRemover, t(R.string.home_background_remover), t(R.string.home_cut_out_people_pets_and_objects_as_png), Icons.Rounded.AutoFixHigh, IconColors.Teal),
+            Tool(Route.IconMaker, t(R.string.home_icon_maker), t(R.string.home_put_any_logo_on_your_icon_pack_s_empty), Icons.Rounded.Category, IconColors.Orange),
         ),
-        "Device" to listOf(
+        t(R.string.home_device) to listOf(
             Tool(
-                Route.AppLock, "App lock",
-                if (lock.enabled && lock.locked.isNotEmpty()) "On · ${lock.locked.size} ${if (lock.locked.size == 1) "app" else "apps"} locked" else "Lock apps with fingerprint, face or PIN",
+                Route.AppLock, t(R.string.home_app_lock),
+                if (lock.enabled && lock.locked.isNotEmpty()) tp(R.plurals.home_apps_locked, lock.locked.size) else t(R.string.home_lock_apps_with_fingerprint_face_or_pin),
                 Icons.Rounded.Lock, IconColors.Blue,
             ),
             Tool(
-                Route.PrivateDns, "Private DNS",
-                if (com.tools.app.dns.PrivateDns.isCustom(context)) "Custom · ${com.tools.app.dns.PrivateDns.host(context)}" else "Automatic",
+                Route.PrivateDns, t(R.string.home_private_dns),
+                if (com.tools.app.dns.PrivateDns.isCustom(context)) t(R.string.home_custom, com.tools.app.dns.PrivateDns.host(context)) else t(R.string.home_automatic),
                 Icons.Rounded.Language, IconColors.Teal,
             ),
             Tool(
-                Route.ChargeLimit, "Charge limit",
-                limit?.let { "Stops charging at $it%" } ?: "Custom battery protection and bypass charging",
+                Route.ChargeLimit, t(R.string.home_charge_limit),
+                limit?.let { t(R.string.home_stops_charging_at, it) } ?: t(R.string.home_custom_battery_protection_and_bypass_c),
                 Icons.Rounded.BatteryChargingFull, IconColors.Green,
             ),
             Tool(
-                Route.Battery, "Battery info",
-                battery?.let { b -> b.healthPercent?.let { "Health ${if (b.healthIsSamsung) "" else "≈ "}$it%" + (b.totalCycles?.let { c -> " · $c cycles" } ?: "") } } ?: "Health, temperature and charging speed",
+                Route.Battery, t(R.string.home_battery_info),
+                battery?.let { b -> b.healthPercent?.let { t(R.string.home_health, (if (b.healthIsSamsung) "" else "≈ ") + "$it%") + (b.totalCycles?.let { c -> t(R.string.home_cycles, c) } ?: "") } } ?: t(R.string.home_health_temperature_and_charging_speed),
                 com.tools.app.ui.OneUiIcons.BatteryInfo, IconColors.Gray,
             ),
         ),
-        "Miscellaneous" to listOf(
+        t(R.string.home_miscellaneous) to listOf(
             Tool(
-                Route.CardBalance, "Card balance",
-                cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: "Track expenses and payments",
+                Route.CardBalance, t(R.string.home_card_balance),
+                cards.primary?.let { "${com.tools.app.card.CardStore.format(it.balanceCents)} · ${it.name}" } ?: t(R.string.home_track_expenses_and_payments),
                 Icons.Rounded.CreditCard, IconColors.Blue,
             ),
-            Tool(Route.IdCards, "Virtual cards", "Your IDs' front and back, locked and encrypted", Icons.Rounded.Badge, IconColors.Orange),
-            Tool(Route.Briefs, "Briefs", "Newsletters and articles from Gmail, made readable", Icons.Rounded.Newspaper, IconColors.Red),
-            Tool(Route.Japanese, "Japanese reader", "Readings and meanings for Japanese on your screen", Icons.Rounded.Translate, IconColors.Pink),
-            Tool(Route.QrCode, "QR code", "Turn a link or any text into a QR code", Icons.Rounded.QrCode2, IconColors.Teal),
-            Tool(Route.Random, "Random", "Numbers in any range, or roll some dice", Icons.Rounded.Casino, IconColors.Purple),
+            Tool(Route.IdCards, t(R.string.home_virtual_cards), t(R.string.home_your_ids_front_and_back_locked_and_enc), Icons.Rounded.Badge, IconColors.Orange),
+            Tool(Route.Briefs, t(R.string.home_briefs), t(R.string.home_newsletters_and_articles_from_gmail_ma), Icons.Rounded.Newspaper, IconColors.Red),
+            Tool(Route.Japanese, t(R.string.home_japanese_reader), t(R.string.home_readings_and_meanings_for_japanese_on), Icons.Rounded.Translate, IconColors.Pink),
+            Tool(Route.QrCode, t(R.string.home_qr_code), t(R.string.home_turn_a_link_or_any_text_into_a_qr_code), Icons.Rounded.QrCode2, IconColors.Teal),
+            Tool(Route.Random, t(R.string.home_random), t(R.string.home_numbers_in_any_range_or_roll_some_dice), Icons.Rounded.Casino, IconColors.Purple),
         ),
     )
 
@@ -185,11 +188,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
 
     // Clock-style icon tabs: one category at a time (One UI line icons; filled while selected).
     val tabs = listOf(
-        com.tools.app.ui.PillTab("Media", com.tools.app.ui.OneUiIcons.TabMedia, com.tools.app.ui.OneUiIcons.TabMediaOn),
-        com.tools.app.ui.PillTab("Files", com.tools.app.ui.OneUiIcons.TabFiles, com.tools.app.ui.OneUiIcons.TabFilesOn),
-        com.tools.app.ui.PillTab("Images", com.tools.app.ui.OneUiIcons.TabImages, com.tools.app.ui.OneUiIcons.TabImagesOn),
-        com.tools.app.ui.PillTab("Device", com.tools.app.ui.OneUiIcons.TabDevice, com.tools.app.ui.OneUiIcons.TabDeviceOn),
-        com.tools.app.ui.PillTab("Misc", com.tools.app.ui.OneUiIcons.TabMisc, com.tools.app.ui.OneUiIcons.TabMiscOn),
+        com.tools.app.ui.PillTab(t(R.string.home_media), com.tools.app.ui.OneUiIcons.TabMedia, com.tools.app.ui.OneUiIcons.TabMediaOn),
+        com.tools.app.ui.PillTab(t(R.string.home_files), com.tools.app.ui.OneUiIcons.TabFiles, com.tools.app.ui.OneUiIcons.TabFilesOn),
+        com.tools.app.ui.PillTab(t(R.string.home_images), com.tools.app.ui.OneUiIcons.TabImages, com.tools.app.ui.OneUiIcons.TabImagesOn),
+        com.tools.app.ui.PillTab(t(R.string.home_device), com.tools.app.ui.OneUiIcons.TabDevice, com.tools.app.ui.OneUiIcons.TabDeviceOn),
+        com.tools.app.ui.PillTab(t(R.string.home_misc), com.tools.app.ui.OneUiIcons.TabMisc, com.tools.app.ui.OneUiIcons.TabMiscOn),
     )
     var choosingGlow by remember { mutableStateOf(false) }
     if (choosingGlow) GlowPicker(onDismiss = { choosingGlow = false })
@@ -198,7 +201,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
     androidx.compose.runtime.CompositionLocalProvider(com.tools.app.ui.LocalHazeState provides haze) {
     OneUiScaffold(
         title = "Good Utilities",
-        subtitle = "${groups.sumOf { it.second.size }} tools",
+        subtitle = groups.sumOf { it.second.size }.let { tp(R.plurals.home_tools, it) },
         listState = state.list,
         // With no tab chosen, the title scrolls away and the buttons float on shadowed chips; inside a tab, and
         // while searching, the title stays pinned.
@@ -206,8 +209,8 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         // The list fades out toward the tab bar everywhere.
         fadeUnderBottomBar = true,
         actions = {
-            com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, "Search") { searching = true }
-            OverflowMenu(listOf("Background" to { choosingGlow = true }, "About" to { open(Route.About) }))
+            com.tools.app.ui.ToolbarIcon(com.tools.app.ui.OneUiIcons.Search, t(R.string.home_search)) { searching = true }
+            OverflowMenu(listOf(t(R.string.home_background) to { choosingGlow = true }, t(R.string.home_about) to { open(Route.About) }))
         },
         bottomBar = {
             // The two bars cross-fade in place. Faded per draw (not through an offscreen layer), so the bars,
@@ -232,7 +235,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         },
     ) {
         if (searching && q.isNotEmpty()) {
-            sectionLabel(if (matches.isEmpty()) "No tools found" else "Results", key = "search-label")
+            sectionLabel(if (matches.isEmpty()) t(R.string.home_no_tools_found) else t(R.string.home_results), key = "search-label")
             if (matches.isNotEmpty()) cardList(matches, key = { "found-" + it.route.name }, dividerStart = IconRowDivider) { t ->
                 ListRow(t.title, summary = t.summary, leading = { ColorIcon(t.icon, t.color) }, onClick = { closeSearch(); open(t.route) })
             }
@@ -241,11 +244,11 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
         if (!access) {
             card(key = "storage-access") {
                 ListRow(
-                    "Allow All files access",
-                    summary = "Needed to save everything to Internal Storage/${com.tools.app.Storage.ROOT}.",
+                    t(R.string.home_allow_all_files_access),
+                    summary = t(R.string.home_needed_to_save_everything_to_internal, com.tools.app.Storage.ROOT),
                     leading = { ColorIcon(Icons.Rounded.Folder, IconColors.Orange) },
                     trailing = {
-                        com.tools.app.ui.PillButton("Allow", onClick = { context.startActivity(com.tools.app.Storage.accessIntent(context)) }, height = 38.dp)
+                        com.tools.app.ui.PillButton(t(R.string.home_allow), onClick = { context.startActivity(com.tools.app.Storage.accessIntent(context)) }, height = 38.dp)
                     },
                     onClick = { context.startActivity(com.tools.app.Storage.accessIntent(context)) },
                 )
@@ -288,7 +291,7 @@ fun HomeScreen(state: HomeState, open: (Route) -> Unit) {
 @Composable
 private fun GlowPicker(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    com.tools.app.ui.OneUiDialog("Background", onDismiss, buttons = listOf("Done" to onDismiss)) {
+    com.tools.app.ui.OneUiDialog(t(R.string.home_background), onDismiss, buttons = listOf(t(R.string.home_done) to onDismiss)) {
         com.tools.app.ui.theme.GlowStyle.entries.forEach { g ->
             androidx.compose.foundation.layout.Row(
                 Modifier.fillMaxWidth().clip(androidx.compose.foundation.shape.RoundedCornerShape(14.dp))
@@ -297,7 +300,7 @@ private fun GlowPicker(onDismiss: () -> Unit) {
                 verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
             ) {
                 com.tools.app.ui.RadioDot(com.tools.app.ui.theme.Glow.style == g)
-                Text(g.label, fontSize = 16.sp, color = OneUi.colors.text, modifier = Modifier.padding(start = 14.dp).weight(1f))
+                Text(t(g.label), fontSize = 16.sp, color = OneUi.colors.text, modifier = Modifier.padding(start = 14.dp).weight(1f))
             }
         }
     }

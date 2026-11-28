@@ -1,5 +1,8 @@
 package com.tools.app.convert
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.material.icons.rounded.SwapHoriz
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -116,18 +119,18 @@ fun ConverterScreen(onBack: () -> Unit) {
     val inRun = items.isNotEmpty()
 
     OneUiScaffold(
-        title = "File converter",
+        title = t(R.string.home_file_converter),
         onBack = onBack,
         actions = { com.tools.app.ui.TipsMenu(CONVERT_TIPS) },
         bottomBar = {
             when {
-                running -> PillButton("Cancel", onClick = { jobs.cancel() }, tonal = true, modifier = Modifier.fillMaxWidth())
-                inRun -> PillButton("Convert more files", onClick = { jobs.reset() }, modifier = Modifier.fillMaxWidth())
-                jobs.sources.isEmpty() -> PillButton("Choose files", onClick = { picker.launch(arrayOf("*/*")) }, icon = OneUiIcons.Add, modifier = Modifier.fillMaxWidth())
+                running -> PillButton(t(R.string.ui_cancel), onClick = { jobs.cancel() }, tonal = true, modifier = Modifier.fillMaxWidth())
+                inRun -> PillButton(t(R.string.convert_convert_more_files), onClick = { jobs.reset() }, modifier = Modifier.fillMaxWidth())
+                jobs.sources.isEmpty() -> PillButton(t(R.string.convert_choose_files), onClick = { picker.launch(arrayOf("*/*")) }, icon = OneUiIcons.Add, modifier = Modifier.fillMaxWidth())
                 else -> {
                     val n = jobs.sources.size
                     PillButton(
-                        if (n == 1) "Convert" else "Convert $n files",
+                        if (n == 1) t(R.string.convert_convert) else t(R.string.convert_convert_files, n),
                         onClick = { jobs.start(context) },
                         enabled = jobs.target.value != null && hasAccess,
                         modifier = Modifier.fillMaxWidth(),
@@ -152,7 +155,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
         card("access") {
             val context = LocalContext.current
             ListRow(
-                "Allow access to storage", summary = "Converted files are saved in Internal Storage/${Storage.ROOT}. Tap to allow All files access.",
+                t(R.string.convert_allow_access_to_storage), summary = t(R.string.convert_converted_files_are_saved_in_internal, Storage.ROOT),
                 onClick = { context.startActivity(Storage.accessIntent(context)) },
             )
         }
@@ -165,34 +168,34 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
     }
 
     if (sources.isEmpty()) {
-        sectionLabel("Files")
+        sectionLabel(t(R.string.home_files))
         card("choose") {
             ListRow(
-                "Choose files", summary = "Pick one or more files of the same type",
+                t(R.string.convert_choose_files), summary = t(R.string.convert_pick_one_or_more_files_of_the_same_typ),
                 onClick = pick,
             )
         }
         return
     }
 
-    sectionLabel("${sources.size} ${if (sources.size == 1) "file" else "files"} · ${kind?.label.orEmpty()}")
+    sectionLabel(tp(R.plurals.convert_n_files_kind, sources.size, sources.size, kind?.label.orEmpty()))
     cardList(sources, key = { "src-${it.id}" }) { s ->
         val context = LocalContext.current
         ListRow(
             s.name,
-            summary = (if (s.ext.isEmpty()) s.kind.label else "${s.ext.uppercase()} ${s.kind.label.lowercase()}") +
+            summary = (if (s.ext.isEmpty()) s.kind.label else t(R.string.convert_ext_kind, s.ext.uppercase(), s.kind.label.lowercase())) +
                 if (s.size > 0) " · ${Formatter.formatShortFileSize(context, s.size)}" else "",
             trailing = {
                 Box(Modifier.size(36.dp).clip(CircleShape).clickable { jobs.remove(s) }, contentAlignment = Alignment.Center) {
-                    Icon(OneUiIcons.Close, "Remove", tint = OneUi.colors.textSecondary, modifier = Modifier.size(20.dp))
+                    Icon(OneUiIcons.Close, t(R.string.audio_remove), tint = OneUi.colors.textSecondary, modifier = Modifier.size(20.dp))
                 }
             },
         )
     }
-    card("add") { ListRow("Add more files", onClick = pick) }
+    card("add") { ListRow(t(R.string.convert_add_more_files), onClick = pick) }
 
     val choices = jobs.choices
-    sectionLabel("Convert to")
+    sectionLabel(t(R.string.convert_convert_to))
     card("choices") {
         choices.forEachIndexed { i, ch ->
             ListRow(ch.title, summary = ch.summary, trailing = { RadioDot(ch.fmt == target) }, onClick = { jobs.target.value = ch.fmt })
@@ -206,7 +209,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
         val showGif = target == Fmt.Gif
         val showCombine = kind == Kind.Image && target == Fmt.Pdf && sources.size > 1
         if (showQuality || showResolution || showGif || showCombine) {
-            sectionLabel("Options")
+            sectionLabel(t(R.string.convert_options))
             card("options") {
                 val c = OneUi.colors
                 if (showQuality) {
@@ -214,7 +217,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
                     val state = if (imageQ) jobs.imageQuality else jobs.audioQuality
                     Column(Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("Quality", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                            Text(t(R.string.video_quality), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
                             Text(qualityLabel(target, state.value.roundToInt(), imageQ), fontSize = 13.sp, color = c.accent)
                         }
                         OneUiSlider(
@@ -226,27 +229,27 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
                 if (showQuality && (showResolution || showGif || showCombine)) CardDivider()
                 if (showResolution) {
                     Column(Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
-                        Text("Resolution", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+                        Text(t(R.string.convert_resolution), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
                         Row(Modifier.padding(top = 10.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            listOf(0 to "Original", 1080 to "1080p", 720 to "720p", 480 to "480p").forEach { (h, label) ->
+                            listOf(0 to t(R.string.convert_original), 1080 to "1080p", 720 to "720p", 480 to "480p").forEach { (h, label) ->
                                 Chip(label, jobs.videoHeight.value == h, { jobs.videoHeight.value = h })
                             }
                         }
-                        Text("Smaller sizes are never enlarged", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+                        Text(t(R.string.convert_smaller_sizes_are_never_enlarged), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
                 if (showGif) {
                     Column(Modifier.padding(horizontal = 18.dp, vertical = 14.dp)) {
-                        Text("GIF width", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+                        Text(t(R.string.convert_gif_width), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
                         Row(Modifier.padding(top = 10.dp).horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             listOf(320, 480, 640).forEach { w -> Chip("$w px", jobs.gifWidth.value == w, { jobs.gifWidth.value = w }) }
                         }
-                        Text("12 frames per second", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+                        Text(t(R.string.convert_12_frames_per_second), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
                     }
                 }
                 if (showCombine) {
                     ListRow(
-                        "Combine into one PDF", summary = "One page per image, in the order shown",
+                        t(R.string.convert_combine_into_one_pdf), summary = t(R.string.convert_one_page_per_image_in_the_order_shown),
                         trailing = { OneUiSwitch(jobs.combinePdf.value) },
                         onClick = { jobs.combinePdf.value = !jobs.combinePdf.value },
                     )
@@ -258,7 +261,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.setupPage(hasAccess: 
 }
 
 private fun qualityLabel(fmt: Fmt, q: Int, image: Boolean): String = when {
-    image -> if (fmt == Fmt.Webp && q >= 100) "$q% · lossless" else "$q%"
+    image -> if (fmt == Fmt.Webp && q >= 100) t(R.string.convert_lossless, q) else "$q%"
     fmt == Fmt.Mp3 -> "$q% · VBR"
     fmt == Fmt.M4a -> "$q% · ${(64 + q * 1.7).roundToInt()} kbps"
     fmt == Fmt.Opus -> "$q% · ${(48 + q * 1.07).roundToInt()} kbps"
@@ -268,22 +271,22 @@ private fun qualityLabel(fmt: Fmt, q: Int, image: Boolean): String = when {
 /** Honest limits for the chosen conversion. */
 private fun note(kind: Kind?, fmt: Fmt, sources: List<Source>): String? = when {
     kind == Kind.Docx && fmt == Fmt.Pdf ->
-        "This is a text-and-basic-formatting conversion: paragraphs, headings, bold and italic, simple bullets and tables. Pictures, text boxes, headers, footers and complex layout are left out."
-    kind == Kind.Docx -> "Pictures and complex layout are left out. Tables become tab-separated rows."
-    kind == Kind.Text && fmt == Fmt.Pdf -> "Markdown is lightly formatted (headings, lists, bold, italic). Everything else is plain text on A4 pages."
-    kind == Kind.Pdf && fmt == Fmt.Txt -> "Only selectable text is extracted. Scanned PDFs have none. Layout, tables and pictures are not kept."
-    kind == Kind.Pdf -> "Each page becomes a picture at about 144 dpi. Files with several pages are saved in their own folder."
-    kind == Kind.Image && fmt == Fmt.Jpg -> "JPG has no transparency, so transparent areas turn white. GIFs convert their first frame only."
-    kind == Kind.Image && fmt == Fmt.Pdf -> "Images are fitted onto A4 pages and reduced to about 200 dpi."
-    kind == Kind.Image -> "GIFs convert their first frame only. Photo metadata other than orientation is not kept."
-    kind == Kind.Video && fmt == Fmt.WebM -> "WebM (VP9) is slow to encode, often several times longer than the video itself. Keep the screen on and expect your phone to get warm."
-    kind == Kind.Video && fmt == Fmt.Mp4 -> "Uses the phone's hardware encoder when it works, otherwise a slower software encoder."
-    kind == Kind.Video && fmt == Fmt.Gif -> "GIFs are large and limited to the first 30 seconds, without sound."
-    kind == Kind.Video -> "Extracts the sound track. Videos without sound can't be converted this way."
-    fmt == Fmt.Wav || fmt == Fmt.Flac -> "Lossless output is much larger than MP3 and can't restore quality lost in the original file."
+        t(R.string.convert_this_is_a_text_and_basic_formatting_co)
+    kind == Kind.Docx -> t(R.string.convert_pictures_and_complex_layout_are_left_o)
+    kind == Kind.Text && fmt == Fmt.Pdf -> t(R.string.convert_markdown_is_lightly_formatted_headings)
+    kind == Kind.Pdf && fmt == Fmt.Txt -> t(R.string.convert_only_selectable_text_is_extracted_scan)
+    kind == Kind.Pdf -> t(R.string.convert_each_page_becomes_a_picture_at_about_1)
+    kind == Kind.Image && fmt == Fmt.Jpg -> t(R.string.convert_jpg_has_no_transparency_so_transparent)
+    kind == Kind.Image && fmt == Fmt.Pdf -> t(R.string.convert_images_are_fitted_onto_a4_pages_and_re)
+    kind == Kind.Image -> t(R.string.convert_gifs_convert_their_first_frame_only_ph)
+    kind == Kind.Video && fmt == Fmt.WebM -> t(R.string.convert_webm_vp9_is_slow_to_encode_often_sever)
+    kind == Kind.Video && fmt == Fmt.Mp4 -> t(R.string.convert_uses_the_phone_s_hardware_encoder_when)
+    kind == Kind.Video && fmt == Fmt.Gif -> t(R.string.convert_gifs_are_large_and_limited_to_the_firs)
+    kind == Kind.Video -> t(R.string.convert_extracts_the_sound_track_videos_withou)
+    fmt == Fmt.Wav || fmt == Fmt.Flac -> t(R.string.convert_lossless_output_is_much_larger_than_mp)
     kind == Kind.Audio && fmt.lossyAudio && sources.any { it.ext in setOf("flac", "wav", "alac") } ->
-        "Converting lossless audio to a lossy format makes the file smaller but permanently loses some quality. Tags and cover art are kept where the format allows."
-    kind == Kind.Audio -> "Tags and cover art are kept where the format allows (not in OGG, OPUS or WAV)."
+        t(R.string.convert_converting_lossless_audio_to_a_lossy_f)
+    kind == Kind.Audio -> t(R.string.convert_tags_and_cover_art_are_kept_where_the)
     else -> null
 }
 
@@ -304,11 +307,11 @@ private fun androidx.compose.foundation.lazy.LazyListScope.runPage(items: List<I
         val c = OneUi.colors
         Column(Modifier.padding(horizontal = 18.dp, vertical = 16.dp)) {
             val title = when {
-                running -> "Converting ${(done + failed + 1).coerceAtMost(items.size)} of ${items.size}"
-                cancelled > 0 -> "Cancelled"
-                failed == 0 -> "All done"
-                done == 0 -> "Nothing could be converted"
-                else -> "Finished with problems"
+                running -> t(R.string.convert_converting_of, (done + failed + 1).coerceAtMost(items.size), items.size)
+                cancelled > 0 -> t(R.string.convert_cancelled)
+                failed == 0 -> t(R.string.convert_all_done)
+                done == 0 -> t(R.string.convert_nothing_could_be_converted)
+                else -> t(R.string.convert_finished_with_problems)
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
@@ -317,17 +320,17 @@ private fun androidx.compose.foundation.lazy.LazyListScope.runPage(items: List<I
             if (running) ThinProgress(overall, Modifier.padding(top = 10.dp))
             else Text(
                 buildString {
-                    append("$done converted")
-                    if (failed > 0) append(" · $failed failed")
-                    if (cancelled > 0) append(" · $cancelled not done")
+                    append(t(R.string.convert_converted, done))
+                    if (failed > 0) append(t(R.string.music_failed_2, failed))
+                    if (cancelled > 0) append(t(R.string.convert_not_done, cancelled))
                 },
                 fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp),
             )
-            if (running) Text("You can leave this page. Conversion continues in the background.", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 10.dp))
+            if (running) Text(t(R.string.convert_you_can_leave_this_page_conversion_con), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 10.dp))
         }
     }
 
-    sectionLabel(if (items.size == 1) "File" else "Files")
+    sectionLabel(if (items.size == 1) t(R.string.convert_file) else t(R.string.home_files))
     cardList(items, key = { "item-${it.id}" }) { item -> ResultRow(item) }
 }
 
@@ -341,11 +344,11 @@ private fun ResultRow(item: Item) {
         ListRow(
             item.title,
             summary = when (state) {
-                is ItemState.Queued -> "Waiting"
+                is ItemState.Queued -> t(R.string.music_waiting)
                 is ItemState.Running -> "${state.step}… ${(state.progress * 100).roundToInt()}%"
-                is ItemState.Done -> "Saved to ${state.output.folderLabel}" + if (state.output.files.size > 1) " · ${state.output.files.size} files" else ""
+                is ItemState.Done -> t(R.string.video_saved_to, state.output.folderLabel) + if (state.output.files.size > 1) t(R.string.convert_files, state.output.files.size) else ""
                 is ItemState.Failed -> state.message
-                is ItemState.Cancelled -> "Cancelled"
+                is ItemState.Cancelled -> t(R.string.convert_cancelled)
             },
             summaryColor = when (state) {
                 is ItemState.Done -> c.success
@@ -354,8 +357,8 @@ private fun ResultRow(item: Item) {
             },
             trailing = if (state is ItemState.Done) ({
                 Row {
-                    RoundAction(OneUiIcons.Share, "Share") { scope.launch { share(context, state.output) } }
-                    RoundAction(OneUiIcons.OpenExternal, "Open") { scope.launch { open(context, state.output) } }
+                    RoundAction(OneUiIcons.Share, t(R.string.video_share)) { scope.launch { share(context, state.output) } }
+                    RoundAction(OneUiIcons.OpenExternal, t(R.string.video_open)) { scope.launch { open(context, state.output) } }
                 }
             }) else null,
         )
@@ -382,7 +385,7 @@ private suspend fun shareable(context: Context, output: Output): List<android.ne
 
 private suspend fun share(context: Context, output: Output) {
     val uris = runCatching { shareable(context, output) }.getOrDefault(emptyList())
-    if (uris.isEmpty()) { Toast.makeText(context, "The saved file is no longer there", Toast.LENGTH_SHORT).show(); return }
+    if (uris.isEmpty()) { Toast.makeText(context, t(R.string.convert_the_saved_file_is_no_longer_there), Toast.LENGTH_SHORT).show(); return }
     val intent = if (uris.size == 1) Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, uris[0])
     else Intent(Intent.ACTION_SEND_MULTIPLE).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
     intent.setType(output.mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -391,19 +394,19 @@ private suspend fun share(context: Context, output: Output) {
 
 private suspend fun open(context: Context, output: Output) {
     val uris = runCatching { shareable(context, output.copy(files = output.files.take(1))) }.getOrDefault(emptyList())
-    if (uris.isEmpty()) { Toast.makeText(context, "The saved file is no longer there", Toast.LENGTH_SHORT).show(); return }
+    if (uris.isEmpty()) { Toast.makeText(context, t(R.string.convert_the_saved_file_is_no_longer_there), Toast.LENGTH_SHORT).show(); return }
     val intent = Intent(Intent.ACTION_VIEW).setDataAndType(uris[0], output.mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
     try { context.startActivity(intent) } catch (e: ActivityNotFoundException) {
-        Toast.makeText(context, "No app can open this file. Try Share instead", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, t(R.string.convert_no_app_can_open_this_file_try_share_in), Toast.LENGTH_SHORT).show()
     }
 }
 
 /** What can be converted, for the ⋮ › Tips popup. */
 private val CONVERT_TIPS = listOf(
-    com.tools.app.ui.Tip("Images", "JPG, PNG, WebP, HEIC, GIF, BMP to JPG, PNG, WebP or PDF."),
-    com.tools.app.ui.Tip("PDF", "To JPG or PNG pages, or text."),
-    com.tools.app.ui.Tip("Word (.docx)", "To PDF or text. Text and basic formatting only."),
-    com.tools.app.ui.Tip("TXT and Markdown", "To PDF."),
-    com.tools.app.ui.Tip("Audio", "MP3, WAV, M4A, FLAC, OGG, OPUS, AMR to MP3, WAV, M4A, FLAC, OGG or OPUS."),
-    com.tools.app.ui.Tip("Video", "MP4, MKV, MOV, WebM, 3GP, AVI to MP4, WebM, GIF, or just the audio."),
+    com.tools.app.ui.Tip(t(R.string.home_images), t(R.string.convert_jpg_png_webp_heic_gif_bmp_to_jpg_png_w)),
+    com.tools.app.ui.Tip("PDF", t(R.string.convert_to_jpg_or_png_pages_or_text)),
+    com.tools.app.ui.Tip(t(R.string.convert_word_docx), t(R.string.convert_to_pdf_or_text_text_and_basic_formatti)),
+    com.tools.app.ui.Tip(t(R.string.convert_txt_and_markdown), t(R.string.convert_to_pdf)),
+    com.tools.app.ui.Tip(t(R.string.convert_audio), t(R.string.convert_mp3_wav_m4a_flac_ogg_opus_amr_to_mp3_w)),
+    com.tools.app.ui.Tip(t(R.string.video_video), t(R.string.convert_mp4_mkv_mov_webm_3gp_avi_to_mp4_webm_g)),
 )

@@ -1,5 +1,7 @@
 package com.tools.app.apk
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.material.icons.automirrored.rounded.CallMerge
 
 import androidx.compose.material.icons.Icons
@@ -85,18 +87,18 @@ private object ApkJob {
         State.Done(FILE_TITLE, ApkTools.mergeFile(ctx, uri, step), merged = true)
     }
 
-    const val FILE_TITLE = "Split APK file"
+    val FILE_TITLE get() = t(R.string.apk_split_apk_file)
 
     private fun launch(context: Context, title: String, work: suspend (Context, (String) -> Unit) -> State) {
         if (state.value is State.Running) return
         val ctx = context.applicationContext
         scope.launch {
-            state.value = State.Running(title, "Starting…")
+            state.value = State.Running(title, t(R.string.video_starting))
             state.value = try {
                 work(ctx) { s -> state.value = State.Running(title, s) }
             } catch (e: Throwable) {
                 ApkTools.clearCache(ctx)
-                State.Failed(title, if (e is OutOfMemoryError) "This app is too large to merge on the phone" else e.message ?: e.javaClass.simpleName)
+                State.Failed(title, if (e is OutOfMemoryError) t(R.string.apk_this_app_is_too_large_to_merge_on_the) else e.message ?: e.javaClass.simpleName)
             }
         }
     }
@@ -129,31 +131,31 @@ fun ApkScreen(onBack: () -> Unit) {
     val q = query.trim()
     val shown = apps.orEmpty().filter { q.isEmpty() || it.label.contains(q, ignoreCase = true) || it.packageName.contains(q, ignoreCase = true) }
     OneUiScaffold(
-        title = "APK extractor", onBack = onBack, listState = listState,
+        title = t(R.string.home_apk_extractor), onBack = onBack, listState = listState,
         actions = { com.tools.app.ui.TipsMenu(listOf(
-            com.tools.app.ui.Tip("Where they go", "Apps are saved as APK files in ${ApkTools.FOLDER}."),
-            com.tools.app.ui.Tip("Split apps", "Split apps and bundle files (.apks, .xapk, .apkm) are merged into one APK you can install anywhere."),
+            com.tools.app.ui.Tip(t(R.string.apk_where_they_go), t(R.string.apk_apps_are_saved_as_apk_files_in, ApkTools.FOLDER)),
+            com.tools.app.ui.Tip(t(R.string.apk_split_apps), t(R.string.apk_split_apps_and_bundle_files_apks_xapk)),
         )) },
         bottomBar = { com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true }, onClose = closeSearch) },
     ) {
         if (!searching) {
         cardList(listOf(Unit), key = { "bundle-file" }) {
             ListRow(
-                "Merge a split APK file",
-                summary = ".apks, .xapk or .apkm bundle → one installable APK",
+                t(R.string.apk_merge_a_split_apk_file),
+                summary = t(R.string.apk_bundle_to_one_apk),
                 onClick = { if (job !is ApkJob.State.Running) { ApkJob.state.value = ApkJob.State.Idle; bundlePicker.launch(arrayOf("*/*")) } },
             )
         }
         }
-        sectionLabel(if (searching && q.isNotEmpty() && shown.isEmpty()) "No apps found" else "Installed apps", key = "apps-label")
-        if (apps == null) description("Loading apps…", key = "loading")
+        sectionLabel(if (searching && q.isNotEmpty() && shown.isEmpty()) t(R.string.apk_no_apps_found) else t(R.string.apk_installed_apps), key = "apps-label")
+        if (apps == null) description(t(R.string.apk_loading_apps), key = "loading")
         cardList(shown, key = { it.packageName }, dividerStart = IconRowDivider + 12.dp) { app ->
             ListRow(
                 app.label,
                 summary = listOfNotNull(
                     app.versionName.takeIf { it.isNotBlank() },
                     size(app.sizeBytes),
-                    if (app.isSplit) "Split · ${app.splits.size + 1} parts" else null,
+                    if (app.isSplit) t(R.string.apk_split_parts, app.splits.size + 1) else null,
                 ).joinToString(" · "),
                 leading = { AppIcon(app.packageName) },
                 onClick = { if (job !is ApkJob.State.Running) { ApkJob.state.value = ApkJob.State.Idle; selected = app } },
@@ -180,28 +182,28 @@ fun ApkScreen(onBack: () -> Unit) {
                 Indeterminate()
             }
             forThis && st is ApkJob.State.Done -> OneUiDialog(title, onDismiss = close, buttons = listOf("OK" to close)) {
-                Text("Saved to ${ApkTools.FOLDER}\n${st.fileName}", fontSize = 15.sp, lineHeight = 21.sp, color = c.text)
+                Text(t(R.string.apk_saved_to_n, ApkTools.FOLDER, st.fileName), fontSize = 15.sp, lineHeight = 21.sp, color = c.text)
                 if (st.merged) Text(
-                    "The merged APK is signed by Good Utilities, not by the original developer. Uninstall any installed version before installing it; it won't receive Play updates.",
+                    t(R.string.apk_the_merged_apk_is_signed_by_good_utili),
                     fontSize = 13.sp, lineHeight = 18.sp, color = c.textSecondary, modifier = Modifier.padding(top = 10.dp),
                 )
             }
             forThis && st is ApkJob.State.Failed -> OneUiDialog(title, onDismiss = close, buttons = listOf("OK" to close)) {
-                Text("Couldn't save this.\n${st.message}", fontSize = 15.sp, lineHeight = 21.sp, color = c.text)
+                Text(t(R.string.apk_couldn_t_save_this_n, st.message), fontSize = 15.sp, lineHeight = 21.sp, color = c.text)
             }
             app != null -> {
                 val buttons = if (app.isSplit) listOf(
-                    "Cancel" to close,
-                    "Save .apks" to { ApkJob.run(context, app, 2) },
-                    "Merge APK" to { ApkJob.run(context, app, 1) },
-                ) else listOf("Cancel" to close, "Save APK" to { ApkJob.run(context, app, 0) })
+                    t(R.string.ui_cancel) to close,
+                    t(R.string.apk_save_apks) to { ApkJob.run(context, app, 2) },
+                    t(R.string.apk_merge_apk) to { ApkJob.run(context, app, 1) },
+                ) else listOf(t(R.string.ui_cancel) to close, t(R.string.apk_save_apk) to { ApkJob.run(context, app, 0) })
                 OneUiDialog(app.label, onDismiss = close, buttons = buttons) {
                     Text(
                         if (app.isSplit)
-                            "Installed as ${app.splits.size + 1} parts (${size(app.sizeBytes)}).\n\n" +
-                                "Merge APK: one installable APK, re-signed by Good Utilities.\n" +
-                                "Save .apks: all parts zipped with the original signature, for split installers like SAI."
-                        else "Single APK, ${size(app.sizeBytes)}. It is copied with its original signature.",
+                            t(R.string.apk_installed_as_parts_n_n, app.splits.size + 1, size(app.sizeBytes)) +
+                                t(R.string.apk_merge_apk_one_installable_apk_re_signe) +
+                                t(R.string.apk_save_apks_all_parts_zipped_with_the_or)
+                        else t(R.string.apk_single_apk_it_is_copied_with_its_origi, size(app.sizeBytes)),
                         fontSize = 15.sp, lineHeight = 21.sp, color = c.text,
                     )
                 }

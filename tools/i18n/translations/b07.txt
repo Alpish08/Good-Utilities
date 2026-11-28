@@ -1,0 +1,143 @@
+jp_credits | Crédits | Emeği geçenler
+jp_dictionary_jmdict_edrdg_cc_by_sa_4_0_w | Dictionnaire : JMdict (EDRDG), CC BY-SA 4.0. Découpage des mots : Kuromoji. Reconnaissance et traduction : ML Kit. | Sözlük: JMdict (EDRDG), CC BY-SA 4.0. Sözcük ayırma: Kuromoji. Metin tanıma ve çeviri: ML Kit.
+jp_read_something | Lire quelque chose | Bir şey okuyun
+jp_a_screenshot_or_picture_with_japanese | Une capture ou une image avec du texte japonais | Japonca metin içeren bir ekran görüntüsü veya resim
+jp_take_photo | Prendre une photo | Fotoğraf çek
+jp_a_sign_a_page_a_game_screen | Un panneau, une page, un écran de jeu | Bir tabela, bir sayfa, bir oyun ekranı
+jp_quick_settings_tile | Vignette des réglages rapides | Hızlı Ayarlar kutucuğu
+jp_read_the_screen_you_are_on | Lire l'écran affiché | Bulunduğunuz ekranı okuyun
+jp_swipe_down_tap_read_japanese_works_ove | Balayez vers le bas, touchez Lire le japonais. Fonctionne par-dessus Mihon, les jeux, les vidéos et tout le reste ; touchez ensuite une ligne pour les lectures et les sens. | Aşağı kaydırın, Japonca oku'ya dokunun. Mihon, oyunlar, videolar ve her şeyin üzerinde çalışır; ardından okunuşlar ve anlamlar için bir satıra dokunun.
+jp_screen_capture_is_ready | La capture d'écran est prête | Ekran yakalama hazır
+jp_app_lock_s_accessibility_service_is_of | Le service d'accessibilité du verrouillage d'applis est désactivé | Uygulama kilidinin erişilebilirlik hizmeti kapalı
+jp_uses_the_same_accessibility_service_as | Utilise le même service d'accessibilité que le verrouillage d'applis. L'écran n'est capturé que lorsque vous touchez la vignette. | Uygulama kilidiyle aynı erişilebilirlik hizmetini kullanır. Ekranı yalnızca kutucuğa dokunduğunuzda yakalar.
+jp_the_tile_needs_it_to_take_the_screensh | La vignette en a besoin pour faire la capture. Après une réinstallation, lancez ~/enable-applock.sh sur votre ordinateur. | Kutucuğun ekran görüntüsü alabilmesi için gereklidir. Yeniden yüklemeden sonra bilgisayarınızda ~/enable-applock.sh'yi çalıştırın.
+jp_add_tile_to_quick_settings | Ajouter la vignette aux réglages rapides | Kutucuğu Hızlı Ayarlar'a ekle
+jp_dictionary | Dictionnaire | Sözlük
+jp_preparing_the_dictionary | Préparation du dictionnaire… | Sözlük hazırlanıyor…
+jp_downloading_jmdict_and_indexing_it_for | %1$s %%  Téléchargement de JMdict et indexation pour une utilisation hors ligne | %%%1$s  JMdict indiriliyor ve çevrimdışı kullanım için dizinleniyor
+jp_checking_the_latest_jmdict_release | Recherche de la dernière version de JMdict… | En son JMdict sürümü kontrol ediliyor…
+jp_english_dictionary_installed | Dictionnaire anglais installé | İngilizce sözlük yüklü
+jp_entries_on_this_phone_njmdict_edrdg_cc | %1$s entrées · %2$s sur ce téléphone\nJMdict (EDRDG), CC BY-SA 4.0 | %1$s madde · bu telefonda %2$s\nJMdict (EDRDG), CC BY-SA 4.0
+jp_remove_dictionary | Supprimer le dictionnaire | Sözlüğü kaldır
+jp_frees_the_space_you_can_download_it_ag | Libère l'espace ; vous pourrez le retélécharger | Alanı boşaltır; yeniden indirebilirsiniz
+jp_offline_dictionary | Dictionnaire hors ligne | Çevrimdışı sözlük
+jp_meanings_and_parts_of_speech_for_every | Sens et catégories grammaticales de chaque mot, sans Internet après ce téléchargement. JMdict (EDRDG), CC BY-SA 4.0. | Her sözcüğün anlamları ve sözcük türleri; bu indirmeden sonra internet gerekmez. JMdict (EDRDG), CC BY-SA 4.0.
+jp_everything | Tout | Tümü
+jp_common_only | Courants uniquement | Yalnızca yaygın olanlar
+jp_download_dictionary | Télécharger le dictionnaire (~%1$s) | Sözlüğü indir (~%1$s)
+jp_translation | Traduction | Çeviri
+jp_japanese_to_english_model_ready | Modèle japonais vers anglais prêt | Japoncadan İngilizceye model hazır
+jp_sentences_are_translated_on_this_phone | Les phrases sont traduites sur ce téléphone | Cümleler bu telefonda çevrilir
+jp_remove_model | Supprimer le modèle | Modeli kaldır
+jp_about_30_mb | Environ 30 Mo | Yaklaşık 30 MB
+jp_downloading_the_translation_model | Téléchargement du modèle de traduction… | Çeviri modeli indiriliyor…
+jp_about_30_mb_waiting_for_wi_fi_if_you_r | Environ 30 Mo. En attente du Wi-Fi si vous n'y êtes pas connecté. | Yaklaşık 30 MB. Wi-Fi'de değilseniz Wi-Fi bekleniyor.
+jp_about_30_mb_over_any_network | Environ 30 Mo, sur n'importe quel réseau. | Yaklaşık 30 MB, herhangi bir ağ üzerinden.
+jp_use_mobile_data_instead | Utiliser plutôt les données mobiles | Bunun yerine mobil veri kullan
+jp_on_device_translation | Traduction sur l'appareil | Cihaz üzerinde çeviri
+jp_translates_each_line_to_english_with_m | Traduit chaque ligne en anglais avec ML Kit. Le modèle (environ 30 Mo) se télécharge aussi tout seul la première fois que vous ouvrez une ligne. | Her satırı ML Kit ile İngilizceye çevirir. Model (yaklaşık 30 MB) bir satırı ilk açtığınızda kendiliğinden de iner.
+jp_download_model_30_mb | Télécharger le modèle (~30 Mo) | Modeli indir (~30 MB)
+jp_download_over_wi_fi_only | Télécharger en Wi-Fi uniquement | Yalnızca Wi-Fi ile indir
+jp_applies_to_the_translation_model | S'applique au modèle de traduction | Çeviri modeli için geçerlidir
+jp_display | Affichage | Görünüm
+jp_romaji | Rōmaji | Romaji
+jp_show_latin_letters_under_the_kana | Afficher les lettres latines sous les kana | Kana'nın altında Latin harflerini göster
+jp_my_words | Mes mots (%1$s) | Sözcüklerim (%1$s)
+jp_practice | S'entraîner | Çalış
+jp_no_words_yet | Aucun mot pour l'instant | Henüz sözcük yok
+jp_tap_the_star_on_a_word_while_reading_a | Touchez l'étoile d'un mot pendant la lecture pour l'enregistrer ici et vous entraîner. | Okurken bir sözcüğün yıldızına dokunun; çalışmak için buraya kaydedilir.
+jp_no_meaning_saved | Aucun sens enregistré | Kayıtlı anlam yok
+jp_of_words_knew_on_the_first_go_come_bac | %1$s mots sur %2$s sus du premier coup. Revenez demain et lisez quelque chose de nouveau. | %2$s sözcükten %1$s tanesini ilk seferde bildiniz. Yarın gelip yeni bir şey okuyun.
+jp_back_to_my_words | Retour à Mes mots | Sözcüklerim'e dön
+jp_to_go | %1$s / %2$s  ·  encore %3$s | %1$s / %2$s  ·  %3$s kaldı
+jp_tap_to_reveal | Touchez pour révéler | Göstermek için dokunun
+jp_again | Encore | Tekrar
+jp_got_it | Je sais | Bildim
+jp_couldn_t_read_this_image | Impossible de lire cette image | Bu görüntü okunamadı
+jp_translation_failed | Échec de la traduction | Çeviri başarısız
+jp_hide_romaji | Masquer les rōmaji | Romaji'yi gizle
+jp_show_romaji | Afficher les rōmaji | Romaji'yi göster
+jp_copy_all_text | Copier tout le texte | Tüm metni kopyala
+jp_japanese_text | Texte japonais | Japonca metin
+jp_reading_text | Lecture du texte… | Metin okunuyor…
+jp_no_japanese_text_found_in_this_picture | Aucun texte japonais trouvé dans cette image. | Bu resimde Japonca metin bulunamadı.
+jp_tap_a_line_in_the_picture | Touchez une ligne dans l'image | Resimde bir satıra dokunun
+jp_this_line | Cette ligne | Bu satır
+jp_whole_bubble | Bulle entière | Tüm balon
+jp_words | Mots | Sözcükler
+jp_no_words_in_this_line | Aucun mot dans cette ligne. | Bu satırda sözcük yok.
+jp_english | Anglais | İngilizce
+jp_google_translate | Google Traduction | Google Çeviri
+jp_listen_see_alternatives_and_get_the_on | Écouter, voir d'autres traductions et obtenir la traduction en ligne | Dinleyin, alternatifleri görün ve çevrimiçi çeviriyi alın
+jp_all_text | Tout le texte | Tüm metin
+jp_vertical_right_to_left | \u0020(vertical, de droite à gauche) | \u0020(dikey, sağdan sola)
+jp_downloading_the_translation_model_abou | Téléchargement du modèle de traduction (environ 30 Mo), en attente du Wi-Fi si nécessaire… | Çeviri modeli indiriliyor (yaklaşık 30 MB), gerekirse Wi-Fi bekleniyor…
+jp_downloading_the_translation_model_abou_2 | Téléchargement du modèle de traduction (environ 30 Mo)… | Çeviri modeli indiriliyor (yaklaşık 30 MB)…
+jp_couldn_t_download_the_model | Impossible de télécharger le modèle : %1$s | Model indirilemedi: %1$s
+jp_try_again | Réessayer | Yeniden dene
+jp_translating | Traduction… | Çevriliyor…
+jp_meanings_need_the_offline_dictionary | Les sens nécessitent le dictionnaire hors ligne | Anlamlar için çevrimdışı sözlük gerekli
+jp_checking_the_latest_release | Recherche de la dernière version… | En son sürüm kontrol ediliyor…
+jp_particles | Particules (%1$s) | Edatlar (%1$s)
+jp_from | %1$s · de %2$s | %1$s · %2$s sözcüğünden
+jp_download_the_dictionary_to_see_meaning | Téléchargez le dictionnaire pour voir les sens | Anlamları görmek için sözlüğü indirin
+jp_no_dictionary_entry | Aucune entrée dans le dictionnaire | Sözlükte madde yok
+jp_more_tap_to_expand | +%1$s de plus, touchez pour développer | +%1$s daha, genişletmek için dokunun
+jp_or | Ou :\u0020 | Ya da:\u0020
+jp_also_written | Aussi écrit :\u0020 | Şöyle de yazılır:\u0020
+jp_hear_it_in_google_translate | L'écouter dans Google Traduction | Google Çeviri'de dinleyin
+jp_remove_from_my_words | Retirer de Mes mots | Sözcüklerim'den kaldır
+jp_save_to_my_words | Enregistrer dans Mes mots | Sözcüklerim'e kaydet
+jp_suru_verb | verbe en suru | suru fiili
+jp_ichidan_verb | verbe ichidan | ichidan fiili
+jp_godan_verb | verbe godan | godan fiili
+jp_kuru_verb | verbe kuru | kuru fiili
+jp_intransitive_verb | verbe intransitif | geçişsiz fiil
+jp_transitive_verb | verbe transitif | geçişli fiil
+jp_the_download_did_not_contain_a_diction | Le téléchargement ne contenait aucun fichier de dictionnaire | İndirilen dosyada sözlük dosyası yoktu
+jp_could_not_save_the_dictionary | Impossible d'enregistrer le dictionnaire | Sözlük kaydedilemedi
+jp_github_answered | GitHub a répondu %1$s | GitHub %1$s yanıtını verdi
+jp_no_english_dictionary_in_the_latest_re | Aucun dictionnaire anglais dans la dernière version | En son sürümde İngilizce sözlük yok
+jp_this_dictionary_isn_t_in_the_latest_re | Ce dictionnaire n'est pas dans la dernière version | Bu sözlük en son sürümde yok
+jp_download_failed | Échec du téléchargement (%1$s) | İndirme başarısız (%1$s)
+jp_downloading_and_preparing | Téléchargement et préparation… | İndiriliyor ve hazırlanıyor…
+jp_screen_capture_needs_android_11_or_new | La capture d'écran nécessite Android 11 ou plus récent | Ekran yakalama için Android 11 veya üstü gerekir
+jp_couldn_t_capture_the_screen | Impossible de capturer l'écran | Ekran yakalanamadı
+jp_too_fast_try_again_in_a_second | Trop rapide, réessayez dans une seconde | Çok hızlı, bir saniye sonra yeniden deneyin
+jp_this_screen_doesn_t_allow_screenshots | Cet écran n'autorise pas les captures | Bu ekran ekran görüntüsüne izin vermiyor
+jp_app_lock_s_accessibility_service_isn_t | Le service d'accessibilité du verrouillage d'applis ne fonctionne pas, la vignette ne peut donc pas capturer l'écran.\u0020 | Uygulama kilidinin erişilebilirlik hizmeti çalışmıyor, bu yüzden kutucuk ekranı yakalayamıyor.\u0020
+jp_turn_it_on_in_settings_accessibility_r | Activez-le dans Paramètres > Accessibilité (lancez ~/enable-applock.sh après une réinstallation), puis réessayez la vignette.\u0020 | Ayarlar > Erişilebilirlik'ten açın (yeniden yüklemeden sonra ~/enable-applock.sh'yi çalıştırın), ardından kutucuğu yeniden deneyin.\u0020
+jp_you_can_still_choose_an_image_or_take | Vous pouvez toujours choisir une image ou prendre une photo ci-dessous. | Yine de aşağıdan bir görüntü seçebilir veya fotoğraf çekebilirsiniz.
+main_open_app_lock | Ouvrir le verrouillage d'applis | Uygulama kilidini aç
+main_open_virtual_cards | Ouvrir les cartes virtuelles | Sanal kartları aç
+main_add_to_virtual_cards | Ajouter aux cartes virtuelles | Sanal kartlara ekle
+storage_allow_all_files_access_for_good_utilit | Autorisez « l'accès à tous les fichiers » pour que Good Utilities puisse enregistrer dans Stockage interne/%1$s | Good Utilities'in Dahili depolama/%1$s klasörüne kaydedebilmesi için "Tüm dosyalara erişim"e izin verin
+storage_couldn_t_save | Impossible d'enregistrer %1$s | %1$s kaydedilemedi
+about_good_utilities_crash_log | Journal des plantages de Good Utilities | Good Utilities çökme günlüğü
+about_share_crash_log | Partager le journal des plantages | Çökme günlüğünü paylaş
+reader_of | %1$s sur %2$s | %1$s / %2$s
+music_saved_2 | %1$s enregistrées | %1$s kaydedildi
+ui_selected | %1$s sélectionné(s) | %1$s seçildi
+ui_min | %1$s min | %1$s dk
+ui_sec | %1$s s | %1$s sn
+video_videos_2 | %1$s vidéos | %1$s video
+video_failed | %1$s en échec | %1$s başarısız
+jp_proper_noun | nom propre | özel ad
+jp_dependent_noun | nom dépendant | bağımlı ad
+jp_noun_adverbial | nom (adverbial) | ad (zarf işlevli)
+jp_helper_verb | verbe auxiliaire | yardımcı fiil
+jp_verb_suffix | suffixe verbal | fiil eki
+jp_case_particle | particule casuelle | durum edatı
+jp_topic_particle | particule de thème | konu edatı
+jp_conjunctive_particle | particule conjonctive | bağlaç edatı
+jp_sentence_ending_particle | particule finale | cümle sonu edatı
+jp_adverbial_particle | particule adverbiale | zarf edatı
+jp_auxiliary_verb | auxiliaire | yardımcı fiil eki
+jp_pre_noun_adjective | adjectif prénominal | ad önü sıfat
+jp_couldn_t_open_google_translate | Impossible d'ouvrir Google Traduction | Google Çeviri açılamadı
+jp_download_failed_2 | Échec du téléchargement | İndirme başarısız
+audio_of | sur %1$s | / %1$s
+convert_lossless | %1$s %% · sans perte | %%%1$s · kayıpsız
+convert_converted | %1$s convertis | %1$s dönüştürüldü
+convert_to_jpg_or_png_pages_or_text | Vers des pages JPG ou PNG, ou du texte. | JPG veya PNG sayfalara ya da metne.
+convert_this_isn_t_a_valid_docx_file | Ce fichier n'est pas un .docx valide | Bu geçerli bir .docx dosyası değil

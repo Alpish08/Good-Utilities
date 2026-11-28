@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -169,18 +171,18 @@ internal fun TextViewer(
         if (searching) {
             SearchBar(
                 query, { query = it },
-                status = when { query.isBlank() -> ""; hits.isEmpty() -> "No results"; else -> "${current + 1} of ${hits.size}" },
+                status = when { query.isBlank() -> ""; hits.isEmpty() -> t(R.string.reader_no_results); else -> t(R.string.reader_of, current + 1, hits.size) },
                 onPrev = { step(-1) }, onNext = { step(1) }, onClose = { searching = false }, alpha = 1f,
             )
         } else {
             ReaderBar(info.name, onBack, alpha = 1f) {
-                ToolbarIcon(OneUiIcons.Search, "Search") { searching = true }
+                ToolbarIcon(OneUiIcons.Search, t(R.string.home_search)) { searching = true }
                 OverflowMenu(listOf(
-                    "Increase text size" to { settings.changeFontSize(settings.fontSize + 2f) },
-                    "Decrease text size" to { settings.changeFontSize(settings.fontSize - 2f) },
-                    (if (settings.keepOn) "Allow screen to turn off" else "Keep screen on") to { settings.changeKeepOn(!settings.keepOn) },
-                    "Share" to { shareDocument(ctx, info) },
-                    "File info" to { infoOpen = true },
+                    t(R.string.reader_increase_text_size) to { settings.changeFontSize(settings.fontSize + 2f) },
+                    t(R.string.reader_decrease_text_size) to { settings.changeFontSize(settings.fontSize - 2f) },
+                    (if (settings.keepOn) t(R.string.reader_allow_screen_to_turn_off) else t(R.string.reader_keep_screen_on)) to { settings.changeKeepOn(!settings.keepOn) },
+                    t(R.string.video_share) to { shareDocument(ctx, info) },
+                    t(R.string.reader_file_info) to { infoOpen = true },
                 ))
             }
         }

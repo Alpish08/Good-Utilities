@@ -20,6 +20,8 @@ tap a tab to show only its tools, tap it again to see everything. Search grows o
 frosted bar above the keyboard.
 
 Built for the Galaxy S24 Ultra (One UI 8.5, Android 16). It runs on Android 10 and newer (arm64).
+In English, French and Turkish: it follows the phone's language, or pick one just for Good Utilities in
+Settings › Apps › Good Utilities › Language.
 Like it? [Support it on Ko-fi](https://ko-fi.com/Alpish08).
 
 ## Tools

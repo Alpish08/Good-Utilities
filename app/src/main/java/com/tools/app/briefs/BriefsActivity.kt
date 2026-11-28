@@ -1,5 +1,8 @@
 package com.tools.app.briefs
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -167,22 +170,22 @@ private fun Setup(onBack: () -> Unit, onDone: () -> Unit) {
             if (e == null) { BriefsAccount.save(context, a); onDone() } else error = e
         }
     }
-    OneUiScaffold(title = "Briefs", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(BRIEFS_TIPS) }) {
+    OneUiScaffold(title = t(R.string.home_briefs), onBack = onBack, actions = { com.tools.app.ui.TipsMenu(BRIEFS_TIPS) }) {
         card("form") {
             Column(Modifier.padding(16.dp)) {
-                Field(email, { email = it }, "Gmail address", keyboard = KeyboardType.Email)
-                Field(password, { password = it }, "App password", password = true, modifier = Modifier.padding(top = 10.dp))
-                Field(label, { label = it }, "Gmail label", modifier = Modifier.padding(top = 10.dp), onDone = ::connect)
+                Field(email, { email = it }, t(R.string.briefs_gmail_address), keyboard = KeyboardType.Email)
+                Field(password, { password = it }, t(R.string.briefs_app_password), password = true, modifier = Modifier.padding(top = 10.dp))
+                Field(label, { label = it }, t(R.string.briefs_gmail_label), modifier = Modifier.padding(top = 10.dp), onDone = ::connect)
                 error?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 12.dp)) }
                 Box(Modifier.fillMaxWidth().padding(top = 14.dp), contentAlignment = Alignment.CenterEnd) {
-                    PillButton(if (busy) "Connecting…" else "Connect", onClick = ::connect, enabled = ready)
+                    PillButton(if (busy) t(R.string.print_connecting) else t(R.string.briefs_connect), onClick = ::connect, enabled = ready)
                 }
             }
         }
         card("app-password") {
             ListRow(
-                "Make an app password",
-                summary = "Google Account › Security › 2-Step Verification › App passwords. Briefs keeps it encrypted on this phone.",
+                t(R.string.briefs_make_an_app_password),
+                summary = t(R.string.briefs_google_account_security_2_step_verific),
                 onClick = { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://myaccount.google.com/apppasswords"))) },
             )
         }
@@ -268,12 +271,12 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
         },
     ) {
         OneUiScaffold(
-            title = "Briefs",
+            title = t(R.string.home_briefs),
             listState = list,
             subtitle = when {
-                syncing -> "Syncing…"
-                unread > 0 -> "$unread unread"
-                items.isNotEmpty() -> "All caught up"
+                syncing -> t(R.string.briefs_syncing)
+                unread > 0 -> t(R.string.briefs_unread, unread)
+                items.isNotEmpty() -> t(R.string.briefs_all_caught_up)
                 else -> null
             },
             onBack = onBack,
@@ -282,22 +285,22 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
                 val spin = remember { androidx.compose.animation.core.Animatable(0f) }
                 val spinScope = rememberCoroutineScope()
                 Box(Modifier.graphicsLayer { rotationZ = spin.value }) {
-                    ToolbarIcon(OneUiIcons.Refresh, "Sync") {
+                    ToolbarIcon(OneUiIcons.Refresh, t(R.string.briefs_sync)) {
                         pulled = true; Briefs.sync(context)
                         spinScope.launch { spin.snapTo(0f); spin.animateTo(360f, tween(650, easing = com.tools.app.ui.theme.OneUiEasing)); spin.snapTo(0f) }
                     }
                 }
-                OverflowMenu(listOf("Change label" to { changingLabel = true }, com.tools.app.ui.tipsItem(BRIEFS_TIPS), "Sign out" to { signingOut = true }))
+                OverflowMenu(listOf(t(R.string.briefs_change_label) to { changingLabel = true }, com.tools.app.ui.tipsItem(BRIEFS_TIPS), t(R.string.music_sign_out) to { signingOut = true }))
             },
         ) {
             error?.let { e ->
-                card("error") { ListRow("Couldn't sync", summary = e, summaryColor = c.error, onClick = { Briefs.sync(context) }) }
+                card("error") { ListRow(t(R.string.briefs_couldn_t_sync), summary = e, summaryColor = c.error, onClick = { Briefs.sync(context) }) }
             }
             if (items.isEmpty()) {
                 if (syncing) item("loading") {
                     Box(Modifier.fillMaxWidth().padding(40.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner() }
                 } else description(
-                    "Nothing under \"${account?.label}\" yet. Label an email in Gmail and it shows up here the next time you open Briefs.",
+                    t(R.string.briefs_nothing_under_yet_label_an_email_in_gm, account?.label),
                     key = "empty",
                 )
             }
@@ -311,18 +314,18 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
             }
             listOf("Today", "Yesterday", "Past").forEach { group ->
                 val briefs = groups[group] ?: return@forEach
-                sectionLabel(group, key = "group-$group")
+                sectionLabel(t(when (group) { "Today" -> R.string.briefs_group_today; "Yesterday" -> R.string.briefs_group_yesterday; else -> R.string.briefs_group_past }), key = "group-$group")
                 cardList(briefs, key = { it.uid }) { b ->
                     ListRow(
                         plainTitle(b.subject),
-                        summary = listOfNotNull(b.sender, if (group == "Past") shortDate(b.date) else null, "${b.minutes} min read").joinToString(" · "),
+                        summary = listOfNotNull(b.sender, if (group == "Past") shortDate(b.date) else null, t(R.string.briefs_min_read, b.minutes)).joinToString(" · "),
                         // Unread briefs get the accent dot at the end, like Samsung Email.
                         trailing = if (b.seen) null else ({ Box(Modifier.size(9.dp).clip(CircleShape).background(c.accent)) }),
                         onClick = { onOpen(b.uid) },
                     )
                 }
             }
-            if (items.isNotEmpty() && Briefs.lastSync > 0) description("Synced ${timeAgo(Briefs.lastSync)} · ${account?.email}", key = "synced")
+            if (items.isNotEmpty() && Briefs.lastSync > 0) description(t(R.string.briefs_synced, timeAgo(Briefs.lastSync), account?.email), key = "synced")
         }
     }
 
@@ -332,10 +335,10 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
         var problem by remember { mutableStateOf<String?>(null) }
         val scope = rememberCoroutineScope()
         OneUiDialog(
-            "Gmail label", onDismiss = { changingLabel = false },
+            t(R.string.briefs_gmail_label), onDismiss = { changingLabel = false },
             buttons = listOf(
-                "Cancel" to { changingLabel = false },
-                (if (busy) "Checking…" else "Save") to {
+                t(R.string.ui_cancel) to { changingLabel = false },
+                (if (busy) t(R.string.briefs_checking) else t(R.string.dns_save)) to {
                     val a = account?.copy(label = label.trim())
                     if (a != null && a.label.isNotEmpty() && !busy) {
                         busy = true
@@ -351,15 +354,15 @@ private fun BriefList(onOpen: (Long) -> Unit, onBack: () -> Unit, onSignedOut: (
                 },
             ),
         ) {
-            Field(label, { label = it }, "Gmail label", popup = true)
+            Field(label, { label = it }, t(R.string.briefs_gmail_label), popup = true)
             problem?.let { Text(it, fontSize = 14.sp, color = c.error, modifier = Modifier.padding(top = 10.dp)) }
         }
     }
     if (signingOut) OneUiDialog(
-        "Sign out?", onDismiss = { signingOut = false },
-        buttons = listOf("Cancel" to { signingOut = false }, "Sign out" to { signingOut = false; Briefs.signOut(context); onSignedOut() }),
+        t(R.string.briefs_sign_out), onDismiss = { signingOut = false },
+        buttons = listOf(t(R.string.ui_cancel) to { signingOut = false }, t(R.string.music_sign_out) to { signingOut = false; Briefs.signOut(context); onSignedOut() }),
     ) {
-        Text("Briefs forgets the app password and removes the synced emails from this phone. Nothing changes in Gmail.", fontSize = 15.sp, color = c.textSecondary)
+        Text(t(R.string.briefs_briefs_forgets_the_app_password_and_re), fontSize = 15.sp, color = c.textSecondary)
     }
 }
 
@@ -464,20 +467,20 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
                 // No fill of its own: the page draws the frosted strip under it (see page()), as the PDF reader's header.
                 ReaderBar(plainTitle(brief.sender), onBack = onBack, alpha = if (a == null) 0.94f else 0f) {
                     OverflowMenu(buildList {
-                        if ((a?.headings?.size ?: 0) >= 3) add("Contents" to { contents = true })
-                        add("Text size" to { sizing = true })
-                        if (c.isDark) add((if (lightPage) "Show in dark" else "Show in light") to {
+                        if ((a?.headings?.size ?: 0) >= 3) add(t(R.string.reader_contents) to { contents = true })
+                        add(t(R.string.pdf_text_size) to { sizing = true })
+                        if (c.isDark) add((if (lightPage) t(R.string.briefs_show_in_dark) else t(R.string.briefs_show_in_light)) to {
                             lightPage = !lightPage; prefs.edit().putBoolean("light", lightPage).apply()
                         })
-                        add((if (speech.speaking) "Stop reading" else "Read aloud") to {
+                        add((if (speech.speaking) t(R.string.briefs_stop_reading) else t(R.string.briefs_read_aloud)) to {
                             if (speech.speaking) speech.stop() else a?.let { speech.speak(listOf(plainTitle(brief.subject)) + it.paragraphs) }
                         })
-                        if ((a?.images ?: 0) > 0) add((if (showImages) "Hide images" else "Show images") to { showImages = !showImages })
+                        if ((a?.images ?: 0) > 0) add((if (showImages) t(R.string.briefs_hide_images) else t(R.string.briefs_show_images)) to { showImages = !showImages })
                         val senders = prefs.getStringSet("imageSenders", emptySet())!!
                         if (brief.address.isNotEmpty()) {
-                            if (brief.address in senders) add("Stop always showing images" to {
+                            if (brief.address in senders) add(t(R.string.briefs_stop_always_showing_images) to {
                                 prefs.edit().putStringSet("imageSenders", senders - brief.address).apply(); showImages = false
-                            }) else if ((a?.images ?: 0) > 0) add("Always show images" to {
+                            }) else if ((a?.images ?: 0) > 0) add(t(R.string.briefs_always_show_images) to {
                                 prefs.edit().putStringSet("imageSenders", senders + brief.address).apply(); showImages = true
                             })
                         }
@@ -495,7 +498,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
         }
     }
 
-    if (sizing) OneUiDialog("Text size", onDismiss = { sizing = false }, buttons = listOf("Done" to { sizing = false })) {
+    if (sizing) OneUiDialog(t(R.string.pdf_text_size), onDismiss = { sizing = false }, buttons = listOf(t(R.string.home_done) to { sizing = false })) {
         Text("${(scale * 100).toInt()}%", fontSize = 15.sp, color = c.textSecondary)
         OneUiSlider(
             scale, { scale = (it * 20).toInt() / 20f }, valueRange = 0.8f..1.6f,
@@ -503,7 +506,7 @@ private fun ArticleScreen(uid: Long, onBack: () -> Unit, onOpen: (Long) -> Unit)
             modifier = Modifier.padding(top = 12.dp),
         )
     }
-    if (contents) OneUiDialog("Contents", onDismiss = { contents = false }, buttons = listOf("Close" to { contents = false })) {
+    if (contents) OneUiDialog(t(R.string.reader_contents), onDismiss = { contents = false }, buttons = listOf(t(R.string.ui_close) to { contents = false })) {
         article?.headings?.forEach { (id, text) ->
             Text(
                 text, fontSize = 16.sp, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis,
@@ -532,7 +535,7 @@ private fun page(
     fun hex(color: Color) = String.format("#%06X", color.toArgb() and 0xFFFFFF)
     fun esc(s: String) = org.jsoup.nodes.Entities.escape(s)
     val date = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, Locale.getDefault()).format(Date(b.date))
-    val imageNote = if (!showImages && a.images > 0) " · <a href=\"gu://images\">Show ${a.images} image${if (a.images == 1) "" else "s"}</a>" else ""
+    val imageNote = if (!showImages && a.images > 0) " · <a href=\"gu://images\">${esc(tp(R.plurals.briefs_show_images, a.images))}</a>" else ""
     return """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>
 :root{color-scheme:${if (c.isDark) "dark" else "light"}}
 *{-webkit-tap-highlight-color:transparent}a:focus{outline:none}
@@ -561,10 +564,10 @@ body.speaking #gu-next{opacity:0;pointer-events:none}
 </style></head><body>
 <div class="gu-bar"></div>
 <h1 class="gu-title">${esc(plainTitle(b.subject))}</h1>
-<div class="gu-meta">${esc(plainTitle(b.sender))} · $date · ${b.minutes} min read$imageNote</div>
+<div class="gu-meta">${esc(plainTitle(b.sender))} · $date · ${esc(t(R.string.briefs_min_read_html, b.minutes))}$imageNote</div>
 ${a.html}
-<a class="gu-pill gu-tts" href="gu://stop">Reading aloud · Stop</a>
-${if (next != null) """<a id="gu-next" class="gu-pill" href="gu://next">Next: ${esc(next)}</a>
+<a class="gu-pill gu-tts" href="gu://stop">${esc(t(R.string.briefs_reading_aloud_stop))}</a>
+${if (next != null) """<a id="gu-next" class="gu-pill" href="gu://next">${esc(t(R.string.briefs_next, next))}</a>
 <script>(function(){var n=document.getElementById('gu-next');function u(){var d=document.documentElement;n.classList.toggle('on',window.innerHeight+window.scrollY>=d.scrollHeight-60);}window.addEventListener('scroll',u,{passive:true});window.addEventListener('resize',u);u();})();</script>""" else ""}
 </body></html>"""
 }
@@ -631,8 +634,8 @@ private fun plainTitle(s: String): String = BriefHtml.noEmoji(s)
 private fun dayKey(t: Long): Int { val c = Calendar.getInstance().apply { timeInMillis = t }; return c.get(Calendar.YEAR) * 1000 + c.get(Calendar.DAY_OF_YEAR) }
 
 private fun dayLabel(t: Long): String = when (dayKey(t)) {
-    dayKey(System.currentTimeMillis()) -> "Today"
-    dayKey(System.currentTimeMillis() - 86_400_000L) -> "Yesterday"
+    dayKey(System.currentTimeMillis()) -> t(R.string.card_today)
+    dayKey(System.currentTimeMillis() - 86_400_000L) -> t(R.string.card_yesterday)
     else -> SimpleDateFormat(
         if (Calendar.getInstance().apply { timeInMillis = t }.get(Calendar.YEAR) == Calendar.getInstance().get(Calendar.YEAR)) "EEEE, MMM d" else "MMM d, yyyy",
         Locale.getDefault(),
@@ -647,15 +650,15 @@ private fun shortDate(t: Long): String = SimpleDateFormat(
 private fun timeAgo(t: Long): String {
     val m = (System.currentTimeMillis() - t) / 60_000
     return when {
-        m < 1 -> "just now"
-        m < 60 -> "$m min ago"
-        m < 24 * 60 -> "${m / 60} h ago"
+        m < 1 -> t(R.string.reader_just_now)
+        m < 60 -> t(R.string.briefs_min_ago, m)
+        m < 24 * 60 -> t(R.string.briefs_h_ago, m / 60)
         else -> DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(t))
     }
 }
 
 /** Briefs' explanations, in ⋮ › Tips on the setup and list pages. */
 private val BRIEFS_TIPS = listOf(
-    com.tools.app.ui.Tip("What it is", "Your newsletters and articles from one Gmail label, as clean, readable pages. Briefs only syncs while it's open: nothing runs in the background and there are no notifications."),
-    com.tools.app.ui.Tip("New briefs on their own", "In Gmail, make a filter for your newsletters' senders that applies the label, so new briefs show up here automatically."),
+    com.tools.app.ui.Tip(t(R.string.briefs_what_it_is), t(R.string.briefs_your_newsletters_and_articles_from_one)),
+    com.tools.app.ui.Tip(t(R.string.briefs_new_briefs_on_their_own), t(R.string.briefs_in_gmail_make_a_filter_for_your_newsle)),
 )

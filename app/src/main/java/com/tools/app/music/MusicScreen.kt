@@ -1,5 +1,8 @@
 package com.tools.app.music
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.layout.widthIn
 import com.tools.app.ui.OneUiIcons
 import android.Manifest
@@ -73,10 +76,10 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
     }
 
     OneUiScaffold(
-        title = "Music downloader",
+        title = t(R.string.home_music_downloader),
         onBack = onBack,
         listState = listState,
-        actions = { com.tools.app.ui.OverflowMenu(listOf("Settings" to onOpenSettings, com.tools.app.ui.tipsItem(MUSIC_TIPS))) },
+        actions = { com.tools.app.ui.OverflowMenu(listOf(t(R.string.music_settings) to onOpenSettings, com.tools.app.ui.tipsItem(MUSIC_TIPS))) },
         bottomBar = bottomBar(s, onDownload = download, onRetry = { MusicDownloader.retryFailed(context) }),
     ) {
         item(key = "link") { LinkCard(s) }
@@ -95,13 +98,13 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
         when (val e = s.engine) {
             EngineState.Preparing -> card("engine") {
                 ListRow(
-                    "Preparing download engine",
-                    summary = "Unpacking yt-dlp and FFmpeg. Only happens on first launch.",
+                    t(R.string.music_preparing_download_engine),
+                    summary = t(R.string.music_unpacking_yt_dlp_and_ffmpeg_only_happe),
                     trailing = { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
                 )
             }
             is EngineState.Failed -> card("engine") {
-                ListRow("Download engine failed to start", summary = e.message, summaryColor = OneUi.colors.error)
+                ListRow(t(R.string.music_download_engine_failed_to_start), summary = e.message, summaryColor = OneUi.colors.error)
             }
             else -> Unit
         }
@@ -110,7 +113,7 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
         when {
             s.phase == Phase.Fetching -> card("fetching") {
                 ListRow(
-                    "Reading link…",
+                    t(R.string.music_reading_link),
                     summary = s.link,
                     leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
                 )
@@ -124,10 +127,10 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
 
                 val allSelected = s.selected.size == playlist.tracks.size
                 // A single song is already shown in full by the card above.
-                if (playlist.tracks.size > 1) sectionLabel("Songs", key = "songs-label", trailing = if (s.phase == Phase.Ready && playlist.tracks.size > 1) {
+                if (playlist.tracks.size > 1) sectionLabel(t(R.string.music_songs), key = "songs-label", trailing = if (s.phase == Phase.Ready && playlist.tracks.size > 1) {
                     {
                         Text(
-                            if (allSelected) "Deselect all" else "Select all",
+                            if (allSelected) t(R.string.music_deselect_all) else t(R.string.music_select_all),
                             color = OneUi.colors.accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { MusicDownloader.selectAll(!allSelected) }.padding(8.dp),
                         )
@@ -142,17 +145,17 @@ fun MusicScreen(listState: LazyListState, onBack: () -> Unit, onOpenSettings: ()
 }
 
 private val MUSIC_TIPS = listOf(
-    com.tools.app.ui.Tip("Share from YouTube", "Tap Share → Music downloader on any song, video or playlist, or paste its link."),
-    com.tools.app.ui.Tip("MP3 with album art", "Square cover, title, artist, album and track number are embedded."),
-    com.tools.app.ui.Tip("Saved to Good Utilities/Music", "Playlists get their own folder. Ready in Samsung Music or any player."),
+    com.tools.app.ui.Tip(t(R.string.music_share_from_youtube), t(R.string.music_tap_share_music_downloader_on_any_song)),
+    com.tools.app.ui.Tip(t(R.string.music_mp3_with_album_art), t(R.string.music_square_cover_title_artist_album_and_tr)),
+    com.tools.app.ui.Tip(t(R.string.music_saved_to_good_utilities_music), t(R.string.music_playlists_get_their_own_folder_ready_i)),
 )
 
 private fun subtitle(s: AppState): String = when (s.phase) {
-    Phase.Idle -> "YouTube songs and playlists to MP3"
-    Phase.Fetching -> "Reading link…"
-    Phase.Ready -> s.playlist?.let { if (it.tracks.size == 1) "Ready to download" else "${s.selected.size} of ${it.tracks.size} songs selected" } ?: ""
-    Phase.Downloading -> "Downloading ${minOf(s.finishedCount + 1, s.totalQueued)} of ${s.totalQueued}"
-    Phase.Finished -> s.count(Status.Done).let { n -> "$n ${if (n == 1) "song" else "songs"} saved to Music" }
+    Phase.Idle -> t(R.string.home_youtube_songs_and_playlists_to_mp3)
+    Phase.Fetching -> t(R.string.music_reading_link)
+    Phase.Ready -> s.playlist?.let { if (it.tracks.size == 1) t(R.string.music_ready_to_download) else t(R.string.music_of_songs_selected, s.selected.size, it.tracks.size) } ?: ""
+    Phase.Downloading -> t(R.string.music_downloading_of, minOf(s.finishedCount + 1, s.totalQueued), s.totalQueued)
+    Phase.Finished -> s.count(Status.Done).let { n -> tp(R.plurals.music_songs_saved, n) }
 }
 
 @Composable
@@ -163,7 +166,7 @@ private fun LinkCard(s: AppState) {
     val busy = s.phase == Phase.Downloading
     RoundCard {
         Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
-            Text("Song or playlist link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+            Text(t(R.string.music_song_or_playlist_link), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicTextField(
                     value = s.link,
@@ -177,13 +180,13 @@ private fun LinkCard(s: AppState) {
                     modifier = Modifier.weight(1f).padding(vertical = 12.dp),
                     decorationBox = { inner ->
                         Box {
-                            if (s.link.isEmpty()) Text("Paste a YouTube link", fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
+                            if (s.link.isEmpty()) Text(t(R.string.music_paste_a_youtube_link), fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
                             inner()
                         }
                     },
                 )
-                if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, "Clear") { MusicDownloader.reset() }
-                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
+                if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, t(R.string.about_clear)) { MusicDownloader.reset() }
+                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, t(R.string.music_paste)) {
                     val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
                     val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                     if (!text.isNullOrBlank()) { focus.clearFocus(); MusicDownloader.fetch(text) }
@@ -208,8 +211,8 @@ private fun PlaylistCard(playlist: Playlist, s: AppState) {
                 if (playlist.uploader.isNotBlank()) Text(playlist.uploader, fontSize = 14.sp, color = c.textSecondary, maxLines = 1, modifier = Modifier.padding(top = 2.dp))
                 val n = playlist.tracks.size
                 Text(
-                    if (n == 1) "Song · ${playlist.tracks[0].durationSec?.let(::formatDuration) ?: ""}".removeSuffix(" · ")
-                    else "$n songs · ${formatTotal(playlist.totalSeconds)}",
+                    if (n == 1) t(R.string.music_song, playlist.tracks[0].durationSec?.let(::formatDuration) ?: "").removeSuffix(" · ")
+                    else t(R.string.music_songs_2, n, formatTotal(playlist.totalSeconds)),
                     fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp),
                 )
             }
@@ -226,16 +229,16 @@ private fun SummaryCard(s: AppState, playlist: Playlist) {
     RoundCard {
         ListRow(
             when {
-                s.totalQueued == 1 && s.count(Status.Done) == 1 -> "Song saved"
-                s.totalQueued == 1 && skipped == 1 -> "Already downloaded"
-                s.totalQueued == 1 -> "Couldn't download this song"
-                else -> "Saved ${s.count(Status.Done)} of ${s.totalQueued} songs"
+                s.totalQueued == 1 && s.count(Status.Done) == 1 -> t(R.string.music_song_saved)
+                s.totalQueued == 1 && skipped == 1 -> t(R.string.music_already_downloaded)
+                s.totalQueued == 1 -> t(R.string.music_couldn_t_download_this_song)
+                else -> t(R.string.music_saved_of_songs, s.count(Status.Done), s.totalQueued)
             },
             summary = buildString {
-                append("Good Utilities/Music")
+                append(t(R.string.music_good_utilities_music))
                 if (MusicDownloader.settings.current.subfolder && playlist.tracks.size > 1) append("/").append(playlist.title)
-                if (skipped > 0 && s.totalQueued > 1) append("\n$skipped already downloaded")
-                if (failed > 0) append(if (s.totalQueued == 1) "\n" + (s.trackStates.values.firstOrNull()?.error ?: "Tap Retry or update yt-dlp in Settings") else "\n$failed failed. Tap Retry or update yt-dlp in Settings")
+                if (skipped > 0 && s.totalQueued > 1) append(t(R.string.music_n_already_downloaded, skipped))
+                if (failed > 0) append(if (s.totalQueued == 1) "\n" + (s.trackStates.values.firstOrNull()?.error ?: t(R.string.music_tap_retry_or_update_yt_dlp_in_settings)) else t(R.string.music_n_failed_tap_retry_or_update_yt_dlp_in, failed))
             },
             leading = {
                 Icon(
@@ -253,9 +256,9 @@ private fun TrackRow(track: Track, s: AppState) {
     val st = s.trackStates[track.id]
     val selecting = s.phase == Phase.Ready
     val summary = when {
-        st?.status == Status.Failed -> st.error ?: "Failed"
-        st?.status == Status.Skipped -> "Already downloaded"
-        st?.status == Status.Converting -> "Converting to MP3…"
+        st?.status == Status.Failed -> st.error ?: t(R.string.music_failed)
+        st?.status == Status.Skipped -> t(R.string.music_already_downloaded)
+        st?.status == Status.Converting -> t(R.string.music_converting_to_mp3)
         else -> listOfNotNull(track.artist.ifBlank { null }, track.durationSec?.let(::formatDuration)).joinToString(" · ")
     }
     ListRow(
@@ -282,14 +285,14 @@ private fun StatusIndicator(st: TrackState) {
     val c = OneUi.colors
     val m = Modifier.size(26.dp)
     when (st.status) {
-        Status.Queued -> Icon(OneUiIcons.Schedule, "Waiting", tint = c.textSecondary.copy(alpha = 0.6f), modifier = m)
+        Status.Queued -> Icon(OneUiIcons.Schedule, t(R.string.music_waiting), tint = c.textSecondary.copy(alpha = 0.6f), modifier = m)
         Status.Downloading -> com.tools.app.ui.OneUiSpinner(
             progress = { st.progress }, modifier = m, color = c.accent, trackColor = c.divider, strokeWidth = 3.dp,
         )
         Status.Converting -> com.tools.app.ui.OneUiSpinner(m, color = c.accent, trackColor = c.divider, strokeWidth = 3.dp)
-        Status.Done -> Icon(OneUiIcons.CheckCircle, "Saved", tint = c.accent, modifier = m)
-        Status.Skipped -> Icon(OneUiIcons.CheckCircle, "Already downloaded", tint = c.textSecondary, modifier = m)
-        Status.Failed -> Icon(OneUiIcons.ErrorOutline, "Failed", tint = c.error, modifier = m)
+        Status.Done -> Icon(OneUiIcons.CheckCircle, t(R.string.music_saved), tint = c.accent, modifier = m)
+        Status.Skipped -> Icon(OneUiIcons.CheckCircle, t(R.string.music_already_downloaded), tint = c.textSecondary, modifier = m)
+        Status.Failed -> Icon(OneUiIcons.ErrorOutline, t(R.string.music_failed), tint = c.error, modifier = m)
     }
 }
 
@@ -298,20 +301,20 @@ private fun bottomBar(s: AppState, onDownload: () -> Unit, onRetry: () -> Unit):
         {
             val n = s.selected.size
             PillButton(
-                if (n == 1) "Download song" else "Download $n songs",
+                if (n == 1) t(R.string.music_download_song) else t(R.string.music_download_songs, n),
                 onClick = onDownload, enabled = n > 0 && s.engine is EngineState.Ready,
                 icon = OneUiIcons.Download, modifier = Modifier.fillMaxWidth(),
             )
         }
     }
     Phase.Downloading -> {
-        { PillButton("Cancel", onClick = MusicDownloader::cancel, tonal = true, modifier = Modifier.fillMaxWidth()) }
+        { PillButton(t(R.string.ui_cancel), onClick = MusicDownloader::cancel, tonal = true, modifier = Modifier.fillMaxWidth()) }
     }
     Phase.Finished -> {
         {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (s.count(Status.Failed) > 0) PillButton(if (s.totalQueued == 1) "Retry" else "Retry failed", onClick = onRetry, tonal = true, modifier = Modifier.weight(1f))
-                PillButton("New link", onClick = MusicDownloader::reset, modifier = Modifier.weight(1f))
+                if (s.count(Status.Failed) > 0) PillButton(if (s.totalQueued == 1) t(R.string.music_retry) else t(R.string.music_retry_failed), onClick = onRetry, tonal = true, modifier = Modifier.weight(1f))
+                PillButton(t(R.string.music_new_link), onClick = MusicDownloader::reset, modifier = Modifier.weight(1f))
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.tools.app.idcards
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -67,7 +69,7 @@ object IdStore {
         val id = UUID.randomUUID().toString()
         file(c, id, false).writeBytes(encrypt(normalise(front)))
         if (back != null) file(c, id, true).writeBytes(encrypt(normalise(back)))
-        save(c, cards.value + IdCard(id, title.ifBlank { "ID card" }, back != null, System.currentTimeMillis()))
+        save(c, cards.value + IdCard(id, title.ifBlank { t(R.string.id_id_card) }, back != null, System.currentTimeMillis()))
     }
 
     fun rename(c: Context, id: String, title: String) =

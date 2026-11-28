@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.material.icons.rounded.Bolt
 
 import androidx.compose.material.icons.Icons
@@ -106,11 +108,11 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
     val charging = battery.status == BatteryManager.BATTERY_STATUS_CHARGING
     val bypass = battery.plugged && !charging && abs(currentMa) < 150
 
-    OneUiScaffold(title = "Charge limit", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
-        com.tools.app.ui.Tip("How it works", "Stops charging at any level you choose, using Samsung's own Battery protection. While plugged in at the limit, the phone runs straight from the charger: ideal for gaming, DeX or long navigation sessions."),
-        com.tools.app.ui.Tip("The Now chip", "\"Now\" holds the battery where it is, so the charger powers the phone directly."),
-        com.tools.app.ui.Tip("Auto bypass when hot", "Uses App lock's background service to watch the battery, so App lock needs to stay switched on. Bypass charging you turn on yourself is never turned off by this."),
-        com.tools.app.ui.Tip("Turning it off", "Turning this off restores your previous Battery protection setting. If you open Samsung's Battery protection page and change it there, it may overwrite the custom limit."),
+    OneUiScaffold(title = t(R.string.home_charge_limit), onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
+        com.tools.app.ui.Tip(t(R.string.charge_how_it_works), t(R.string.charge_stops_charging_at_any_level_you_choose)),
+        com.tools.app.ui.Tip(t(R.string.charge_the_now_chip), t(R.string.charge_now_holds_the_battery_where_it_is_so_t)),
+        com.tools.app.ui.Tip(t(R.string.charge_auto_bypass_when_hot), t(R.string.charge_uses_app_lock_s_background_service_to)),
+        com.tools.app.ui.Tip(t(R.string.charge_turning_it_off), t(R.string.charge_turning_this_off_restores_your_previou)),
     )) }) {
         item("status") {
             RoundCard {
@@ -127,10 +129,10 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
                     LevelBar(battery.level, active, charging, Modifier.padding(top = 14.dp))
                     Text(
                         when {
-                            bypass -> "Bypass charging · running on the charger, battery idle"
-                            charging -> "Charging"
-                            battery.plugged -> "Plugged in · not charging"
-                            else -> "On battery"
+                            bypass -> t(R.string.charge_bypass_charging_running_on_the_charger)
+                            charging -> t(R.string.charge_charging)
+                            battery.plugged -> t(R.string.charge_plugged_in_not_charging)
+                            else -> t(R.string.charge_on_battery)
                         },
                         fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                         color = if (bypass) c.accent else c.textSecondary, modifier = Modifier.padding(top = 10.dp),
@@ -140,15 +142,15 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
         }
 
         if (!canWrite) {
-            sectionLabel("One-time setup")
+            sectionLabel(t(R.string.charge_one_time_setup))
             card("grant") {
                 Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 18.dp, bottom = 16.dp)) {
-                    Text("Samsung protects this setting. Connect your phone to a computer with USB debugging on and run:", fontSize = 15.sp, color = c.text, lineHeight = 21.sp)
+                    Text(t(R.string.charge_samsung_protects_this_setting_connect), fontSize = 15.sp, color = c.text, lineHeight = 21.sp)
                     Text(
                         ChargeLimit.GRANT_COMMAND, fontFamily = FontFamily.Monospace, fontSize = 13.sp, color = c.text,
                         modifier = Modifier.padding(vertical = 12.dp).fillMaxWidth().clip(RoundedCornerShape(14.dp)).background(c.tonal).padding(14.dp),
                     )
-                    PillButton("Copy command", tonal = true, height = 44.dp, onClick = {
+                    PillButton(t(R.string.charge_copy_command), tonal = true, height = 44.dp, onClick = {
                         context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("adb", ChargeLimit.GRANT_COMMAND))
                     })
                 }
@@ -165,7 +167,7 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             )
         }
 
-        sectionLabel("Stop charging at")
+        sectionLabel(t(R.string.charge_stop_charging_at))
         card("limit") {
             Column(Modifier.padding(start = 18.dp, end = 18.dp, top = 16.dp, bottom = 18.dp)) {
                 Text("${limit.roundToInt()}%", fontSize = 34.sp, fontWeight = FontWeight.Bold, color = if (canWrite) c.accent else c.textSecondary)
@@ -175,9 +177,10 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
                     onValueChangeFinished = { if (active != null && canWrite) apply(limit.roundToInt()) },
                 )
                 Row(Modifier.fillMaxWidth().padding(top = 12.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    val presets = listOf(battery.level to "Now ${battery.level}%", 60 to "60%", 80 to "80%", 90 to "90%")
+                    val nowLabel = t(R.string.charge_now_level, "${battery.level}%")
+                    val presets = listOf(battery.level to nowLabel, 60 to "60%", 80 to "80%", 90 to "90%")
                     presets.forEach { (v, label) ->
-                        Chip(label, selected = limit.roundToInt() == v && (label.startsWith("Now") || v != battery.level), onClick = {
+                        Chip(label, selected = limit.roundToInt() == v && (label == nowLabel || v != battery.level), onClick = {
                             limit = v.toFloat()
                             if (active != null && canWrite) apply(v)
                         })
@@ -188,12 +191,12 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
 
         if (android.os.Build.VERSION.SDK_INT >= 33) card("tile") {
             ListRow(
-                "Add Bypass charging to Quick panel",
-                summary = "One tap holds the battery at its current level. Touch and hold the tile to open this page.",
+                t(R.string.charge_add_bypass_charging_to_quick_panel),
+                summary = t(R.string.charge_one_tap_holds_the_battery_at_its_curre),
                 onClick = {
                     context.getSystemService(android.app.StatusBarManager::class.java).requestAddTileService(
                         android.content.ComponentName(context, BypassTileService::class.java),
-                        "Bypass charging",
+                        t(R.string.charge_bypass_charging),
                         android.graphics.drawable.Icon.createWithResource(context, com.tools.app.R.drawable.ic_qs_bypass),
                         context.mainExecutor,
                     ) { }
@@ -201,27 +204,27 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             )
         }
 
-        sectionLabel("Auto bypass when hot")
+        sectionLabel(t(R.string.charge_auto_bypass_when_hot))
         card("auto") {
             Column {
                 ListRow(
-                    "Auto bypass when hot",
-                    summary = "While plugged in, run from the charger once the battery reaches ${autoOn}°C. " +
-                        "Charging resumes when it cools to ${autoOff}°C or you unplug.",
+                    t(R.string.charge_auto_bypass_when_hot),
+                    summary = t(R.string.charge_while_plugged_in_run_from_the_charger, autoOn) +
+                        t(R.string.charge_charging_resumes_when_it_cools_to_c_or, autoOff),
                     trailing = { com.tools.app.ui.OneUiSwitch(autoEnabled) },
                     onClick = { autoEnabled = !autoEnabled; AutoBypass.setEnabled(context, autoEnabled) },
                     enabled = canWrite,
                 )
                 if (autoEnabled) {
-                    TempChips("Turn on at", AutoBypass.ON_CHOICES, autoOn) {
+                    TempChips(t(R.string.charge_turn_on_at), AutoBypass.ON_CHOICES, autoOn) {
                         AutoBypass.setOnAt(context, it); autoOn = AutoBypass.onAt(context); autoOff = AutoBypass.offAt(context)
                     }
-                    TempChips("Turn off when cooled to", AutoBypass.OFF_CHOICES.filter { it < autoOn }, autoOff) {
+                    TempChips(t(R.string.charge_turn_off_when_cooled_to), AutoBypass.OFF_CHOICES.filter { it < autoOn }, autoOff) {
                         AutoBypass.setOffAt(context, it); autoOff = AutoBypass.offAt(context)
                     }
                     ListRow(
-                        "Skip at night",
-                        summary = "Leaves ${AutoBypass.NIGHT_LABEL} to your Night routine's slow charging",
+                        t(R.string.charge_skip_at_night),
+                        summary = t(R.string.charge_leaves_to_your_night_routine_s_slow_ch, AutoBypass.NIGHT_LABEL),
                         trailing = { com.tools.app.ui.OneUiSwitch(autoNight) },
                         onClick = { autoNight = !autoNight; AutoBypass.setSkipNight(context, autoNight) },
                     )
@@ -229,17 +232,17 @@ fun ChargeLimitScreen(onBack: () -> Unit) {
             }
         }
 
-        sectionLabel("Samsung setting right now")
+        sectionLabel(t(R.string.charge_samsung_setting_right_now))
         card("samsung") {
             ListRow(
-                "Battery protection: ${samsung.modeName}",
-                summary = "Stops at ${samsung.threshold}% · resumes below ${samsung.recharge}%" +
-                    if (samsung.mode != 1 && active != null) "\nSamsung changed it. Tap to apply your limit again" else "",
+                t(R.string.charge_battery_protection, samsung.modeName),
+                summary = t(R.string.charge_stops_at_resumes_below, samsung.threshold, samsung.recharge) +
+                    if (samsung.mode != 1 && active != null) t(R.string.charge_nsamsung_changed_it_tap_to_apply_your) else "",
                 summaryColor = if (samsung.mode != 1 && active != null) c.error else null,
                 onClick = if (active != null && canWrite) ({ apply(limit.roundToInt()) }) else null,
             )
         }
-        error?.let { e -> description("Couldn't change the setting: $e", key = "error") }
+        error?.let { e -> description(t(R.string.charge_couldn_t_change_the_setting, e), key = "error") }
     }
 }
 

@@ -1,5 +1,7 @@
 package com.tools.app.compress
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaCodecList
@@ -70,8 +72,8 @@ enum class AudioFormat(val label: String, val ext: String, val defaultKbps: Int)
     Mp3("MP3", "mp3", 128), Aac("AAC (M4A)", "m4a", 128), Opus("Opus", "opus", 96),
 }
 
-val ResolutionOptions = listOf(0 to "Original", 1080 to "1080p", 720 to "720p", 480 to "480p")
-val QualityLabels = listOf("High", "Balanced", "Small")
+val ResolutionOptions get() = listOf(0 to t(R.string.convert_original), 1080 to "1080p", 720 to "720p", 480 to "480p")
+val QualityLabels get() = listOf(t(R.string.print_high), t(R.string.compress_balanced), t(R.string.compress_small))
 val AudioBitrates = listOf(192, 128, 96, 64)
 
 /** Compression jobs and the picked files/options. Outside the screen so leaving the page doesn't cancel a run. */
@@ -130,7 +132,7 @@ object CompressJobs {
                 val thumb = withContext(Dispatchers.IO) { PhotoCompress.thumb(app, items.first().uri) }
                 photos.value = PhotoSource(items, thumb); _photoWork.value = CWork.Idle
             } catch (e: Exception) {
-                pickError.value = e.message ?: "Couldn't open those photos"
+                pickError.value = e.message ?: t(R.string.compress_couldn_t_open_those_photos)
             }
             loading.value = false
         }
@@ -153,16 +155,16 @@ object CompressJobs {
                     }
                     after += bytes.size; names += saved
                     scan(app, java.io.File(Storage.dir(Storage.Folder.Pictures, "Compressed"), saved))?.let { uris += it }
-                    _photoWork.value = CWork.Running((i + 1f) / p.items.size, "Compressing ${i + 1} of ${p.items.size}…")
+                    _photoWork.value = CWork.Running((i + 1f) / p.items.size, t(R.string.compress_compressing_of, i + 1, p.items.size))
                 }
                 CWork.Done(
-                    if (names.size == 1) names.first() else "${names.size} photos", Storage.Folder.Pictures, p.totalBytes, after,
+                    if (names.size == 1) names.first() else t(R.string.compress_photos, names.size), Storage.Folder.Pictures, p.totalBytes, after,
                     uris.singleOrNull(), "image/jpeg", shareUris = uris, sub = "Compressed",
                 )
             } catch (e: CancellationException) {
                 CWork.Idle
             } catch (e: OutOfMemoryError) {
-                CWork.Failed("Not enough memory for a photo this large. Choose a smaller size.")
+                CWork.Failed(t(R.string.compress_not_enough_memory_for_a_photo_this_lar))
             } catch (e: Exception) {
                 CWork.Failed(friendly(e))
             }
@@ -218,7 +220,7 @@ object CompressJobs {
                 // Drop a resolution that would now upscale.
                 if (resolution.intValue >= minOf(v.width, v.height)) resolution.intValue = 0
             } catch (e: Exception) {
-                pickError.value = e.message ?: "Couldn't open that video"
+                pickError.value = e.message ?: t(R.string.compress_couldn_t_open_that_video)
             }
             loading.value = false
         }
@@ -234,7 +236,7 @@ object CompressJobs {
                 audio.value?.clip?.file?.delete()
                 audio.value = a; _audioWork.value = CWork.Idle
             } catch (e: Exception) {
-                pickError.value = e.message ?: "Couldn't open that file"
+                pickError.value = e.message ?: t(R.string.audio_couldn_t_open_that_file)
             }
             loading.value = false
         }
@@ -253,13 +255,13 @@ object CompressJobs {
         val r = MediaMetadataRetriever()
         try {
             r.setDataSource(context, uri)
-            if (r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != "yes") throw IllegalStateException("That file doesn't look like a video")
+            if (r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_VIDEO) != "yes") throw IllegalStateException(t(R.string.compress_that_file_doesn_t_look_like_a_video))
             fun i(k: Int) = r.extractMetadata(k)?.toIntOrNull() ?: 0
             var w = i(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH); var h = i(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
             val rot = i(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
             if (rot == 90 || rot == 270) { val t = w; w = h; h = t }
             val dur = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L
-            if (w <= 0 || h <= 0 || dur <= 0) throw IllegalStateException("That video can't be read")
+            if (w <= 0 || h <= 0 || dur <= 0) throw IllegalStateException(t(R.string.compress_that_video_can_t_be_read))
             if (size <= 0) size = runCatching { context.contentResolver.openAssetFileDescriptor(uri, "r")?.use { it.length } }.getOrNull() ?: 0L
             val bitrate = if (size > 0) size * 8000 / dur else i(MediaMetadataRetriever.METADATA_KEY_BITRATE).toLong()
             var fps = r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE)?.toFloatOrNull() ?: 0f
@@ -294,7 +296,7 @@ object CompressJobs {
                     if (!wantHevc) throw e
                     // The HEVC encoder gave up: try again with H.264.
                     out.delete()
-                    runTransformer(app, v, target, q, false, noAudio, out, "Retrying with H.264…")
+                    runTransformer(app, v, target, q, false, noAudio, out, t(R.string.compress_retrying_with_h_264))
                 }
                 val title = "${v.name} (compressed)"
                 val after = out.length()
@@ -421,17 +423,17 @@ object CompressJobs {
     }
 
     private fun friendly(e: Throwable): String = when (e) {
-        is Storage.NoAccess -> e.message ?: "Allow All files access to save"
+        is Storage.NoAccess -> e.message ?: t(R.string.compress_allow_all_files_access_to_save)
         is ExportException -> when (e.errorCode) {
             ExportException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED, ExportException.ERROR_CODE_DECODER_INIT_FAILED ->
-                "This video's format isn't supported on this phone."
+                t(R.string.compress_this_video_s_format_isn_t_supported_on)
             ExportException.ERROR_CODE_ENCODER_INIT_FAILED, ExportException.ERROR_CODE_ENCODING_FORMAT_UNSUPPORTED ->
-                "This phone couldn't start the encoder. Try H.264 or a different resolution."
+                t(R.string.compress_this_phone_couldn_t_start_the_encoder)
             ExportException.ERROR_CODE_IO_FILE_NOT_FOUND, ExportException.ERROR_CODE_IO_NO_PERMISSION ->
-                "Couldn't read the video any more. Pick it again."
-            else -> "Compression failed (${e.errorCodeName.removePrefix("ERROR_CODE_").lowercase().replace('_', ' ')}). Try H.264."
+                t(R.string.compress_couldn_t_read_the_video_any_more_pick)
+            else -> t(R.string.compress_compression_failed_try_h_264, e.errorCodeName.removePrefix("ERROR_CODE_").lowercase().replace('_', ' '))
         }
-        is Ffmpeg.Failed -> "Couldn't compress this audio: ${e.message}"
-        else -> e.message ?: "Compression failed"
+        is Ffmpeg.Failed -> t(R.string.compress_couldn_t_compress_this_audio, e.message)
+        else -> e.message ?: t(R.string.compress_compression_failed)
     }
 }

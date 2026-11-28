@@ -1,5 +1,7 @@
 package com.tools.app.print
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -142,7 +144,7 @@ object PrintSession {
                     files += f.first
                     pages += f.second.map { PrintPage(idx, it.index, it.w, it.h, it.isPdf) }
                 } catch (e: CancellationException) { throw e }
-                catch (e: Exception) { error = e.message ?: "Couldn't open that file." }
+                catch (e: Exception) { error = e.message ?: t(R.string.print_couldn_t_open_that_file) }
             }
             val firstNew = _doc.value.pages.size
             _doc.update { DocState(files, pages, false, error) }
@@ -164,19 +166,19 @@ object PrintSession {
         if (name == "Document") uri.lastPathSegment?.takeIf { it.isNotBlank() }?.let { name = it }
         val dir = File(app.cacheDir, "print/docs").apply { mkdirs() }
         val dest = File(dir, "${fileCounter++}-" + name.replace(Regex("[^A-Za-z0-9._ -]"), "_").takeLast(80))
-        val input = app.contentResolver.openInputStream(uri) ?: throw IllegalStateException("Couldn't open $name.")
+        val input = app.contentResolver.openInputStream(uri) ?: throw IllegalStateException(t(R.string.print_couldn_t_open, name))
         input.use { i -> dest.outputStream().use { o -> i.copyTo(o) } }
         val isPdf = dest.inputStream().use { s -> val b = ByteArray(1024); val n = s.read(b); String(b, 0, maxOf(n, 0), Charsets.ISO_8859_1).contains("%PDF-") }
         if (isPdf) {
             val fd = ParcelFileDescriptor.open(dest, ParcelFileDescriptor.MODE_READ_ONLY)
-            val r = try { PdfRenderer(fd) } catch (e: SecurityException) { fd.close(); dest.delete(); throw IllegalStateException("$name is password protected.") }
-            catch (e: Exception) { fd.close(); dest.delete(); throw IllegalStateException("Couldn't read $name.") }
+            val r = try { PdfRenderer(fd) } catch (e: SecurityException) { fd.close(); dest.delete(); throw IllegalStateException(t(R.string.print_is_password_protected, name)) }
+            catch (e: Exception) { fd.close(); dest.delete(); throw IllegalStateException(t(R.string.print_couldn_t_read, name)) }
             try {
                 val dims = (0 until r.pageCount).map { i ->
                     val p = r.openPage(i)
                     try { PageDim(i, p.width.toFloat(), p.height.toFloat(), true) } finally { p.close() }
                 }
-                if (dims.isEmpty()) throw IllegalStateException("$name has no pages.")
+                if (dims.isEmpty()) throw IllegalStateException(t(R.string.print_has_no_pages, name))
                 return PrintFile(name, dest.absolutePath, true, dims.size) to dims
             } finally { runCatching { r.close() }; runCatching { fd.close() } }
         }
@@ -184,7 +186,7 @@ object PrintSession {
         BitmapFactory.decodeFile(dest.absolutePath, o)
         var w = o.outWidth; var h = o.outHeight
         if (w <= 0 || h <= 0) {
-            val bmp = try { Images.load(app, Uri.fromFile(dest), 1600) } catch (e: Exception) { dest.delete(); throw IllegalStateException("$name isn't a PDF or an image I can print.") }
+            val bmp = try { Images.load(app, Uri.fromFile(dest), 1600) } catch (e: Exception) { dest.delete(); throw IllegalStateException(t(R.string.print_isn_t_a_pdf_or_an_image_i_can_print, name)) }
             w = bmp.width; h = bmp.height
         } else {
             val rot = try { android.media.ExifInterface(dest.absolutePath).getAttributeInt(android.media.ExifInterface.TAG_ORIENTATION, 1) } catch (_: Exception) { 1 }
@@ -270,7 +272,7 @@ object PrintSession {
             var port = if (tls) 631 else 631
             var host = text
             if (!host.startsWith("[") && host.count { it == ':' } == 1) { port = host.substringAfter(':').toIntOrNull() ?: 631; host = host.substringBefore(':') }
-            if (host.isBlank()) { _add.value = AddState.Failed("Enter the printer's IP address, like 192.168.1.50."); return@launch }
+            if (host.isBlank()) { _add.value = AddState.Failed(t(R.string.print_enter_the_printer_s_ip_address_like_19)); return@launch }
             val paths = (listOfNotNull(path?.takeIf { it.isNotEmpty() }) + listOf("ipp/print", "ipp", "ipp/printer", "printers/ipp", "printers/printer", "")).distinct()
             var lastErr: Exception? = null
             for (p in paths) {
@@ -288,7 +290,7 @@ object PrintSession {
             }
             _add.value = AddState.Failed(
                 if (lastErr != null && lastErr !is IppException) friendly(lastErr)
-                else "Found something at $host, but it didn't answer like a printer.",
+                else t(R.string.print_found_something_at_but_it_didn_t_answe, host),
             )
         }
     }
@@ -296,10 +298,10 @@ object PrintSession {
 
     private fun friendly(e: Throwable): String = when (e) {
         is SocketTimeoutException, is ConnectException, is NoRouteToHostException, is UnknownHostException ->
-            "Can't reach the printer. Check that it is on and on the same Wi-Fi as this phone."
-        is IppException -> e.message ?: "The printer reported an error."
-        is java.io.IOException -> "The connection to the printer was interrupted."
-        else -> e.message ?: "Something went wrong."
+            t(R.string.print_can_t_reach_the_printer_check_that_it)
+        is IppException -> e.message ?: t(R.string.print_the_printer_reported_an_error)
+        is java.io.IOException -> t(R.string.print_the_connection_to_the_printer_was_inte)
+        else -> e.message ?: t(R.string.print_something_went_wrong)
     }
 
     // ---- previews -----------------------------------------------------------------------------------------------------
@@ -327,7 +329,7 @@ object PrintSession {
         val addr = currentAddress
         val job = printJob
         if (id != null && addr != null) {
-            _job.update { it.copy(text = "Cancelling…") }
+            _job.update { it.copy(text = t(R.string.print_cancelling)) }
             scope.launch(Dispatchers.IO) {
                 try {
                     IppClient.call(
@@ -337,12 +339,12 @@ object PrintSession {
                     )
                 } catch (_: Exception) {}
                 job?.cancel()
-                _job.value = JobState(JobPhase.Failed, 0f, "Print cancelled.")
+                _job.value = JobState(JobPhase.Failed, 0f, t(R.string.print_print_cancelled))
                 refreshPrinter()
             }
         } else {
             job?.cancel()
-            _job.value = JobState(JobPhase.Failed, 0f, "Print cancelled.")
+            _job.value = JobState(JobPhase.Failed, 0f, t(R.string.print_print_cancelled))
         }
     }
 
@@ -351,14 +353,14 @@ object PrintSession {
     fun print() {
         if (_job.value.active) return
         currentJobId = null
-        _job.value = JobState(JobPhase.Preparing, 0f, "Preparing…")
+        _job.value = JobState(JobPhase.Preparing, 0f, t(R.string.music_preparing))
         printJob = scope.launch(Dispatchers.IO) {
             try {
                 runPrint()
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
-                _job.value = JobState(JobPhase.Failed, 0f, friendly(e).let { if (e is OutOfMemoryError) "Not enough memory to prepare this document." else it })
+                _job.value = JobState(JobPhase.Failed, 0f, friendly(e).let { if (e is OutOfMemoryError) t(R.string.print_not_enough_memory_to_prepare_this_docu) else it })
             } finally {
                 File(app.cacheDir, "print/job").deleteRecursively()
                 currentJobId = null
@@ -369,12 +371,12 @@ object PrintSession {
     private suspend fun runPrint() {
         val d = _doc.value
         val st = _printer.value
-        val addr = st.address ?: throw IppException("Choose a printer first.")
-        val caps = st.caps ?: throw IppException(st.error ?: "Waiting for the printer's details…")
+        val addr = st.address ?: throw IppException(t(R.string.print_choose_a_printer_first))
+        val caps = st.caps ?: throw IppException(st.error ?: t(R.string.print_waiting_for_the_printer_s_details))
         currentAddress = addr
         val opts = _options.value
         val sel = _selected.value.sorted()
-        if (sel.isEmpty()) throw IppException("Select at least one page.")
+        if (sel.isEmpty()) throw IppException(t(R.string.print_select_at_least_one_page))
         val pages = sel.map { d.pages[it] }
         val papers = PrintModels.papersFor(caps)
         val paper = papers.firstOrNull { it.id == opts.media } ?: PrintModels.defaultPaper(caps, papers)
@@ -394,7 +396,7 @@ object PrintSession {
         }
         val jpeg = !caps.canPdf && rasterKind == null && caps.canJpeg
         if (!caps.canPdf && rasterKind == null && !jpeg) {
-            throw IppException("This printer only accepts documents through its own driver. It doesn't support PDF, PWG raster, URF or JPEG.")
+            throw IppException(t(R.string.print_this_printer_only_accepts_documents_th))
         }
 
         val jobAttrs = ArrayList<Ipp.Attribute>()
@@ -413,8 +415,8 @@ object PrintSession {
         var format = "application/pdf"
         var pageRanges: List<IntRange>? = null
         var sheets = pages.size
-        val progress = { p: Float -> _job.update { JobState(JobPhase.Preparing, p, "Preparing…") } }
-        val sendProgress = { p: Float -> _job.update { JobState(JobPhase.Sending, p, "Sending… ${(p * 100).toInt()}%") } }
+        val progress = { p: Float -> _job.update { JobState(JobPhase.Preparing, p, t(R.string.music_preparing)) } }
+        val sendProgress = { p: Float -> _job.update { JobState(JobPhase.Sending, p, t(R.string.print_sending, (p * 100).toInt())) } }
 
         if (caps.canPdf) {
             val single = d.files.size == 1 && d.files[0].isPdf
@@ -470,7 +472,7 @@ object PrintSession {
                 ),
                 Ipp.Group(Ipp.TAG_JOB, jobAttrs.toList()),
             )
-            _job.value = JobState(JobPhase.Sending, 0f, "Sending…")
+            _job.value = JobState(JobPhase.Sending, 0f, t(R.string.print_sending_2))
             val resp = IppClient.call(
                 ctx, addr, Ipp.OP_PRINT_JOB, groups, f, preferred = caps.ippMajor to caps.ippMinor, readTimeout = 180_000,
             ) { p ->
@@ -485,7 +487,7 @@ object PrintSession {
             if (id > 0 && i < files.size - 1) pollJob(addr, id, caps, sheets)
         }
         if (lastJobId > 0) pollJob(addr, lastJobId, caps, sheets)
-        else _job.value = JobState(JobPhase.Done, 1f, "Sent to the printer.")
+        else _job.value = JobState(JobPhase.Done, 1f, t(R.string.print_sent_to_the_printer))
         refreshPrinter()
     }
 
@@ -494,7 +496,7 @@ object PrintSession {
         var fails = 0
         var sawProcessing = false
         val started = System.currentTimeMillis()
-        _job.value = JobState(JobPhase.Printing, 0f, "Waiting for the printer…")
+        _job.value = JobState(JobPhase.Printing, 0f, t(R.string.print_waiting_for_the_printer))
         while (System.currentTimeMillis() - started < 20 * 60_000L) {
             currentCoroutineContext().ensureActive()
             delay(1200)
@@ -517,14 +519,14 @@ object PrintSession {
             catch (e: Exception) {
                 // Many printers drop the connection while rendering; give up politely after a few misses.
                 if (++fails >= 5) {
-                    if (sawProcessing) { _job.value = JobState(JobPhase.Done, 1f, "Sent to the printer."); return }
+                    if (sawProcessing) { _job.value = JobState(JobPhase.Done, 1f, t(R.string.print_sent_to_the_printer)); return }
                     throw e
                 }
                 continue
             }
             if (resp.code == Ipp.STATUS_CLIENT_NOT_FOUND) {
                 // Finished jobs are often forgotten right away.
-                _job.value = JobState(JobPhase.Done, 1f, if (sawProcessing) "Printed." else "Sent to the printer.")
+                _job.value = JobState(JobPhase.Done, 1f, if (sawProcessing) t(R.string.print_printed) else t(R.string.print_sent_to_the_printer))
                 return
             }
             val j = resp.job ?: continue
@@ -532,10 +534,10 @@ object PrintSession {
             val reasons = j.strings("job-state-reasons")
             val done = j.int("job-media-sheets-completed") ?: j.int("job-impressions-completed") ?: 0
             when (state) {
-                Ipp.JOB_COMPLETED -> { _job.value = JobState(JobPhase.Done, 1f, "Printed."); return }
-                Ipp.JOB_CANCELED -> { _job.value = JobState(JobPhase.Failed, 0f, "Print cancelled."); return }
+                Ipp.JOB_COMPLETED -> { _job.value = JobState(JobPhase.Done, 1f, t(R.string.print_printed)); return }
+                Ipp.JOB_CANCELED -> { _job.value = JobState(JobPhase.Failed, 0f, t(R.string.print_print_cancelled)); return }
                 Ipp.JOB_ABORTED -> {
-                    _job.value = JobState(JobPhase.Failed, 0f, "The printer couldn't finish the job" + (reasonText(reasons)?.let { ": $it" } ?: "."))
+                    _job.value = JobState(JobPhase.Failed, 0f, t(R.string.print_the_printer_couldn_t_finish_the_job) + (reasonText(reasons)?.let { ": $it" } ?: "."))
                     return
                 }
                 Ipp.JOB_PROCESSING, Ipp.JOB_STOPPED -> {
@@ -543,23 +545,23 @@ object PrintSession {
                     val stuck = if (state == Ipp.JOB_STOPPED) reasonText(reasons) ?: reasonText(_printer.value.caps?.stateReasons.orEmpty()) else null
                     _job.value = JobState(
                         JobPhase.Printing, if (sheets > 0 && done > 0) (done.toFloat() / sheets).coerceIn(0f, 1f) else 0f,
-                        stuck ?: if (done > 0 && sheets > 0) "Printing… $done of $sheets" else "Printing…",
+                        stuck ?: if (done > 0 && sheets > 0) t(R.string.print_printing_of, done, sheets) else t(R.string.print_printing),
                     )
                 }
-                else -> _job.value = JobState(JobPhase.Printing, 0f, reasonText(reasons) ?: "Waiting for the printer…")
+                else -> _job.value = JobState(JobPhase.Printing, 0f, reasonText(reasons) ?: t(R.string.print_waiting_for_the_printer))
             }
         }
-        _job.value = JobState(JobPhase.Done, 1f, "Sent to the printer.")
+        _job.value = JobState(JobPhase.Done, 1f, t(R.string.print_sent_to_the_printer))
     }
 
     private fun reasonText(reasons: List<String>): String? {
         val r = reasons.map { it.removeSuffix("-error").removeSuffix("-warning").removeSuffix("-report") }
         return when {
-            r.any { it == "media-jam" } -> "paper jam"
-            r.any { it == "media-empty" || it == "media-needed" } -> "out of paper"
-            r.any { it == "toner-empty" } -> "out of toner"
-            r.any { it == "cover-open" || it == "door-open" } -> "cover open"
-            r.any { it == "job-incoming" } -> "receiving data"
+            r.any { it == "media-jam" } -> t(R.string.print_paper_jam)
+            r.any { it == "media-empty" || it == "media-needed" } -> t(R.string.print_out_of_paper)
+            r.any { it == "toner-empty" } -> t(R.string.print_out_of_toner)
+            r.any { it == "cover-open" || it == "door-open" } -> t(R.string.print_cover_open)
+            r.any { it == "job-incoming" } -> t(R.string.print_receiving_data)
             else -> null
         }?.replaceFirstChar { it.uppercase() }
     }

@@ -1,5 +1,7 @@
 package com.tools.app.audio
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ContentValues
 import android.content.Context
 import android.media.MediaMetadataRetriever
@@ -69,7 +71,7 @@ object Ffmpeg {
         }
         errThread.join(500)
         currentCoroutineContext().ensureActive()
-        if (code != 0) throw Failed(errors.lines().lastOrNull { it.isNotBlank() }?.take(160) ?: "FFmpeg stopped with code $code")
+        if (code != 0) throw Failed(errors.lines().lastOrNull { it.isNotBlank() }?.take(160) ?: t(R.string.audio_ffmpeg_stopped_with_code, code))
         onProgress(1f)
     }
 
@@ -87,7 +89,7 @@ object Ffmpeg {
             try { setDataSource(file.absolutePath); extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull() ?: 0L }
             finally { release() }
         }
-        if (duration <= 0) throw Failed("That file doesn't look like audio")
+        if (duration <= 0) throw Failed(t(R.string.audio_that_file_doesn_t_look_like_audio))
         Clip(uri, name.substringBeforeLast('.'), file, duration, ext)
     }
 

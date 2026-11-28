@@ -1,5 +1,6 @@
 package com.tools.app.applock
 
+import com.tools.app.R
 import android.content.ComponentName
 import android.content.Context
 import android.os.SystemClock
@@ -8,11 +9,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-enum class Relock(val label: String, val millis: Long) {
-    Immediately("Immediately after leaving", 0),
-    OneMinute("1 minute after leaving", 60_000),
-    FiveMinutes("5 minutes after leaving", 300_000),
-    ScreenOff("Only when the screen turns off", Long.MAX_VALUE),
+enum class Relock(private val labelRes: Int, val millis: Long) {
+    Immediately(com.tools.app.R.string.lock_relock_immediately, 0),
+    OneMinute(com.tools.app.R.string.lock_relock_1_min, 60_000),
+    FiveMinutes(com.tools.app.R.string.lock_relock_5_min, 300_000),
+    ScreenOff(com.tools.app.R.string.lock_relock_screen_off, Long.MAX_VALUE),
+    ;
+    val label get() = com.tools.app.ui.t(labelRes)
 }
 
 data class AppLockConfig(

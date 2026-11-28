@@ -32,31 +32,31 @@
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Media" />
+                android:contentDescription="@string/home_media" />
             <FrameLayout
                 android:id="@+id/tab1"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Files" />
+                android:contentDescription="@string/home_files" />
             <FrameLayout
                 android:id="@+id/tab2"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Images" />
+                android:contentDescription="@string/home_images" />
             <FrameLayout
                 android:id="@+id/tab3"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Device" />
+                android:contentDescription="@string/home_device" />
             <FrameLayout
                 android:id="@+id/tab4"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:contentDescription="Misc" />
+                android:contentDescription="@string/home_misc" />
         </LinearLayout>
     </FrameLayout>
 </FrameLayout>

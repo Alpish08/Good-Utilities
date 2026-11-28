@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -93,7 +95,7 @@ object AutoBypass {
             val level = BypassTileService.currentLevel(c).coerceIn(ChargeLimit.MIN_LIMIT, 100)
             ChargeLimit.apply(c, level)
             p.edit().putBoolean("active", true).putLong("since", System.currentTimeMillis()).apply()
-            Toast.makeText(c, "Bypass charging on · battery at ${deg(tempTenths)}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(c, t(R.string.charge_bypass_charging_on_battery_at, deg(tempTenths)), Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -101,7 +103,7 @@ object AutoBypass {
         prefs(c).edit().putBoolean("active", false).apply()
         if (ChargeLimit.activeLimit(c) != null) ChargeLimit.restore(c)
         if (toast) Toast.makeText(
-            c, if (cooledTo != null) "Bypass charging off · battery cooled to ${deg(cooledTo)}" else "Bypass charging off",
+            c, if (cooledTo != null) t(R.string.charge_bypass_charging_off_battery_cooled_to, deg(cooledTo)) else t(R.string.charge_bypass_charging_off),
             Toast.LENGTH_SHORT,
         ).show()
     }

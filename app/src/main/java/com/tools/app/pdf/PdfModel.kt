@@ -1,5 +1,7 @@
 package com.tools.app.pdf
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -185,7 +187,7 @@ object PdfSession {
         if (uris.isEmpty() || busy != null) return
         val app = context.applicationContext
         scope.launch {
-            busy = "Opening…"; notice = null
+            busy = t(R.string.audio_opening); notice = null
             try {
                 var replace = !append
                 for (uri in uris) if (importPdf(app, uri, replace)) replace = false
@@ -203,9 +205,9 @@ object PdfSession {
                 input.use { i -> raw.outputStream().use { o -> i.copyTo(o) } }
             }
         } catch (e: SecurityException) {
-            notice = Notice("Can't access \"$display\". Pick it again from the file picker.", true); return false
+            notice = Notice(t(R.string.pdf_can_t_access_pick_it_again_from_the_fi, display), true); return false
         } catch (e: Exception) {
-            notice = Notice("Couldn't read \"$display\".", true); return false
+            notice = Notice(t(R.string.pdf_couldn_t_read, display), true); return false
         }
         var password = ""
         var usable = raw
@@ -232,10 +234,10 @@ object PdfSession {
                 throw e
             } catch (e: Throwable) {
                 raw.delete()
-                notice = Notice("\"$display\" doesn't look like a valid PDF, or it's damaged.", true); return false
+                notice = Notice(t(R.string.pdf_doesn_t_look_like_a_valid_pdf_or_it_s, display), true); return false
             }
         }
-        if (count == 0) { notice = Notice("\"$display\" has no pages.", true); return false }
+        if (count == 0) { notice = Notice(t(R.string.reader_has_no_pages, display), true); return false }
         if (replace) { close() }
         val src = PdfSource(nextSource++, usable, count)
         if (name == null) name = display
@@ -263,7 +265,7 @@ object PdfSession {
         if (uris.isEmpty() || busy != null) return
         val app = context.applicationContext
         scope.launch {
-            busy = "Adding images…"; notice = null
+            busy = t(R.string.pdf_adding_images); notice = null
             try {
                 PDFBoxResourceLoader.init(app)
                 val out = newFile(app, "img")
@@ -291,13 +293,13 @@ object PdfSession {
                         if (added > 0) doc.save(out)
                     }
                 }
-                if (added == 0) { notice = Notice("Couldn't read those images.", true); return@launch }
+                if (added == 0) { notice = Notice(t(R.string.pdf_couldn_t_read_those_images), true); return@launch }
                 val src = PdfSource(nextSource++, out, added)
                 if (name == null) name = "Images.pdf"
                 pages.addAll((0 until added).map { PageItem(nextPage++, src, it) })
-                if (added < uris.size) notice = Notice("${uris.size - added} image(s) couldn't be read.", true)
+                if (added < uris.size) notice = Notice(t(R.string.pdf_image_s_couldn_t_be_read, uris.size - added), true)
             } catch (e: Throwable) {
-                notice = Notice("Couldn't add the images.", true)
+                notice = Notice(t(R.string.pdf_couldn_t_add_the_images), true)
             } finally { busy = null }
         }
     }
@@ -312,29 +314,29 @@ object PdfSession {
         val fileName = Storage.safe("$base ($suffix).pdf")
         val password = newPassword
         exportJob = scope.launch {
-            export.value = ExportState.Running(0f, if (share) "Preparing…" else "Saving…")
+            export.value = ExportState.Running(0f, if (share) t(R.string.music_preparing) else t(R.string.video_saving))
             val tmp = newFile(app, "out")
             try {
                 withContext(Dispatchers.IO) {
                     PDFBoxResourceLoader.init(app)
-                    buildPdf(items, password, tmp) { export.value = ExportState.Running(it, if (share) "Preparing…" else "Saving…") }
+                    buildPdf(items, password, tmp) { export.value = ExportState.Running(it, if (share) t(R.string.music_preparing) else t(R.string.video_saving)) }
                 }
                 if (share) {
                     val shareDir = File(app.cacheDir, "qr").apply { mkdirs() }
                     val f = File(shareDir, fileName)
                     withContext(Dispatchers.IO) { tmp.copyTo(f, overwrite = true); tmp.delete() }
-                    export.value = ExportState.Done("Ready to share", f)
+                    export.value = ExportState.Done(t(R.string.pdf_ready_to_share), f)
                 } else {
                     val saved = withContext(Dispatchers.IO) { Storage.saveFile(app, Storage.Folder.Documents, null, fileName, tmp).also { tmp.delete() } }
-                    export.value = ExportState.Done("Saved to ${Storage.label(Storage.Folder.Documents)} · $saved", null)
+                    export.value = ExportState.Done(t(R.string.ui_saved_to, Storage.label(Storage.Folder.Documents), saved), null)
                 }
             } catch (e: CancellationException) {
                 tmp.delete(); throw e
             } catch (e: Storage.NoAccess) {
-                tmp.delete(); export.value = ExportState.Failed(e.message ?: "No access to storage", true)
+                tmp.delete(); export.value = ExportState.Failed(e.message ?: t(R.string.pdf_no_access_to_storage), true)
             } catch (e: Throwable) {
                 tmp.delete()
-                export.value = ExportState.Failed("Couldn't write the PDF. ${if (e is OutOfMemoryError) "The file is too large for this device." else "Try again with fewer pages."}")
+                export.value = ExportState.Failed(t(if (e is OutOfMemoryError) R.string.pdf_write_failed_too_large else R.string.pdf_write_failed_retry))
             }
         }
     }

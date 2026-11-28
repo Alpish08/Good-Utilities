@@ -1,5 +1,6 @@
 package com.tools.app.widget
 
+import com.tools.app.ui.t
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -96,9 +97,9 @@ class TabsWidget : AppWidgetProvider() {
         const val W = 7f + 63f * 5 + 7f
         const val H = 56f
         const val K = 4f
-        val TABS = listOf(
-            "Media" to { OneUiIcons.TabMedia }, "Files" to { OneUiIcons.TabFiles }, "Images" to { OneUiIcons.TabImages },
-            "Device" to { OneUiIcons.TabDevice }, "Misc" to { OneUiIcons.TabMisc },
+        val TABS get() = listOf(
+            t(R.string.home_media) to { OneUiIcons.TabMedia }, t(R.string.home_files) to { OneUiIcons.TabFiles }, t(R.string.home_images) to { OneUiIcons.TabImages },
+            t(R.string.home_device) to { OneUiIcons.TabDevice }, t(R.string.home_misc) to { OneUiIcons.TabMisc },
         )
         val CELLS = intArrayOf(R.id.tab0, R.id.tab1, R.id.tab2, R.id.tab3, R.id.tab4)
     }

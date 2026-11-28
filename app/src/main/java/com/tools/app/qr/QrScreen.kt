@@ -1,5 +1,7 @@
 package com.tools.app.qr
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ClipboardManager
 import android.graphics.Bitmap
 import android.widget.Toast
@@ -73,23 +75,23 @@ fun QrScreen(onBack: () -> Unit) {
     val image = remember(bitmap) { bitmap?.asImageBitmap() }
 
     OneUiScaffold(
-        title = "QR code",
+        title = t(R.string.home_qr_code),
         onBack = onBack,
-        actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Share to QR code", "Share a link or text from any app and choose \"QR code\"."))) },
+        actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip(t(R.string.qr_share_to_qr_code), t(R.string.qr_share_a_link_or_text_from_any_app_and)))) },
         bottomBar = if (bitmap != null) ({
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PillButton("Save", tonal = true, modifier = Modifier.weight(1f), onClick = {
+                PillButton(t(R.string.dns_save), tonal = true, modifier = Modifier.weight(1f), onClick = {
                     val r = runCatching { com.tools.app.ui.Images.saveJpeg(context, QrCode.padded(bitmap), "qr_${System.currentTimeMillis()}") }
-                    Toast.makeText(context, if (r.isSuccess) "Saved to ${com.tools.app.ui.Images.FOLDER}" else r.exceptionOrNull()?.message ?: "Couldn't save", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, if (r.isSuccess) t(R.string.video_saved_to, com.tools.app.ui.Images.FOLDER) else r.exceptionOrNull()?.message ?: t(R.string.qr_couldn_t_save), Toast.LENGTH_SHORT).show()
                 })
-                PillButton("Share", icon = OneUiIcons.Share, modifier = Modifier.weight(1f), onClick = { QrCode.share(context, QrCode.padded(bitmap)) })
+                PillButton(t(R.string.video_share), icon = OneUiIcons.Share, modifier = Modifier.weight(1f), onClick = { QrCode.share(context, QrCode.padded(bitmap)) })
             }
         }) else null,
     ) {
         item(key = "input") {
             RoundCard {
                 Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
-                    Text("Link or text", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+                    Text(t(R.string.qr_link_or_text), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
                     Row(verticalAlignment = Alignment.Top) {
                         BasicTextField(
                             value = text,
@@ -100,13 +102,13 @@ fun QrScreen(onBack: () -> Unit) {
                             modifier = Modifier.weight(1f).heightIn(min = 24.dp).padding(vertical = 12.dp),
                             decorationBox = { inner ->
                                 Box {
-                                    if (text.isEmpty()) Text("Type or paste anything", fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
+                                    if (text.isEmpty()) Text(t(R.string.qr_type_or_paste_anything), fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
                                     inner()
                                 }
                             },
                         )
-                        if (text.isNotEmpty()) ToolbarIcon(OneUiIcons.Close, "Clear") { text = "" }
-                        else ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
+                        if (text.isNotEmpty()) ToolbarIcon(OneUiIcons.Close, t(R.string.about_clear)) { text = "" }
+                        else ToolbarIcon(OneUiIcons.ContentPaste, t(R.string.music_paste)) {
                             val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
                             val t = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                             if (!t.isNullOrBlank()) { focus.clearFocus(); text = t.trim() }
@@ -126,11 +128,11 @@ fun QrScreen(onBack: () -> Unit) {
                         Box(
                             Modifier.fillMaxWidth(0.82f).aspectRatio(1f).clip(RoundedCornerShape(22.dp))
                                 .background(Color.White).padding(16.dp),
-                        ) { image?.let { Image(it, "QR code", Modifier.fillMaxSize(), filterQuality = FilterQuality.None) } }
+                        ) { image?.let { Image(it, t(R.string.home_qr_code), Modifier.fillMaxSize(), filterQuality = FilterQuality.None) } }
                     }
                 }
             }
         }
-        if (qr?.isFailure == true) description("This is too long for a QR code. Try a shorter link or less text.", key = "too-long")
+        if (qr?.isFailure == true) description(t(R.string.qr_this_is_too_long_for_a_qr_code_try_a_s), key = "too-long")
     }
 }

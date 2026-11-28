@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import dev.chrisbanes.haze.hazeSource
 import android.content.Intent
 import android.graphics.RectF
@@ -280,34 +282,34 @@ internal fun PdfViewer(
                     search.query, { search.query = it },
                     status = when {
                         search.query.isBlank() -> ""
-                        search.hits.isEmpty() -> if (search.running) "…" else "No results"
-                        else -> "${search.current + 1} of ${search.hits.size}" + if (search.running) "+" else ""
+                        search.hits.isEmpty() -> if (search.running) "…" else t(R.string.reader_no_results)
+                        else -> t(R.string.reader_of, search.current + 1, search.hits.size) + if (search.running) "+" else ""
                     },
                     onPrev = { step(-1) }, onNext = { step(1) }, onClose = { search.active = false },
                 )
             } else {
                 ReaderBar(doc.info.name, onBack, haze = haze) {
-                    ToolbarIcon(OneUiIcons.Search, "Search") { search.active = true; bars = true }
+                    ToolbarIcon(OneUiIcons.Search, t(R.string.home_search)) { search.active = true; bars = true }
                     val items = buildList<Pair<String, () -> Unit>> {
-                        add("Go to page" to { dialog = Dlg.GoTo })
-                        if (outline.isNotEmpty()) add("Contents" to { dialog = Dlg.Contents })
-                        add((if (settings.night) "Turn off night mode" else "Night mode") to { settings.changeNight(!settings.night) })
-                        add((if (settings.keepOn) "Allow screen to turn off" else "Keep screen on") to { settings.changeKeepOn(!settings.keepOn) })
-                        add((if (settings.continuous) "Single page" else "Continuous scroll") to { settings.changeContinuous(!settings.continuous) })
-                        add((if (landscape) "Rotate to portrait" else "Rotate to landscape") to {
+                        add(t(R.string.reader_go_to_page) to { dialog = Dlg.GoTo })
+                        if (outline.isNotEmpty()) add(t(R.string.reader_contents) to { dialog = Dlg.Contents })
+                        add((if (settings.night) t(R.string.reader_turn_off_night_mode) else t(R.string.reader_night_mode)) to { settings.changeNight(!settings.night) })
+                        add((if (settings.keepOn) t(R.string.reader_allow_screen_to_turn_off) else t(R.string.reader_keep_screen_on)) to { settings.changeKeepOn(!settings.keepOn) })
+                        add((if (settings.continuous) t(R.string.reader_single_page) else t(R.string.reader_continuous_scroll)) to { settings.changeContinuous(!settings.continuous) })
+                        add((if (landscape) t(R.string.reader_rotate_to_portrait) else t(R.string.reader_rotate_to_landscape)) to {
                             // Only this screen: the phone's own auto-rotate setting is left alone.
                             ctx.findActivity()?.requestedOrientation =
                                 if (landscape) android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                                 else android.content.pm.ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
                         })
-                        if (!advancedPdf) add("Copy page text" to {
+                        if (!advancedPdf) add(t(R.string.reader_copy_page_text) to {
                             scope.launch {
                                 val t = doc.pageText(where.page).trim()
-                                if (t.isEmpty()) Toast.makeText(ctx, "No text on this page", Toast.LENGTH_SHORT).show() else copyToClipboard(ctx, doc.info.name, t)
+                                if (t.isEmpty()) Toast.makeText(ctx, t(R.string.reader_no_text_on_this_page), Toast.LENGTH_SHORT).show() else copyToClipboard(ctx, doc.info.name, t)
                             }
                         })
-                        add("Share" to { shareDocument(ctx, doc.info) })
-                        add("Print" to {
+                        add(t(R.string.video_share) to { shareDocument(ctx, doc.info) })
+                        add(t(R.string.home_print) to {
                             // Good Utilities' own One UI print tool instead of the system print screen.
                             ctx.startActivity(
                                 Intent(ctx, com.tools.app.MainActivity::class.java).putExtra("route", "Print")
@@ -315,14 +317,14 @@ internal fun PdfViewer(
                                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION),
                             )
                         })
-                        add("Edit in PDF editor" to {
+                        add(t(R.string.reader_edit_in_pdf_editor) to {
                             com.tools.app.pdf.PdfSession.open(ctx, listOf(doc.localUri), false)
                             runCatching {
                                 ctx.startActivity(Intent(ctx, com.tools.app.MainActivity::class.java).putExtra("route", "PdfEditor").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
                             }
-                            Toast.makeText(ctx, "Loaded in PDF editor", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(ctx, t(R.string.reader_loaded_in_pdf_editor), Toast.LENGTH_SHORT).show()
                         })
-                        add("File info" to { dialog = Dlg.Info; scope.launch { if (meta == null) meta = doc.meta() } })
+                        add(t(R.string.reader_file_info) to { dialog = Dlg.Info; scope.launch { if (meta == null) meta = doc.meta() } })
                     }
                     OverflowMenu(items)
                 }
@@ -342,10 +344,10 @@ internal fun PdfViewer(
         ) {
             val s = remember(selection) { selection } ?: return@AnimatedVisibility
             Row(Modifier.clip(RoundedCornerShape(22.dp)).background(c.popup).padding(3.5.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Copy", fontSize = 14.75.sp, fontWeight = FontWeight.Medium, color = c.text,
+                Text(t(R.string.reader_copy), fontSize = 14.75.sp, fontWeight = FontWeight.Medium, color = c.text,
                     modifier = Modifier.clip(CircleShape).clickable { copyToClipboard(ctx, doc.info.name, s.text); selection = null }.padding(horizontal = 16.dp, vertical = 10.5.dp))
                 Box(Modifier.width(1.dp).height(16.dp).background(c.divider))
-                Text("Select all on page", fontSize = 14.75.sp, fontWeight = FontWeight.Medium, color = c.text,
+                Text(t(R.string.reader_select_all_on_page), fontSize = 14.75.sp, fontWeight = FontWeight.Medium, color = c.text,
                     modifier = Modifier.clip(CircleShape).clickable { scope.launch { selection = doc.allText(s.page).takeIf { it.text.isNotBlank() } ?: s } }.padding(horizontal = 16.dp, vertical = 10.5.dp))
             }
         }
@@ -382,11 +384,11 @@ internal fun PdfViewer(
                     text.toIntOrNull()?.let { n -> jump = Jump((n - 1).coerceIn(0, count - 1)); dialog = null }
                     Unit
                 }
-                OneUiDialog("Go to page", { dialog = null }, listOf("Cancel" to { dialog = null }, "Go" to go)) {
-                    OneUiField(text, { text = it.filter(Char::isDigit).take(6) }, "Page 1 – $count", androidx.compose.ui.text.input.KeyboardType.Number, onDone = go)
+                OneUiDialog(t(R.string.reader_go_to_page), { dialog = null }, listOf(t(R.string.ui_cancel) to { dialog = null }, t(R.string.reader_go) to go)) {
+                    OneUiField(text, { text = it.filter(Char::isDigit).take(6) }, t(R.string.reader_page_1, count), androidx.compose.ui.text.input.KeyboardType.Number, onDone = go)
                 }
             }
-            Dlg.Contents -> OneUiDialog("Contents", { dialog = null }, listOf("Close" to { dialog = null })) {
+            Dlg.Contents -> OneUiDialog(t(R.string.reader_contents), { dialog = null }, listOf(t(R.string.ui_close) to { dialog = null })) {
                 androidx.compose.foundation.lazy.LazyColumn(Modifier.heightIn(max = 420.dp)) {
                     items(outline.size) { i ->
                         val e = outline[i]

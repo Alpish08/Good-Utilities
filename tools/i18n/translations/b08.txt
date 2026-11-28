@@ -1,0 +1,100 @@
+home_health | État %1$s | Sağlık %1$s
+glow_midnight | Minuit | Gece yarısı
+glow_amethyst | Améthyste | Ametist
+glow_lagoon | Lagon | Lagün
+glow_moss | Mousse | Yosun
+glow_ember | Braise | Kor
+glow_rosewood | Bois de rose | Gül ağacı
+glow_graphite | Graphite | Grafit
+music_q_best | Meilleure | En iyi
+music_q_best_summary | Débit variable, environ 245 kbps | Değişken bit hızı, yaklaşık 245 kbps
+music_q_320 | 320 kbps | 320 kbps
+music_q_320_summary | Débit constant, fichiers les plus gros | Sabit bit hızı, en büyük dosyalar
+music_q_192 | 192 kbps | 192 kbps
+music_q_192_summary | Bon équilibre entre taille et qualité | Boyut ve kalite arasında iyi bir denge
+music_q_128 | 128 kbps | 128 kbps
+music_q_128_summary | Fichiers les plus légers | En küçük dosyalar
+pdf_write_failed_too_large | Impossible d'écrire le PDF. Le fichier est trop volumineux pour cet appareil. | PDF yazılamadı. Dosya bu cihaz için çok büyük.
+pdf_write_failed_retry | Impossible d'écrire le PDF. Réessayez avec moins de pages. | PDF yazılamadı. Daha az sayfayla yeniden deneyin.
+pdf_tool_pen | Stylo | Kalem
+pdf_tool_marker | Surligneur | Fosforlu kalem
+pdf_tool_eraser | Gomme | Silgi
+pdf_tool_text | Texte | Metin
+pdf_tool_sign | Signer | İmza
+convert_kind_image | Image | Görüntü
+convert_kind_pdf | PDF | PDF
+convert_kind_docx | Document Word | Word belgesi
+convert_kind_text | Fichier texte | Metin dosyası
+convert_kind_audio | Audio | Ses
+convert_kind_video | Vidéo | Video
+convert_cant_convert_type | %1$s : impossible de convertir ce type de fichier. | %1$s: bu dosya türü dönüştürülemez.
+convert_cant_convert_ext | %1$s : impossible de convertir les fichiers .%2$s. | %1$s: .%2$s dosyaları dönüştürülemez.
+convert_x_to_y | %1$s vers %2$s | %1$s → %2$s
+convert_ext_kind | %2$s %1$s | %1$s %2$s
+compress_choose_video | Choisir une vidéo | Video seç
+compress_choose_audio | Choisir un audio | Ses seç
+compress_choose_photos | Choisir des photos | Fotoğraf seç
+apk_split_apk_file | Fichier APK fractionné | Bölünmüş APK dosyası
+icon_backdrop_keep | Garder | Koru
+icon_backdrop_color | Couleur | Renk
+icon_backdrop_cut_out | Détourer | Kes
+lock_relock_immediately | Dès que vous quittez l'appli | Ayrılır ayrılmaz
+lock_relock_1_min | 1 minute après l'avoir quittée | Ayrıldıktan 1 dakika sonra
+lock_relock_5_min | 5 minutes après l'avoir quittée | Ayrıldıktan 5 dakika sonra
+lock_relock_screen_off | Seulement quand l'écran s'éteint | Yalnızca ekran kapandığında
+charge_now_level | Actuel %1$s | Şimdi %1$s
+briefs_min_read_html | %1$d min de lecture | %1$d dk okuma
+briefs_reading_aloud_stop | Lecture à voix haute · Arrêter | Sesli okunuyor · Durdur
+briefs_next | Suivant : %1$s | Sonraki: %1$s
+briefs_group_today | Aujourd'hui | Bugün
+briefs_group_yesterday | Hier | Dün
+briefs_group_past | Plus ancien | Daha eski
+jp_variant_everything | Tout | Tümü
+jp_variant_common | Mots courants | Yaygın sözcükler
+pdf_password_on_save |  · mot de passe à l'enregistrement |  · kaydederken şifre
+home_apps_locked#one | Activé · %d appli verrouillée | Açık · %d uygulama kilitli
+home_apps_locked#other | Activé · %d applis verrouillées | Açık · %d uygulama kilitli
+home_tools#one | %d outil | %d araç
+home_tools#other | %d outils | %d araç
+about_crashes#one | %1$d plantage · dernier le %2$s | %1$d çökme · sonuncusu %2$s
+about_crashes#other | %1$d plantages · dernier le %2$s | %1$d çökme · sonuncusu %2$s
+music_songs_saved#one | %d chanson enregistrée dans Music | %d şarkı Music'e kaydedildi
+music_songs_saved#other | %d chansons enregistrées dans Music | %d şarkı Music'e kaydedildi
+audio_couldnt_add#one | Impossible d'ajouter %d fichier | %d dosya eklenemedi
+audio_couldnt_add#other | Impossible d'ajouter %d fichiers | %d dosya eklenemedi
+pdf_add_images#one | Ajouter %d image | %d görüntü ekle
+pdf_add_images#other | Ajouter %d images | %d görüntü ekle
+convert_skipped_other_type#one | %1$d fichier ignoré : convertissez un seul type de fichier à la fois (ici des fichiers %2$s). | %1$d dosya atlandı: her seferinde tek türde dosya dönüştürün (burada %2$s dosyaları).
+convert_skipped_other_type#other | %1$d fichiers ignorés : convertissez un seul type de fichier à la fois (ici des fichiers %2$s). | %1$d dosya atlandı: her seferinde tek türde dosya dönüştürün (burada %2$s dosyaları).
+convert_n_files_kind#one | %1$d fichier · %2$s | %1$d dosya · %2$s
+convert_n_files_kind#other | %1$d fichiers · %2$s | %1$d dosya · %2$s
+print_pages#one | %d page | %d sayfa
+print_pages#other | %d pages | %d sayfa
+random_range_only_has#one | Cette plage ne contient que %1$s nombre | Bu aralıkta yalnızca %1$s sayı var
+random_range_only_has#other | Cette plage ne contient que %1$s nombres | Bu aralıkta yalnızca %1$s sayı var
+briefs_show_images#one | Afficher %d image | %d görüntüyü göster
+briefs_show_images#other | Afficher %d images | %d görüntüyü göster
+jp_practice_words#one | S'entraîner sur %d mot | %d sözcük çalış
+jp_practice_words#other | S'entraîner sur %d mots | %d sözcük çalış
+music_downloader | Téléchargeur de musique | Müzik indirici
+print | Imprimer | Yazdır
+video_downloader | Téléchargeur de vidéos | Video indirici
+app_lock_description | Affiche une vérification par empreinte, visage ou PIN quand vous ouvrez une appli verrouillée dans Good Utilities. Il reçoit seulement le nom de l'appli qui passe au premier plan et celui d'une icône de l'écran d'accueil que vous touchez, et ne lit jamais le contenu de l'écran. Rien ne quitte votre téléphone. | Good Utilities'te kilitlediğiniz bir uygulamayı açtığınızda parmak izi, yüz veya PIN doğrulaması gösterir. Yalnızca öne gelen uygulamanın adını ve dokunduğunuz Ana ekran simgesinin adını alır; ekrandakileri asla okumaz. Hiçbir şey telefonunuzdan çıkmaz.
+bypass_on | Charge directe activée | Doğrudan şarj açık
+bypass_off | Charge directe désactivée | Doğrudan şarj kapalı
+bypass_toggle | Activer/désactiver la charge directe | Doğrudan şarjı aç/kapat
+routine_bypass_label | Charge directe | Doğrudan şarj
+routine_bypass_description | Fonctionner directement sur le chargeur, en maintenant la batterie à son niveau actuel | Pili mevcut seviyesinde tutarak doğrudan şarj aletinden çalış
+qr_code | Code QR | QR kod
+spacer_widget | Espaceur | Boşluk
+tabs_widget | Onglets | Sekmeler
+card_widget | Solde de carte | Kart bakiyesi
+card_widget_description | Votre solde et vos derniers paiements. − et + ouvrent Good Utilities prêt à enregistrer. | Bakiyeniz ve son ödemeleriniz. − ve + Good Utilities'i kayda hazır açar.
+tabs_widget_description | La barre d'onglets de Good Utilities. Touchez un onglet pour ouvrir l'appli dessus. | Good Utilities'in sekme çubuğu. Uygulamayı o sekmede açmak için bir sekmeye dokunun.
+spacer_widget_description | Espace vide invisible, de toute taille. Les touches n'ont aucun effet ; les balayages déplacent toujours l'écran d'accueil. | Her boyutta görünmez boş alan. Dokunuşlar bir şey yapmaz; kaydırmalar ana ekranı yine kaydırır.
+read_japanese | Lecteur de japonais | Japonca okuyucu
+add_to_id_cards | Ajouter aux cartes virtuelles | Sanal kartlara ekle
+widget_log_a_purchase | Enregistrer un achat | Alışveriş kaydet
+widget_add_money | Ajouter de l'argent | Para ekle
+widget_no_entries_yet | Aucune entrée pour l'instant | Henüz kayıt yok
+apk_bundle_to_one_apk | Paquet .apks, .xapk ou .apkm → un seul APK installable | .apks, .xapk veya .apkm paketi → yüklenebilir tek APK

@@ -1,5 +1,7 @@
 package com.tools.app.color
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.Colorize
@@ -121,10 +123,10 @@ fun ColorPickerScreen(onBack: () -> Unit) {
         }
     }
 
-    ToolPage("Color picker", onBack, expandable = bitmap != null, actions = { if (bitmap != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage(t(R.string.home_color_picker), onBack, expandable = bitmap != null, actions = { if (bitmap != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, t(R.string.color_choose_image), choose) }) {
         val bmp = bitmap; val img = image
         if (bmp == null || img == null) {
-            EmptyState(Icons.Rounded.Colorize, IconColors.Pink, "Pick colors from any image", "Drag over the photo to sample a pixel, with a magnifier for precision.", "Choose image", choose)
+            EmptyState(Icons.Rounded.Colorize, IconColors.Pink, t(R.string.color_pick_colors_from_any_image), t(R.string.color_drag_over_the_photo_to_sample_a_pixel), t(R.string.color_choose_image), choose)
             return@ToolPage
         }
 
@@ -207,11 +209,11 @@ fun ColorPickerScreen(onBack: () -> Unit) {
                 }
             }
             Row(Modifier.fillMaxWidth().padding(top = 14.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PillButton("Copy HEX", onClick = { copy(context, hex(argb)) }, tonal = true, height = 44.dp, modifier = Modifier.weight(1f))
-                PillButton("Save color", onClick = { saved = SavedColors.add(context, argb) }, height = 44.dp, modifier = Modifier.weight(1f))
+                PillButton(t(R.string.color_copy_hex), onClick = { copy(context, hex(argb)) }, tonal = true, height = 44.dp, modifier = Modifier.weight(1f))
+                PillButton(t(R.string.color_save_color), onClick = { saved = SavedColors.add(context, argb) }, height = 44.dp, modifier = Modifier.weight(1f))
             }
-            if (palette.isNotEmpty()) Swatches("From this image", palette) { picked = it; PickerState.color = it }
-            if (saved.isNotEmpty()) Swatches("Saved · hold to remove", saved, onLongClick = { saved = SavedColors.remove(context, it) }) { picked = it; PickerState.color = it }
+            if (palette.isNotEmpty()) Swatches(t(R.string.color_from_this_image), palette) { picked = it; PickerState.color = it }
+            if (saved.isNotEmpty()) Swatches(t(R.string.color_saved_hold_to_remove), saved, onLongClick = { saved = SavedColors.remove(context, it) }) { picked = it; PickerState.color = it }
         }
         }
     }
@@ -262,7 +264,7 @@ private fun hsl(c: Int): String {
 
 private fun copy(context: Context, text: String) {
     context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("color", text))
-    if (Build.VERSION.SDK_INT < 33) Toast.makeText(context, "Copied $text", Toast.LENGTH_SHORT).show()
+    if (Build.VERSION.SDK_INT < 33) Toast.makeText(context, t(R.string.color_copied, text), Toast.LENGTH_SHORT).show()
 }
 
 private object SavedColors {

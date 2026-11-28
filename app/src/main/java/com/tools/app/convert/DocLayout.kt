@@ -1,5 +1,7 @@
 package com.tools.app.convert
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -36,7 +38,7 @@ internal data object PageBreak : Block
 // ---- DOCX parsing ---------------------------------------------------------------------------
 
 internal object Docx {
-    class Invalid : Exception("This isn't a valid .docx file")
+    class Invalid : Exception(t(R.string.convert_this_isn_t_a_valid_docx_file))
 
     fun parse(file: File): List<Block> {
         try {

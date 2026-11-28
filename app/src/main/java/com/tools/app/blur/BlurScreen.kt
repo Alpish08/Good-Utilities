@@ -1,5 +1,7 @@
 package com.tools.app.blur
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.BlurOn
@@ -114,10 +116,10 @@ fun BlurScreen(onBack: () -> Unit) {
         blurred = b; blurredImage = b?.asImageBitmap()
     }
 
-    ToolPage("Image blur", onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage(t(R.string.home_image_blur), onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(com.tools.app.ui.OneUiIcons.Gallery, t(R.string.color_choose_image), choose) }) {
         val src = original; val img = originalImage
         if (src == null || img == null) {
-            EmptyState(Icons.Rounded.BlurOn, IconColors.Purple, "Blur a photo", "Blur the whole image, or paint over faces, plates and details to hide them.", "Choose image", choose)
+            EmptyState(Icons.Rounded.BlurOn, IconColors.Purple, t(R.string.blur_blur_a_photo), t(R.string.blur_blur_the_whole_image_or_paint_over_fac), t(R.string.color_choose_image), choose)
             return@ToolPage
         }
         val brushPx = brush * 0.12f * maxOf(src.width, src.height) + 8f
@@ -179,20 +181,20 @@ fun BlurScreen(onBack: () -> Unit) {
                 .background(c.card)
                 .padding(18.dp),
         ) {
-            SegmentedControl(listOf("Whole image", "Brush"), mode, { mode = it })
-            Label("Strength", "${(strength * 100).roundToInt()}")
+            SegmentedControl(listOf(t(R.string.blur_whole_image), t(R.string.blur_brush)), mode, { mode = it })
+            Label(t(R.string.blur_strength), "${(strength * 100).roundToInt()}")
             OneUiSlider(strength, { strength = it })
             if (mode == 1) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Label("Brush size", "", Modifier.weight(1f))
-                    TextAction("Undo", strokes.isNotEmpty()) { strokes.removeAt(strokes.lastIndex) }
-                    TextAction("Clear", strokes.isNotEmpty()) { strokes.clear() }
+                    Label(t(R.string.pdf_brush_size), "", Modifier.weight(1f))
+                    TextAction(t(R.string.reader_undo), strokes.isNotEmpty()) { strokes.removeAt(strokes.lastIndex) }
+                    TextAction(t(R.string.about_clear), strokes.isNotEmpty()) { strokes.clear() }
                 }
                 OneUiSlider(brush, { brush = it })
-                if (strokes.isEmpty()) Text("Paint over the parts you want to hide.", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 4.dp))
+                if (strokes.isEmpty()) Text(t(R.string.blur_paint_over_the_parts_you_want_to_hide), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 4.dp))
             }
             PillButton(
-                if (saving) "Saving…" else "Save image",
+                if (saving) t(R.string.video_saving) else t(R.string.blur_save_image),
                 enabled = !saving && blurred != null && (mode == 0 || strokes.isNotEmpty()),
                 modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
                 onClick = {
@@ -207,7 +209,7 @@ fun BlurScreen(onBack: () -> Unit) {
                             }.isSuccess
                         }
                         saving = false
-                        Toast.makeText(context, if (ok) "Saved to ${Images.FOLDER}" else (com.tools.app.Storage.NoAccess().message.takeIf { !com.tools.app.Storage.hasAccess() } ?: "Couldn't save the image"), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, if (ok) t(R.string.video_saved_to, Images.FOLDER) else (com.tools.app.Storage.NoAccess().message.takeIf { !com.tools.app.Storage.hasAccess() } ?: t(R.string.blur_couldn_t_save_the_image)), Toast.LENGTH_SHORT).show()
                     }
                 },
             )

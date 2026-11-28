@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -277,7 +279,7 @@ class PdfDoc private constructor(
                     return out
                 }
 
-                fun corrupt() = ReaderError("Can't open this file", "\"${info.name}\" looks damaged or isn't a valid PDF.")
+                fun corrupt() = ReaderError(t(R.string.reader_can_t_open_this_file), t(R.string.reader_looks_damaged_or_isn_t_a_valid_pdf, info.name))
 
                 var password: String? = null
                 var renderer: PdfRenderer? = null
@@ -290,14 +292,14 @@ class PdfDoc private constructor(
                     val fd = try {
                         openPfd()
                     } catch (e: SecurityException) {
-                        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
+                        throw ReaderError(t(R.string.reader_no_permission), t(R.string.reader_one_reader_isn_t_allowed_to_open_this))
                     } catch (e: FileNotFoundException) {
-                        throw ReaderError("File not found", "\"${info.name}\" was moved or deleted.")
+                        throw ReaderError(t(R.string.reader_file_not_found), t(R.string.reader_was_moved_or_deleted, info.name))
                     } catch (e: IOException) {
                         if (file == null) {
                             try { file = copyLocal() } catch (e2: SecurityException) {
-                                throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
-                            } catch (e2: IOException) { throw ReaderError("Can't read this file", "\"${info.name}\" couldn't be read.") }
+                                throw ReaderError(t(R.string.reader_no_permission), t(R.string.reader_one_reader_isn_t_allowed_to_open_this))
+                            } catch (e2: IOException) { throw ReaderError(t(R.string.reader_can_t_read_this_file), t(R.string.reader_couldn_t_be_read, info.name)) }
                             continue
                         }
                         throw corrupt()
@@ -341,7 +343,7 @@ class PdfDoc private constructor(
                 }
                 val r = renderer!!
                 val count = r.pageCount
-                if (count <= 0) { r.close(); throw ReaderError("Empty document", "\"${info.name}\" has no pages.") }
+                if (count <= 0) { r.close(); throw ReaderError(t(R.string.reader_empty_document), t(R.string.reader_has_no_pages, info.name)) }
                 val first = runCatching { r.openPage(0).use { floatArrayOf(it.width.toFloat(), it.height.toFloat()) } }.getOrElse {
                     r.close(); throw corrupt()
                 }

@@ -1,5 +1,7 @@
 package com.tools.app.pdf
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.graphics.Bitmap
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
@@ -87,7 +89,10 @@ private val TextSizes = listOf(0.025f, 0.035f, 0.045f, 0.06f, 0.08f)
 private const val MarkerWidth = 3.2f
 private const val MarkerAlpha = 0x66
 
-private enum class Tool(val label: String) { Pen("Pen"), Marker("Marker"), Eraser("Eraser"), Text("Text"), Sign("Sign") }
+private enum class Tool(private val labelRes: Int) {
+    Pen(R.string.pdf_tool_pen), Marker(R.string.pdf_tool_marker), Eraser(R.string.pdf_tool_eraser), Text(R.string.pdf_tool_text), Sign(R.string.pdf_tool_sign);
+    val label get() = t(labelRes)
+}
 
 private fun norm(d: Int) = ((d % 360) + 360) % 360
 
@@ -182,11 +187,11 @@ fun PdfAnnotateScreen(
     }
 
     ToolPage(
-        "Edit page $pageNumber", onCancel,
+        t(R.string.pdf_edit_page_2, pageNumber), onCancel,
         actions = {
             if (pageCount > 1) {
-                if (pageNumber > 1) ToolbarIcon(OneUiIcons.ChevronUp, "Previous page") { commitStroke(); onGo(annots.toList(), -1) }
-                if (pageNumber < pageCount) ToolbarIcon(OneUiIcons.ChevronDown, "Next page") { commitStroke(); onGo(annots.toList(), 1) }
+                if (pageNumber > 1) ToolbarIcon(OneUiIcons.ChevronUp, t(R.string.pdf_previous_page)) { commitStroke(); onGo(annots.toList(), -1) }
+                if (pageNumber < pageCount) ToolbarIcon(OneUiIcons.ChevronDown, t(R.string.pdf_next_page)) { commitStroke(); onGo(annots.toList(), 1) }
             }
         },
     ) {
@@ -221,7 +226,7 @@ fun PdfAnnotateScreen(
             contentAlignment = Alignment.Center,
         ) {
             val bmp = bitmap
-            if (bmp == null) Text("Loading page…", color = c.textSecondary, fontSize = 15.sp)
+            if (bmp == null) Text(t(R.string.pdf_loading_page), color = c.textSecondary, fontSize = 15.sp)
             else {
                 val img = remember(bmp) { bmp.asImageBitmap() }
                 val paint = remember { Paint(Paint.ANTI_ALIAS_FLAG) }
@@ -334,7 +339,7 @@ fun PdfAnnotateScreen(
             if (tool != Tool.Sign) {
                 Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        when (tool) { Tool.Text -> "Text size"; Tool.Eraser -> "Eraser size"; else -> "Brush size" },
+                        when (tool) { Tool.Text -> t(R.string.pdf_text_size); Tool.Eraser -> t(R.string.pdf_eraser_size); else -> t(R.string.pdf_brush_size) },
                         fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.weight(1f),
                     )
                     PenWidths.indices.forEach { i ->
@@ -350,20 +355,20 @@ fun PdfAnnotateScreen(
                 }
             } else {
                 Text(
-                    if (PdfSession.signature == null) "Tap the page to draw your signature, then tap again to place it."
-                    else "Tap the page to place your signature.",
+                    if (PdfSession.signature == null) t(R.string.pdf_tap_the_page_to_draw_your_signature_th)
+                    else t(R.string.pdf_tap_the_page_to_place_your_signature),
                     fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
             Row(Modifier.padding(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                PillButton("Undo", {
+                PillButton(t(R.string.reader_undo), {
                     if (undo.isNotEmpty()) { redo += annots.toList(); val prev = undo.removeAt(undo.lastIndex); annots.clear(); annots.addAll(prev) }
                 }, Modifier.weight(1f), tonal = true, enabled = undo.isNotEmpty())
-                PillButton("Redo", {
+                PillButton(t(R.string.pdf_redo), {
                     if (redo.isNotEmpty()) { undo += annots.toList(); val next = redo.removeAt(redo.lastIndex); annots.clear(); annots.addAll(next) }
                 }, Modifier.weight(1f), tonal = true, enabled = redo.isNotEmpty())
-                if (tool == Tool.Sign) PillButton("Redraw", { padOpen = true }, Modifier.weight(1f), tonal = true)
-                PillButton("Done", { commitStroke(); onDone(annots.toList()) }, Modifier.weight(1f))
+                if (tool == Tool.Sign) PillButton(t(R.string.pdf_redraw), { padOpen = true }, Modifier.weight(1f), tonal = true)
+                PillButton(t(R.string.home_done), { commitStroke(); onDone(annots.toList()) }, Modifier.weight(1f))
             }
         }
     }
@@ -371,8 +376,8 @@ fun PdfAnnotateScreen(
     askText?.let { at ->
         var text by remember { mutableStateOf("") }
         OneUiDialog(
-            "Add text", onDismiss = { askText = null },
-            buttons = listOf("Cancel" to { askText = null }, "Add" to {
+            t(R.string.pdf_add_text), onDismiss = { askText = null },
+            buttons = listOf(t(R.string.ui_cancel) to { askText = null }, t(R.string.pdf_add) to {
                 if (text.isNotBlank()) {
                     val sz = TextSizes[sizeIdx]
                     val baseline = Offset(at.x, at.y + sz * baseWpx() * 0.85f)
@@ -381,7 +386,7 @@ fun PdfAnnotateScreen(
                 }
                 askText = null
             }),
-        ) { DialogField(text, { text = it }, "Type something", singleLine = false) }
+        ) { DialogField(text, { text = it }, t(R.string.pdf_type_something), singleLine = false) }
     }
 
     if (padOpen) SignaturePadDialog(onDismiss = { padOpen = false }, onSaved = { padOpen = false })
@@ -424,11 +429,11 @@ private fun SignaturePadDialog(onDismiss: () -> Unit, onSaved: () -> Unit) {
     val cur = remember { mutableStateListOf<Offset>() }
     var size by remember { mutableStateOf(IntSize.Zero) }
     OneUiDialog(
-        "Your signature", onDismiss,
+        t(R.string.pdf_your_signature), onDismiss,
         buttons = listOf(
-            "Clear" to { strokes.clear(); cur.clear() },
-            "Cancel" to onDismiss,
-            "Use" to {
+            t(R.string.about_clear) to { strokes.clear(); cur.clear() },
+            t(R.string.ui_cancel) to onDismiss,
+            t(R.string.pdf_use) to {
                 if (strokes.isNotEmpty() && size.width > 0) {
                     PdfSession.signature = strokes.map { s -> s.map { Offset((it.x / size.width).coerceIn(0f, 1f), (it.y / size.height).coerceIn(0f, 1f)) } }
                     PdfSession.signatureAspect = size.width.toFloat() / size.height
@@ -461,6 +466,6 @@ private fun SignaturePadDialog(onDismiss: () -> Unit, onSaved: () -> Unit) {
             strokes.forEach { draw(it) }
             draw(cur.toList())
         }
-        Text("Sign with your finger. It's kept until you leave the app.", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+        Text(t(R.string.pdf_sign_with_your_finger_it_s_kept_until), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
     }
 }

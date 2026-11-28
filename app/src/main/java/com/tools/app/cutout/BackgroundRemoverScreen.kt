@@ -1,5 +1,7 @@
 package com.tools.app.cutout
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.AutoFixHigh
@@ -92,7 +94,7 @@ object Cutout {
     /** Foreground on a transparent background, same size as [bitmap]. Runs off the main thread. */
     suspend fun cut(bitmap: Bitmap): Bitmap = withContext(Dispatchers.Default) {
         val result = segmenter.process(InputImage.fromBitmap(bitmap, 0)).await()
-        result.foregroundBitmap ?: error("No subject found in this photo")
+        result.foregroundBitmap ?: error(t(R.string.cutout_no_subject_found_in_this_photo))
     }
 
     /** Trims transparent edges so the PNG is only as big as the subject. */
@@ -124,29 +126,29 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
     val chooser = rememberLauncherForActivityResult(com.tools.app.ui.GalleryPick()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
-            cutout = null; showOriginal = false; status = "Opening…"
+            cutout = null; showOriginal = false; status = t(R.string.audio_opening)
             val bmp = withContext(Dispatchers.IO) { runCatching { Images.load(context, uri, 2048) }.getOrNull() }
-            if (bmp == null) { status = "Couldn't open that image"; return@launch }
+            if (bmp == null) { status = t(R.string.cutout_couldn_t_open_that_image); return@launch }
             original = bmp
             try {
-                status = "Getting the model ready…"
-                Cutout.ensureModel(context) { progress = it; status = "Downloading the model… ${(it * 100).roundToInt()}%" }
+                status = t(R.string.cutout_getting_the_model_ready)
+                Cutout.ensureModel(context) { progress = it; status = t(R.string.cutout_downloading_the_model, (it * 100).roundToInt()) }
                 progress = null
-                status = "Finding the subject…"
+                status = t(R.string.cutout_finding_the_subject)
                 cutout = Cutout.cut(bmp)
                 status = null
             } catch (e: Exception) {
                 progress = null
-                status = e.message ?: "Couldn't remove the background"
+                status = e.message ?: t(R.string.cutout_couldn_t_remove_the_background)
             }
         }
     }
     val choose = { chooser.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 
-    ToolPage("Background remover", onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(OneUiIcons.Gallery, "Choose image", choose) }) {
+    ToolPage(t(R.string.home_background_remover), onBack, expandable = original != null, actions = { if (original != null) ToolbarIcon(OneUiIcons.Gallery, t(R.string.color_choose_image), choose) }) {
         val src = original
         if (src == null) {
-            EmptyState(Icons.Rounded.AutoFixHigh, IconColors.Teal, "Remove a background", "Pick a photo and the person, pet or object in it is cut out as a transparent PNG.", "Choose image", choose)
+            EmptyState(Icons.Rounded.AutoFixHigh, IconColors.Teal, t(R.string.cutout_remove_a_background), t(R.string.cutout_pick_a_photo_and_the_person_pet_or_obj), t(R.string.color_choose_image), choose)
             return@ToolPage
         }
         val shown = if (showOriginal || cutout == null) src else cutout!!
@@ -204,13 +206,13 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
                 .background(c.card)
                 .padding(18.dp),
         ) {
-            SegmentedControl(listOf("Cut out", "Original"), if (showOriginal) 1 else 0, { showOriginal = it == 1 })
+            SegmentedControl(listOf(t(R.string.cutout_cut_out), t(R.string.convert_original)), if (showOriginal) 1 else 0, { showOriginal = it == 1 })
             SegmentedControl(
-                listOf("Crop to subject", "Keep size"), if (crop) 0 else 1, { crop = it == 0 },
+                listOf(t(R.string.cutout_crop_to_subject), t(R.string.cutout_keep_size)), if (crop) 0 else 1, { crop = it == 0 },
                 modifier = Modifier.padding(top = 10.dp),
             )
             PillButton(
-                if (saving) "Saving…" else "Save PNG",
+                if (saving) t(R.string.video_saving) else t(R.string.cutout_save_png),
                 enabled = cutout != null && !saving,
                 modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
                 onClick = {
@@ -223,7 +225,7 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
                             }.isSuccess
                         }
                         saving = false
-                        Toast.makeText(context, if (ok) "Saved to ${Images.FOLDER}" else (com.tools.app.Storage.NoAccess().message.takeIf { !com.tools.app.Storage.hasAccess() } ?: "Couldn't save the image"), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, if (ok) t(R.string.video_saved_to, Images.FOLDER) else (com.tools.app.Storage.NoAccess().message.takeIf { !com.tools.app.Storage.hasAccess() } ?: t(R.string.blur_couldn_t_save_the_image)), Toast.LENGTH_SHORT).show()
                     }
                 },
             )

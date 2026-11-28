@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -78,7 +80,7 @@ private sealed interface Stage {
 @Composable
 private fun ReaderRoot(uri: Uri?, onClose: () -> Unit) {
     Box(Modifier.fillMaxSize().background(OneUi.colors.background)) {
-        if (uri == null) ErrorView("No document", "There's nothing to show. Open a PDF, Word or text file.", "One Reader", onClose)
+        if (uri == null) ErrorView(t(R.string.reader_no_document), t(R.string.reader_there_s_nothing_to_show_open_a_pdf_wor), "One Reader", onClose)
         else key(uri) { DocumentHost(uri, onClose) }
     }
 }
@@ -87,7 +89,7 @@ private fun ReaderRoot(uri: Uri?, onClose: () -> Unit) {
 private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
     val ctx = LocalContext.current
     val settings = remember { ReaderStore.Settings(ctx) }
-    var stage by remember { mutableStateOf<Stage>(Stage.Loading("Opening…")) }
+    var stage by remember { mutableStateOf<Stage>(Stage.Loading(t(R.string.audio_opening))) }
     var prompt by remember { mutableStateOf<Pair<Boolean, CompletableDeferred<String?>>?>(null) }
     var name by remember { mutableStateOf("One Reader") }
 
@@ -101,7 +103,7 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
                 Kind.Pdf, Kind.Docx -> {
                     var source = uri
                     if (info.kind == Kind.Docx) {
-                        stage = Stage.Loading("Preparing document…")
+                        stage = Stage.Loading(t(R.string.reader_preparing_document))
                         source = Uri.fromFile(withContext(Dispatchers.IO) { convertDocx(ctx, info) })
                     }
                     val doc = PdfDoc.open(ctx, source, info) { wrong ->
@@ -113,7 +115,7 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
                     stage = Stage.Pdf(doc, start)
                 }
                 Kind.Text, Kind.Markdown -> {
-                    stage = Stage.Loading("Opening…")
+                    stage = Stage.Loading(t(R.string.audio_opening))
                     val blocks = withContext(Dispatchers.Default) { loadText(ctx, info) }
                     ReaderStore.touch(ctx, info, 0, start?.page ?: 0)
                     stage = Stage.Txt(info, blocks, start)
@@ -126,9 +128,9 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: OutOfMemoryError) {
-            stage = Stage.Err("File too large", "This document is too big to open on this device.")
+            stage = Stage.Err(t(R.string.reader_file_too_large), t(R.string.reader_this_document_is_too_big_to_open_on_th))
         } catch (e: Throwable) {
-            stage = Stage.Err("Can't open this file", "The file couldn't be read. It may be damaged or no longer available.")
+            stage = Stage.Err(t(R.string.reader_can_t_open_this_file), t(R.string.reader_the_file_couldn_t_be_read_it_may_be_da))
         }
     }
 
@@ -159,7 +161,7 @@ private fun DocumentHost(uri: Uri, onClose: () -> Unit) {
 @Composable
 private fun ErrorView(title: String, summary: String, name: String, onClose: () -> Unit) {
     ToolPage(name, onClose) {
-        EmptyState(Icons.Rounded.ErrorOutline, title, summary, "Close", onClose)
+        EmptyState(Icons.Rounded.ErrorOutline, title, summary, t(R.string.ui_close), onClose)
     }
 }
 
@@ -169,9 +171,9 @@ private fun loadText(ctx: Context, info: DocInfo): List<TBlock> {
         (if (info.uri.scheme == "file") File(info.uri.path ?: "").inputStream() else ctx.contentResolver.openInputStream(info.uri))
             ?.use { it.readNBytes(limit) } ?: throw IOException("no stream")
     } catch (e: SecurityException) {
-        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
+        throw ReaderError(t(R.string.reader_no_permission), t(R.string.reader_one_reader_isn_t_allowed_to_open_this))
     } catch (e: IOException) {
-        throw ReaderError("Can't read this file", "\"${info.name}\" couldn't be read. It may have been moved or deleted.")
+        throw ReaderError(t(R.string.reader_can_t_read_this_file), t(R.string.reader_couldn_t_be_read_it_may_have_been_move, info.name))
     }
     val start = if (bytes.size >= 3 && bytes[0] == 0xEF.toByte() && bytes[1] == 0xBB.toByte() && bytes[2] == 0xBF.toByte()) 3 else 0
     return parseText(String(bytes, start, bytes.size - start, Charsets.UTF_8), info.kind == Kind.Markdown)
@@ -192,11 +194,11 @@ private fun convertDocx(ctx: Context, info: DocInfo): File {
         part.outputStream().buffered().use { PdfBuilder().render(blocks, it) { } }
         if (!part.renameTo(out)) throw IOException("rename failed")
     } catch (e: Docx.Invalid) {
-        throw ReaderError("Can't open this file", "\"${info.name}\" isn't a valid Word document.")
+        throw ReaderError(t(R.string.reader_can_t_open_this_file), t(R.string.reader_isn_t_a_valid_word_document, info.name))
     } catch (e: SecurityException) {
-        throw ReaderError("No permission", "One Reader isn't allowed to open this file any more. Pick it again from the file list.")
+        throw ReaderError(t(R.string.reader_no_permission), t(R.string.reader_one_reader_isn_t_allowed_to_open_this))
     } catch (e: IOException) {
-        throw ReaderError("Can't open this file", "\"${info.name}\" couldn't be converted for viewing.")
+        throw ReaderError(t(R.string.reader_can_t_open_this_file), t(R.string.reader_couldn_t_be_converted_for_viewing, info.name))
     } finally {
         src.delete(); part.delete()
     }

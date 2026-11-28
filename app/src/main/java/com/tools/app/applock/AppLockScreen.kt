@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.OneUiIcons
 import androidx.compose.foundation.layout.width
 
@@ -100,9 +102,9 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
     androidx.activity.compose.BackHandler(enabled = searching) { closeSearch() }
 
     OneUiScaffold(
-        title = "App lock", onBack = onBack, listState = listState,
+        title = t(R.string.home_app_lock), onBack = onBack, listState = listState,
         actions = {
-            com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide, com.tools.app.ui.tipsItem(listOf(com.tools.app.ui.Tip("Private by design", "Locked apps ask for your fingerprint, face or PIN when you open them. Good Utilities only sees which app is on screen and which Home screen icon you tap, never what's in an app, and nothing leaves your phone.")))))
+            com.tools.app.ui.OverflowMenu(listOf(t(R.string.lock_setup_guide) to onGuide, com.tools.app.ui.tipsItem(listOf(com.tools.app.ui.Tip(t(R.string.lock_private_by_design), t(R.string.lock_locked_apps_ask_for_your_fingerprint_f))))))
         },
         bottomBar = { com.tools.app.ui.PageSearch(searching, query, { query = it }, onOpen = { searching = true }, onClose = closeSearch) },
     ) {
@@ -117,10 +119,10 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
         if (config.enabled && !serviceOn) card("setup") {
             val blocked = AppLock.isToggleOnInSettings(context)
             ListRow(
-                if (blocked) "Android blocked App lock" else "Allow App lock in Accessibility",
+                if (blocked) t(R.string.lock_android_blocked_app_lock) else t(R.string.lock_allow_app_lock_in_accessibility),
                 summary = if (blocked)
-                    "Apps installed outside the Play Store need one extra step: open App info › ⋮ › Allow restricted settings, then turn Good Utilities app lock off and on again."
-                else "Settings › Accessibility › Installed apps › Good Utilities app lock › On",
+                    t(R.string.lock_apps_installed_outside_the_play_store)
+                else t(R.string.lock_settings_accessibility_installed_apps),
                 summaryColor = c.accent,
                 onClick = {
                     if (blocked) context.startActivity(
@@ -130,29 +132,29 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
             )
         }
 
-        sectionLabel("Unlock screen")
+        sectionLabel(t(R.string.lock_unlock_screen))
         card("unlock-method") {
             ListRow(
-                if (pinSet) "Change Tools PIN" else "Set Tools PIN",
-                summary = if (pinSet) "On · \"Use Tools PIN\" on the fingerprint sheet opens Tools' PIN pad, without the dim"
-                else "Off · locked apps use Samsung's prompt with your phone PIN",
+                if (pinSet) t(R.string.lock_change_tools_pin) else t(R.string.lock_set_tools_pin),
+                summary = if (pinSet) t(R.string.lock_on_use_tools_pin_on_the_fingerprint_sh)
+                else t(R.string.lock_off_locked_apps_use_samsung_s_prompt_w),
                 summaryColor = if (pinSet) c.accent else null,
                 onClick = onSetPin,
             )
             if (pinSet) com.tools.app.ui.CardDivider()
-            if (pinSet) ListRow("Remove Tools PIN", summary = "Go back to Samsung's prompt", onClick = {
+            if (pinSet) ListRow(t(R.string.lock_remove_tools_pin), summary = t(R.string.lock_go_back_to_samsung_s_prompt), onClick = {
                 PinStore.clear(context); pinSet = false
             })
         }
 
-        sectionLabel("Lock again")
+        sectionLabel(t(R.string.lock_lock_again))
         cardList(Relock.entries, key = { it.name }) { r ->
             ListRow(r.label, leading = { RadioDot(config.relock == r) }, onClick = { AppLock.setRelock(r) })
         }
 
         }
-        sectionLabel("Apps", key = "apps-label", trailing = {
-            Text("${config.locked.size} locked", fontSize = 14.sp, color = c.textSecondary)
+        sectionLabel(t(R.string.lock_apps), key = "apps-label", trailing = {
+            Text(t(R.string.lock_locked, config.locked.size), fontSize = 14.sp, color = c.textSecondary)
         })
         val list = apps
         if (list == null) item("loading") {
@@ -165,7 +167,7 @@ fun AppLockScreen(onBack: () -> Unit, onSetPin: () -> Unit = {}, onGuide: () -> 
                 val locked = app.pkg in config.locked
                 ListRow(
                     app.label,
-                    summary = if (locked) "Locked" else null,
+                    summary = if (locked) t(R.string.lock_locked_2) else null,
                     leading = { Image(app.icon, null, Modifier.size(36.dp)) },
                     trailing = { OneUiSwitch(locked) },
                     onClick = { AppLock.setLocked(app.pkg, !locked) },
@@ -186,7 +188,7 @@ fun confirmIdentity(activity: androidx.fragment.app.FragmentActivity, title: Str
     }).authenticate(
         androidx.biometric.BiometricPrompt.PromptInfo.Builder()
             .setTitle(title)
-            .setSubtitle("Confirm it's you")
+            .setSubtitle(t(R.string.lock_confirm_it_s_you))
             .setAllowedAuthenticators(kinds)
             .build()
     )

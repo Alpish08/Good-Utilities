@@ -61,21 +61,21 @@ class Pool(val dark: Color, val light: Color, val x: Float, val y: Float, val r:
  * The Home page's background colours: all the same soft wash at the top of the page (the former "Mist"),
  * each in its own colour. Pick one from Home's menu → Background.
  */
-enum class GlowStyle(val label: String, vararg val pools: Pool) {
+enum class GlowStyle(@androidx.annotation.StringRes val label: Int, vararg val pools: Pool) {
     /** Deep indigo (the original Mist). */
-    Midnight("Midnight", wash(0xFF1C2B4A, 0xFFCAD6F2)),
+    Midnight(com.tools.app.R.string.glow_midnight, wash(0xFF1C2B4A, 0xFFCAD6F2)),
     /** Violet, like dusk turning to night. */
-    Amethyst("Amethyst", wash(0xFF2E2152, 0xFFDCCCF7)),
+    Amethyst(com.tools.app.R.string.glow_amethyst, wash(0xFF2E2152, 0xFFDCCCF7)),
     /** Blue-green, clear shallow water. */
-    Lagoon("Lagoon", wash(0xFF123F45, 0xFFC2E8E6)),
+    Lagoon(com.tools.app.R.string.glow_lagoon, wash(0xFF123F45, 0xFFC2E8E6)),
     /** Soft green. */
-    Moss("Moss", wash(0xFF1E3A22, 0xFFCFE8C9)),
+    Moss(com.tools.app.R.string.glow_moss, wash(0xFF1E3A22, 0xFFCFE8C9)),
     /** Warm amber, a fire burning low. */
-    Ember("Ember", wash(0xFF4A2A12, 0xFFF7D6B8, 0.45f)),
+    Ember(com.tools.app.R.string.glow_ember, wash(0xFF4A2A12, 0xFFF7D6B8, 0.45f)),
     /** Dusty rose. */
-    Rosewood("Rosewood", wash(0xFF4A1D33, 0xFFF5C9D8, 0.45f)),
+    Rosewood(com.tools.app.R.string.glow_rosewood, wash(0xFF4A1D33, 0xFFF5C9D8, 0.45f)),
     /** No colour, just a lighter grey at the top. */
-    Graphite("Graphite", wash(0xFF2C2C30, 0xFFD9D9DE)),
+    Graphite(com.tools.app.R.string.glow_graphite, wash(0xFF2C2C30, 0xFFD9D9DE)),
     ;
 
     /** The colour shown on the picker's swatch. */

@@ -1,5 +1,7 @@
 package com.tools.app.audio
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.OneUiIcons
 import android.Manifest
 import android.content.ContentUris
@@ -114,17 +116,17 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
         val q = query.trim()
         val shown = songs.orEmpty().filter { q.isEmpty() || it.title.contains(q, true) || it.subtitle.contains(q, true) }
         OneUiScaffold(
-            title = if (multiple) "Choose songs" else "Choose a song",
+            title = if (multiple) t(R.string.audio_choose_songs) else t(R.string.audio_choose_a_song),
             onBack = onDismiss,
             expandedTitle = false,
             actions = {
                 Text(
-                    "Files", fontSize = 16.sp, color = c.text,
+                    t(R.string.home_files), fontSize = 16.sp, color = c.text,
                     modifier = Modifier.clip(CircleShape).clickable(onClick = browse).padding(horizontal = 12.dp, vertical = 8.dp),
                 )
                 // The chosen songs are added from the toolbar, so the bottom stays My Files' search pill.
                 if (multiple && chosen.isNotEmpty()) Text(
-                    "Add ${chosen.size}", fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = c.accent,
+                    t(R.string.audio_add, chosen.size), fontSize = 16.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold, color = c.accent,
                     modifier = Modifier.clip(CircleShape).clickable { onPicked(chosen.toList()) }.padding(horizontal = 12.dp, vertical = 8.dp),
                 )
             },
@@ -134,9 +136,9 @@ fun AudioPicker(multiple: Boolean, onPicked: (List<Uri>) -> Unit, onDismiss: () 
             },
         ) {
             when {
-                !granted -> description("Allow access to music to list your songs here, or tap Files to browse.", key = "perm")
-                songs == null -> description("Loading songs…", key = "loading")
-                shown.isEmpty() -> description(if (q.isEmpty()) "No songs found. Tap Files to browse." else "No songs match \"$q\".", key = "empty")
+                !granted -> description(t(R.string.audio_allow_access_to_music_to_list_your_son), key = "perm")
+                songs == null -> description(t(R.string.audio_loading_songs), key = "loading")
+                shown.isEmpty() -> description(if (q.isEmpty()) t(R.string.audio_no_songs_found_tap_files_to_browse) else t(R.string.audio_no_songs_match, q), key = "empty")
             }
             cardList(shown, key = { it.uri.toString() }) { s ->
                 val sel = s.uri in chosen

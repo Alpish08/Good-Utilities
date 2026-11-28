@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.widget.Toast
@@ -21,6 +23,6 @@ object GoogleTranslate {
 
     fun open(context: Context, text: String) {
         runCatching { context.startActivity(intent(text)) }
-            .onFailure { Toast.makeText(context, "Couldn't open Google Translate", Toast.LENGTH_SHORT).show() }
+            .onFailure { Toast.makeText(context, t(R.string.jp_couldn_t_open_google_translate), Toast.LENGTH_SHORT).show() }
     }
 }

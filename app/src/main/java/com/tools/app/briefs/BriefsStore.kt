@@ -1,5 +1,7 @@
 package com.tools.app.briefs
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
@@ -266,13 +268,13 @@ object Briefs {
     }
 
     private fun fetch(c: Context, m: Message, uid: Long, seen: Boolean): Brief {
-        val html = bodyOf(m) ?: "<p>(This email has no readable text.)</p>"
+        val html = bodyOf(m) ?: t(R.string.briefs_p_this_email_has_no_readable_text_p)
         File(dir(c), "$uid.html").writeText(html)
         val text = BriefHtml.plainText(html)
         val from = m.from?.firstOrNull() as? InternetAddress
         return Brief(
             uid = uid,
-            subject = m.subject?.trim().orEmpty().ifEmpty { "(No subject)" },
+            subject = m.subject?.trim().orEmpty().ifEmpty { t(R.string.briefs_no_subject) },
             sender = from?.personal?.trim()?.takeIf { it.isNotEmpty() } ?: from?.address.orEmpty(),
             address = from?.address.orEmpty(),
             date = (m.sentDate ?: m.receivedDate)?.time ?: 0L,
@@ -320,9 +322,9 @@ object Briefs {
     private class NoLabel(val label: String) : Exception()
 
     private fun message(e: Throwable): String = when {
-        e is NoLabel -> "Gmail has no label called \"${e.label}\". Check the spelling (labels inside others are written Parent/Label)."
-        e is AuthenticationFailedException -> "Gmail didn't accept the address or app password. App passwords are 16 letters, made in your Google Account › Security."
-        e is java.net.UnknownHostException || e.cause is java.net.UnknownHostException -> "No internet connection."
+        e is NoLabel -> t(R.string.briefs_gmail_has_no_label_called_check_the_sp, e.label)
+        e is AuthenticationFailedException -> t(R.string.briefs_gmail_didn_t_accept_the_address_or_app)
+        e is java.net.UnknownHostException || e.cause is java.net.UnknownHostException -> t(R.string.briefs_no_internet_connection)
         else -> e.message ?: e.javaClass.simpleName
     }
 }

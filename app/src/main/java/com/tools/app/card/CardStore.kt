@@ -1,5 +1,7 @@
 package com.tools.app.card
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.content.Context
@@ -93,7 +95,7 @@ object CardStore {
     /** Adds a card and switches to it. The first card is always primary; a new primary takes over from the old one. */
     fun addCard(context: Context, name: String, startCents: Long, primary: Boolean = true) = update(context) { s ->
         val isPrimary = primary || s.cards.isEmpty()
-        val card = Card(UUID.randomUUID().toString(), name.trim().ifBlank { "Card" }, startCents, emptyList(), isPrimary)
+        val card = Card(UUID.randomUUID().toString(), name.trim().ifBlank { t(R.string.card_card) }, startCents, emptyList(), isPrimary)
         val others = if (isPrimary) s.cards.map { it.copy(primary = false) } else s.cards
         s.copy(cards = others + card, currentId = card.id)
     }

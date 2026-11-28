@@ -1,5 +1,6 @@
 package com.tools.app.battery
 
+import com.tools.app.ui.t
 import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -41,7 +42,7 @@ class BypassTileService : TileService() {
         val tile = qsTile ?: return
         val limit = ChargeLimit.activeLimit(this)
         tile.icon = Icon.createWithResource(this, R.drawable.ic_qs_bypass)
-        tile.label = "Bypass charging"
+        tile.label = t(R.string.charge_bypass_charging)
         tile.state = when {
             !ChargeLimit.canWrite(this) -> Tile.STATE_UNAVAILABLE
             limit != null -> Tile.STATE_ACTIVE

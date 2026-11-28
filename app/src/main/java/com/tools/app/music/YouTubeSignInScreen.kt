@@ -1,5 +1,7 @@
 package com.tools.app.music
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.annotation.SuppressLint
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -20,7 +22,7 @@ import com.tools.app.ui.ToolPage
 @Composable
 fun YouTubeSignInScreen(onDone: () -> Unit) {
     val context = LocalContext.current
-    ToolPage("Sign in to YouTube", onBack = onDone) {
+    ToolPage(t(R.string.music_sign_in_to_youtube), onBack = onDone) {
         AndroidView(
             modifier = Modifier.fillMaxSize().padding(horizontal = CardMargin),
             factory = { ctx ->
@@ -33,7 +35,7 @@ fun YouTubeSignInScreen(onDone: () -> Unit) {
                         override fun onPageFinished(view: WebView, url: String) {
                             if (url.contains("youtube.com") && YouTubeAccount.hasSession()) {
                                 val ok = YouTubeAccount.export(context)
-                                Toast.makeText(context, if (ok) "Signed in to YouTube" else "Sign-in incomplete, try again", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, if (ok) t(R.string.music_signed_in_to_youtube) else t(R.string.music_sign_in_incomplete_try_again), Toast.LENGTH_SHORT).show()
                                 if (ok) onDone()
                             }
                         }

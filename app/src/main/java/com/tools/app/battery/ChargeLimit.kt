@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -25,7 +27,7 @@ object ChargeLimit {
 
     data class SamsungState(val mode: Int, val threshold: Int, val recharge: Int) {
         val modeName get() = when (mode) {
-            0 -> "Off"; 1 -> "Maximum"; 2 -> "Adaptive"; 4 -> "Basic"; else -> "Mode $mode"
+            0 -> t(R.string.ui_off); 1 -> t(R.string.charge_maximum); 2 -> t(R.string.charge_adaptive); 4 -> t(R.string.charge_basic); else -> t(R.string.charge_mode, mode)
         }
     }
 

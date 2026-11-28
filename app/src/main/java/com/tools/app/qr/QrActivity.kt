@@ -1,5 +1,7 @@
 package com.tools.app.qr
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -89,22 +91,22 @@ class QrActivity : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
                             Box(Modifier.width(36.dp).height(4.dp).clip(CircleShape).background(c.divider))
-                            Text("QR code", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 14.dp))
+                            Text(t(R.string.home_qr_code), fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 14.dp))
                             if (!tooLong) Box(
                                 Modifier.padding(top = 16.dp).fillMaxWidth(0.78f).aspectRatio(1f)
                                     .clip(RoundedCornerShape(22.dp)).background(Color.White).padding(14.dp),
-                            ) { qrImage?.let { Image(it, "QR code", Modifier.fillMaxSize(), filterQuality = FilterQuality.None) } }
-                            else Text("This text is too long for a QR code.", color = c.error, modifier = Modifier.padding(24.dp))
+                            ) { qrImage?.let { Image(it, t(R.string.home_qr_code), Modifier.fillMaxSize(), filterQuality = FilterQuality.None) } }
+                            else Text(t(R.string.qr_this_text_is_too_long_for_a_qr_code), color = c.error, modifier = Modifier.padding(24.dp))
                             Text(
                                 text, fontSize = 14.sp, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis,
                                 textAlign = TextAlign.Center, modifier = Modifier.padding(top = 14.dp),
                             )
                             qr?.let { qr -> Row(Modifier.fillMaxWidth().padding(top = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                PillButton("Save", tonal = true, modifier = Modifier.weight(1f), onClick = {
+                                PillButton(t(R.string.dns_save), tonal = true, modifier = Modifier.weight(1f), onClick = {
                                     val r = runCatching { com.tools.app.ui.Images.saveJpeg(this@QrActivity, QrCode.padded(qr), "qr_${System.currentTimeMillis()}") }
-                                    Toast.makeText(this@QrActivity, if (r.isSuccess) "Saved to ${com.tools.app.ui.Images.FOLDER}" else r.exceptionOrNull()?.message ?: "Couldn't save", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(this@QrActivity, if (r.isSuccess) t(R.string.video_saved_to, com.tools.app.ui.Images.FOLDER) else r.exceptionOrNull()?.message ?: t(R.string.qr_couldn_t_save), Toast.LENGTH_SHORT).show()
                                 })
-                                PillButton("Share", modifier = Modifier.weight(1f), onClick = { QrCode.share(this@QrActivity, QrCode.padded(qr)) })
+                                PillButton(t(R.string.video_share), modifier = Modifier.weight(1f), onClick = { QrCode.share(this@QrActivity, QrCode.padded(qr)) })
                             } }
                         }
                     }

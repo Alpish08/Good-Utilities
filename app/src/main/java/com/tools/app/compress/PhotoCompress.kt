@@ -1,5 +1,7 @@
 package com.tools.app.compress
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -19,10 +21,10 @@ data class PhotoSource(val items: List<PhotoItem>, val thumb: Bitmap?) {
 data class PhotoItem(val uri: Uri, val name: String, val sizeBytes: Long, val width: Int, val height: Int)
 
 /** Longest side choices (0 = keep) and JPEG qualities for High / Balanced / Small. */
-val PhotoSizes = listOf(0 to "Original", 3000 to "3000", 2048 to "2048", 1280 to "1280")
+val PhotoSizes get() = listOf(0 to t(R.string.convert_original), 3000 to "3000", 2048 to "2048", 1280 to "1280")
 val PhotoQualities = listOf(90, 80, 65)
 /** "Max file size" choices in KB (0 = no limit), for sites with upload limits. */
-val PhotoLimits = listOf(0 to "No limit", 2000 to "2 MB", 1000 to "1 MB", 500 to "500 KB")
+val PhotoLimits get() = listOf(0 to t(R.string.compress_no_limit), 2000 to "2 MB", 1000 to "1 MB", 500 to "500 KB")
 
 /**
  * Re-encodes photos as JPEG: scaled so the longest side is at most the chosen size, at the chosen quality, and, with a

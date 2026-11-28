@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-written entries: plurals and names the extraction script can't produce. Translations in values-fr / values-tr. -->
+<resources>
+    <plurals name="home_apps_locked">
+        <item quantity="one">On · %d app locked</item>
+        <item quantity="other">On · %d apps locked</item>
+    </plurals>
+    <string name="home_health">Health %1$s</string>
+    <plurals name="home_tools">
+        <item quantity="one">%d tool</item>
+        <item quantity="other">%d tools</item>
+    </plurals>
+    <plurals name="about_crashes">
+        <item quantity="one">%1$d crash · last on %2$s</item>
+        <item quantity="other">%1$d crashes · last on %2$s</item>
+    </plurals>
+    <string name="glow_midnight">Midnight</string>
+    <string name="glow_amethyst">Amethyst</string>
+    <string name="glow_lagoon">Lagoon</string>
+    <string name="glow_moss">Moss</string>
+    <string name="glow_ember">Ember</string>
+    <string name="glow_rosewood">Rosewood</string>
+    <string name="glow_graphite">Graphite</string>
+    <plurals name="music_songs_saved">
+        <item quantity="one">%d song saved to Music</item>
+        <item quantity="other">%d songs saved to Music</item>
+    </plurals>
+    <string name="music_q_best">Best</string>
+    <string name="music_q_best_summary">Variable bitrate, around 245 kbps</string>
+    <string name="music_q_320">320 kbps</string>
+    <string name="music_q_320_summary">Constant bitrate, largest files</string>
+    <string name="music_q_192">192 kbps</string>
+    <string name="music_q_192_summary">Good balance of size and quality</string>
+    <string name="music_q_128">128 kbps</string>
+    <string name="music_q_128_summary">Smallest files</string>
+    <plurals name="audio_couldnt_add">
+        <item quantity="one">Couldn\'t add %d file</item>
+        <item quantity="other">Couldn\'t add %d files</item>
+    </plurals>
+    <plurals name="pdf_add_images">
+        <item quantity="one">Add %d image</item>
+        <item quantity="other">Add %d images</item>
+    </plurals>
+    <string name="pdf_write_failed_too_large">Couldn\'t write the PDF. The file is too large for this device.</string>
+    <string name="pdf_write_failed_retry">Couldn\'t write the PDF. Try again with fewer pages.</string>
+    <string name="pdf_tool_pen">Pen</string>
+    <string name="pdf_tool_marker">Marker</string>
+    <string name="pdf_tool_eraser">Eraser</string>
+    <string name="pdf_tool_text">Text</string>
+    <string name="pdf_tool_sign">Sign</string>
+    <string name="convert_kind_image">Image</string>
+    <string name="convert_kind_pdf">PDF</string>
+    <string name="convert_kind_docx">Word document</string>
+    <string name="convert_kind_text">Text file</string>
+    <string name="convert_kind_audio">Audio</string>
+    <string name="convert_kind_video">Video</string>
+    <string name="convert_cant_convert_type">%1$s: can\'t convert this type of file.</string>
+    <string name="convert_cant_convert_ext">%1$s: can\'t convert .%2$s files.</string>
+    <plurals name="convert_skipped_other_type">
+        <item quantity="one">%1$d file skipped: convert one type of file at a time (%2$s files here).</item>
+        <item quantity="other">%1$d files skipped: convert one type of file at a time (%2$s files here).</item>
+    </plurals>
+    <string name="convert_x_to_y">%1$s to %2$s</string>
+    <plurals name="convert_n_files_kind">
+        <item quantity="one">%1$d file · %2$s</item>
+        <item quantity="other">%1$d files · %2$s</item>
+    </plurals>
+    <string name="convert_ext_kind">%1$s %2$s</string>
+    <plurals name="print_pages">
+        <item quantity="one">%d page</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
+    <string name="compress_choose_video">Choose video</string>
+    <string name="compress_choose_audio">Choose audio</string>
+    <string name="compress_choose_photos">Choose photos</string>
+    <string name="apk_split_apk_file">Split APK file</string>
+    <string name="icon_backdrop_keep">Keep</string>
+    <string name="icon_backdrop_color">Color</string>
+    <string name="icon_backdrop_cut_out">Cut out</string>
+    <string name="lock_relock_immediately">Immediately after leaving</string>
+    <string name="lock_relock_1_min">1 minute after leaving</string>
+    <string name="lock_relock_5_min">5 minutes after leaving</string>
+    <string name="lock_relock_screen_off">Only when the screen turns off</string>
+    <string name="charge_now_level">Now %1$s</string>
+    <plurals name="random_range_only_has">
+        <item quantity="one">That range only has %1$s number</item>
+        <item quantity="other">That range only has %1$s numbers</item>
+    </plurals>
+    <plurals name="briefs_show_images">
+        <item quantity="one">Show %d image</item>
+        <item quantity="other">Show %d images</item>
+    </plurals>
+    <string name="briefs_min_read_html">%1$d min read</string>
+    <string name="briefs_reading_aloud_stop">Reading aloud · Stop</string>
+    <string name="briefs_next">Next: %1$s</string>
+    <string name="briefs_group_today">Today</string>
+    <string name="briefs_group_yesterday">Yesterday</string>
+    <string name="briefs_group_past">Past</string>
+    <plurals name="jp_practice_words">
+        <item quantity="one">Practice %d word</item>
+        <item quantity="other">Practice %d words</item>
+    </plurals>
+    <string name="jp_variant_everything">Everything</string>
+    <string name="jp_variant_common">Common words</string>
+    <string name="pdf_password_on_save">\u0020· password on save</string>
+    <string name="widget_log_a_purchase">Log a purchase</string>
+    <string name="widget_add_money">Add money</string>
+    <string name="widget_no_entries_yet">No entries yet</string>
+    <string name="apk_bundle_to_one_apk">.apks, .xapk or .apkm bundle → one installable APK</string>
+</resources>

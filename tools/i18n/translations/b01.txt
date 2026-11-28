@@ -1,0 +1,160 @@
+home_downloading_of | Téléchargement %1$s sur %2$s… | İndiriliyor: %1$s / %2$s…
+home_youtube_songs_and_playlists_to_mp3 | Chansons et playlists YouTube en MP3 | YouTube şarkıları ve çalma listeleri MP3 olarak
+home_media | Média | Medya
+home_music_downloader | Téléchargeur de musique | Müzik indirici
+home_video_downloader | Téléchargeur de vidéos | Video indirici
+home_youtube_tiktok_instagram_x_and_more | YouTube, TikTok, Instagram, X et plus | YouTube, TikTok, Instagram, X ve daha fazlası
+home_audio_merger | Fusion audio | Ses birleştirici
+home_join_songs_into_one_mp3_with_a_crossfa | Réunir des chansons en un MP3 avec un fondu enchaîné | Şarkıları geçişli tek bir MP3'te birleştirin
+home_audio_trimmer | Découpe audio | Ses kırpıcı
+home_cut_a_song_without_losing_quality | Couper une chanson sans perte de qualité | Şarkıyı kalite kaybı olmadan kesin
+home_files | Fichiers | Dosyalar
+home_document_reader | Lecteur de documents | Belge okuyucu
+home_pdfs_word_files_and_text_one_ui_style | PDF, fichiers Word et texte, façon One UI | PDF, Word ve metin dosyaları, One UI tarzında
+home_pdf_editor | Éditeur PDF | PDF düzenleyici
+home_merge_split_reorder_sign_and_annotate | Fusionner, diviser, réorganiser, signer et annoter des PDF | PDF'leri birleştirin, bölün, sıralayın, imzalayın ve not ekleyin
+home_file_converter | Convertisseur de fichiers | Dosya dönüştürücü
+home_images_documents_audio_and_video | Images, documents, audio et vidéo | Görüntü, belge, ses ve video
+home_print | Imprimer | Yazdır
+home_print_pdfs_photos_and_documents | Imprimer des PDF, photos et documents | PDF, fotoğraf ve belge yazdırın
+home_compressor | Compresseur | Sıkıştırıcı
+home_shrink_videos_audio_and_photos | Réduire vidéos, audio et photos | Video, ses ve fotoğrafları küçültün
+home_apk_extractor | Extracteur d'APK | APK çıkarıcı
+home_save_apps_as_apk_merging_split_bundles | Enregistrer des applis en APK, en fusionnant les APK fractionnés | Uygulamaları APK olarak kaydedin, bölünmüş paketleri birleştirin
+home_images | Images | Görüntüler
+home_color_picker | Pipette de couleurs | Renk seçici
+home_sample_any_pixel_get_hex_rgb_and_palet | Prélever n'importe quel pixel : HEX, RVB et palette | Herhangi bir pikseli seçin, HEX, RGB ve palet alın
+home_image_blur | Flou d'image | Görüntü bulanıklaştırma
+home_blur_a_whole_photo_or_brush_over_detai | Flouter une photo entière ou peindre sur des détails | Fotoğrafın tamamını bulanıklaştırın ya da ayrıntıların üzerini boyayın
+home_background_remover | Détourage | Arka plan silici
+home_cut_out_people_pets_and_objects_as_png | Détourer personnes, animaux et objets en PNG | Kişileri, evcil hayvanları ve nesneleri PNG olarak kesin
+home_icon_maker | Créateur d'icônes | Simge oluşturucu
+home_put_any_logo_on_your_icon_pack_s_empty | Placer n'importe quel logo sur la tuile vide de votre pack d'icônes | Herhangi bir logoyu simge paketinizin boş karosuna yerleştirin
+home_device | Appareil | Cihaz
+home_app_lock | Verrouillage d'applis | Uygulama kilidi
+home_lock_apps_with_fingerprint_face_or_pin | Verrouiller des applis par empreinte, visage ou PIN | Uygulamaları parmak izi, yüz veya PIN ile kilitleyin
+home_private_dns | DNS privé | Özel DNS
+home_custom | Personnalisé · %1$s | Özel · %1$s
+home_automatic | Automatique | Otomatik
+home_charge_limit | Limite de charge | Şarj sınırı
+home_stops_charging_at | Arrête la charge à %1$s %% | Şarjı %%%1$s seviyesinde durdurur
+home_custom_battery_protection_and_bypass_c | Protection de batterie sur mesure et charge directe | Özel pil koruması ve doğrudan şarj
+home_battery_info | Infos batterie | Pil bilgisi
+home_cycles |  · %1$s cycles |  · %1$s döngü
+home_health_temperature_and_charging_speed | État, température et vitesse de charge | Sağlık, sıcaklık ve şarj hızı
+home_miscellaneous | Divers | Çeşitli
+home_card_balance | Solde de carte | Kart bakiyesi
+home_track_expenses_and_payments | Suivre les dépenses et les paiements | Harcamaları ve ödemeleri takip edin
+home_virtual_cards | Cartes virtuelles | Sanal kartlar
+home_your_ids_front_and_back_locked_and_enc | Recto et verso de vos papiers, verrouillés et chiffrés | Kimliklerinizin ön ve arka yüzü, kilitli ve şifreli
+home_briefs | Briefs | Bültenler
+home_newsletters_and_articles_from_gmail_ma | Newsletters et articles de Gmail, faciles à lire | Gmail'deki bültenler ve makaleler, okunaklı hâlde
+home_japanese_reader | Lecteur de japonais | Japonca okuyucu
+home_readings_and_meanings_for_japanese_on | Lectures et sens du japonais affiché à l'écran | Ekrandaki Japonca için okunuşlar ve anlamlar
+home_qr_code | Code QR | QR kod
+home_turn_a_link_or_any_text_into_a_qr_code | Transformer un lien ou un texte en code QR | Bir bağlantıyı veya herhangi bir metni QR koda dönüştürün
+home_random | Aléatoire | Rastgele
+home_numbers_in_any_range_or_roll_some_dice | Des nombres dans n'importe quelle plage, ou des dés | İstediğiniz aralıkta sayılar ya da zar atın
+home_misc | Divers | Çeşitli
+home_search | Rechercher | Ara
+home_background | Arrière-plan | Arka plan
+home_about | À propos | Hakkında
+home_no_tools_found | Aucun outil trouvé | Araç bulunamadı
+home_results | Résultats | Sonuçlar
+home_allow_all_files_access | Autoriser l'accès à tous les fichiers | Tüm dosyalara erişime izin ver
+home_needed_to_save_everything_to_internal | Nécessaire pour tout enregistrer dans Stockage interne/%1$s. | Her şeyi Dahili depolama/%1$s klasörüne kaydetmek için gerekli.
+home_allow | Autoriser | İzin ver
+home_done | OK | Tamam
+about_developer_github | Développeur · GitHub | Geliştirici · GitHub
+about_developer_ai_by_anthropic | Développeur · IA d'Anthropic | Geliştirici · Anthropic yapay zekâsı
+about_audio_conversion_merging_and_trimming | Conversion, fusion et découpe audio | Ses dönüştürme, birleştirme ve kırpma
+about_apk_merging | Fusion d'APK | APK birleştirme
+about_qr_codes | Codes QR | QR kodlar
+about_japanese_dictionary | Dictionnaire japonais | Japonca sözlük
+about_jmdict_as_json | JMdict au format JSON | JSON biçiminde JMdict
+about_japanese_word_splitting_ipadic | Découpage des mots japonais (IPADIC) | Japonca sözcük ayırma (IPADIC)
+about_japanese_text_recognition_and_translat | Reconnaissance et traduction du japonais | Japonca metin tanıma ve çeviri
+about_version | Version %1$s | Sürüm %1$s
+about_a_personal_toolbox_for_one_ui | Une boîte à outils personnelle pour One UI. | One UI için kişisel bir araç kutusu.
+about_developers | Développeurs | Geliştiriciler
+about_support | Soutenir | Destek
+about_buy_me_a_coffee | Offrez-moi un café | Bana bir kahve ısmarla
+about_support_good_utilities_on_ko_fi | Soutenir Good Utilities sur Ko-fi | Good Utilities'i Ko-fi'de destekleyin
+about_diagnostics | Diagnostic | Tanılama
+about_crash_log | Journal des plantages | Çökme günlüğü
+about_no_crashes_recorded | Aucun plantage enregistré | Kayıtlı çökme yok
+about_clear | Effacer | Temizle
+about_open_source | Open source | Açık kaynak
+ui_select_items | Sélectionner des éléments | Öğe seçin
+ui_navigate_up | Revenir en arrière | Yukarı git
+ui_on | Activé | Açık
+ui_off | Désactivé | Kapalı
+ui_h_min | %1$s h %2$s min | %1$s sa %2$s dk
+ui_more_options | Plus d'options | Diğer seçenekler
+ui_working | En cours… %1$s %% | İşleniyor… %%%1$s
+ui_cancel | Annuler | İptal
+ui_saved_to | Enregistré dans %1$s · %2$s | %1$s konumuna kaydedildi · %2$s
+ui_all | Tout | Tümü
+ui_tips | Astuces | İpuçları
+ui_close | Fermer | Kapat
+music_settings | Paramètres | Ayarlar
+music_preparing_download_engine | Préparation du moteur de téléchargement | İndirme motoru hazırlanıyor
+music_unpacking_yt_dlp_and_ffmpeg_only_happe | Décompression de yt-dlp et FFmpeg. Uniquement au premier lancement. | yt-dlp ve FFmpeg açılıyor. Bu yalnızca ilk açılışta olur.
+music_download_engine_failed_to_start | Le moteur de téléchargement n'a pas pu démarrer | İndirme motoru başlatılamadı
+music_reading_link | Lecture du lien… | Bağlantı okunuyor…
+music_songs | Chansons | Şarkılar
+music_deselect_all | Tout désélectionner | Tümünün seçimini kaldır
+music_select_all | Tout sélectionner | Tümünü seç
+music_share_from_youtube | Partager depuis YouTube | YouTube'dan paylaşın
+music_tap_share_music_downloader_on_any_song | Touchez Partager → Téléchargeur de musique sur une chanson, une vidéo ou une playlist, ou collez son lien. | Herhangi bir şarkı, video veya çalma listesinde Paylaş → Müzik indirici'ye dokunun ya da bağlantısını yapıştırın.
+music_mp3_with_album_art | MP3 avec pochette | Albüm kapaklı MP3
+music_square_cover_title_artist_album_and_tr | Pochette carrée, titre, artiste, album et numéro de piste sont intégrés. | Kare kapak, başlık, sanatçı, albüm ve parça numarası eklenir.
+music_saved_to_good_utilities_music | Enregistré dans Good Utilities/Music | Good Utilities/Music klasörüne kaydedilir
+music_playlists_get_their_own_folder_ready_i | Chaque playlist a son propre dossier. Prêt dans Samsung Music ou tout autre lecteur. | Çalma listeleri kendi klasörüne kaydedilir. Samsung Music'te veya herhangi bir oynatıcıda hazır.
+music_ready_to_download | Prêt à télécharger | İndirmeye hazır
+music_of_songs_selected | %1$s chansons sur %2$s sélectionnées | %2$s şarkıdan %1$s tanesi seçildi
+music_downloading_of | Téléchargement %1$s sur %2$s | İndiriliyor: %1$s / %2$s
+music_song_or_playlist_link | Lien de chanson ou de playlist | Şarkı veya çalma listesi bağlantısı
+music_paste_a_youtube_link | Collez un lien YouTube | Bir YouTube bağlantısı yapıştırın
+music_paste | Coller | Yapıştır
+music_song | Chanson · %1$s | Şarkı · %1$s
+music_songs_2 | %1$s chansons · %2$s | %1$s şarkı · %2$s
+music_song_saved | Chanson enregistrée | Şarkı kaydedildi
+music_already_downloaded | Déjà téléchargée | Zaten indirildi
+music_couldn_t_download_this_song | Impossible de télécharger cette chanson | Bu şarkı indirilemedi
+music_saved_of_songs | %1$s chansons sur %2$s enregistrées | %2$s şarkıdan %1$s tanesi kaydedildi
+music_good_utilities_music | Good Utilities/Music | Good Utilities/Music
+music_n_already_downloaded | \n%1$s déjà téléchargées | \n%1$s tanesi zaten indirilmişti
+music_tap_retry_or_update_yt_dlp_in_settings | Touchez Réessayer ou mettez à jour yt-dlp dans les Paramètres | Yeniden dene'ye dokunun veya Ayarlar'dan yt-dlp'yi güncelleyin
+music_n_failed_tap_retry_or_update_yt_dlp_in | \n%1$s en échec. Touchez Réessayer ou mettez à jour yt-dlp dans les Paramètres | \n%1$s tanesi başarısız. Yeniden dene'ye dokunun veya Ayarlar'dan yt-dlp'yi güncelleyin
+music_failed | Échec | Başarısız
+music_converting_to_mp3 | Conversion en MP3… | MP3'e dönüştürülüyor…
+music_waiting | En attente | Bekliyor
+music_saved | Enregistrée | Kaydedildi
+music_download_song | Télécharger la chanson | Şarkıyı indir
+music_download_songs | Télécharger %1$s chansons | %1$s şarkıyı indir
+music_retry | Réessayer | Yeniden dene
+music_retry_failed | Réessayer les échecs | Başarısız olanları yeniden dene
+music_new_link | Nouveau lien | Yeni bağlantı
+music_square_album_covers | Pochettes carrées | Kare albüm kapakları
+music_crop_youtube_s_16_9_thumbnail_to_a_squ | Recadrer la miniature 16:9 de YouTube en carré | YouTube'un 16:9 küçük resmini kare olarak kırp
+music_number_tracks | Numéroter les pistes | Parçaları numaralandır
+music_prefix_file_names_with_the_playlist_po | Ajouter la position dans la playlist devant le nom de fichier | Dosya adlarının başına çalma listesindeki sırayı ekle
+music_folder_per_playlist | Un dossier par playlist | Her çalma listesi için klasör
+music_good_utilities_music_playlist_name | Good Utilities/Music/<nom de la playlist> | Good Utilities/Music/<çalma listesi adı>
+music_skip_existing_songs | Ignorer les chansons existantes | Mevcut şarkıları atla
+music_re_download_only_what_s_new_when_a_pla | Ne retélécharger que les nouveautés quand une playlist s'agrandit | Çalma listesi büyüdüğünde yalnızca yenileri indir
+music_download_settings | Paramètres de téléchargement | İndirme ayarları
+music_mp3_quality | Qualité MP3 | MP3 kalitesi
+music_youtube_account | Compte YouTube | YouTube hesabı
+music_signed_in | Connecté | Oturum açık
+music_downloads_use_your_account_premium_aud | Les téléchargements utilisent votre compte (audio Premium quand YouTube le propose). Repli automatique sans connexion sinon. | İndirmeler hesabınızı kullanır (YouTube sunduğunda Premium ses). Gerekirse otomatik olarak oturumsuz moda geçer.
+music_sign_out | Se déconnecter | Oturumu kapat
+music_sign_in_with_youtube_premium | Se connecter avec YouTube Premium | YouTube Premium ile oturum aç
+music_optional_uses_google_s_own_sign_in_pag | Facultatif. Utilise la page de connexion de Google ; Good Utilities ne voit jamais votre mot de passe. Peut réduire les blocages. | İsteğe bağlı. Google'ın kendi oturum açma sayfasını kullanır; Good Utilities şifrenizi asla görmez. İndirme engellerini azaltabilir.
+music_download_engine | Moteur de téléchargement | İndirme motoru
+music_bundled_version | Version intégrée | Paketteki sürüm
+music_updating | Mise à jour… | Güncelleniyor…
+music_preparing | Préparation… | Hazırlanıyor…
+music_update_yt_dlp | Mettre à jour yt-dlp | yt-dlp'yi güncelle
+music_youtube_changes_often_update_if_downlo | YouTube change souvent. Mettez à jour si les téléchargements échouent. | YouTube sık sık değişir. İndirmeler başarısız olmaya başlarsa güncelleyin.

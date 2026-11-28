@@ -1,5 +1,7 @@
 package com.tools.app.applock
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -22,7 +24,7 @@ object LockedShortcut {
 
     fun pin(context: Context, pkg: String, label: String) {
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(context)) {
-            Toast.makeText(context, "Your launcher doesn't support shortcuts", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, t(R.string.lock_your_launcher_doesn_t_support_shortcut), Toast.LENGTH_SHORT).show()
             return
         }
         val intent = Intent(context, LockActivity::class.java)

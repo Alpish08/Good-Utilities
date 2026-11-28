@@ -1,5 +1,6 @@
 package com.tools.app.dns
 
+import com.tools.app.ui.t
 import androidx.compose.material.icons.rounded.Language
 
 import androidx.compose.material.icons.Icons
@@ -77,20 +78,20 @@ fun PrivateDnsScreen(onBack: () -> Unit) {
         PrivateDns.setHost(context, h); host = h.trim(); draft = host
     }
 
-    OneUiScaffold(title = "Private DNS", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip("Custom or Automatic", "Custom sends all DNS lookups to the provider below over an encrypted connection, so it works on Wi-Fi and mobile data, and can block ads system-wide. Automatic uses your network's DNS."))) }) {
+    OneUiScaffold(title = t(R.string.home_private_dns), onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(com.tools.app.ui.Tip(t(R.string.dns_custom_or_automatic), t(R.string.dns_custom_sends_all_dns_lookups_to_the_pr)))) }) {
         item("master") {
             MasterSwitchCard(
                 checked = custom, enabled = canWrite && host.isNotBlank(),
-                onText = "Custom", offText = "Automatic",
+                onText = t(R.string.dns_custom), offText = t(R.string.home_automatic),
                 onCheckedChange = { PrivateDns.setCustom(context, it); custom = it },
             )
         }
 
         if (!canWrite) card("grant") {
-            ListRow("One-time setup needed", summary = "Run the adb grant command shown on the Charge limit page. The same permission covers both.", summaryColor = c.accent)
+            ListRow(t(R.string.dns_one_time_setup_needed), summary = t(R.string.dns_run_the_adb_grant_command_shown_on_the), summaryColor = c.accent)
         }
 
-        sectionLabel("Provider hostname")
+        sectionLabel(t(R.string.dns_provider_hostname))
         card("host") {
             Column(Modifier.padding(start = 18.dp, end = 14.dp, top = 14.dp, bottom = 14.dp)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -104,21 +105,21 @@ fun PrivateDnsScreen(onBack: () -> Unit) {
                             keyboardActions = KeyboardActions(onDone = { focus.clearFocus(); saveHost(draft) }),
                         )
                     }
-                    if (draft.trim() != host && draft.isNotBlank()) PillButton("Save", onClick = { focus.clearFocus(); saveHost(draft) }, height = 40.dp)
+                    if (draft.trim() != host && draft.isNotBlank()) PillButton(t(R.string.dns_save), onClick = { focus.clearFocus(); saveHost(draft) }, height = 40.dp)
                 }
             }
         }
-        sectionLabel("Presets")
+        sectionLabel(t(R.string.dns_presets))
         cardList(PrivateDns.PRESETS, key = { it.first }) { (h, label) ->
             ListRow(h, summary = label, leading = { RadioDot(host == h) }, enabled = canWrite, onClick = { saveHost(h) })
         }
 
         if (Build.VERSION.SDK_INT >= 33) {
-            sectionLabel("Quick panel")
+            sectionLabel(t(R.string.dns_quick_panel))
             card("tile") {
                 ListRow(
-                    "Add Private DNS to Quick panel",
-                    summary = "Tap to switch between Custom and Automatic. Touch and hold to open this page.",
+                    t(R.string.dns_add_private_dns_to_quick_panel),
+                    summary = t(R.string.dns_tap_to_switch_between_custom_and_autom),
                     onClick = {
                         context.getSystemService(android.app.StatusBarManager::class.java).requestAddTileService(
                             ComponentName(context, PrivateDnsTileService::class.java), "DNS",

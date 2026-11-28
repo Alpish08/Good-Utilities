@@ -1,5 +1,7 @@
 package com.tools.app.print
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
@@ -150,8 +152,8 @@ object IppClient {
                 if (code < 0) throw e
             }
             val code = conn.responseCode
-            if (code == 426) throw IppException("This printer needs an encrypted connection", http = code)
-            if (code != 200) throw IppException("The printer answered HTTP $code", http = code)
+            if (code == 426) throw IppException(t(R.string.print_this_printer_needs_an_encrypted_connec), http = code)
+            if (code != 200) throw IppException(t(R.string.print_the_printer_answered_http, code), http = code)
             val bytes = conn.inputStream.use { it.readBytes() }
             return Ipp.decode(bytes)
         } finally {
@@ -205,8 +207,8 @@ object IppClient {
             ),
         )
         val resp = call(context, a, Ipp.OP_GET_PRINTER_ATTRIBUTES, groups, readTimeout = 10000)
-        if (!Ipp.isSuccess(resp.code)) throw IppException(resp.statusMessage ?: "The printer refused the request (0x${resp.code.toString(16)})", resp.code)
-        val p = resp.printer ?: throw IppException("The printer did not send its attributes")
+        if (!Ipp.isSuccess(resp.code)) throw IppException(resp.statusMessage ?: t(R.string.print_the_printer_refused_the_request_0x, resp.code.toString(16)), resp.code)
+        val p = resp.printer ?: throw IppException(t(R.string.print_the_printer_did_not_send_its_attribute))
         return parseCaps(p, resp.major, resp.minor)
     }
 
@@ -220,7 +222,7 @@ object IppClient {
                 // Printers often report short codes ("BK", "C"…); show them as words.
                 name = names.getOrNull(i).orEmpty().let { n ->
                     when (n.trim().uppercase()) {
-                        "BK", "K", "BLACK" -> "Black"; "C" -> "Cyan"; "M" -> "Magenta"; "Y" -> "Yellow"
+                        "BK", "K", "BLACK" -> t(R.string.print_black); "C" -> t(R.string.print_cyan); "M" -> t(R.string.print_magenta); "Y" -> t(R.string.print_yellow)
                         else -> n
                     }
                 },

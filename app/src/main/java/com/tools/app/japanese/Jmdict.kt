@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.util.JsonReader
@@ -158,12 +160,12 @@ object Jmdict {
         code == "cop" -> "copula"
         code == "unc" -> ""
         code.startsWith("aux") -> "auxiliary"
-        code == "vs" || code == "vs-i" || code == "vs-s" -> "suru verb"
-        code == "v1" || code == "v1-s" -> "ichidan verb"
-        code.startsWith("v5") -> "godan verb"
-        code == "vk" -> "kuru verb"
-        code.startsWith("vi") -> "intransitive verb"
-        code.startsWith("vt") -> "transitive verb"
+        code == "vs" || code == "vs-i" || code == "vs-s" -> t(R.string.jp_suru_verb)
+        code == "v1" || code == "v1-s" -> t(R.string.jp_ichidan_verb)
+        code.startsWith("v5") -> t(R.string.jp_godan_verb)
+        code == "vk" -> t(R.string.jp_kuru_verb)
+        code.startsWith("vi") -> t(R.string.jp_intransitive_verb)
+        code.startsWith("vt") -> t(R.string.jp_transitive_verb)
         code.startsWith("v") -> "verb"
         code.startsWith("n-") -> "noun"
         else -> code
@@ -213,7 +215,7 @@ object Jmdict {
                 }
                 break
             }
-            if (!found) error("The download did not contain a dictionary file")
+            if (!found) error(t(R.string.jp_the_download_did_not_contain_a_diction))
             d.execSQL("CREATE INDEX form_idx ON form(form)")
             d.execSQL("CREATE INDEX sense_idx ON sense(entry)")
             d.setTransactionSuccessful()
@@ -222,7 +224,7 @@ object Jmdict {
             d.close()
             val dest = file(context)
             dest.delete()
-            if (!tmp.renameTo(dest)) error("Could not save the dictionary")
+            if (!tmp.renameTo(dest)) error(t(R.string.jp_could_not_save_the_dictionary))
         } catch (t: Throwable) {
             runCatching { if (d.inTransaction()) d.endTransaction() }
             runCatching { d.close() }
@@ -316,7 +318,10 @@ private class CountingStream(input: InputStream) : FilterInputStream(input) {
     override fun read(b: ByteArray, off: Int, len: Int): Int = super.read(b, off, len).also { if (it > 0) count += it }
 }
 
-enum class DictVariant(val label: String) { Full("Everything"), Common("Common words") }
+enum class DictVariant(private val labelRes: Int) {
+    Full(R.string.jp_variant_everything), Common(R.string.jp_variant_common);
+    val label get() = t(labelRes)
+}
 
 class DictAsset(val name: String, val size: Long, val url: String)
 
@@ -356,7 +361,7 @@ object DictJobs {
     private fun fetchAssets(): Map<DictVariant, DictAsset> {
         val c = connect(API)
         try {
-            if (c.responseCode != 200) error("GitHub answered ${c.responseCode}")
+            if (c.responseCode != 200) error(t(R.string.jp_github_answered, c.responseCode))
             val json = JSONObject(c.inputStream.bufferedReader().readText())
             val arr = json.getJSONArray("assets")
             val map = HashMap<DictVariant, DictAsset>()
@@ -367,7 +372,7 @@ object DictJobs {
                 if (Regex("^jmdict-eng-common-.*\\.json\\.zip$").matches(name)) map[DictVariant.Common] = asset
                 else if (Regex("^jmdict-eng-\\d.*\\.json\\.zip$").matches(name)) map[DictVariant.Full] = asset
             }
-            if (map.isEmpty()) error("No English dictionary in the latest release")
+            if (map.isEmpty()) error(t(R.string.jp_no_english_dictionary_in_the_latest_re))
             _assets.value = map
             return map
         } finally { c.disconnect() }
@@ -380,15 +385,15 @@ object DictJobs {
         job = scope.launch {
             try {
                 val asset = (_assets.value.takeIf { it.isNotEmpty() } ?: fetchAssets())[variant]
-                    ?: error("This dictionary isn't in the latest release")
+                    ?: error(t(R.string.jp_this_dictionary_isn_t_in_the_latest_re))
                 val c = connect(asset.url)
                 try {
-                    if (c.responseCode != 200) error("Download failed (${c.responseCode})")
+                    if (c.responseCode != 200) error(t(R.string.jp_download_failed, c.responseCode))
                     val total = (c.contentLengthLong.takeIf { it > 0 } ?: asset.size).toFloat()
                     val counting = CountingStream(c.inputStream.buffered(1 shl 16))
-                    _state.value = DictState.Working(0f, "Downloading and preparing…")
+                    _state.value = DictState.Working(0f, t(R.string.jp_downloading_and_preparing))
                     Jmdict.build(app, counting, { counting.count }, { b ->
-                        _state.value = DictState.Working((b / total).coerceIn(0f, 0.99f), "Downloading and preparing…")
+                        _state.value = DictState.Working((b / total).coerceIn(0f, 0.99f), t(R.string.jp_downloading_and_preparing))
                     }, { ensureActive() })
                 } finally { c.disconnect() }
                 _state.value = DictState.Idle

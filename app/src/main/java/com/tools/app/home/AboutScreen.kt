@@ -1,5 +1,7 @@
 package com.tools.app.home
 
+import com.tools.app.ui.t
+import com.tools.app.ui.tp
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.Image
@@ -54,22 +56,22 @@ fun AboutScreen(onBack: () -> Unit) {
     val open = { url: String -> context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) }
 
     val developers = listOf(
-        Credit("Alpish08", "Developer · GitHub", "https://github.com/Alpish08", R.drawable.avatar_alpish08),
-        Credit("Claude", "Developer · AI by Anthropic", "https://claude.ai", R.drawable.ic_claude, Color(0xFFF5F4EE)),
+        Credit("Alpish08", t(R.string.about_developer_github), "https://github.com/Alpish08", R.drawable.avatar_alpish08),
+        Credit("Claude", t(R.string.about_developer_ai_by_anthropic), "https://claude.ai", R.drawable.ic_claude, Color(0xFFF5F4EE)),
     )
     val libraries = listOf(
-        Credit("yt-dlp", "Music downloader", "https://github.com/yt-dlp/yt-dlp"),
-        Credit("FFmpeg", "Audio conversion, merging and trimming", "https://ffmpeg.org"),
-        Credit("Google ML Kit", "Background remover", "https://developers.google.com/ml-kit/vision/subject-segmentation"),
-        Credit("ARSCLib", "APK merging", "https://github.com/REAndroid/ARSCLib"),
-        Credit("ZXing", "QR codes", "https://github.com/zxing/zxing"),
-        Credit("JMdict (EDRDG), CC BY-SA 4.0", "Japanese dictionary", "https://www.edrdg.org/jmdict/j_jmdict.html"),
-        Credit("jmdict-simplified", "JMdict as JSON", "https://github.com/scriptin/jmdict-simplified"),
-        Credit("Kuromoji", "Japanese word splitting (IPADIC)", "https://github.com/atilika/kuromoji"),
-        Credit("ML Kit", "Japanese text recognition and translation", "https://developers.google.com/ml-kit"),
+        Credit("yt-dlp", t(R.string.home_music_downloader), "https://github.com/yt-dlp/yt-dlp"),
+        Credit("FFmpeg", t(R.string.about_audio_conversion_merging_and_trimming), "https://ffmpeg.org"),
+        Credit("Google ML Kit", t(R.string.home_background_remover), "https://developers.google.com/ml-kit/vision/subject-segmentation"),
+        Credit("ARSCLib", t(R.string.about_apk_merging), "https://github.com/REAndroid/ARSCLib"),
+        Credit("ZXing", t(R.string.about_qr_codes), "https://github.com/zxing/zxing"),
+        Credit("JMdict (EDRDG), CC BY-SA 4.0", t(R.string.about_japanese_dictionary), "https://www.edrdg.org/jmdict/j_jmdict.html"),
+        Credit("jmdict-simplified", t(R.string.about_jmdict_as_json), "https://github.com/scriptin/jmdict-simplified"),
+        Credit("Kuromoji", t(R.string.about_japanese_word_splitting_ipadic), "https://github.com/atilika/kuromoji"),
+        Credit("ML Kit", t(R.string.about_japanese_text_recognition_and_translat), "https://developers.google.com/ml-kit"),
     )
 
-    ToolPage("About", onBack) {
+    ToolPage(t(R.string.home_about), onBack) {
         BoxWithConstraints(Modifier.weight(1f)) {
             val header = maxHeight * 0.4f
             val list = androidx.compose.foundation.lazy.rememberLazyListState()
@@ -82,14 +84,14 @@ fun AboutScreen(onBack: () -> Unit) {
                     ) {
                         Image(icon, null, Modifier.size(88.dp))
                         Text(context.getString(R.string.app_name), fontSize = 30.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 16.dp))
-                        Text("Version $version", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp))
+                        Text(t(R.string.about_version, version), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp))
                         Text(
-                            "A personal toolbox for One UI.", fontSize = 14.sp, color = c.textSecondary,
+                            t(R.string.about_a_personal_toolbox_for_one_ui), fontSize = 14.sp, color = c.textSecondary,
                             modifier = Modifier.padding(top = 2.dp),
                         )
                     }
                 }
-                sectionLabel("Developers")
+                sectionLabel(t(R.string.about_developers))
                 cardList(developers, key = { "dev-" + it.name }, dividerStart = 72.dp) { d ->
                     ListRow(
                         d.name, summary = d.role,
@@ -98,24 +100,24 @@ fun AboutScreen(onBack: () -> Unit) {
                         onClick = { open(d.url) },
                     )
                 }
-                sectionLabel("Support")
+                sectionLabel(t(R.string.about_support))
                 cardList(listOf(Unit), key = { "ko-fi" }) {
                     ListRow(
-                        "Buy me a coffee", summary = "Support Good Utilities on Ko-fi",
+                        t(R.string.about_buy_me_a_coffee), summary = t(R.string.about_support_good_utilities_on_ko_fi),
                         trailing = { Icon(OneUiIcons.OpenExternal, null, tint = c.textSecondary, modifier = Modifier.size(20.dp)) },
                         onClick = { open("https://ko-fi.com/Alpish08") },
                     )
                 }
-                sectionLabel("Diagnostics")
+                sectionLabel(t(R.string.about_diagnostics))
                 cardList(listOf(Unit), key = { "crash-log" }) {
                     val n = crashes
                     ListRow(
-                        "Crash log",
-                        summary = if (n == 0) "No crashes recorded"
-                        else "$n crash${if (n == 1) "" else "es"} · last on ${com.tools.app.CrashLog.lastTime(context)}",
+                        t(R.string.about_crash_log),
+                        summary = if (n == 0) t(R.string.about_no_crashes_recorded)
+                        else tp(R.plurals.about_crashes, n, n, com.tools.app.CrashLog.lastTime(context)),
                         trailing = if (n == 0) null else ({
                             Text(
-                                "Clear", color = c.accent, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
+                                t(R.string.about_clear), color = c.accent, fontSize = 15.sp, fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.clip(CircleShape).clickable { com.tools.app.CrashLog.clear(context); crashes = 0 }
                                     .padding(horizontal = 14.dp, vertical = 10.dp),
                             )
@@ -123,7 +125,7 @@ fun AboutScreen(onBack: () -> Unit) {
                         onClick = if (n == 0) null else ({ com.tools.app.CrashLog.share(context) }),
                     )
                 }
-                sectionLabel("Open source")
+                sectionLabel(t(R.string.about_open_source))
                 cardList(libraries, key = { "lib-" + it.name }) { l ->
                     ListRow(l.name, summary = l.role, onClick = { open(l.url) })
                 }

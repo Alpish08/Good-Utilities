@@ -1,5 +1,6 @@
 package com.tools.app.japanese
 
+import com.tools.app.ui.t
 import android.accessibilityservice.AccessibilityService
 import android.app.Activity
 import android.app.PendingIntent
@@ -40,7 +41,7 @@ object JapaneseCapture {
     /** Runs inside the accessibility service: close the shade, wait for it to slide away, screenshot, open the reader. */
     fun start(service: AccessibilityService) {
         if (Build.VERSION.SDK_INT < 30) {
-            toast(service, "Screen capture needs Android 11 or newer")
+            toast(service, t(R.string.jp_screen_capture_needs_android_11_or_new))
             return
         }
         val main = Handler(Looper.getMainLooper())
@@ -68,7 +69,7 @@ object JapaneseCapture {
                             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     )
                 } catch (t: Throwable) {
-                    toast(service, "Couldn't capture the screen")
+                    toast(service, t(R.string.jp_couldn_t_capture_the_screen))
                 } finally {
                     buffer.close()
                 }
@@ -77,9 +78,9 @@ object JapaneseCapture {
             override fun onFailure(errorCode: Int) {
                 toast(
                     service,
-                    if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT) "Too fast, try again in a second"
-                    else if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_SECURE_WINDOW) "This screen doesn't allow screenshots"
-                    else "Couldn't capture the screen",
+                    if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_INTERVAL_TIME_SHORT) t(R.string.jp_too_fast_try_again_in_a_second)
+                    else if (errorCode == AccessibilityService.ERROR_TAKE_SCREENSHOT_SECURE_WINDOW) t(R.string.jp_this_screen_doesn_t_allow_screenshots)
+                    else t(R.string.jp_couldn_t_capture_the_screen),
                 )
             }
         })
@@ -112,7 +113,7 @@ class JapaneseTileService : TileService() {
             label = getString(R.string.read_japanese)
             // Set every time: One UI otherwise keeps showing a cached copy of an older icon.
             icon = android.graphics.drawable.Icon.createWithResource(this@JapaneseTileService, R.drawable.ic_qs_japanese)
-            subtitle = if (JapaneseCapture.serviceEnabled(this@JapaneseTileService)) null else "Setup needed"
+            subtitle = if (JapaneseCapture.serviceEnabled(this@JapaneseTileService)) null else t(R.string.dns_setup_needed)
             updateTile()
         }
     }

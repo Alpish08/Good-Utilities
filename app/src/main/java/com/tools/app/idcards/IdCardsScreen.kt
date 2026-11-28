@@ -1,5 +1,7 @@
 package com.tools.app.idcards
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.app.Activity
 import android.graphics.Bitmap
 import android.net.Uri
@@ -161,26 +163,26 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     }
 
     OneUiScaffold(
-        title = "Virtual cards",
-        subtitle = when (cards.size) { 0 -> null; 1 -> "1 card"; else -> "${cards.size} cards" },
+        title = t(R.string.home_virtual_cards),
+        subtitle = when (cards.size) { 0 -> null; 1 -> t(R.string.id_1_card); else -> t(R.string.id_cards, cards.size) },
         onBack = onBack,
         actions = {
-            ToolbarIcon(OneUiIcons.Add, "Add card", onAdd)
+            ToolbarIcon(OneUiIcons.Add, t(R.string.card_add_card), onAdd)
             val card = current
             val tips = com.tools.app.ui.tipsItem(ID_TIPS)
             if (card == null) OverflowMenu(listOf(tips))
             else OverflowMenu(buildList {
-                add("Rename" to { renaming = true })
-                add("Replace front" to { pick(false) })
-                add((if (card.hasBack) "Replace back" else "Add back") to { pick(true) })
-                if (card.hasBack) add("Remove back" to { IdStore.removeBack(context, card.id); turns = turns - card.id })
-                add("Delete" to { deleting = true })
+                add(t(R.string.id_rename) to { renaming = true })
+                add(t(R.string.id_replace_front) to { pick(false) })
+                add((if (card.hasBack) t(R.string.id_replace_back) else t(R.string.id_add_back)) to { pick(true) })
+                if (card.hasBack) add(t(R.string.id_remove_back) to { IdStore.removeBack(context, card.id); turns = turns - card.id })
+                add(t(R.string.pdf_delete) to { deleting = true })
                 add(tips)
             })
         },
     ) {
         if (cards.isEmpty()) {
-            card("add-first") { ListRow("Add a card", summary = "Pick the front (and back) from your photos", onClick = onAdd) }
+            card("add-first") { ListRow(t(R.string.id_add_a_card), summary = t(R.string.id_pick_the_front_and_back_from_your_phot), onClick = onAdd) }
             return@OneUiScaffold
         }
         item("carousel") {
@@ -207,7 +209,7 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
                 if (cards.size > 1) PageCapsules(cards.size, pager.currentPage)
                 Text(current.title, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, modifier = Modifier.padding(top = 14.dp))
                 Text(
-                    if (!current.hasBack) "Front only" else if (showingBack(current.id)) "Back" else "Front",
+                    if (!current.hasBack) t(R.string.id_front_only) else if (showingBack(current.id)) t(R.string.id_back) else t(R.string.id_front),
                     fontSize = 13.5.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp),
                 )
             }
@@ -218,15 +220,15 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
     if (renaming && card != null) {
         var name by remember { mutableStateOf(card.title) }
         OneUiDialog(
-            "Rename", onDismiss = { renaming = false },
-            buttons = listOf("Cancel" to { renaming = false }, "Save" to { IdStore.rename(context, card.id, name.trim()); renaming = false }),
+            t(R.string.id_rename), onDismiss = { renaming = false },
+            buttons = listOf(t(R.string.ui_cancel) to { renaming = false }, t(R.string.dns_save) to { IdStore.rename(context, card.id, name.trim()); renaming = false }),
         ) { NameField(name, { name = it.take(40) }, popup = true) }
     }
     if (deleting && card != null) OneUiDialog(
-        "Delete ${card.title}?", onDismiss = { deleting = false },
-        buttons = listOf("Cancel" to { deleting = false }, "Delete" to { deleting = false; IdStore.delete(context, card.id) }),
+        t(R.string.card_delete, card.title), onDismiss = { deleting = false },
+        buttons = listOf(t(R.string.ui_cancel) to { deleting = false }, t(R.string.pdf_delete) to { deleting = false; IdStore.delete(context, card.id) }),
     ) {
-        Text("Both photos are removed from this phone. Your Gallery copies, if any, stay where they are.", fontSize = 15.sp, color = c.textSecondary)
+        Text(t(R.string.id_both_photos_are_removed_from_this_phon), fontSize = 15.sp, color = c.textSecondary)
     }
 }
 
@@ -312,16 +314,16 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
         picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
     }
 
-    OneUiScaffold(title = "Add card", onBack = onDone, actions = { com.tools.app.ui.TipsMenu(ID_TIPS) }) {
+    OneUiScaffold(title = t(R.string.card_add_card), onBack = onDone, actions = { com.tools.app.ui.TipsMenu(ID_TIPS) }) {
         // Front | Back, like the Compressor's Video | Audio | Photo, over one photo slot for the chosen side.
         item("side") {
             Box(Modifier.padding(horizontal = 20.dp, vertical = 8.dp)) {
-                com.tools.app.ui.SegmentedControl(listOf("Front", "Back"), if (side == 0) 0 else 1, { side = it })
+                com.tools.app.ui.SegmentedControl(listOf(t(R.string.id_front), t(R.string.id_back)), if (side == 0) 0 else 1, { side = it })
             }
         }
         item("photo") {
             if (side == 0) PhotoSlot(null, front, onPick = { pick(false) })
-            else PhotoSlot(null, back, onPick = { pick(true) }, onClear = back?.let { { back = null } }, hint = "Optional")
+            else PhotoSlot(null, back, onPick = { pick(true) }, onClear = back?.let { { back = null } }, hint = t(R.string.id_optional))
         }
         // The name goes under the photo, centred, just where the cards page shows it; Save sits beside it on the
         // line, so it's in reach without scrolling.
@@ -329,7 +331,7 @@ private fun AddCard(shared: ByteArray?, onDone: () -> Unit) {
             Box(Modifier.fillMaxWidth()) {
                 CardNameField(name, { name = it.take(40) })
                 PillButton(
-                    if (saving) "Saving…" else "Save",
+                    if (saving) t(R.string.video_saving) else t(R.string.dns_save),
                     enabled = front != null && name.isNotBlank() && !saving,
                     modifier = Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp),
                     onClick = {
@@ -355,7 +357,7 @@ private fun PhotoSlot(label: String?, image: ByteArray?, onPick: () -> Unit, onC
         if (label != null || onClear != null) Row(Modifier.fillMaxWidth().padding(start = 4.dp, bottom = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text(label.orEmpty(), fontSize = 13.5.sp, fontWeight = FontWeight.Bold, color = c.textSecondary, modifier = Modifier.weight(1f))
             if (onClear != null) Text(
-                "Remove", fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                t(R.string.audio_remove), fontSize = 13.5.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                 modifier = Modifier.clip(CircleShape).clickable(onClick = onClear).padding(horizontal = 10.dp, vertical = 4.dp),
             )
         }
@@ -366,10 +368,10 @@ private fun PhotoSlot(label: String?, image: ByteArray?, onPick: () -> Unit, onC
                 .clickable(onClick = onPick),
             contentAlignment = Alignment.Center,
         ) {
-            if (bmp != null) Image(bmp.asImageBitmap(), label ?: "Photo", contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio))
+            if (bmp != null) Image(bmp.asImageBitmap(), label ?: t(R.string.compress_photo), contentScale = ContentScale.Crop, modifier = Modifier.fillMaxWidth().aspectRatio(CardRatio))
             else Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Icon(OneUiIcons.AddPhoto, null, tint = c.textSecondary, modifier = Modifier.size(34.dp))
-                Text("Choose from photos", fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
+                Text(t(R.string.id_choose_from_photos), fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp))
                 if (hint != null) Text(hint, fontSize = 12.5.sp, color = c.textSecondary.copy(alpha = 0.7f), modifier = Modifier.padding(top = 2.dp))
             }
         }
@@ -382,7 +384,7 @@ private fun CardNameField(value: String, onChange: (String) -> Unit) {
     val c = OneUi.colors
     Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(Modifier.fillMaxWidth(0.5f), contentAlignment = Alignment.Center) {
-            if (value.isEmpty()) Text("Card name", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.textSecondary)
+            if (value.isEmpty()) Text(t(R.string.card_card_name), fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.textSecondary)
             BasicTextField(
                 value, onChange, singleLine = true,
                 textStyle = TextStyle(fontFamily = SamsungFont, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = c.text, textAlign = TextAlign.Center),
@@ -392,7 +394,7 @@ private fun CardNameField(value: String, onChange: (String) -> Unit) {
             )
         }
         Box(Modifier.width(150.dp).height(1.dp).background(com.tools.app.ui.pillEdge(c.isDark)))
-        Text("e.g. Driver's license", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp))
+        Text(t(R.string.id_e_g_driver_s_license), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp))
     }
 }
 
@@ -408,7 +410,7 @@ private fun NameField(value: String, onChange: (String) -> Unit, popup: Boolean 
             .padding(horizontal = 18.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
-        if (value.isEmpty()) Text("Name (e.g. Driver's license)", fontSize = 16.sp, color = c.textSecondary)
+        if (value.isEmpty()) Text(t(R.string.id_name_e_g_driver_s_license), fontSize = 16.sp, color = c.textSecondary)
         BasicTextField(
             value, onChange, singleLine = true,
             textStyle = TextStyle(fontFamily = SamsungFont, fontSize = 16.sp, color = c.text),
@@ -424,9 +426,9 @@ private fun read(context: android.content.Context, uri: Uri): ByteArray? =
 
 /** Virtual cards' explanations, in ⋮ › Tips on the cards and Add card pages. */
 private val ID_TIPS = listOf(
-    com.tools.app.ui.Tip("Your IDs, front and back", "Keep a copy of your IDs here. They're locked with your fingerprint and encrypted on this phone, and screenshots are blocked."),
-    com.tools.app.ui.Tip("Crop in Gallery first", "Crop and straighten the photos in Gallery (Edit › crop finds the card's edges), then pick them here, or share a photo to \"Add to Virtual cards\"."),
-    com.tools.app.ui.Tip("Turn a card over", "Swipe down or up on a card to see its back."),
+    com.tools.app.ui.Tip(t(R.string.id_your_ids_front_and_back), t(R.string.id_keep_a_copy_of_your_ids_here_they_re_l)),
+    com.tools.app.ui.Tip(t(R.string.id_crop_in_gallery_first), t(R.string.id_crop_and_straighten_the_photos_in_gall)),
+    com.tools.app.ui.Tip(t(R.string.id_turn_a_card_over), t(R.string.id_swipe_down_or_up_on_a_card_to_see_its)),
 )
 
 /**

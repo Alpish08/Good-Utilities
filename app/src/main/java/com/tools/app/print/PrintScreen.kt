@@ -1,5 +1,8 @@
 package com.tools.app.print
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.theme.IconColors
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -124,17 +127,17 @@ fun PrintScreen(onBack: () -> Unit) {
     val choosePhotos = { pickPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
 
     if (doc.pages.isEmpty()) {
-        ToolPage("Print", onBack, expandable = false) {
+        ToolPage(t(R.string.home_print), onBack, expandable = false) {
             if (doc.loading) {
                 Box(Modifier.weight(1f).fillMaxWidth(), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner(color = c.accent) }
             } else {
                 Box(Modifier.weight(1f)) {
                     EmptyState(
-                        Icons.Rounded.Print, IconColors.Blue, "Print a document or photo",
+                        Icons.Rounded.Print, IconColors.Blue, t(R.string.print_print_a_document_or_photo),
                         (doc.error?.let { "$it\n\n" } ?: "") +
-                            "Choose PDFs or images here. You can also share files from any app and choose \"Print\".",
-                        "Choose files", onAction = chooseFiles,
-                        secondary = "Choose photos" to choosePhotos,
+                            t(R.string.print_choose_pdfs_or_images_here_you_can_als),
+                        t(R.string.convert_choose_files), onAction = chooseFiles,
+                        secondary = t(R.string.print_choose_photos) to choosePhotos,
                     )
                 }
             }
@@ -149,10 +152,10 @@ fun PrintScreen(onBack: () -> Unit) {
     val nSel = selected.size
 
     OneUiScaffold(
-        title = "Print", onBack = onBack, expandedTitle = false,
+        title = t(R.string.home_print), onBack = onBack, expandedTitle = false,
         actions = {
-            ToolbarIcon(OneUiIcons.Gallery, "Add photos", choosePhotos)
-            ToolbarIcon(OneUiIcons.Add, "Add files", chooseFiles)
+            ToolbarIcon(OneUiIcons.Gallery, t(R.string.print_add_photos), choosePhotos)
+            ToolbarIcon(OneUiIcons.Add, t(R.string.print_add_files), chooseFiles)
         },
         bottomBar = {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -160,10 +163,10 @@ fun PrintScreen(onBack: () -> Unit) {
                 val canPrint = caps != null && nSel > 0 && !job.active
                 PillButton(
                     when {
-                        job.active -> "Printing…"
-                        printer.address == null -> "Choose a printer"
-                        nSel > 1 -> "Print $nSel pages"
-                        else -> "Print"
+                        job.active -> t(R.string.print_printing)
+                        printer.address == null -> t(R.string.print_choose_a_printer)
+                        nSel > 1 -> t(R.string.print_print_pages, nSel)
+                        else -> t(R.string.home_print)
                     },
                     onClick = { if (printer.address == null) picker = true else PrintSession.print() },
                     enabled = if (printer.address == null) true else canPrint,
@@ -174,19 +177,19 @@ fun PrintScreen(onBack: () -> Unit) {
     ) {
         item(key = "preview") { PreviewPager(doc, selected, opts, paper, mono) }
 
-        sectionLabel("Printer")
+        sectionLabel(t(R.string.print_printer))
         card("printer") { PrinterCard(printer, onClick = { picker = true }) }
 
         if (doc.files.size > 1 || doc.files.firstOrNull()?.isPdf == false) {
-            sectionLabel("Files")
+            sectionLabel(t(R.string.home_files))
             card("files") {
                 doc.files.forEachIndexed { i, f ->
                     if (i > 0) CardDivider()
                     ListRow(
-                        f.name, summary = if (f.isPdf) "${f.pages} ${if (f.pages == 1) "page" else "pages"}" else "Image",
+                        f.name, summary = if (f.isPdf) tp(R.plurals.print_pages, f.pages) else t(R.string.print_image),
                         trailing = {
                             Box(Modifier.size(36.dp).clip(CircleShape).clickable { PrintSession.removeFile(i) }, contentAlignment = Alignment.Center) {
-                                Icon(OneUiIcons.Close, "Remove", tint = c.textSecondary, modifier = Modifier.size(20.dp))
+                                Icon(OneUiIcons.Close, t(R.string.audio_remove), tint = c.textSecondary, modifier = Modifier.size(20.dp))
                             }
                         },
                     )
@@ -194,7 +197,7 @@ fun PrintScreen(onBack: () -> Unit) {
             }
         }
 
-        sectionLabel("Options")
+        sectionLabel(t(R.string.convert_options))
         card("options") { Options(doc, selected, opts, caps, papers, paper) }
         item(key = "end") { Spacer(Modifier.height(12.dp)) }
     }
@@ -231,9 +234,9 @@ private fun PreviewPager(doc: DocState, selected: Set<Int>, opts: PrintOptions, 
             RoundCheck(cur in selected)
             Spacer(Modifier.width(10.dp))
             Text(
-                "Page ${cur + 1} of ${pages.size}", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.text,
+                t(R.string.print_page_of, cur + 1, pages.size), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.text,
             )
-            if (selected.size != pages.size) Text("  ·  ${selected.size} selected", fontSize = 14.sp, color = c.textSecondary)
+            if (selected.size != pages.size) Text(t(R.string.print_selected, selected.size), fontSize = 14.sp, color = c.textSecondary)
         }
     }
 }
@@ -281,12 +284,12 @@ private fun PrinterCard(st: PrinterState, onClick: () -> Unit) {
     val status = caps?.let { PrintModels.status(it) }
     val toners = caps?.let { PrintModels.tonerMarkers(it) }.orEmpty()
     ListRow(
-        title = if (st.address == null) "Choose a printer" else st.model.ifBlank { st.name.ifBlank { st.address.host } },
+        title = if (st.address == null) t(R.string.print_choose_a_printer) else st.model.ifBlank { st.name.ifBlank { st.address.host } },
         summary = when {
-            st.address == null -> "Searching your Wi-Fi network…"
-            status != null -> status.first + (if (st.error != null) " · can't refresh" else "")
+            st.address == null -> t(R.string.print_searching_your_wi_fi_network)
+            status != null -> status.first + (if (st.error != null) t(R.string.print_can_t_refresh) else "")
             st.error != null -> st.error
-            else -> "Connecting…"
+            else -> t(R.string.print_connecting)
         },
         summaryColor = when {
             st.address != null && status == null && st.error != null -> c.error
@@ -295,7 +298,7 @@ private fun PrinterCard(st: PrinterState, onClick: () -> Unit) {
             status?.second == PrintModels.Tone.Ok -> c.success
             else -> null
         },
-        trailing = { Text("Change", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent) },
+        trailing = { Text(t(R.string.print_change), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent) },
         onClick = onClick,
     )
     if (toners.isNotEmpty()) {
@@ -306,7 +309,7 @@ private fun PrinterCard(st: PrinterState, onClick: () -> Unit) {
                 val bar = if (col == null || (col.red + col.green + col.blue) / 3f < 0.25f) c.text else col
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        m.name.ifBlank { "Toner" }, fontSize = 13.sp, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
+                        m.name.ifBlank { t(R.string.print_toner) }, fontSize = 13.sp, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(0.42f),
                     )
                     ThinProgress(m.level / 100f, Modifier.weight(0.45f), color = if (m.level <= 10) c.error else bar, height = 6.dp)
@@ -327,7 +330,7 @@ private fun Options(doc: DocState, selected: Set<Int>, opts: PrintOptions, caps:
 
     // Copies
     ListRow(
-        "Copies",
+        t(R.string.print_copies),
         trailing = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 StepButton("−", opts.copies > 1) { PrintSession.setOptions { it.copy(copies = (it.copies - 1).coerceAtLeast(1)) } }
@@ -343,31 +346,31 @@ private fun Options(doc: DocState, selected: Set<Int>, opts: PrintOptions, caps:
     CardDivider()
 
     // Paper
-    ListRow("Paper size", summary = paper.label, summaryColor = c.accent, onClick = { paperDialog = true })
+    ListRow(t(R.string.print_paper_size), summary = paper.label, summaryColor = c.accent, onClick = { paperDialog = true })
 
     if (caps == null || caps.duplexSupported) {
         CardDivider()
-        SegRow("Two-sided", listOf("Off", "Long edge", "Short edge"), opts.duplex) { v -> PrintSession.setOptions { it.copy(duplex = v) } }
+        SegRow(t(R.string.print_two_sided), listOf(t(R.string.ui_off), t(R.string.print_long_edge), t(R.string.print_short_edge)), opts.duplex) { v -> PrintSession.setOptions { it.copy(duplex = v) } }
     }
     if (caps == null || caps.supportsColor) {
         CardDivider()
-        SegRow("Color", listOf("Color", "Black & white"), if (opts.color) 0 else 1) { v -> PrintSession.setOptions { it.copy(color = v == 0) } }
+        SegRow(t(R.string.print_color), listOf(t(R.string.print_color), t(R.string.print_black_white)), if (opts.color) 0 else 1) { v -> PrintSession.setOptions { it.copy(color = v == 0) } }
     }
     CardDivider()
-    SegRow("Orientation", listOf("Auto", "Portrait", "Landscape"), opts.orientation) { v -> PrintSession.setOptions { it.copy(orientation = v) } }
+    SegRow(t(R.string.print_orientation), listOf(t(R.string.print_auto), t(R.string.print_portrait), t(R.string.print_landscape)), opts.orientation) { v -> PrintSession.setOptions { it.copy(orientation = v) } }
     if (caps != null && (caps.qualities.size >= 2 || (!caps.canPdf && caps.known))) {
         CardDivider()
-        SegRow("Quality", listOf("Draft", "Normal", "High"), opts.quality) { v -> PrintSession.setOptions { it.copy(quality = v) } }
+        SegRow(t(R.string.video_quality), listOf(t(R.string.print_draft), t(R.string.print_normal), t(R.string.print_high)), opts.quality) { v -> PrintSession.setOptions { it.copy(quality = v) } }
     }
     CardDivider()
     ListRow(
-        "Fit to page",
+        t(R.string.print_fit_to_page),
         trailing = { OneUiSwitch(opts.fit) { v -> PrintSession.setOptions { it.copy(fit = v) } } },
         onClick = { PrintSession.setOptions { it.copy(fit = !it.fit) } },
     )
 
     if (paperDialog) {
-        OneUiDialog("Paper size", { paperDialog = false }, listOf("Close" to { paperDialog = false })) {
+        OneUiDialog(t(R.string.print_paper_size), { paperDialog = false }, listOf(t(R.string.ui_close) to { paperDialog = false })) {
             Column(Modifier.heightIn(max = 380.dp).verticalScroll(rememberScrollState())) {
                 papers.forEach { p ->
                     val ready = caps?.mediaReady?.contains(p.id) == true
@@ -381,7 +384,7 @@ private fun Options(doc: DocState, selected: Set<Int>, opts: PrintOptions, caps:
                         Spacer(Modifier.width(16.dp))
                         Column(Modifier.weight(1f)) {
                             Text(p.label, fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text)
-                            if (ready) Text("Loaded in the printer", fontSize = 13.sp, color = c.textSecondary)
+                            if (ready) Text(t(R.string.print_loaded_in_the_printer), fontSize = 13.sp, color = c.textSecondary)
                         }
                     }
                 }
@@ -424,8 +427,8 @@ private fun PagesRow(doc: DocState, selected: Set<Int>) {
         }
     }
     Column(Modifier.padding(horizontal = 18.dp, vertical = 12.dp)) {
-        Text("Pages", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(bottom = 10.dp))
-        SegmentedControl(listOf("All ($total)", "Range"), if (rangeMode) 1 else 0, { i ->
+        Text(t(R.string.reader_pages), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.padding(bottom = 10.dp))
+        SegmentedControl(listOf(t(R.string.print_all, total), t(R.string.print_range)), if (rangeMode) 1 else 0, { i ->
             if (i == 0) { rangeMode = false; PrintSession.selectAll() } else { rangeMode = true; if (all) text = "1-$total" }
         })
         if (rangeMode) {
@@ -434,7 +437,7 @@ private fun PagesRow(doc: DocState, selected: Set<Int>) {
                 text, { t -> text = t; PrintSession.selectRange(t) }, "e.g. 1-3, 5",
                 error = text.isNotBlank() && !valid, modifier = Modifier.onFocusChanged { focused = it.isFocused },
             )
-            if (text.isNotBlank() && !valid) Text("Use page numbers and ranges, like 1-3, 5", fontSize = 12.5.sp, color = c.error, modifier = Modifier.padding(top = 6.dp))
+            if (text.isNotBlank() && !valid) Text(t(R.string.print_use_page_numbers_and_ranges_like_1_3_5), fontSize = 12.5.sp, color = c.error, modifier = Modifier.padding(top = 6.dp))
         }
     }
 }
@@ -480,7 +483,7 @@ private fun JobCard(job: JobState) {
                 color = when (job.phase) { JobPhase.Done -> c.success; JobPhase.Failed -> c.error; else -> c.text },
                 modifier = Modifier.weight(1f), maxLines = 3, overflow = TextOverflow.Ellipsis,
             )
-            val label = if (job.active) "Cancel" else "OK"
+            val label = if (job.active) t(R.string.ui_cancel) else "OK"
             Text(
                 label, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                 modifier = Modifier.clip(CircleShape).clickable { if (job.active) PrintSession.cancel() else PrintSession.dismissJob() }
@@ -504,11 +507,11 @@ private fun PrinterPicker(found: List<FoundPrinter>, current: PrinterState, onCl
         return
     }
     val context = LocalContext.current
-    OneUiDialog("Printers", onClose, listOf("Close" to onClose)) {
+    OneUiDialog(t(R.string.print_printers), onClose, listOf(t(R.string.ui_close) to onClose)) {
         Column(Modifier.heightIn(max = 400.dp).verticalScroll(rememberScrollState())) {
             current.address?.let { a ->
                 if (found.none { it.address == a }) PrinterRow(
-                    current.model.ifBlank { current.name.ifBlank { a.host } }, a.host + (if (current.error != null) " · not reachable" else ""), true,
+                    current.model.ifBlank { current.name.ifBlank { a.host } }, a.host + (if (current.error != null) t(R.string.print_not_reachable) else ""), true,
                 ) { onClose() }
             }
             found.forEach { p ->
@@ -521,17 +524,17 @@ private fun PrinterPicker(found: List<FoundPrinter>, current: PrinterState, onCl
                 if (scanning) {
                     com.tools.app.ui.OneUiSpinner(Modifier.size(18.dp), color = c.accent, strokeWidth = 2.dp)
                     Spacer(Modifier.width(12.dp))
-                    Text(if (found.isEmpty()) "Looking for printers…" else "Still looking…", fontSize = 14.sp, color = c.textSecondary)
+                    Text(if (found.isEmpty()) t(R.string.print_looking_for_printers) else t(R.string.print_still_looking), fontSize = 14.sp, color = c.textSecondary)
                 } else {
                     Text(
-                        if (found.isEmpty() && current.address == null) "No printers found. Make sure the printer is on and on this Wi-Fi." else "Search again",
+                        if (found.isEmpty() && current.address == null) t(R.string.print_no_printers_found_make_sure_the_printe) else t(R.string.print_search_again),
                         fontSize = 14.sp, color = if (found.isEmpty()) c.textSecondary else c.accent,
                         modifier = Modifier.clip(RoundedCornerShape(12.dp)).clickable { PrinterDiscovery.start(context) }.padding(vertical = 2.dp),
                     )
                 }
             }
             Text(
-                "Add printer by IP address", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                t(R.string.print_add_printer_by_ip_address), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                 modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).clickable { adding = true }.padding(vertical = 14.dp, horizontal = 4.dp),
             )
         }
@@ -563,16 +566,16 @@ private fun AddByIp(state: AddState, onClose: () -> Unit, onAdded: () -> Unit) {
     // Once the probe succeeds the printer changes; close the dialog.
     LaunchedEffect(printer.address, state) { if (state is AddState.Idle && printer.address != start && printer.address != null) onAdded() }
     OneUiDialog(
-        "Add printer", onClose,
-        listOf("Cancel" to onClose, (if (state is AddState.Trying) "Connecting…" else "Add") to { if (state !is AddState.Trying) PrintSession.addByIp(ip) }),
+        t(R.string.print_add_printer), onClose,
+        listOf(t(R.string.ui_cancel) to onClose, (if (state is AddState.Trying) t(R.string.print_connecting) else t(R.string.pdf_add)) to { if (state !is AddState.Trying) PrintSession.addByIp(ip) }),
     ) {
-        Text("Enter the IP address shown on the printer's network settings page.", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
+        Text(t(R.string.print_enter_the_ip_address_shown_on_the_prin), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
         OneUiField(ip, { ip = it }, "192.168.1.50", error = state is AddState.Failed, keyboardType = KeyboardType.Uri)
         if (state is AddState.Failed) Text(state.message, fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp))
         if (state is AddState.Trying) Row(Modifier.padding(top = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             com.tools.app.ui.OneUiSpinner(Modifier.size(16.dp), color = c.accent, strokeWidth = 2.dp)
             Spacer(Modifier.width(10.dp))
-            Text("Contacting the printer…", fontSize = 13.sp, color = c.textSecondary)
+            Text(t(R.string.print_contacting_the_printer), fontSize = 13.sp, color = c.textSecondary)
         }
         Spacer(Modifier.height(6.dp))
     }

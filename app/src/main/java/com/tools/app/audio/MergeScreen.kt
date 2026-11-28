@@ -1,5 +1,8 @@
 package com.tools.app.audio
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.automirrored.rounded.QueueMusic
 import androidx.compose.material.icons.Icons
@@ -69,19 +72,19 @@ fun MergeScreen(onBack: () -> Unit) {
                     .onSuccess { clips += it }.onFailure { failed++ }
             }
             adding = false
-            if (failed > 0) Toast.makeText(context, "Couldn't add $failed ${if (failed == 1) "file" else "files"}", Toast.LENGTH_SHORT).show()
+            if (failed > 0) Toast.makeText(context, tp(R.plurals.audio_couldnt_add, failed), Toast.LENGTH_SHORT).show()
         }
     }
     if (picking) AudioPicker(multiple = true, onPicked = { picking = false; importAll(it) }, onDismiss = { picking = false })
     val add = { picking = true }
     val running = work is Work.Running
 
-    ToolPage("Audio merger", onBack, expandable = clips.isNotEmpty(), actions = { if (clips.isNotEmpty() && !running) ToolbarIcon(OneUiIcons.Add, "Add audio", add) }) {
+    ToolPage(t(R.string.home_audio_merger), onBack, expandable = clips.isNotEmpty(), actions = { if (clips.isNotEmpty() && !running) ToolbarIcon(OneUiIcons.Add, t(R.string.audio_add_audio), add) }) {
         if (clips.isEmpty()) {
             EmptyState(
-                Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange, "Merge songs",
-                "Join tracks into one MP3, blending each into the next with a smooth crossfade.",
-                if (adding) "Adding…" else "Add audio files", add,
+                Icons.AutoMirrored.Rounded.QueueMusic, IconColors.Orange, t(R.string.audio_merge_songs),
+                t(R.string.audio_join_tracks_into_one_mp3_blending_each),
+                if (adding) t(R.string.audio_adding) else t(R.string.audio_add_audio_files), add,
             )
             return@ToolPage
         }
@@ -108,13 +111,13 @@ fun MergeScreen(onBack: () -> Unit) {
                         Text(formatDuration((clip.durationMs / 1000).toInt()), fontSize = 13.sp, color = c.textSecondary)
                     }
                     if (!running) {
-                        SmallIcon(OneUiIcons.ChevronUp, "Move up", !first) { clips.add(i - 1, clips.removeAt(i)) }
-                        SmallIcon(OneUiIcons.ChevronDown, "Move down", !last) { clips.add(i + 1, clips.removeAt(i)) }
-                        SmallIcon(OneUiIcons.Close, "Remove", true) { clips.removeAt(i); AudioJobs.resetMerge() }
+                        SmallIcon(OneUiIcons.ChevronUp, t(R.string.audio_move_up), !first) { clips.add(i - 1, clips.removeAt(i)) }
+                        SmallIcon(OneUiIcons.ChevronDown, t(R.string.audio_move_down), !last) { clips.add(i + 1, clips.removeAt(i)) }
+                        SmallIcon(OneUiIcons.Close, t(R.string.audio_remove), true) { clips.removeAt(i); AudioJobs.resetMerge() }
                     }
                 }
             }
-            if (adding) item { Text("Adding…", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(28.dp, 10.dp)) }
+            if (adding) item { Text(t(R.string.audio_adding), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(28.dp, 10.dp)) }
         }
 
         // Bottom card: settings and the action.
@@ -128,12 +131,12 @@ fun MergeScreen(onBack: () -> Unit) {
         ) {
             val effective = AudioJobs.effectiveFade()
             Row(Modifier.fillMaxWidth()) {
-                Text("Crossfade", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
-                Text(if (effective <= 0f) "Off" else "${"%.1f".format(effective)} s", fontSize = 15.sp, color = c.textSecondary)
+                Text(t(R.string.audio_crossfade), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                Text(if (effective <= 0f) t(R.string.ui_off) else "${"%.1f".format(effective)} s", fontSize = 15.sp, color = c.textSecondary)
             }
             OneUiSlider(fade, { if (!running) { fade = (it * 2).roundToInt() / 2f; AudioJobs.resetMerge() } }, valueRange = 0f..12f)
             Text(
-                "${clips.size} tracks · ${formatDuration((AudioJobs.mergedLengthMs() / 1000).toInt())} total · high-quality MP3",
+                t(R.string.audio_tracks_total_high_quality_mp3, clips.size, formatDuration((AudioJobs.mergedLengthMs() / 1000).toInt())),
                 fontSize = 13.sp, color = c.textSecondary,
             )
             JobStatus(
@@ -144,7 +147,7 @@ fun MergeScreen(onBack: () -> Unit) {
                 modifier = Modifier.padding(top = 12.dp),
             )
             PillButton(
-                if (running) "Merging…" else "Merge to MP3",
+                if (running) t(R.string.audio_merging) else t(R.string.audio_merge_to_mp3),
                 enabled = !running && !adding && clips.size >= 2,
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                 onClick = { AudioJobs.startMerge(context) },

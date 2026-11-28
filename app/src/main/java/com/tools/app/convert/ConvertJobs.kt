@@ -1,5 +1,8 @@
 package com.tools.app.convert
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -16,8 +19,10 @@ import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
 
-enum class Kind(val label: String) {
-    Image("Image"), Pdf("PDF"), Docx("Word document"), Text("Text file"), Audio("Audio"), Video("Video"),
+enum class Kind(private val labelRes: Int) {
+    Image(R.string.convert_kind_image), Pdf(R.string.convert_kind_pdf), Docx(R.string.convert_kind_docx), Text(R.string.convert_kind_text), Audio(R.string.convert_kind_audio), Video(R.string.convert_kind_video),
+    ;
+    val label get() = t(labelRes)
 }
 
 enum class Fmt(val ext: String, val label: String, val mime: String, val folder: Storage.Folder) {
@@ -51,7 +56,7 @@ data class Output(val files: List<File>, val folderLabel: String, val mime: Stri
 
 sealed interface ItemState {
     data object Queued : ItemState
-    data class Running(val progress: Float, val step: String = "Converting") : ItemState
+    data class Running(val progress: Float, val step: String = t(R.string.convert_converting)) : ItemState
     data class Done(val output: Output) : ItemState
     data class Failed(val message: String) : ItemState
     data object Cancelled : ItemState
@@ -65,35 +70,35 @@ data class Opts(val imageQuality: Int, val audioQuality: Int, val videoHeight: I
 fun choicesFor(kind: Kind, exts: Set<String>): List<Choice> {
     val list = when (kind) {
         Kind.Image -> listOf(
-            Choice(Fmt.Jpg, "JPG", "Small photos. Transparency becomes white"),
-            Choice(Fmt.Png, "PNG", "Lossless, keeps transparency"),
-            Choice(Fmt.Webp, "WebP", "Small files, supports transparency"),
-            Choice(Fmt.Pdf, "PDF", "One page per image"),
+            Choice(Fmt.Jpg, "JPG", t(R.string.convert_small_photos_transparency_becomes_whit)),
+            Choice(Fmt.Png, "PNG", t(R.string.convert_lossless_keeps_transparency)),
+            Choice(Fmt.Webp, "WebP", t(R.string.convert_small_files_supports_transparency)),
+            Choice(Fmt.Pdf, "PDF", t(R.string.convert_one_page_per_image)),
         )
         Kind.Pdf -> listOf(
-            Choice(Fmt.Jpg, "JPG images", "One picture per page, 2x resolution"),
-            Choice(Fmt.Png, "PNG images", "One picture per page, 2x resolution"),
-            Choice(Fmt.Txt, "Text (TXT)", "Selectable text only, no layout"),
+            Choice(Fmt.Jpg, t(R.string.convert_jpg_images), t(R.string.convert_one_picture_per_page_2x_resolution)),
+            Choice(Fmt.Png, t(R.string.convert_png_images), t(R.string.convert_one_picture_per_page_2x_resolution)),
+            Choice(Fmt.Txt, t(R.string.convert_text_txt), t(R.string.convert_selectable_text_only_no_layout)),
         )
         Kind.Docx -> listOf(
-            Choice(Fmt.Pdf, "PDF", "Text and basic formatting on A4 pages"),
-            Choice(Fmt.Txt, "Text (TXT)", "Plain text"),
+            Choice(Fmt.Pdf, "PDF", t(R.string.convert_text_and_basic_formatting_on_a4_pages)),
+            Choice(Fmt.Txt, t(R.string.convert_text_txt), t(R.string.reader_plain_text)),
         )
-        Kind.Text -> listOf(Choice(Fmt.Pdf, "PDF", "A4 pages with a readable font"))
+        Kind.Text -> listOf(Choice(Fmt.Pdf, "PDF", t(R.string.convert_a4_pages_with_a_readable_font)))
         Kind.Audio -> listOf(
-            Choice(Fmt.Mp3, "MP3", "Plays everywhere, lossy"),
-            Choice(Fmt.M4a, "M4A (AAC)", "Better quality than MP3 at the same size"),
-            Choice(Fmt.Opus, "OPUS", "Very efficient, lossy"),
-            Choice(Fmt.Ogg, "OGG (Vorbis)", "Open format, lossy"),
-            Choice(Fmt.Flac, "FLAC", "Lossless, larger files"),
-            Choice(Fmt.Wav, "WAV", "Uncompressed, very large files"),
+            Choice(Fmt.Mp3, "MP3", t(R.string.convert_plays_everywhere_lossy)),
+            Choice(Fmt.M4a, "M4A (AAC)", t(R.string.convert_better_quality_than_mp3_at_the_same_si)),
+            Choice(Fmt.Opus, "OPUS", t(R.string.convert_very_efficient_lossy)),
+            Choice(Fmt.Ogg, "OGG (Vorbis)", t(R.string.convert_open_format_lossy)),
+            Choice(Fmt.Flac, "FLAC", t(R.string.convert_lossless_larger_files)),
+            Choice(Fmt.Wav, "WAV", t(R.string.convert_uncompressed_very_large_files)),
         ).filter { !(exts.size == 1 && exts.first() == it.fmt.ext) }
         Kind.Video -> listOf(
-            Choice(Fmt.Mp4, "MP4", "H.264 + AAC, plays everywhere"),
-            Choice(Fmt.WebM, "WebM", "VP9 + Opus. Much slower to convert"),
-            Choice(Fmt.Gif, "GIF", "Animated picture, first 30 seconds, no sound"),
-            Choice(Fmt.Mp3, "Audio only · MP3", "Extract the sound track"),
-            Choice(Fmt.M4a, "Audio only · M4A", "Extract the sound track as AAC"),
+            Choice(Fmt.Mp4, "MP4", t(R.string.convert_h_264_aac_plays_everywhere)),
+            Choice(Fmt.WebM, "WebM", t(R.string.convert_vp9_opus_much_slower_to_convert)),
+            Choice(Fmt.Gif, "GIF", t(R.string.convert_animated_picture_first_30_seconds_no_s)),
+            Choice(Fmt.Mp3, t(R.string.convert_audio_only_mp3), t(R.string.convert_extract_the_sound_track)),
+            Choice(Fmt.M4a, t(R.string.convert_audio_only_m4a), t(R.string.convert_extract_the_sound_track_as_aac)),
         ).filter { !(exts.size == 1 && exts.first() == it.fmt.ext) }
     }
     return list
@@ -169,13 +174,13 @@ object ConvertJobs {
             }
             val (kind, ext) = detect(name, resolver.getType(uri))
             when {
-                kind == null && ext == "doc" -> problems += "$name: old .doc files aren't supported. Save it as .docx first."
-                kind == null -> problems += "$name: can't convert ${if (ext.isEmpty()) "this type of file" else ".$ext files"}."
+                kind == null && ext == "doc" -> problems += t(R.string.convert_old_doc_files_aren_t_supported_save_it, name)
+                kind == null -> problems += if (ext.isEmpty()) t(R.string.convert_cant_convert_type, name) else t(R.string.convert_cant_convert_ext, name, ext)
                 sources.isNotEmpty() && sources.first().kind != kind -> otherType++
                 else -> sources.add(Source(ids.incrementAndGet(), uri, name, size, kind, ext))
             }
         }
-        if (otherType > 0) problems += "$otherType file${if (otherType > 1) "s" else ""} skipped: convert one type of file at a time (${sources.first().kind.label.lowercase()} files here)."
+        if (otherType > 0) problems += tp(R.plurals.convert_skipped_other_type, otherType, otherType, sources.first().kind.label.lowercase())
         notice.value = problems.takeIf { it.isNotEmpty() }?.joinToString("\n")
         syncTarget()
     }
@@ -215,8 +220,8 @@ object ConvertJobs {
         val opts = Opts(imageQuality.value.toInt(), audioQuality.value.toInt(), videoHeight.value, gifWidth.value)
         val combine = fmt == Fmt.Pdf && list.first().kind == Kind.Image && list.size > 1 && combinePdf.value
         items.value = if (combine) {
-            listOf(Item(0, "${list.first().base} + ${list.size - 1} more.pdf", "${list.size} images into one PDF", Kind.Image, ItemState.Queued))
-        } else list.mapIndexed { i, s -> Item(i, s.name, "${s.kind.label} to ${fmt.label}", s.kind, ItemState.Queued) }
+            listOf(Item(0, "${list.first().base} + ${list.size - 1} more.pdf", t(R.string.convert_images_into_one_pdf, list.size), Kind.Image, ItemState.Queued))
+        } else list.mapIndexed { i, s -> Item(i, s.name, t(R.string.convert_x_to_y, s.kind.label, fmt.label), s.kind, ItemState.Queued) }
         running.value = true
         job = scope.launch {
             try {

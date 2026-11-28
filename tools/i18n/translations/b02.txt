@@ -1,0 +1,170 @@
+music_save_location | Emplacement d'enregistrement | Kayıt konumu
+music_internal_storage_good_utilities_music | Stockage interne › Good Utilities › Music | Dahili depolama › Good Utilities › Music
+music_for_personal_use | Pour un usage personnel | Kişisel kullanım için
+music_only_download_content_you_have_the_rig | Ne téléchargez que des contenus que vous avez le droit de garder hors ligne. | Yalnızca çevrimdışı saklama hakkınız olan içerikleri indirin.
+music_that_doesn_t_look_like_a_youtube_link | Ce n'est pas un lien YouTube | Bu bir YouTube bağlantısına benzemiyor
+music_updating_yt_dlp | Mise à jour de yt-dlp… | yt-dlp güncelleniyor…
+music_already_up_to_date | Déjà à jour | Zaten güncel
+music_updated | Mis à jour | Güncellendi
+music_update_failed | Échec de la mise à jour : %1$s | Güncelleme başarısız: %1$s
+music_music_downloads | Téléchargements de musique | Müzik indirmeleri
+music_already_there |  · %1$s déjà présentes |  · %1$s tanesi zaten var
+music_failed_2 |  · %1$s en échec |  · %1$s başarısız
+music_download_finished | Téléchargement terminé | İndirme tamamlandı
+music_sign_in_to_youtube | Se connecter à YouTube | YouTube'da oturum aç
+music_signed_in_to_youtube | Connecté à YouTube | YouTube'da oturum açıldı
+music_sign_in_incomplete_try_again | Connexion incomplète, réessayez | Oturum açma tamamlanmadı, yeniden deneyin
+music_couldn_t_read_that_video | Impossible de lire cette vidéo | Bu video okunamadı
+music_this_playlist_is_empty_or_private | Cette playlist est vide ou privée | Bu çalma listesi boş veya gizli
+music_youtube_playlist | Playlist YouTube | YouTube çalma listesi
+music_yt_dlp_finished_but_produced_no_mp3 | yt-dlp a terminé sans produire de MP3 | yt-dlp tamamlandı ama MP3 oluşturmadı
+music_youtube_refused_the_download_http_403 | YouTube a refusé le téléchargement (HTTP 403). Mettez à jour yt-dlp dans les paramètres du Téléchargeur de musique et réessayez. | YouTube indirmeyi reddetti (HTTP 403). Müzik indirici ayarlarından yt-dlp'yi güncelleyip yeniden deneyin.
+music_couldn_t_create_the_file_in_music | Impossible de créer le fichier dans Music | Music klasöründe dosya oluşturulamadı
+video_storage_access_needed | Accès au stockage nécessaire | Depolama erişimi gerekli
+video_open_settings | Ouvrir les paramètres | Ayarları aç
+video_videos | Vidéos | Videolar
+video_supported_sites | Sites pris en charge | Desteklenen siteler
+video_youtube_tiktok_instagram_x_reddit_face | YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo et plus. | YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo ve daha fazlası.
+video_share_from_any_app | Partager depuis n'importe quelle appli | Herhangi bir uygulamadan paylaşın
+video_tap_share_video_downloader_on_a_video | Touchez Partager → Téléchargeur de vidéos sur une vidéo ou une publication, ou collez son lien. | Bir video veya gönderide Paylaş → Video indirici'ye dokunun ya da bağlantısını yapıştırın.
+video_saved_to | Enregistré dans %1$s | %1$s konumuna kaydedilir
+video_ready_in_samsung_gallery_and_any_playe | Prêt dans la Galerie Samsung et tout autre lecteur. | Samsung Galeri'de ve herhangi bir oynatıcıda hazır.
+video_audio_only | Audio seul | Yalnızca ses
+video_m4a_and_mp3_get_the_cover_art_embedded | La pochette est intégrée aux M4A et MP3. Enregistré dans %1$s. | M4A ve MP3 dosyalarına kapak resmi eklenir. %1$s konumuna kaydedilir.
+video_video_link | Lien de la vidéo | Video bağlantısı
+video_paste_a_link | Collez un lien | Bir bağlantı yapıştırın
+video_type | Type | Tür
+video_video | Vidéo | Video
+video_format | Format | Biçim
+video_quality | Qualité | Kalite
+video_best_available | Meilleure disponible | Mevcut en iyi
+video_up_to_p | Jusqu'à %1$sp | En fazla %1$sp
+video_compatible_format | Format compatible | Uyumlu biçim
+video_h_264_aac_in_mp4_plays_everywhere_incl | H.264 + AAC en MP4. Se lit partout, y compris dans la Galerie Samsung. | MP4 içinde H.264 + AAC. Samsung Galeri dahil her yerde oynatılır.
+video_best_quality_in_any_codec_vp9_av1_some | Meilleure qualité, quel que soit le codec (VP9, AV1). Certains lecteurs ne peuvent pas l'ouvrir. | Herhangi bir codec ile en iyi kalite (VP9, AV1). Bazı oynatıcılar açamayabilir.
+video_downloading | Téléchargement | İndiriliyor
+video_open | Ouvrir | Aç
+video_no_app_can_open_this_file | Aucune appli ne peut ouvrir ce fichier | Bu dosyayı açabilecek uygulama yok
+video_share | Partager | Paylaş
+video_download_videos | Télécharger %1$s vidéos | %1$s videoyu indir
+video_download | Télécharger | İndir
+video_couldn_t_find_a_link_in_that_text | Aucun lien trouvé dans ce texte | Bu metinde bağlantı bulunamadı
+video_starting | Démarrage… | Başlatılıyor…
+video_downloading_2 | Téléchargement… | İndiriliyor…
+video_saving | Enregistrement… | Kaydediliyor…
+video_nothing_was_downloaded | Rien n'a été téléchargé | Hiçbir şey indirilmedi
+video_the_download_engine_failed_to_start | Le moteur de téléchargement n'a pas pu démarrer : %1$s | İndirme motoru başlatılamadı: %1$s
+video_couldn_t_read_that_link | Impossible de lire ce lien | Bu bağlantı okunamadı
+video_there_is_no_video_in_this_link | Ce lien ne contient pas de vidéo | Bu bağlantıda video yok
+video_processing | Traitement… | İşleniyor…
+video_the_download_finished_but_produced_no | Le téléchargement s'est terminé sans produire de fichier | İndirme tamamlandı ama dosya oluşmadı
+video_storage_access_is_needed | L'accès au stockage est nécessaire | Depolama erişimi gerekli
+video_this_video_is_private | Cette vidéo est privée. | Bu video gizli.
+video_this_link_isn_t_supported_open_the_pag | Ce lien n'est pas pris en charge. Ouvrez la page de la vidéo elle-même et partagez ce lien. | Bu bağlantı desteklenmiyor. Videonun kendi sayfasını açıp o bağlantıyı paylaşın.
+video_no_video_was_found_in_this_link | Aucune vidéo trouvée dans ce lien. | Bu bağlantıda video bulunamadı.
+video_this_post_needs_you_to_be_signed_in_in | Cette publication nécessite d'être connecté. Instagram et X l'exigent parfois, et la connexion n'est pas encore prise en charge. | Bu gönderi için oturum açmanız gerekiyor. Instagram ve X bazen bunu ister; oturum açma henüz desteklenmiyor.
+video_couldn_t_reach_the_site_check_your_con | Impossible de joindre le site. Vérifiez votre connexion et réessayez. | Siteye ulaşılamadı. Bağlantınızı kontrol edip yeniden deneyin.
+video_this_video_isn_t_available | Cette vidéo n'est pas disponible. | Bu video kullanılamıyor.
+video_the_site_refused_the_download_http_403 | Le site a refusé le téléchargement (HTTP 403). Mettez à jour yt-dlp dans les paramètres du Téléchargeur de musique et réessayez. | Site indirmeyi reddetti (HTTP 403). Müzik indirici ayarlarından yt-dlp'yi güncelleyip yeniden deneyin.
+audio_add_audio | Ajouter de l'audio | Ses ekle
+audio_merge_songs | Fusionner des chansons | Şarkıları birleştirin
+audio_join_tracks_into_one_mp3_blending_each | Réunissez des pistes en un seul MP3, chacune fondue dans la suivante en douceur. | Parçaları tek bir MP3'te birleştirin; her biri bir sonrakine yumuşak bir geçişle bağlanır.
+audio_adding | Ajout… | Ekleniyor…
+audio_add_audio_files | Ajouter des fichiers audio | Ses dosyaları ekle
+audio_move_up | Monter | Yukarı taşı
+audio_move_down | Descendre | Aşağı taşı
+audio_remove | Retirer | Kaldır
+audio_crossfade | Fondu enchaîné | Geçiş
+audio_tracks_total_high_quality_mp3 | %1$s pistes · %2$s au total · MP3 haute qualité | %1$s parça · toplam %2$s · yüksek kaliteli MP3
+audio_merging | Fusion… | Birleştiriliyor…
+audio_merge_to_mp3 | Fusionner en MP3 | MP3 olarak birleştir
+audio_couldn_t_open_that_file | Impossible d'ouvrir ce fichier | Bu dosya açılamadı
+audio_choose_audio | Choisir un audio | Ses seç
+audio_trim_a_song | Découper une chanson | Şarkı kırpın
+audio_cut_the_start_and_end_off_any_audio_fi | Coupez le début et la fin de n'importe quel fichier audio. Rien n'est réencodé, la qualité reste identique. | Herhangi bir ses dosyasının başını ve sonunu kesin. Yeniden kodlama yapılmaz, kalite aynen korunur.
+audio_opening | Ouverture… | Açılıyor…
+audio_start | Début | Başlangıç
+audio_end | Fin | Bitiş
+audio_pause | Pause | Duraklat
+audio_play_selection | Lire la sélection | Seçimi oynat
+audio_save_trimmed_copy | Enregistrer une copie découpée | Kırpılmış kopyayı kaydet
+audio_choose_songs | Choisir des chansons | Şarkı seçin
+audio_choose_a_song | Choisir une chanson | Bir şarkı seçin
+audio_add | Ajouter %1$s | %1$s tanesini ekle
+audio_allow_access_to_music_to_list_your_son | Autorisez l'accès à la musique pour voir vos chansons ici, ou touchez Fichiers pour parcourir. | Şarkılarınızı burada görmek için müzik erişimine izin verin ya da göz atmak için Dosyalar'a dokunun.
+audio_loading_songs | Chargement des chansons… | Şarkılar yükleniyor…
+audio_no_songs_found_tap_files_to_browse | Aucune chanson trouvée. Touchez Fichiers pour parcourir. | Şarkı bulunamadı. Göz atmak için Dosyalar'a dokunun.
+audio_no_songs_match | Aucune chanson ne correspond à « %1$s ». | "%1$s" ile eşleşen şarkı yok.
+audio_ffmpeg_stopped_with_code | FFmpeg s'est arrêté avec le code %1$s | FFmpeg %1$s koduyla durdu
+audio_that_file_doesn_t_look_like_audio | Ce fichier ne semble pas être de l'audio | Bu dosya bir ses dosyasına benzemiyor
+audio_merged |  (fusionné) |  (birleştirildi)
+audio_merging_failed | Échec de la fusion | Birleştirme başarısız
+audio_trimmed |  (découpé) |  (kırpıldı)
+audio_trimming_failed | Échec du découpage | Kırpma başarısız
+reader_documents | Documents | Belgeler
+reader_make_it_your_default | En faire l'appli par défaut | Varsayılan yapın
+reader_open_any_pdf_in_my_files_choose_one_re | Ouvrez un PDF dans Mes fichiers, choisissez One Reader, puis touchez « Toujours ». | Dosyalarım'da herhangi bir PDF açın, One Reader'ı seçin ve "Her zaman"a dokunun.
+reader_clear_recents | Effacer les récents | Son kullanılanları temizleyin
+reader_tap_the_bin_beside_a_document_to_take | Touchez la corbeille à côté d'un document pour le retirer des récents, ou appuyez longuement pour en sélectionner plusieurs. Seule la liste est effacée ; les fichiers restent où ils sont. | Bir belgeyi Son kullanılanlar'dan çıkarmak için yanındaki çöp kutusuna dokunun ya da birkaçını seçmek için uzun basın. Yalnızca liste temizlenir; dosyalar yerinde kalır.
+reader_open_file | Ouvrir un fichier | Dosya aç
+reader_pdf_word_and_text_files | Fichiers PDF, Word et texte | PDF, Word ve metin dosyaları
+reader_removed_from_recents | Retiré des récents | Son kullanılanlardan kaldırıldı
+reader_removed_from_recents_2 | %1$s retirés des récents | %1$s belge son kullanılanlardan kaldırıldı
+reader_undo | Annuler | Geri al
+reader_recent | Récents | Son kullanılanlar
+reader_good_utilities_documents | Documents Good Utilities | Good Utilities belgeleri
+reader_documents_you_open_show_up_here_with_t | Les documents que vous ouvrez apparaissent ici, avec la page où vous en étiez. | Açtığınız belgeler, kaldığınız sayfayla birlikte burada görünür.
+reader_can_t_open_file | Impossible d'ouvrir le fichier | Dosya açılamıyor
+reader_was_moved_or_deleted_or_one_reader_no | « %1$s » a été déplacé ou supprimé, ou One Reader n'y a plus accès. Le retirer des récents ? | "%1$s" taşınmış ya da silinmiş veya One Reader'ın artık erişimi yok. Son kullanılanlardan kaldırılsın mı?
+reader_remove_from_recents | Retirer des récents | Son kullanılanlardan kaldır
+reader_page_of | Page %1$s sur %2$s · %3$s | Sayfa %1$s / %2$s · %3$s
+reader_just_now | à l'instant | şimdi
+reader_no_results | Aucun résultat | Sonuç yok
+reader_go_to_page | Aller à la page | Sayfaya git
+reader_contents | Sommaire | İçindekiler
+reader_turn_off_night_mode | Désactiver le mode nuit | Gece modunu kapat
+reader_night_mode | Mode nuit | Gece modu
+reader_allow_screen_to_turn_off | Autoriser la mise en veille de l'écran | Ekranın kapanmasına izin ver
+reader_keep_screen_on | Garder l'écran allumé | Ekranı açık tut
+reader_single_page | Page par page | Tek sayfa
+reader_continuous_scroll | Défilement continu | Sürekli kaydırma
+reader_rotate_to_portrait | Passer en portrait | Dikey konuma döndür
+reader_rotate_to_landscape | Passer en paysage | Yatay konuma döndür
+reader_copy_page_text | Copier le texte de la page | Sayfa metnini kopyala
+reader_no_text_on_this_page | Aucun texte sur cette page | Bu sayfada metin yok
+reader_edit_in_pdf_editor | Modifier dans l'Éditeur PDF | PDF düzenleyicide düzenle
+reader_loaded_in_pdf_editor | Ouvert dans l'Éditeur PDF | PDF düzenleyicide açıldı
+reader_file_info | Infos du fichier | Dosya bilgisi
+reader_copy | Copier | Kopyala
+reader_select_all_on_page | Tout sélectionner sur la page | Sayfadakilerin tümünü seç
+reader_go | Aller | Git
+reader_page_1 | Page 1 – %1$s | Sayfa 1 – %1$s
+reader_close_search | Fermer la recherche | Aramayı kapat
+reader_previous_result | Résultat précédent | Önceki sonuç
+reader_next_result | Résultat suivant | Sonraki sonuç
+reader_password_required | Mot de passe requis | Şifre gerekli
+reader_is_protected_enter_its_password_to_ope | « %1$s » est protégé. Saisissez son mot de passe pour l'ouvrir. | "%1$s" korumalı. Açmak için şifresini girin.
+reader_password | Mot de passe | Şifre
+reader_wrong_password_try_again | Mot de passe incorrect. Réessayez. | Yanlış şifre. Yeniden deneyin.
+reader_name | Nom | Ad
+reader_size | Taille | Boyut
+reader_pdf_document | Document PDF | PDF belgesi
+reader_word_document | Document Word | Word belgesi
+reader_markdown | Markdown | Markdown
+reader_plain_text | Texte brut | Düz metin
+reader_pages | Pages | Sayfalar
+reader_title | Titre | Başlık
+reader_author | Auteur | Yazar
+reader_can_t_share_this_file | Impossible de partager ce fichier | Bu dosya paylaşılamıyor
+reader_copied | Copié | Kopyalandı
+reader_no_document | Aucun document | Belge yok
+reader_there_s_nothing_to_show_open_a_pdf_wor | Rien à afficher. Ouvrez un fichier PDF, Word ou texte. | Gösterilecek bir şey yok. Bir PDF, Word veya metin dosyası açın.
+reader_preparing_document | Préparation du document… | Belge hazırlanıyor…
+reader_file_too_large | Fichier trop volumineux | Dosya çok büyük
+reader_this_document_is_too_big_to_open_on_th | Ce document est trop volumineux pour être ouvert sur cet appareil. | Bu belge bu cihazda açılamayacak kadar büyük.
+reader_can_t_open_this_file | Impossible d'ouvrir ce fichier | Bu dosya açılamıyor
+reader_the_file_couldn_t_be_read_it_may_be_da | Le fichier n'a pas pu être lu. Il est peut-être endommagé ou n'est plus disponible. | Dosya okunamadı. Hasarlı olabilir ya da artık mevcut olmayabilir.
+reader_no_permission | Aucune autorisation | İzin yok
+reader_one_reader_isn_t_allowed_to_open_this | One Reader n'a plus le droit d'ouvrir ce fichier. Choisissez-le à nouveau dans la liste des fichiers. | One Reader'ın bu dosyayı açma izni artık yok. Dosya listesinden yeniden seçin.
+reader_can_t_read_this_file | Impossible de lire ce fichier | Bu dosya okunamıyor
+reader_couldn_t_be_read_it_may_have_been_move | « %1$s » n'a pas pu être lu. Il a peut-être été déplacé ou supprimé. | "%1$s" okunamadı. Taşınmış ya da silinmiş olabilir.

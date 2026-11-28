@@ -1,5 +1,7 @@
 package com.tools.app.apk
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.ApplicationInfo
@@ -78,7 +80,7 @@ object ApkTools {
 
     /** Zips base + splits as .apks (installable with SAI and similar). Keeps Play's signature. */
     suspend fun exportApks(context: Context, app: InstalledApp, onStep: (String) -> Unit): String = withContext(Dispatchers.IO) {
-        onStep("Packing ${app.splits.size + 1} parts…")
+        onStep(t(R.string.apk_packing_parts, app.splits.size + 1))
         val out = File(work(context), "bundle.apks")
         ZipOutputStream(out.outputStream().buffered()).use { zip ->
             zip.setLevel(0) // APKs are already compressed
@@ -88,7 +90,7 @@ object ApkTools {
                 zip.closeEntry()
             }
         }
-        onStep("Saving…")
+        onStep(t(R.string.video_saving))
         save(context, out, fileName(app, "apks")).also { out.delete() }
     }
 
@@ -102,7 +104,7 @@ object ApkTools {
     suspend fun merge(context: Context, app: InstalledApp, onStep: (String) -> Unit): String = withContext(Dispatchers.IO) {
         val parts = freshParts(context)
         try {
-            onStep("Copying ${app.splits.size + 1} parts…")
+            onStep(t(R.string.apk_copying_parts, app.splits.size + 1))
             app.base.copyTo(File(parts, "base.apk"), overwrite = true)
             app.splits.forEach { it.copyTo(File(parts, it.name), overwrite = true) }
             mergeParts(context, parts, onStep) { fileName(app, "apk") }
@@ -118,9 +120,9 @@ object ApkTools {
     suspend fun mergeFile(context: Context, uri: android.net.Uri, onStep: (String) -> Unit): String = withContext(Dispatchers.IO) {
         val parts = freshParts(context)
         try {
-            onStep("Unpacking…")
+            onStep(t(R.string.apk_unpacking))
             var count = 0
-            val input = context.contentResolver.openInputStream(uri) ?: error("Couldn't open that file")
+            val input = context.contentResolver.openInputStream(uri) ?: error(t(R.string.audio_couldn_t_open_that_file))
             java.util.zip.ZipInputStream(input.buffered()).use { zip ->
                 while (true) {
                     val e = zip.nextEntry ?: break
@@ -132,9 +134,9 @@ object ApkTools {
             }
             when (count) {
                 0 -> error(if (bundleName(context, uri).endsWith(".apkm", true))
-                    "This .apkm is encrypted by APKMirror. Open it once in APKMirror Installer, or download the .apks version."
-                    else "No APK files inside. Pick a .apks, .xapk or .apkm bundle.")
-                1 -> onStep("Only one APK inside; re-saving it…")
+                    t(R.string.apk_this_apkm_is_encrypted_by_apkmirror_op)
+                    else t(R.string.apk_no_apk_files_inside_pick_a_apks_xapk_o))
+                1 -> onStep(t(R.string.apk_only_one_apk_inside_re_saving_it))
             }
             mergeParts(context, parts, onStep) { pkg, version ->
                 val label = bundleName(context, uri).substringBeforeLast('.').ifBlank { pkg }
@@ -155,7 +157,7 @@ object ApkTools {
     /** ARSCLib merge → sanitize → sign → save. [name] gets the package name and version. */
     private fun mergeParts(context: Context, parts: File, onStep: (String) -> Unit, name: (String, String) -> String): String {
         val dir = work(context)
-        onStep("Merging splits…")
+        onStep(t(R.string.apk_merging_splits))
         val unsigned = File(dir, "merged-unsigned.apk")
         var pkg = ""; var version = ""
         val bundle = ApkBundle()
@@ -173,12 +175,12 @@ object ApkTools {
         } finally { bundle.close() }
         parts.deleteRecursively()
 
-        onStep("Signing…")
+        onStep(t(R.string.apk_signing))
         val signed = File(dir, "merged.apk")
         sign(unsigned, signed)
         unsigned.delete()
 
-        onStep("Saving…")
+        onStep(t(R.string.video_saving))
         return save(context, signed, name(pkg, version)).also { signed.delete() }
     }
 

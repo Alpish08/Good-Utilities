@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -59,43 +61,43 @@ fun BatteryScreen(onBack: () -> Unit, onGuide: () -> Unit = {}) {
     val dateFmt = java.time.format.DateTimeFormatter.ofLocalizedDate(java.time.format.FormatStyle.MEDIUM)
     val n = NumberFormat.getIntegerInstance()
 
-    OneUiScaffold(title = "Battery info", onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf("Setup guide" to onGuide, com.tools.app.ui.tipsItem(listOf(
+    OneUiScaffold(title = t(R.string.home_battery_info), onBack = onBack, actions = { com.tools.app.ui.OverflowMenu(listOf(t(R.string.lock_setup_guide) to onGuide, com.tools.app.ui.tipsItem(listOf(
         if (now.samsung == null) com.tools.app.ui.Tip(
-            "Estimated health",
-            "Health is estimated from the fuel gauge (charge stored ÷ level), which reads a couple of points high on Galaxy phones. " +
-                "For Samsung's exact health and lifetime cycle count, connect your phone to your Mac and run sync-battery.sh.",
+            t(R.string.battery_estimated_health),
+            t(R.string.battery_health_is_estimated_from_the_fuel_gaug) +
+                t(R.string.battery_for_samsung_s_exact_health_and_lifetim),
         ) else com.tools.app.ui.Tip(
-            "Samsung's figures",
-            "Health and cycles are Samsung's own (its fuel gauge's learned capacity as a share of the ${n.format(now.designMah)} mAh design), " +
-                "as of the last sync. Run sync-battery.sh again every few weeks to refresh them. Cycles include any previous owner's.",
+            t(R.string.battery_samsung_s_figures),
+            t(R.string.battery_health_and_cycles_are_samsung_s_own_it, n.format(now.designMah)) +
+                t(R.string.battery_as_of_the_last_sync_run_sync_battery_s),
         ),
     )))) }) {
         card(key = "hero") {
             Row(Modifier.padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
                 HealthRing(now.healthPercent)
                 Column(Modifier.padding(start = 22.dp)) {
-                    Text(if (now.healthIsSamsung) "Battery health" else "Estimated health", fontSize = 15.sp, color = c.textSecondary)
+                    Text(if (now.healthIsSamsung) t(R.string.battery_battery_health) else t(R.string.battery_estimated_health), fontSize = 15.sp, color = c.textSecondary)
                     val mah = if (now.healthIsSamsung) now.healthPercent?.let { now.designMah * it / 100 } else now.estimatedMah
                     Text(
-                        mah?.let { "${if (now.healthIsSamsung) "" else "≈ "}${n.format(it)} mAh" } ?: "Charge above 20% to estimate",
+                        mah?.let { "${if (now.healthIsSamsung) "" else "≈ "}${n.format(it)} mAh" } ?: t(R.string.battery_charge_above_20_to_estimate),
                         fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, modifier = Modifier.padding(top = 2.dp),
                     )
-                    Text("of ${n.format(now.designMah)} mAh when new", fontSize = 14.sp, color = c.textSecondary)
-                    now.totalCycles?.let { Text("${n.format(it)} charge cycles", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp)) }
+                    Text(t(R.string.battery_of_mah_when_new, n.format(now.designMah)), fontSize = 14.sp, color = c.textSecondary)
+                    now.totalCycles?.let { Text(t(R.string.battery_charge_cycles, n.format(it)), fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp)) }
                 }
             }
         }
 
-        sectionLabel("Right now")
+        sectionLabel(t(R.string.battery_right_now))
         val status = when {
-            now.charging -> "Charging" + (now.plugged?.let { " · $it" } ?: "")
-            now.plugged != null -> "Plugged in, not charging (${now.plugged})"
-            else -> "On battery"
+            now.charging -> t(R.string.charge_charging) + (now.plugged?.let { " · $it" } ?: "")
+            now.plugged != null -> t(R.string.battery_plugged_in_not_charging, now.plugged)
+            else -> t(R.string.charge_on_battery)
         }
         val currentText = now.currentMa?.let { ma ->
             val sign = if (ma > 0) "+" else if (ma < 0) "−" else ""
             "$sign${n.format(abs(ma))} mA" + (now.watts?.takeIf { it >= 0.05f }?.let { " · %.1f W".format(it) } ?: "")
-        } ?: "Not reported"
+        } ?: t(R.string.battery_not_reported)
         val tempColor = when {
             now.temperatureC >= 42f -> c.error
             now.temperatureC >= 38f -> com.tools.app.ui.theme.IconColors.Orange
@@ -103,26 +105,26 @@ fun BatteryScreen(onBack: () -> Unit, onGuide: () -> Unit = {}) {
         }
         cardList(
             listOf(
-                Triple("Level", "${now.level}%", null),
-                Triple("Status", status, null),
-                Triple("Current", currentText, null),
-                Triple("Temperature", "%.1f °C".format(now.temperatureC) + if (tempColor != null) " · warm" else "", tempColor),
-                Triple("Voltage", "%.2f V".format(now.voltageV), null),
+                Triple(t(R.string.battery_level), "${now.level}%", null),
+                Triple(t(R.string.battery_status), status, null),
+                Triple(t(R.string.battery_current), currentText, null),
+                Triple(t(R.string.battery_temperature), "%.1f °C".format(now.temperatureC) + if (tempColor != null) t(R.string.battery_warm) else "", tempColor),
+                Triple(t(R.string.battery_voltage), "%.2f V".format(now.voltageV), null),
             ),
             key = { "now-" + it.first },
         ) { (label, value, color) -> ListRow(label, summary = value, summaryColor = color) }
 
-        sectionLabel("Battery")
+        sectionLabel(t(R.string.battery_battery))
         cardList(
             listOfNotNull(
-                now.totalCycles?.let { "Charge cycles" to n.format(it) },
-                now.samsung?.let { "Samsung figures" to "Synced " + dateFmt.format(java.time.Instant.ofEpochMilli(it.syncedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate()) },
-                now.estimatedPercent?.takeIf { now.healthIsSamsung }?.let { "Today's estimate" to "≈ $it%" + if (now.samsung?.offset != null) " (adjusted to Samsung's)" else "" },
-                now.samsung?.firstUse?.let { "First used" to dateFmt.format(it) },
-                now.samsung?.made?.let { "Battery made" to dateFmt.format(it) },
-                "Condition" to now.health,
-                "Capacity when new" to "${n.format(now.designMah)} mAh typical · ${n.format(now.ratedMah)} mAh rated",
-                "Type" to now.technology,
+                now.totalCycles?.let { t(R.string.battery_charge_cycles_2) to n.format(it) },
+                now.samsung?.let { t(R.string.battery_samsung_figures) to t(R.string.battery_synced) + dateFmt.format(java.time.Instant.ofEpochMilli(it.syncedAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate()) },
+                now.estimatedPercent?.takeIf { now.healthIsSamsung }?.let { t(R.string.battery_today_s_estimate) to "≈ $it%" + if (now.samsung?.offset != null) t(R.string.battery_adjusted_to_samsung_s) else "" },
+                now.samsung?.firstUse?.let { t(R.string.battery_first_used) to dateFmt.format(it) },
+                now.samsung?.made?.let { t(R.string.battery_battery_made) to dateFmt.format(it) },
+                t(R.string.battery_condition) to now.health,
+                t(R.string.battery_capacity_when_new) to t(R.string.battery_mah_typical_mah_rated, n.format(now.designMah), n.format(now.ratedMah)),
+                t(R.string.video_type) to now.technology,
             ),
             key = { "bat-" + it.first },
         ) { (label, value) -> ListRow(label, summary = value) }

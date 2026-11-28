@@ -1,5 +1,8 @@
 package com.tools.app.pdf
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.PictureAsPdf
@@ -100,7 +103,7 @@ fun PdfEditorScreen(onBack: () -> Unit) {
         val uri = FileProvider.getUriForFile(context, "com.tools.app.files", f)
         val send = Intent(Intent.ACTION_SEND).setType("application/pdf")
             .putExtra(Intent.EXTRA_STREAM, uri).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        context.startActivity(Intent.createChooser(send, "Share PDF").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        context.startActivity(Intent.createChooser(send, t(R.string.pdf_share_pdf)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     val editItem = editing?.let { id -> s.pages.firstOrNull { it.id == id } }
@@ -123,13 +126,13 @@ fun PdfEditorScreen(onBack: () -> Unit) {
     val running = export is ExportState.Running
     val loaded = s.pages.isNotEmpty()
     ToolPage(
-        "PDF editor", onBack, expandable = loaded,
+        t(R.string.home_pdf_editor), onBack, expandable = loaded,
         actions = {
             if (loaded) {
-                ToolbarIcon(OneUiIcons.Share, "Share") { s.export(context, s.pages.toList(), "edited", share = true) }
+                ToolbarIcon(OneUiIcons.Share, t(R.string.video_share)) { s.export(context, s.pages.toList(), "edited", share = true) }
                 OverflowMenu(listOf(
-                    "Open another PDF" to { openOne.launch(pdfMime) },
-                    "Close PDF" to { s.close() },
+                    t(R.string.pdf_open_another_pdf) to { openOne.launch(pdfMime) },
+                    t(R.string.pdf_close_pdf) to { s.close() },
                 ))
             }
         },
@@ -137,11 +140,11 @@ fun PdfEditorScreen(onBack: () -> Unit) {
         if (!loaded) {
             Column(Modifier.weight(1f)) {
                 EmptyState(
-                    Icons.Rounded.PictureAsPdf, IconColors.Red, "Edit or create a PDF",
-                    "Reorder, rotate, split and merge pages, sign them, mark them up and add a password. Or turn photos into a PDF and draw on them.",
-                    if (s.busy != null) "Opening…" else "Open PDF",
+                    Icons.Rounded.PictureAsPdf, IconColors.Red, t(R.string.pdf_edit_or_create_a_pdf),
+                    t(R.string.pdf_reorder_rotate_split_and_merge_pages_s),
+                    if (s.busy != null) t(R.string.audio_opening) else t(R.string.pdf_open_pdf),
                     { if (s.busy == null) openOne.launch(pdfMime) },
-                    secondary = "Create from images" to { if (s.busy == null) pickImages.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                    secondary = t(R.string.pdf_create_from_images) to { if (s.busy == null) pickImages.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
                 )
             }
             s.notice?.let { Text(it.text, color = if (it.error) c.error else c.success, fontSize = 14.sp, modifier = Modifier.padding(24.dp, 8.dp)) }
@@ -180,22 +183,22 @@ fun PdfEditorScreen(onBack: () -> Unit) {
     s.passwordPrompt?.let { prompt ->
         var pw by remember(prompt) { mutableStateOf("") }
         OneUiDialog(
-            "Password needed", onDismiss = { s.answerPassword(null) }, dismissible = false,
-            buttons = listOf("Cancel" to { s.answerPassword(null) }, "Open" to { s.answerPassword(pw) }),
+            t(R.string.pdf_password_needed), onDismiss = { s.answerPassword(null) }, dismissible = false,
+            buttons = listOf(t(R.string.ui_cancel) to { s.answerPassword(null) }, t(R.string.video_open) to { s.answerPassword(pw) }),
         ) {
-            Text("\"${prompt.name}\" is protected. Enter its password to open it.", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
-            DialogField(pw, { pw = it }, "Password", password = true)
-            if (prompt.wrong) Text("That password didn't work. Try again.", fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp))
+            Text(t(R.string.reader_is_protected_enter_its_password_to_ope, prompt.name), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
+            DialogField(pw, { pw = it }, t(R.string.reader_password), password = true)
+            if (prompt.wrong) Text(t(R.string.pdf_that_password_didn_t_work_try_again), fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp))
         }
     }
 
     pendingImages?.let { uris ->
         OneUiDialog(
-            "Add ${uris.size} ${if (uris.size == 1) "image" else "images"}", onDismiss = { pendingImages = null },
-            buttons = listOf("Cancel" to { pendingImages = null }, "Add" to { s.addImages(context, uris, fitA4); pendingImages = null }),
+            tp(R.plurals.pdf_add_images, uris.size), onDismiss = { pendingImages = null },
+            buttons = listOf(t(R.string.ui_cancel) to { pendingImages = null }, t(R.string.pdf_add) to { s.addImages(context, uris, fitA4); pendingImages = null }),
         ) {
-            Text("Each image becomes its own page.", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
-            SegmentedControl(listOf("Fit to A4", "Image size"), if (fitA4) 0 else 1, { fitA4 = it == 0 })
+            Text(t(R.string.pdf_each_image_becomes_its_own_page), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp))
+            SegmentedControl(listOf(t(R.string.pdf_fit_to_a4), t(R.string.pdf_image_size)), if (fitA4) 0 else 1, { fitA4 = it == 0 })
         }
     }
 
@@ -204,14 +207,14 @@ fun PdfEditorScreen(onBack: () -> Unit) {
         var again by remember { mutableStateOf("") }
         var error by remember { mutableStateOf<String?>(null) }
         OneUiDialog(
-            "Password", onDismiss = { securityOpen = false },
+            t(R.string.reader_password), onDismiss = { securityOpen = false },
             buttons = buildList {
-                add("Cancel" to { securityOpen = false })
-                if (s.newPassword != null) add("Remove" to { s.newPassword = null; securityOpen = false })
-                add("Set" to {
+                add(t(R.string.ui_cancel) to { securityOpen = false })
+                if (s.newPassword != null) add(t(R.string.audio_remove) to { s.newPassword = null; securityOpen = false })
+                add(t(R.string.pdf_set) to {
                     when {
-                        pw.length < 4 -> error = "Use at least 4 characters."
-                        pw != again -> error = "The passwords don't match."
+                        pw.length < 4 -> error = t(R.string.pdf_use_at_least_4_characters)
+                        pw != again -> error = t(R.string.pdf_the_passwords_don_t_match)
                         else -> { s.newPassword = pw; securityOpen = false }
                     }
                 })
@@ -219,14 +222,14 @@ fun PdfEditorScreen(onBack: () -> Unit) {
         ) {
             Text(
                 buildString {
-                    append("Encrypts the saved copy with AES-256.")
-                    if (s.hadPassword) append(" The original's password is already removed from the copy; leave this unset to keep it that way.")
-                    if (s.newPassword != null) append("\nA password is set for the next save.")
+                    append(t(R.string.pdf_encrypts_the_saved_copy_with_aes_256))
+                    if (s.hadPassword) append(t(R.string.pdf_the_original_s_password_is_already_rem))
+                    if (s.newPassword != null) append(t(R.string.pdf_na_password_is_set_for_the_next_save))
                 },
                 fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(bottom = 12.dp),
             )
-            DialogField(pw, { pw = it; error = null }, "New password", password = true)
-            Box(Modifier.padding(top = 8.dp)) { DialogField(again, { again = it; error = null }, "Repeat password", password = true) }
+            DialogField(pw, { pw = it; error = null }, t(R.string.pdf_new_password), password = true)
+            Box(Modifier.padding(top = 8.dp)) { DialogField(again, { again = it; error = null }, t(R.string.pdf_repeat_password), password = true) }
             error?.let { Text(it, fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 8.dp)) }
         }
     }
@@ -291,27 +294,27 @@ private fun ActionCard(
     ) {
         Row(Modifier.padding(horizontal = 18.dp), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text(if (n == 0) "Tap pages to select" else "$n selected", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text)
-                Text("${s.pages.size} ${if (s.pages.size == 1) "page" else "pages"}${if (s.newPassword != null) " · password on save" else ""}", fontSize = 13.sp, color = c.textSecondary)
+                Text(if (n == 0) t(R.string.pdf_tap_pages_to_select) else t(R.string.ui_selected, n), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+                Text(tp(R.plurals.print_pages, s.pages.size) + if (s.newPassword != null) t(R.string.pdf_password_on_save) else "", fontSize = 13.sp, color = c.textSecondary)
             }
             Text(
-                if (n == s.pages.size) "Deselect all" else "Select all", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                if (n == s.pages.size) t(R.string.music_deselect_all) else t(R.string.music_select_all), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                 modifier = Modifier.clip(CircleShape).clickable { s.selectAll() }.padding(horizontal = 10.dp, vertical = 6.dp),
             )
         }
         Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PillButton("Rotate left", { s.rotate(-90) }, tonal = true, enabled = on, height = 40.dp)
-            PillButton("Rotate right", { s.rotate(90) }, tonal = true, enabled = on, height = 40.dp)
-            PillButton("Earlier", { s.moveSelected(true) }, tonal = true, enabled = on, height = 40.dp, icon = OneUiIcons.ChevronUp)
-            PillButton("Later", { s.moveSelected(false) }, tonal = true, enabled = on, height = 40.dp, icon = OneUiIcons.ChevronDown)
-            PillButton("Edit page", onEdit, tonal = true, enabled = n == 1 && idle, height = 40.dp)
-            PillButton("Extract", onExtract, tonal = true, enabled = on, height = 40.dp)
-            PillButton("Delete", { s.deleteSelected() }, tonal = true, enabled = on, height = 40.dp)
+            PillButton(t(R.string.pdf_rotate_left), { s.rotate(-90) }, tonal = true, enabled = on, height = 40.dp)
+            PillButton(t(R.string.pdf_rotate_right), { s.rotate(90) }, tonal = true, enabled = on, height = 40.dp)
+            PillButton(t(R.string.pdf_earlier), { s.moveSelected(true) }, tonal = true, enabled = on, height = 40.dp, icon = OneUiIcons.ChevronUp)
+            PillButton(t(R.string.pdf_later), { s.moveSelected(false) }, tonal = true, enabled = on, height = 40.dp, icon = OneUiIcons.ChevronDown)
+            PillButton(t(R.string.pdf_edit_page), onEdit, tonal = true, enabled = n == 1 && idle, height = 40.dp)
+            PillButton(t(R.string.pdf_extract), onExtract, tonal = true, enabled = on, height = 40.dp)
+            PillButton(t(R.string.pdf_delete), { s.deleteSelected() }, tonal = true, enabled = on, height = 40.dp)
         }
         Row(Modifier.horizontalScroll(rememberScrollState()).padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            PillButton("Add PDFs", onAddPdfs, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Add)
-            PillButton("Add images", onAddImages, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Image)
-            PillButton(if (s.newPassword != null) "Password: on" else "Password", onSecurity, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Lock)
+            PillButton(t(R.string.pdf_add_pdfs), onAddPdfs, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Add)
+            PillButton(t(R.string.pdf_add_images), onAddImages, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Image)
+            PillButton(if (s.newPassword != null) t(R.string.pdf_password_on) else t(R.string.reader_password), onSecurity, tonal = true, enabled = idle, height = 40.dp, icon = OneUiIcons.Lock)
         }
         Column(Modifier.padding(horizontal = 18.dp)) {
             val note = s.notice
@@ -320,7 +323,7 @@ private fun ActionCard(
                 export is ExportState.Running -> {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text("${export.label} ${(export.progress * 100).toInt()}%", fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.weight(1f))
-                        Text("Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                        Text(t(R.string.ui_cancel), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                             modifier = Modifier.clip(CircleShape).clickable { s.cancelExport() }.padding(horizontal = 10.dp, vertical = 4.dp))
                     }
                     ThinProgress(export.progress, Modifier.padding(top = 8.dp))
@@ -328,14 +331,14 @@ private fun ActionCard(
                 export is ExportState.Done -> Text(export.message, fontSize = 14.sp, color = c.success)
                 export is ExportState.Failed -> {
                     Text(export.message, fontSize = 14.sp, color = c.error)
-                    if (export.needsAccess) Text("Allow access", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                    if (export.needsAccess) Text(t(R.string.pdf_allow_access), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                         modifier = Modifier.padding(top = 4.dp).clip(CircleShape).clickable(onClick = onGrantAccess).padding(vertical = 4.dp))
                 }
                 note != null -> Text(note.text, fontSize = 14.sp, color = if (note.error) c.error else c.success)
             }
             Row(Modifier.padding(top = if (busy != null || export !is ExportState.Idle || note != null) 10.dp else 0.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                PillButton(if (running) "Working…" else "Save a copy", onSave, Modifier.weight(1f), enabled = idle)
-                PillButton("Share", onShare, tonal = true, enabled = idle, icon = OneUiIcons.Share)
+                PillButton(if (running) t(R.string.pdf_working) else t(R.string.pdf_save_a_copy), onSave, Modifier.weight(1f), enabled = idle)
+                PillButton(t(R.string.video_share), onShare, tonal = true, enabled = idle, icon = OneUiIcons.Share)
             }
         }
     }

@@ -1,5 +1,7 @@
 package com.tools.app.battery
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -45,9 +47,9 @@ class BypassActionActivity : Activity() {
 
     companion object {
         fun toastOn(context: Context, level: Int) =
-            Toast.makeText(context, "Bypass charging on · holding at $level%", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, t(R.string.charge_bypass_charging_on_holding_at, level), Toast.LENGTH_SHORT).show()
 
         fun toastOff(context: Context) =
-            Toast.makeText(context, "Bypass charging off", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, t(R.string.charge_bypass_charging_off), Toast.LENGTH_SHORT).show()
     }
 }

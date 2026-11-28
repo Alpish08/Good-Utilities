@@ -1,5 +1,7 @@
 package com.tools.app.print
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
@@ -156,20 +158,20 @@ object PrintModels {
         val r = caps.stateReasons.map { it.removeSuffix("-error").removeSuffix("-warning").removeSuffix("-report") }.toSet()
         fun has(vararg k: String) = k.any { it in r }
         return when {
-            has("media-jam", "paper-jam") -> "Paper jam" to Tone.Error
-            has("media-empty", "media-needed", "input-tray-missing") -> "Out of paper" to Tone.Error
-            has("toner-empty", "marker-supply-empty") -> "Out of toner" to Tone.Error
-            has("cover-open", "door-open", "interlock-open") -> "Cover open" to Tone.Error
-            has("offline", "shutdown") -> "Offline" to Tone.Error
-            has("output-area-full", "output-tray-missing") -> "Output tray full" to Tone.Error
-            caps.state == Ipp.PRINTER_STOPPED -> "Stopped" to Tone.Error
-            !caps.acceptingJobs -> "Not accepting jobs" to Tone.Error
-            caps.state == Ipp.PRINTER_PROCESSING -> "Printing" to Tone.Busy
-            has("toner-low", "marker-supply-low") -> "Toner low" to Tone.Warn
-            has("media-low") -> "Paper low" to Tone.Warn
-            has("opc-life-over", "opc-near-eol", "drum-life-over", "drum-near-eol") -> "Ready · replace drum soon" to Tone.Warn
-            has("sleep", "standby") -> "Ready (sleeping)" to Tone.Ok
-            else -> "Ready" to Tone.Ok
+            has("media-jam", "paper-jam") -> t(R.string.print_paper_jam_2) to Tone.Error
+            has("media-empty", "media-needed", "input-tray-missing") -> t(R.string.print_out_of_paper_2) to Tone.Error
+            has("toner-empty", "marker-supply-empty") -> t(R.string.print_out_of_toner_2) to Tone.Error
+            has("cover-open", "door-open", "interlock-open") -> t(R.string.print_cover_open_2) to Tone.Error
+            has("offline", "shutdown") -> t(R.string.print_offline) to Tone.Error
+            has("output-area-full", "output-tray-missing") -> t(R.string.print_output_tray_full) to Tone.Error
+            caps.state == Ipp.PRINTER_STOPPED -> t(R.string.print_stopped) to Tone.Error
+            !caps.acceptingJobs -> t(R.string.print_not_accepting_jobs) to Tone.Error
+            caps.state == Ipp.PRINTER_PROCESSING -> t(R.string.print_printing_2) to Tone.Busy
+            has("toner-low", "marker-supply-low") -> t(R.string.print_toner_low) to Tone.Warn
+            has("media-low") -> t(R.string.print_paper_low) to Tone.Warn
+            has("opc-life-over", "opc-near-eol", "drum-life-over", "drum-near-eol") -> t(R.string.print_ready_replace_drum_soon) to Tone.Warn
+            has("sleep", "standby") -> t(R.string.print_ready_sleeping) to Tone.Ok
+            else -> t(R.string.print_ready) to Tone.Ok
         }
     }
 
@@ -204,18 +206,18 @@ object PrintModels {
     fun urfDpis(caps: PrinterCaps): List<Int> = caps.urfResolutions.ifEmpty { pwgDpis(caps) }
 
     fun friendlyIppError(status: Int, message: String?): String = when (status) {
-        0x0400 -> "The printer didn't understand the request."
-        0x0401, 0x0402 -> "The printer needs a login or doesn't allow this phone."
-        0x0404 -> "The printer couldn't find the print queue."
-        0x0405 -> "The printer is busy. Try again in a moment."
-        0x0406 -> "The printer doesn't know this job any more."
-        0x0409 -> "The document is too large for the printer."
-        0x040A, 0x040B -> "The printer doesn't accept this kind of document."
-        0x040C -> "The printer rejected some print settings."
-        0x0503 -> "The printer doesn't support this IPP version."
-        0x0504 -> "The printer is not accepting jobs right now."
-        0x0505 -> "The printer is busy. Try again in a moment."
-        0x0507 -> "The printer is not accepting jobs right now."
-        else -> message?.takeIf { it.isNotBlank() } ?: "The printer reported an error (0x${status.toString(16)})."
+        0x0400 -> t(R.string.print_the_printer_didn_t_understand_the_requ)
+        0x0401, 0x0402 -> t(R.string.print_the_printer_needs_a_login_or_doesn_t_a)
+        0x0404 -> t(R.string.print_the_printer_couldn_t_find_the_print_qu)
+        0x0405 -> t(R.string.print_the_printer_is_busy_try_again_in_a_mom)
+        0x0406 -> t(R.string.print_the_printer_doesn_t_know_this_job_any)
+        0x0409 -> t(R.string.print_the_document_is_too_large_for_the_prin)
+        0x040A, 0x040B -> t(R.string.print_the_printer_doesn_t_accept_this_kind_o)
+        0x040C -> t(R.string.print_the_printer_rejected_some_print_settin)
+        0x0503 -> t(R.string.print_the_printer_doesn_t_support_this_ipp_v)
+        0x0504 -> t(R.string.print_the_printer_is_not_accepting_jobs_righ)
+        0x0505 -> t(R.string.print_the_printer_is_busy_try_again_in_a_mom)
+        0x0507 -> t(R.string.print_the_printer_is_not_accepting_jobs_righ)
+        else -> message?.takeIf { it.isNotBlank() } ?: t(R.string.print_the_printer_reported_an_error_0x, status.toString(16))
     }
 }

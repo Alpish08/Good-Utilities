@@ -1,5 +1,7 @@
 package com.tools.app.dns
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
@@ -13,13 +15,13 @@ object PrivateDns {
     const val MODE_CUSTOM = "hostname"
     const val MODE_AUTO = "opportunistic"
 
-    val PRESETS = listOf(
-        "dns.adguard.com" to "AdGuard · blocks ads and trackers",
-        "dns.adguard-dns.com" to "AdGuard (new address)",
-        "one.one.one.one" to "Cloudflare · fast, no filtering",
-        "security.cloudflare-dns.com" to "Cloudflare · blocks malware",
-        "dns.quad9.net" to "Quad9 · blocks malware",
-        "base.dns.mullvad.net" to "Mullvad · no logging",
+    val PRESETS get() = listOf(
+        "dns.adguard.com" to t(R.string.dns_adguard_blocks_ads_and_trackers),
+        "dns.adguard-dns.com" to t(R.string.dns_adguard_new_address),
+        "one.one.one.one" to t(R.string.dns_cloudflare_fast_no_filtering),
+        "security.cloudflare-dns.com" to t(R.string.dns_cloudflare_blocks_malware),
+        "dns.quad9.net" to t(R.string.dns_quad9_blocks_malware),
+        "base.dns.mullvad.net" to t(R.string.dns_mullvad_no_logging),
     )
 
     fun canWrite(context: Context) = ChargeLimit.canWrite(context)

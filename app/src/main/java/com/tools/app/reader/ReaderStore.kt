@@ -1,5 +1,7 @@
 package com.tools.app.reader
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.net.Uri
 import android.provider.OpenableColumns
@@ -41,7 +43,7 @@ class DocInfo(val uri: Uri, val name: String, val size: Long, val kind: Kind) {
                     }
                 }
             }
-            val n = name ?: uri.lastPathSegment?.substringAfterLast('/') ?: "Document"
+            val n = name ?: uri.lastPathSegment?.substringAfterLast('/') ?: t(R.string.reader_document)
             return DocInfo(uri, n, size, kindOf(context, uri, n))
         }
 

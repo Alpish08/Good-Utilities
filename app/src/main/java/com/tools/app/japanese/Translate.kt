@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.common.model.RemoteModelManager
@@ -60,7 +62,7 @@ object Translate {
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (t: Throwable) {
-                _state.value = ModelState.Failed(t.message ?: "Download failed")
+                _state.value = ModelState.Failed(t.message ?: t(R.string.jp_download_failed_2))
             }
         }
     }

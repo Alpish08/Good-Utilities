@@ -1,5 +1,7 @@
 package com.tools.app.video
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.layout.widthIn
 import android.content.ClipboardManager
 import android.content.Intent
@@ -60,7 +62,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
     val busy = s.phase == VPhase.Downloading
 
     OneUiScaffold(
-        title = "Video downloader",
+        title = t(R.string.home_video_downloader),
         onBack = onBack,
         actions = { com.tools.app.ui.TipsMenu(VIDEO_TIPS) },
         bottomBar = bottomBar(s, engine.engine is EngineState.Ready),
@@ -73,26 +75,26 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
         }
         if (s.noAccess) card("noaccess") {
             ListRow(
-                "Storage access needed",
+                t(R.string.video_storage_access_needed),
                 summary = Storage.NoAccess().message,
                 summaryColor = OneUi.colors.error,
             )
             Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
                 val c = LocalContext.current
-                PillButton("Open settings", onClick = { c.startActivity(Storage.accessIntent(c)) }, modifier = Modifier.fillMaxWidth())
+                PillButton(t(R.string.video_open_settings), onClick = { c.startActivity(Storage.accessIntent(c)) }, modifier = Modifier.fillMaxWidth())
             }
         }
 
         when (val e = engine.engine) {
             EngineState.Preparing -> card("engine") {
                 ListRow(
-                    "Preparing download engine",
-                    summary = "Unpacking yt-dlp and FFmpeg. Only happens on first launch.",
+                    t(R.string.music_preparing_download_engine),
+                    summary = t(R.string.music_unpacking_yt_dlp_and_ffmpeg_only_happe),
                     trailing = { com.tools.app.ui.OneUiSpinner(Modifier.size(24.dp), color = OneUi.colors.accent, strokeWidth = 2.5.dp) },
                 )
             }
             is EngineState.Failed -> card("engine") {
-                ListRow("Download engine failed to start", summary = e.message, summaryColor = OneUi.colors.error)
+                ListRow(t(R.string.music_download_engine_failed_to_start), summary = e.message, summaryColor = OneUi.colors.error)
             }
             else -> Unit
         }
@@ -101,7 +103,7 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
         when {
             s.phase == VPhase.Fetching -> card("fetching") {
                 ListRow(
-                    "Reading link…",
+                    t(R.string.music_reading_link),
                     summary = s.link,
                     leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(28.dp), color = OneUi.colors.accent, strokeWidth = 3.dp) },
                 )
@@ -118,10 +120,10 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
                 }
                 if (info.multi && info.items.size > 1 && s.phase != VPhase.Finished) {
                     val allSelected = s.selected.size == info.items.size
-                    sectionLabel("Videos", key = "videos-label", trailing = if (s.phase == VPhase.Ready) {
+                    sectionLabel(t(R.string.video_videos), key = "videos-label", trailing = if (s.phase == VPhase.Ready) {
                         {
                             Text(
-                                if (allSelected) "Deselect all" else "Select all",
+                                if (allSelected) t(R.string.music_deselect_all) else t(R.string.music_select_all),
                                 color = OneUi.colors.accent, fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.clip(RoundedCornerShape(8.dp)).clickable { VideoDownloader.selectAll(!allSelected) }.padding(8.dp),
                             )
@@ -136,10 +138,10 @@ fun VideoDownloaderScreen(onBack: () -> Unit) {
 }
 
 private val VIDEO_TIPS get() = listOf(
-    com.tools.app.ui.Tip("Supported sites", "YouTube, TikTok, Instagram, X, Reddit, Facebook, Vimeo and more."),
-    com.tools.app.ui.Tip("Share from any app", "Tap Share → Video downloader on a video or post, or paste its link."),
-    com.tools.app.ui.Tip("Saved to ${Storage.label(Storage.Folder.Videos)}", "Ready in Samsung Gallery and any player."),
-    com.tools.app.ui.Tip("Audio only", "M4A and MP3 get the cover art embedded. Saved to ${Storage.label(Storage.Folder.Audio)}."),
+    com.tools.app.ui.Tip(t(R.string.video_supported_sites), t(R.string.video_youtube_tiktok_instagram_x_reddit_face)),
+    com.tools.app.ui.Tip(t(R.string.video_share_from_any_app), t(R.string.video_tap_share_video_downloader_on_a_video)),
+    com.tools.app.ui.Tip(t(R.string.video_saved_to, Storage.label(Storage.Folder.Videos)), t(R.string.video_ready_in_samsung_gallery_and_any_playe)),
+    com.tools.app.ui.Tip(t(R.string.video_audio_only), t(R.string.video_m4a_and_mp3_get_the_cover_art_embedded, Storage.label(Storage.Folder.Audio))),
 )
 
 @Composable
@@ -150,7 +152,7 @@ private fun LinkCard(s: VState) {
     val busy = s.phase == VPhase.Downloading
     RoundCard {
         Column(Modifier.padding(start = 20.dp, end = 14.dp, top = 18.dp, bottom = 6.dp)) {
-            Text("Video link", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+            Text(t(R.string.video_video_link), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.text)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 BasicTextField(
                     value = s.link,
@@ -164,13 +166,13 @@ private fun LinkCard(s: VState) {
                     modifier = Modifier.weight(1f).padding(vertical = 12.dp),
                     decorationBox = { inner ->
                         Box {
-                            if (s.link.isEmpty()) Text("Paste a link", fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
+                            if (s.link.isEmpty()) Text(t(R.string.video_paste_a_link), fontSize = 16.sp, color = c.textSecondary.copy(alpha = 0.7f))
                             inner()
                         }
                     },
                 )
-                if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, "Clear") { VideoDownloader.reset() }
-                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, "Paste") {
+                if (s.link.isNotEmpty() && !busy) ToolbarIcon(OneUiIcons.Close, t(R.string.about_clear)) { VideoDownloader.reset() }
+                else if (!busy) ToolbarIcon(OneUiIcons.ContentPaste, t(R.string.music_paste)) {
                     val clip = context.getSystemService(ClipboardManager::class.java).primaryClip
                     val text = clip?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()
                     if (!text.isNullOrBlank()) { focus.clearFocus(); VideoDownloader.fetch(text) }
@@ -195,7 +197,7 @@ private fun PreviewCard(info: VInfo) {
                 if (info.uploader.isNotBlank()) Text(info.uploader, fontSize = 14.sp, color = c.textSecondary, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 2.dp))
                 val meta = listOfNotNull(
                     info.site.ifBlank { null },
-                    if (info.multi && info.items.size > 1) "${info.items.size} videos" else null,
+                    if (info.multi && info.items.size > 1) t(R.string.video_videos_2, info.items.size) else null,
                     info.durationSec?.takeIf { it > 0 }?.let(::formatDuration),
                 ).joinToString(" · ")
                 if (meta.isNotEmpty()) Text(meta, fontSize = 14.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
@@ -224,14 +226,14 @@ private fun ItemRow(item: VItem, s: VState) {
 }
 
 private fun androidx.compose.foundation.lazy.LazyListScope.optionCards(s: VState, info: VInfo) {
-    sectionLabel("Type")
+    sectionLabel(t(R.string.video_type))
     card("type") {
         Box(Modifier.padding(14.dp)) {
-            SegmentedControl(listOf("Video", "Audio only"), selected = if (s.audioOnly) 1 else 0, onSelect = { VideoDownloader.setAudioOnly(it == 1) })
+            SegmentedControl(listOf(t(R.string.video_video), t(R.string.video_audio_only)), selected = if (s.audioOnly) 1 else 0, onSelect = { VideoDownloader.setAudioOnly(it == 1) })
         }
     }
     if (s.audioOnly) {
-        sectionLabel("Format")
+        sectionLabel(t(R.string.video_format))
         card("audioFormat") {
             Row(Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 for ((id, label) in listOf("m4a" to "M4A", "mp3" to "MP3", "opus" to "Opus")) {
@@ -242,7 +244,7 @@ private fun androidx.compose.foundation.lazy.LazyListScope.optionCards(s: VState
     } else {
         val heights = info.heights
         if (heights.isNotEmpty()) {
-            sectionLabel("Quality")
+            sectionLabel(t(R.string.video_quality))
             val rows = listOf(0) + heights.map { it.height }
             cardList(rows, key = { "q-$it" }, dividerStart = 16.dp) { h ->
                 val fmt = heights.firstOrNull { it.height == h } ?: heights.first()
@@ -254,8 +256,8 @@ private fun androidx.compose.foundation.lazy.LazyListScope.optionCards(s: VState
                 val size = if (sizes.isNotEmpty() && sizes.all { it != null }) "~" + formatSize(sizes.sumOf { it!! }) else null
                 val fps = if (fmt.fps >= 50) "${fmt.fps} fps" else null
                 ListRow(
-                    title = if (h == 0) "Best available" else "${fmt.shortSide}p",
-                    summary = (if (h == 0) listOfNotNull("Up to ${fmt.shortSide}p", size, fps) else listOfNotNull(size, fps)).joinToString(" · ").ifBlank { null },
+                    title = if (h == 0) t(R.string.video_best_available) else "${fmt.shortSide}p",
+                    summary = (if (h == 0) listOfNotNull(t(R.string.video_up_to_p, fmt.shortSide), size, fps) else listOfNotNull(size, fps)).joinToString(" · ").ifBlank { null },
                     onClick = { VideoDownloader.setQuality(h) },
                     trailing = { RadioDot(s.quality == h) },
                 )
@@ -263,9 +265,9 @@ private fun androidx.compose.foundation.lazy.LazyListScope.optionCards(s: VState
         }
         card("compatible") {
             ListRow(
-                "Compatible format",
-                summary = if (s.compatible) "H.264 + AAC in MP4. Plays everywhere, including Samsung Gallery."
-                else "Best quality in any codec (VP9, AV1). Some players can't open it.",
+                t(R.string.video_compatible_format),
+                summary = if (s.compatible) t(R.string.video_h_264_aac_in_mp4_plays_everywhere_incl)
+                else t(R.string.video_best_quality_in_any_codec_vp9_av1_some),
                 onClick = { VideoDownloader.setCompatible(!s.compatible) },
                 trailing = { OneUiSwitch(s.compatible) },
             )
@@ -279,7 +281,7 @@ private fun ProgressCard(s: VState) {
     RoundCard {
         Column(Modifier.padding(20.dp)) {
             Text(
-                if (s.total > 1) "Downloading ${s.current} of ${s.total}" else s.status.removeSuffix("…").ifBlank { "Downloading" } + "…",
+                if (s.total > 1) t(R.string.music_downloading_of, s.current, s.total) else s.status.removeSuffix("…").ifBlank { t(R.string.video_downloading) } + "…",
                 fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text,
             )
             ThinProgress(s.progress, Modifier.padding(top = 12.dp))
@@ -300,18 +302,18 @@ private fun FinishedCard(s: VState) {
     val context = LocalContext.current
     RoundCard {
         ListRow(
-            "Saved to ${s.savedLabel}",
-            summary = (s.saved.map { it.name } + listOfNotNull(if (s.failed > 0) "${s.failed} failed" + (s.error?.let { ": $it" } ?: "") else null)).joinToString("\n"),
+            t(R.string.video_saved_to, s.savedLabel),
+            summary = (s.saved.map { it.name } + listOfNotNull(if (s.failed > 0) t(R.string.video_failed, s.failed) + (s.error?.let { ": $it" } ?: "") else null)).joinToString("\n"),
             leading = { Icon(OneUiIcons.CheckCircle, null, tint = c.accent, modifier = Modifier.size(32.dp)) },
         )
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, bottom = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             val uris = s.saved.mapNotNull { it.uri }
-            if (s.saved.size == 1 && uris.size == 1) PillButton("Open", tonal = true, icon = OneUiIcons.PlayArrow, modifier = Modifier.weight(1f), onClick = {
+            if (s.saved.size == 1 && uris.size == 1) PillButton(t(R.string.video_open), tonal = true, icon = OneUiIcons.PlayArrow, modifier = Modifier.weight(1f), onClick = {
                 val f = s.saved[0]
                 val intent = Intent(Intent.ACTION_VIEW).setDataAndType(f.uri, f.mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                runCatching { context.startActivity(intent) }.onFailure { Toast.makeText(context, "No app can open this file", Toast.LENGTH_SHORT).show() }
+                runCatching { context.startActivity(intent) }.onFailure { Toast.makeText(context, t(R.string.video_no_app_can_open_this_file), Toast.LENGTH_SHORT).show() }
             })
-            if (uris.isNotEmpty()) PillButton("Share", tonal = true, icon = OneUiIcons.Share, modifier = Modifier.weight(1f), onClick = {
+            if (uris.isNotEmpty()) PillButton(t(R.string.video_share), tonal = true, icon = OneUiIcons.Share, modifier = Modifier.weight(1f), onClick = {
                 val mime = s.saved.map { it.mime.substringBefore('/') }.distinct().singleOrNull()?.let { "$it/*" } ?: "*/*"
                 val intent = if (uris.size == 1) Intent(Intent.ACTION_SEND).putExtra(Intent.EXTRA_STREAM, uris[0])
                 else Intent(Intent.ACTION_SEND_MULTIPLE).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))
@@ -327,17 +329,17 @@ private fun bottomBar(s: VState, engineReady: Boolean): (@Composable () -> Unit)
         {
             val n = s.selected.size
             PillButton(
-                if (n > 1) "Download $n videos" else "Download",
+                if (n > 1) t(R.string.video_download_videos, n) else t(R.string.video_download),
                 onClick = VideoDownloader::download, enabled = n > 0 && engineReady,
                 icon = OneUiIcons.Download, modifier = Modifier.fillMaxWidth(),
             )
         }
     }
     VPhase.Downloading -> {
-        { PillButton("Cancel", onClick = VideoDownloader::cancel, tonal = true, modifier = Modifier.fillMaxWidth()) }
+        { PillButton(t(R.string.ui_cancel), onClick = VideoDownloader::cancel, tonal = true, modifier = Modifier.fillMaxWidth()) }
     }
     VPhase.Finished -> {
-        { PillButton("New link", onClick = VideoDownloader::reset, modifier = Modifier.fillMaxWidth()) }
+        { PillButton(t(R.string.music_new_link), onClick = VideoDownloader::reset, modifier = Modifier.fillMaxWidth()) }
     }
     else -> null
 }

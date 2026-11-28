@@ -1,5 +1,6 @@
 package com.tools.app
 
+import com.tools.app.ui.t
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -141,9 +142,9 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
                     androidx.compose.runtime.CompositionLocalProvider(com.tools.app.ui.theme.LocalGlowStyle provides glowFor(s.last())) {
                     when (s.last()) {
                         Route.Home -> HomeScreen(home, open = { r ->
-                            if (r == Route.AppLock) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open App lock") { push(r) }
+                            if (r == Route.AppLock) com.tools.app.applock.confirmIdentity(this@MainActivity, t(R.string.main_open_app_lock)) { push(r) }
                             // ID cards asks for your fingerprint or PIN every time, like App lock.
-                            else if (r == Route.IdCards) com.tools.app.applock.confirmIdentity(this@MainActivity, "Open Virtual cards") { push(r) }
+                            else if (r == Route.IdCards) com.tools.app.applock.confirmIdentity(this@MainActivity, t(R.string.main_open_virtual_cards)) { push(r) }
                             // Briefs is its own window (and launcher icon), like the Document reader's files.
                             else if (r == Route.Briefs) startActivity(Intent(this@MainActivity, com.tools.app.briefs.BriefsActivity::class.java))
                             else push(r)
@@ -243,7 +244,7 @@ class MainActivity : androidx.fragment.app.FragmentActivity() {
             if (bytes != null) {
                 com.tools.app.idcards.IdStore.pendingShare.value = bytes
                 window.decorView.post {
-                    com.tools.app.applock.confirmIdentity(this, "Add to Virtual cards") { stack = "Home,IdCards" }
+                    com.tools.app.applock.confirmIdentity(this, t(R.string.main_add_to_virtual_cards)) { stack = "Home,IdCards" }
                 }
             }
             return

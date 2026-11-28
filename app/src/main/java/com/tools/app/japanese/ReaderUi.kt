@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.material.icons.rounded.GTranslate
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -121,7 +123,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
             state = OcrState.Done
         } catch (t: Throwable) {
             if (t is kotlinx.coroutines.CancellationException) throw t
-            state = OcrState.Failed(t.message ?: "Couldn't read this image")
+            state = OcrState.Failed(t.message ?: t(R.string.jp_couldn_t_read_this_image))
         }
     }
 
@@ -165,7 +167,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
         tr = TrState.Loading
         tr = try { TrState.Done(Translate.translate(t)) } catch (e: Throwable) {
             if (e is kotlinx.coroutines.CancellationException) throw e
-            TrState.Failed(e.message ?: "Translation failed")
+            TrState.Failed(e.message ?: t(R.string.jp_translation_failed))
         }
     }
 
@@ -176,18 +178,18 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
     }
 
     val menu = listOf<Pair<String, () -> Unit>>(
-        (if (JpPrefs.romaji) "Hide romaji" else "Show romaji") to { JpPrefs.changeRomaji(!JpPrefs.romaji) },
-        "Copy all text" to {
+        (if (JpPrefs.romaji) t(R.string.jp_hide_romaji) else t(R.string.jp_show_romaji)) to { JpPrefs.changeRomaji(!JpPrefs.romaji) },
+        t(R.string.jp_copy_all_text) to {
             val all = ocr?.lines?.joinToString("\n") { it.text }.orEmpty()
             if (all.isNotEmpty()) {
-                ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("Japanese text", all))
-                Toast.makeText(ctx, "Copied", Toast.LENGTH_SHORT).show()
+                ctx.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText(t(R.string.jp_japanese_text), all))
+                Toast.makeText(ctx, t(R.string.reader_copied), Toast.LENGTH_SHORT).show()
             }
         },
-        "Dictionary" to { showSettings = true },
+        t(R.string.jp_dictionary) to { showSettings = true },
     )
 
-    OneUiScaffold(title = "Japanese reader", onBack = onClose, expandedTitle = false, actions = { OverflowMenu(menu) }) {
+    OneUiScaffold(title = t(R.string.home_japanese_reader), onBack = onClose, expandedTitle = false, actions = { OverflowMenu(menu) }) {
         item(key = "image") {
             val bmp = bitmap
             if (bmp != null) ImageCard(bmp, ocr, sel, wholeBlock) { selected = it }
@@ -201,22 +203,22 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
         val st = state
         when {
             st is OcrState.Reading -> card("status") {
-                ListRow("Reading text…", leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(22.dp), strokeWidth = 2.dp) })
+                ListRow(t(R.string.jp_reading_text), leading = { com.tools.app.ui.OneUiSpinner(Modifier.size(22.dp), strokeWidth = 2.dp) })
             }
-            st is OcrState.Failed -> card("status") { ListRow("Couldn't read this image", summary = st.message, summaryColor = OneUi.colors.error) }
-            o != null && o.lines.isEmpty() -> description("No Japanese text found in this picture.", key = "status")
-            sel == null -> description("Tap a line in the picture", key = "status")
+            st is OcrState.Failed -> card("status") { ListRow(t(R.string.jp_couldn_t_read_this_image), summary = st.message, summaryColor = OneUi.colors.error) }
+            o != null && o.lines.isEmpty() -> description(t(R.string.jp_no_japanese_text_found_in_this_picture), key = "status")
+            sel == null -> description(t(R.string.jp_tap_a_line_in_the_picture), key = "status")
         }
 
         if (sel != null && text != null) {
             if (blockCount > 1) item(key = "scope") {
                 Box(Modifier.padding(horizontal = CardMargin + 6.dp, vertical = 6.dp)) {
-                    SegmentedControl(listOf("This line", "Whole bubble"), if (wholeBlock) 1 else 0, { wholeBlock = it == 1 })
+                    SegmentedControl(listOf(t(R.string.jp_this_line), t(R.string.jp_whole_bubble)), if (wholeBlock) 1 else 0, { wholeBlock = it == 1 })
                 }
             }
             // Words first (what you look up most), then the sentence translation.
             val list = infos
-            sectionLabel("Words")
+            sectionLabel(t(R.string.jp_words))
             if (list == null) card("wordsLoading") { Box(Modifier.fillMaxWidth().padding(24.dp), contentAlignment = Alignment.Center) { com.tools.app.ui.OneUiSpinner(Modifier.size(22.dp), strokeWidth = 2.dp) } }
             else {
                 val rows = buildList {
@@ -224,13 +226,13 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                     val p = list.filter { it.word.isWord && it.word.isParticle }
                     if (p.isNotEmpty()) add(WordItem("particles", null, p))
                 }
-                if (rows.isEmpty()) description("No words in this line.", key = "noWords")
+                if (rows.isEmpty()) description(t(R.string.jp_no_words_in_this_line), key = "noWords")
                 else cardList(rows, key = { it.key }) { item ->
                     if (item.info != null) WordRow(item.info, installed, savedKeys, romajis?.getOrNull(item.info.idx).orEmpty(), dim = false)
                     else ParticleGroup(item.particles.orEmpty(), installed, savedKeys, romajis)
                 }
             }
-            sectionLabel("English")
+            sectionLabel(t(R.string.jp_english))
             card("english") {
                 Box(Modifier.padding(18.dp)) { TranslationBody(model, tr) }
                 // Google Translate's own floating card: online translation, pronunciation audio, alternatives.
@@ -238,8 +240,8 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
                     val ctx = LocalContext.current
                     com.tools.app.ui.CardDivider()
                     ListRow(
-                        "Google Translate",
-                        summary = "Listen, see alternatives, and get the online translation",
+                        t(R.string.jp_google_translate),
+                        summary = t(R.string.jp_listen_see_alternatives_and_get_the_on),
                         onClick = { GoogleTranslate.open(ctx, text) },
                     )
                 }
@@ -249,7 +251,7 @@ fun ReaderRoot(source: ReaderSource, onClose: () -> Unit) {
         }
 
         if (o != null && o.lines.isNotEmpty()) {
-            sectionLabel("All text" + if (o.vertical) " (vertical, right to left)" else "")
+            sectionLabel(t(R.string.jp_all_text) + if (o.vertical) t(R.string.jp_vertical_right_to_left) else "")
             cardList(o.lines.indices.toList(), key = { "line-$it" }) { i ->
                 ListRow(o.lines[i].text, onClick = { selected = i; wholeBlock = false })
             }
@@ -375,21 +377,21 @@ private fun TranslationBody(model: ModelState, tr: TrState) {
     val c = OneUi.colors
     when {
         model is ModelState.Downloading -> Column {
-            Text(if (model.wifiOnly) "Downloading the translation model (about 30 MB), waiting for Wi-Fi if needed…" else "Downloading the translation model (about 30 MB)…", fontSize = 14.sp, color = c.text)
+            Text(if (model.wifiOnly) t(R.string.jp_downloading_the_translation_model_abou) else t(R.string.jp_downloading_the_translation_model_abou_2), fontSize = 14.sp, color = c.text)
             Spacer(Modifier.height(10.dp))
             // ML Kit gives no byte progress, so this is indeterminate.
             com.tools.app.ui.ThinProgressIndeterminate(color = c.accent)
             if (model.wifiOnly) {
-                Text("Use mobile data instead", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(top = 10.dp, bottom = 4.dp))
+                Text(t(R.string.jp_use_mobile_data_instead), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(top = 10.dp, bottom = 4.dp))
             }
         }
         model is ModelState.Failed -> Column {
-            Text("Couldn't download the model: ${model.message}", fontSize = 14.sp, color = c.error)
-            Text("Try again", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(JpPrefs.wifiOnly) }.padding(vertical = 8.dp))
+            Text(t(R.string.jp_couldn_t_download_the_model, model.message), fontSize = 14.sp, color = c.error)
+            Text(t(R.string.jp_try_again), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.clickable { Translate.download(JpPrefs.wifiOnly) }.padding(vertical = 8.dp))
         }
         model !is ModelState.Ready || tr is TrState.Loading -> Row(verticalAlignment = Alignment.CenterVertically) {
             com.tools.app.ui.OneUiSpinner(Modifier.size(18.dp), strokeWidth = 2.dp); Spacer(Modifier.width(10.dp))
-            Text(if (model is ModelState.Ready) "Translating…" else "Preparing…", color = c.textSecondary, fontSize = 14.sp)
+            Text(if (model is ModelState.Ready) t(R.string.jp_translating) else t(R.string.music_preparing), color = c.textSecondary, fontSize = 14.sp)
         }
         tr is TrState.Failed -> Text(tr.message, fontSize = 14.sp, color = c.error)
         tr is TrState.Done -> Text(tr.text, fontSize = 16.sp, lineHeight = 23.sp, color = c.text)
@@ -405,14 +407,14 @@ private fun DictionaryHint() {
     LaunchedEffect(Unit) { DictJobs.refreshInfo() }
     val size = assets[JpPrefs.variant]?.size
     Column(Modifier.padding(horizontal = CardMargin, vertical = 10.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card).padding(18.dp)) {
-        Text("Meanings need the offline dictionary", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
+        Text(t(R.string.jp_meanings_need_the_offline_dictionary), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text)
         Spacer(Modifier.height(10.dp))
         when (val s = st) {
             is DictState.Working -> { ThinProgress(s.progress); Spacer(Modifier.height(6.dp)); Text("${(s.progress * 100).toInt()}%  ${s.stage}", fontSize = 13.sp, color = c.textSecondary) }
-            DictState.Checking -> Text("Checking the latest release…", fontSize = 13.sp, color = c.textSecondary)
+            DictState.Checking -> Text(t(R.string.jp_checking_the_latest_release), fontSize = 13.sp, color = c.textSecondary)
             else -> {
                 if (s is DictState.Failed) Text(s.message, fontSize = 13.sp, color = c.error, modifier = Modifier.padding(bottom = 8.dp))
-                PillButton("Download dictionary (~${formatMb(size ?: if (JpPrefs.variant == DictVariant.Full) 11_500_000L else 1_450_000L)})", { DictJobs.start(ctx, JpPrefs.variant) }, modifier = Modifier.fillMaxWidth())
+                PillButton(t(R.string.jp_download_dictionary, formatMb(size ?: if (JpPrefs.variant == DictVariant.Full) 11_500_000L else 1_450_000L)), { DictJobs.start(ctx, JpPrefs.variant) }, modifier = Modifier.fillMaxWidth())
             }
         }
     }
@@ -428,7 +430,7 @@ private fun ParticleGroup(particles: List<WordInfo>, installed: Boolean, savedKe
     var open by remember { mutableStateOf(false) }
     Column {
         ListRow(
-            "Particles (${particles.size})", summary = particles.joinToString("  ") { it.word.surface }.take(60),
+            t(R.string.jp_particles, particles.size), summary = particles.joinToString("  ") { it.word.surface }.take(60),
             trailing = { Icon(if (open) OneUiIcons.ChevronUp else OneUiIcons.ChevronDown, null, tint = c.textSecondary, modifier = Modifier.size(22.dp)) },
             onClick = { open = !open }, dimmed = true,
         )
@@ -467,7 +469,7 @@ private fun WordRow(info: WordInfo, installed: Boolean, savedKeys: Set<String>, 
     ) {
         Column(Modifier.weight(1f)) {
             RubyWord(w.segments, 26.sp)
-            Text(if (inflected) "${w.pos} · from ${w.base}" else w.pos, fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
+            Text(if (inflected) t(R.string.jp_from, w.pos, w.base) else w.pos, fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
             val reading = w.reading
             val showReading = reading.isNotEmpty() && reading != w.surface
             if (showReading || (JpPrefs.romaji && romaji.isNotEmpty())) {
@@ -481,16 +483,16 @@ private fun WordRow(info: WordInfo, installed: Boolean, savedKeys: Set<String>, 
             }
             Spacer(Modifier.height(6.dp))
             when {
-                e == null && !installed -> Text("Download the dictionary to see meanings", fontSize = 13.sp, color = c.textSecondary)
-                e == null -> Text("No dictionary entry", fontSize = 13.sp, color = c.textSecondary)
+                e == null && !installed -> Text(t(R.string.jp_download_the_dictionary_to_see_meaning), fontSize = 13.sp, color = c.textSecondary)
+                e == null -> Text(t(R.string.jp_no_dictionary_entry), fontSize = 13.sp, color = c.textSecondary)
                 !expanded -> Column {
                     e.senses.take(3).forEachIndexed { i, s ->
                         Text("${i + 1}  " + s.glosses.take(3).joinToString("; "), fontSize = 14.sp, lineHeight = 19.sp, color = c.text)
                     }
-                    if (e.senses.size > 3) Text("+${e.senses.size - 3} more, tap to expand", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
+                    if (e.senses.size > 3) Text(t(R.string.jp_more_tap_to_expand, e.senses.size - 3), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 2.dp))
                     // Same kana, different word: show the other likely ones (がっき → 学期 or 楽器).
                     if (info.alts.isNotEmpty()) Text(
-                        "Or: " + info.alts.joinToString(" · ") { a -> a.kanji.first() + "  " + (a.senses.firstOrNull()?.glosses?.firstOrNull() ?: "") },
+                        t(R.string.jp_or) + info.alts.joinToString(" · ") { a -> a.kanji.first() + "  " + (a.senses.firstOrNull()?.glosses?.firstOrNull() ?: "") },
                         fontSize = 13.5.sp, lineHeight = 18.sp, color = c.textSecondary, modifier = Modifier.padding(top = 6.dp),
                     )
                 }
@@ -502,9 +504,9 @@ private fun WordRow(info: WordInfo, installed: Boolean, savedKeys: Set<String>, 
                         Text("${i + 1}  " + s.glosses.joinToString("; "), fontSize = 14.sp, lineHeight = 19.sp, color = c.text, modifier = Modifier.padding(vertical = 1.dp))
                     }
                     val forms = (e.kanji + e.kana).filter { it != w.surface }
-                    if (forms.isNotEmpty()) Text("Also written: " + forms.take(8).joinToString("、"), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
+                    if (forms.isNotEmpty()) Text(t(R.string.jp_also_written) + forms.take(8).joinToString("、"), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
                     if (GoogleTranslate.installed(ctx)) Text(
-                        "Hear it in Google Translate", fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                        t(R.string.jp_hear_it_in_google_translate), fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                         modifier = Modifier.padding(top = 10.dp).clip(RoundedCornerShape(8.dp)).clickable { GoogleTranslate.open(ctx, w.base) }.padding(vertical = 4.dp),
                     )
                 }
@@ -519,7 +521,7 @@ private fun WordRow(info: WordInfo, installed: Boolean, savedKeys: Set<String>, 
         ) {
             Icon(
                 if (isSaved) Icons.Filled.Star else Icons.Outlined.StarBorder,
-                if (isSaved) "Remove from My words" else "Save to My words",
+                if (isSaved) t(R.string.jp_remove_from_my_words) else t(R.string.jp_save_to_my_words),
                 tint = if (isSaved) c.accent else c.textSecondary, modifier = Modifier.size(24.dp),
             )
         }

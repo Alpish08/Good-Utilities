@@ -1,5 +1,7 @@
 package com.tools.app.compress
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import androidx.compose.foundation.layout.Spacer
 import com.tools.app.ui.ColorIcon
 import com.tools.app.ui.theme.IconColors
@@ -96,11 +98,11 @@ fun CompressorScreen(onBack: () -> Unit) {
     )
 
     val hasFile = when (mode) { 0 -> video != null; 1 -> audio != null; else -> photos != null }
-    val noun = when (mode) { 0 -> "video"; 1 -> "audio"; else -> "photos" }
+    val chooseLabel = t(when (mode) { 0 -> R.string.compress_choose_video; 1 -> R.string.compress_choose_audio; else -> R.string.compress_choose_photos })
 
     ToolPage(
-        "Compressor", onBack,
-        actions = { if (hasFile && !running) ToolbarIcon(if (mode == 1) OneUiIcons.Music else OneUiIcons.Gallery, "Choose $noun", choose) },
+        t(R.string.home_compressor), onBack,
+        actions = { if (hasFile && !running) ToolbarIcon(if (mode == 1) OneUiIcons.Music else OneUiIcons.Gallery, chooseLabel, choose) },
     ) {
         ToolSplit(0.385f, top = { m ->
         // Top ~40%: the picked file.
@@ -116,19 +118,19 @@ fun CompressorScreen(onBack: () -> Unit) {
             }
             if (!hasFile) {
                 Text(
-                    when (mode) { 0 -> "Shrink a video"; 1 -> "Shrink an audio file"; else -> "Shrink photos" },
+                    when (mode) { 0 -> t(R.string.compress_shrink_a_video); 1 -> t(R.string.compress_shrink_an_audio_file); else -> t(R.string.compress_shrink_photos) },
                     fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text,
                 )
                 Text(
                     when (mode) {
-                        0 -> "Re-encode with the phone's hardware encoder to make big videos much smaller."
-                        1 -> "Convert to MP3, AAC or Opus at a lower bitrate."
-                        else -> "Smaller photos for sites with upload limits: resized, as JPEG, without location data."
+                        0 -> t(R.string.compress_re_encode_with_the_phone_s_hardware_en)
+                        1 -> t(R.string.compress_convert_to_mp3_aac_or_opus_at_a_lower)
+                        else -> t(R.string.compress_smaller_photos_for_sites_with_upload_l)
                     },
                     fontSize = 14.sp, color = c.textSecondary, textAlign = TextAlign.Center, modifier = Modifier.padding(top = 6.dp),
                 )
                 PillButton(
-                    if (loading) "Opening…" else "Choose $noun", onClick = choose, enabled = !loading,
+                    if (loading) t(R.string.audio_opening) else chooseLabel, onClick = choose, enabled = !loading,
                     modifier = Modifier.padding(top = 16.dp),
                 )
             }
@@ -146,7 +148,7 @@ fun CompressorScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(Modifier.weight(1f)) {
-                SegmentedControl(listOf("Video", "Audio", "Photo"), jobs.mode.intValue, { if (!running) jobs.mode.intValue = it })
+                SegmentedControl(listOf(t(R.string.video_video), t(R.string.convert_audio), t(R.string.compress_photo)), jobs.mode.intValue, { if (!running) jobs.mode.intValue = it })
                 Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(top = 12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     when (mode) {
                         0 -> VideoOptions(video, !running)
@@ -158,7 +160,7 @@ fun CompressorScreen(onBack: () -> Unit) {
             Column {
                 Status(work, onCancel = when (mode) { 0 -> jobs::cancelVideo; 1 -> jobs::cancelAudio; else -> jobs::cancelPhotos })
                 PillButton(
-                    if (running) "Compressing…" else "Compress",
+                    if (running) t(R.string.compress_compressing) else t(R.string.compress_compress),
                     enabled = hasFile && !running,
                     modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
                     onClick = { when (mode) { 0 -> jobs.startVideo(context); 1 -> jobs.startAudio(context); else -> jobs.startPhotos(context) } },
@@ -191,7 +193,7 @@ private fun AudioHeader(a: AudioSource) {
     Text(a.clip.name, fontSize = 20.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis, textAlign = TextAlign.Center)
     Text(size(a.sizeBytes), fontSize = 40.sp, fontWeight = FontWeight.Bold, color = c.accent, modifier = Modifier.padding(top = 8.dp))
     Text(
-        "${formatDuration((a.clip.durationMs / 1000).toInt())} · ${(a.bitrate / 1000.0).roundToInt()} kbps · ${a.clip.ext.uppercase()}",
+        t(R.string.compress_kbps, formatDuration((a.clip.durationMs / 1000).toInt()), (a.bitrate / 1000.0).roundToInt(), a.clip.ext.uppercase()),
         fontSize = 14.sp, color = c.textSecondary,
     )
 }
@@ -201,26 +203,26 @@ private fun VideoOptions(v: VideoSource?, enabled: Boolean) {
     val jobs = CompressJobs
     val c = OneUi.colors
     val short = v?.let { minOf(it.width, it.height) } ?: Int.MAX_VALUE
-    OptionLabel("Resolution")
+    OptionLabel(t(R.string.convert_resolution))
     ChipRow {
         ResolutionOptions.filter { (h, _) -> h == 0 || h < short }.forEach { (h, label) ->
             Chip(label, jobs.resolution.intValue == h, { if (enabled) { jobs.resolution.intValue = h; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
-    OptionLabel("Quality")
+    OptionLabel(t(R.string.video_quality))
     ChipRow {
         QualityLabels.forEachIndexed { i, label ->
             Chip(label, jobs.quality.intValue == i, { if (enabled) { jobs.quality.intValue = i; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
-    OptionLabel("Codec")
+    OptionLabel(t(R.string.compress_codec))
     ChipRow {
-        Chip("H.264 · compatible", !jobs.hevc.value, { if (enabled) { jobs.hevc.value = false; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
-        if (CompressJobs.hevcSupported) Chip("HEVC · smaller", jobs.hevc.value, { if (enabled) { jobs.hevc.value = true; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
+        Chip(t(R.string.compress_h_264_compatible), !jobs.hevc.value, { if (enabled) { jobs.hevc.value = false; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
+        if (CompressJobs.hevcSupported) Chip(t(R.string.compress_hevc_smaller), jobs.hevc.value, { if (enabled) { jobs.hevc.value = true; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
     }
-    SwitchRow("Remove audio", jobs.removeAudio.value) { if (enabled) { jobs.removeAudio.value = it; jobs.resetDone() } }
+    SwitchRow(t(R.string.compress_remove_audio), jobs.removeAudio.value) { if (enabled) { jobs.removeAudio.value = it; jobs.resetDone() } }
     if (v != null) Estimate(jobs.estimateVideoBytes(v), v.sizeBytes)
-    else Text("Choose a video to see the estimated size.", fontSize = 13.sp, color = c.textSecondary)
+    else Text(t(R.string.compress_choose_a_video_to_see_the_estimated_si), fontSize = 13.sp, color = c.textSecondary)
 }
 
 @Composable
@@ -231,7 +233,7 @@ private fun PhotoHeader(p: PhotoSource) {
         p.thumb?.let { Image(it.asImageBitmap(), null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
     }
     Text(
-        if (p.items.size == 1) first.name else "${p.items.size} photos",
+        if (p.items.size == 1) first.name else t(R.string.compress_photos, p.items.size),
         fontSize = 17.sp, fontWeight = FontWeight.Bold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(top = 10.dp),
     )
     Text(
@@ -244,27 +246,27 @@ private fun PhotoHeader(p: PhotoSource) {
 private fun PhotoOptions(p: PhotoSource?, enabled: Boolean) {
     val jobs = CompressJobs
     val c = OneUi.colors
-    OptionLabel("Longest side (px)")
+    OptionLabel(t(R.string.compress_longest_side_px))
     ChipRow {
         PhotoSizes.forEach { (px, label) ->
             Chip(label, jobs.photoSide.intValue == px, { if (enabled) { jobs.photoSide.intValue = px; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
-    OptionLabel("Quality")
+    OptionLabel(t(R.string.video_quality))
     ChipRow {
         QualityLabels.forEachIndexed { i, label ->
             Chip(label, jobs.photoQuality.intValue == i, { if (enabled) { jobs.photoQuality.intValue = i; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
-    OptionLabel("Max file size")
+    OptionLabel(t(R.string.compress_max_file_size))
     ChipRow {
         PhotoLimits.forEach { (kb, label) ->
             Chip(label, jobs.photoLimit.intValue == kb, { if (enabled) { jobs.photoLimit.intValue = kb; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
     Text(
-        if (p == null) "Choose photos to compress. Saved as JPEG; location and camera details are removed."
-        else "Saved as JPEG to ${Storage.label(Storage.Folder.Pictures, "Compressed")}. Location and camera details are removed.",
+        if (p == null) t(R.string.compress_choose_photos_to_compress_saved_as_jpe)
+        else t(R.string.compress_saved_as_jpeg_to_location_and_camera_d, Storage.label(Storage.Folder.Pictures, "Compressed")),
         fontSize = 13.sp, color = c.textSecondary,
     )
 }
@@ -273,7 +275,7 @@ private fun PhotoOptions(p: PhotoSource?, enabled: Boolean) {
 private fun AudioOptions(a: AudioSource?, enabled: Boolean) {
     val jobs = CompressJobs
     val c = OneUi.colors
-    OptionLabel("Format")
+    OptionLabel(t(R.string.video_format))
     ChipRow {
         AudioFormat.entries.forEach { f ->
             Chip(f.label, jobs.format.value == f, {
@@ -281,15 +283,15 @@ private fun AudioOptions(a: AudioSource?, enabled: Boolean) {
             }, Modifier.weight(1f), horizontalPadding = 4.dp)
         }
     }
-    OptionLabel("Bitrate")
+    OptionLabel(t(R.string.compress_bitrate))
     ChipRow {
         AudioBitrates.forEach { k -> Chip("$k", jobs.kbps.intValue == k, { if (enabled) { jobs.kbps.intValue = k; jobs.resetDone() } }, Modifier.weight(1f), horizontalPadding = 4.dp) }
         Text("kbps", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.align(Alignment.CenterVertically))
     }
-    SwitchRow("Mono", jobs.mono.value) { if (enabled) { jobs.mono.value = it; jobs.resetDone() } }
-    SwitchRow(if (jobs.format.value == AudioFormat.Opus) "Keep tags" else "Keep tags and cover art", jobs.keepMeta.value) { if (enabled) { jobs.keepMeta.value = it; jobs.resetDone() } }
+    SwitchRow(t(R.string.compress_mono), jobs.mono.value) { if (enabled) { jobs.mono.value = it; jobs.resetDone() } }
+    SwitchRow(if (jobs.format.value == AudioFormat.Opus) t(R.string.compress_keep_tags) else t(R.string.compress_keep_tags_and_cover_art), jobs.keepMeta.value) { if (enabled) { jobs.keepMeta.value = it; jobs.resetDone() } }
     if (a != null) Estimate(jobs.estimateAudioBytes(a), a.sizeBytes)
-    else Text("Choose a file to see the estimated size.", fontSize = 13.sp, color = c.textSecondary)
+    else Text(t(R.string.compress_choose_a_file_to_see_the_estimated_siz), fontSize = 13.sp, color = c.textSecondary)
 }
 
 @Composable
@@ -297,9 +299,9 @@ private fun Estimate(est: Long, original: Long) {
     val c = OneUi.colors
     val bigger = original > 0 && est >= original
     Text(
-        if (original > 0 && !bigger) "Estimated size: ≈ ${size(est)} (about ${((1 - est.toDouble() / original) * 100).roundToInt()}% smaller)"
-        else if (bigger) "Estimated size: ≈ ${size(est)}. That isn't smaller than the original; pick a lower setting."
-        else "Estimated size: ≈ ${size(est)}",
+        if (original > 0 && !bigger) t(R.string.compress_estimated_size_about_smaller, size(est), ((1 - est.toDouble() / original) * 100).roundToInt())
+        else if (bigger) t(R.string.compress_estimated_size_that_isn_t_smaller_than, size(est))
+        else t(R.string.compress_estimated_size, size(est)),
         fontSize = 13.sp, color = if (bigger) c.error else c.textSecondary,
     )
 }
@@ -330,11 +332,11 @@ private fun Status(work: CWork, onCancel: () -> Unit) {
         is CWork.Running -> Column(Modifier.fillMaxWidth()) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    (work.note ?: "Compressing…") + " ${(work.progress * 100).roundToInt()}%", fontSize = 14.sp, color = c.textSecondary,
+                    (work.note ?: t(R.string.compress_compressing)) + " ${(work.progress * 100).roundToInt()}%", fontSize = 14.sp, color = c.textSecondary,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    "Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                    t(R.string.ui_cancel), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                     modifier = Modifier.clip(CircleShape).clickable(onClick = onCancel).padding(horizontal = 10.dp, vertical = 4.dp),
                 )
             }
@@ -344,15 +346,15 @@ private fun Status(work: CWork, onCancel: () -> Unit) {
             Column(Modifier.weight(1f)) {
                 val saved = if (work.before > 0) ((1 - work.after.toDouble() / work.before) * 100).roundToInt() else 0
                 Text(
-                    "${size(work.before)} → ${size(work.after)}" + if (saved > 0) " · saved $saved%" else "",
+                    "${size(work.before)} → ${size(work.after)}" + if (saved > 0) t(R.string.compress_saved, saved) else "",
                     fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = c.success,
                 )
-                Text("Saved to ${Storage.label(work.folder, work.sub)} · ${work.fileName}", fontSize = 12.sp, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(t(R.string.ui_saved_to, Storage.label(work.folder, work.sub), work.fileName), fontSize = 12.sp, color = c.textSecondary, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             val uris = work.shareUris.ifEmpty { listOfNotNull(work.shareUri) }
             if (uris.isNotEmpty()) {
                 Text(
-                    "Share", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
+                    t(R.string.video_share), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = c.accent,
                     modifier = Modifier.clip(CircleShape).clickable {
                         val send = if (uris.size == 1) Intent(Intent.ACTION_SEND).setType(work.mime).putExtra(Intent.EXTRA_STREAM, uris.first())
                         else Intent(Intent.ACTION_SEND_MULTIPLE).setType(work.mime).putParcelableArrayListExtra(Intent.EXTRA_STREAM, ArrayList(uris))

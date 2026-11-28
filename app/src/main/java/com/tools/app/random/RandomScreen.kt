@@ -1,5 +1,8 @@
 package com.tools.app.random
 
+import com.tools.app.ui.tp
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -136,8 +139,8 @@ fun RandomScreen(onBack: () -> Unit) {
     val rangeSize = if (lo != null && hi != null) hi - lo + 1 else 0L
     val error: String? = when {
         st.mode != 0 -> null
-        lo == null -> if (st.minText.isEmpty() || st.maxText.isEmpty() || st.minText == "-" || st.maxText == "-") "Enter a minimum and a maximum" else "Numbers up to 12 digits only"
-        st.noRepeats && st.count > rangeSize -> "That range only has ${fmt(rangeSize)} number${if (rangeSize == 1L) "" else "s"}"
+        lo == null -> if (st.minText.isEmpty() || st.maxText.isEmpty() || st.minText == "-" || st.maxText == "-") t(R.string.random_enter_a_minimum_and_a_maximum) else t(R.string.random_numbers_up_to_12_digits_only)
+        st.noRepeats && st.count > rangeSize -> tp(R.plurals.random_range_only_has, rangeSize.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(), fmt(rangeSize))
         else -> null
     }
 
@@ -194,7 +197,7 @@ fun RandomScreen(onBack: () -> Unit) {
             val sum = values.sum()
             RandomState.push(
                 st.diceHistory,
-                HistoryEntry("$sum · ${n}d$sides", "$sum (${values.joinToString(" + ")}) with ${n}d$sides"),
+                HistoryEntry("$sum · ${n}d$sides", t(R.string.random_with_d, sum, values.joinToString(" + "), n, sides)),
             )
             finish()
         }
@@ -204,7 +207,7 @@ fun RandomScreen(onBack: () -> Unit) {
     val rollNow by rememberUpdatedState(::rollDice)
     if (st.mode == 1) ShakeEffect { rollNow() }
 
-    ToolPage("Random", onBack) {
+    ToolPage(t(R.string.home_random), onBack) {
         val result: @Composable (Modifier) -> Unit = { m ->
         // ---------- Top 40%
         Column(m) {
@@ -239,31 +242,31 @@ fun RandomScreen(onBack: () -> Unit) {
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-                SegmentedControl(listOf("Number", "Dice"), st.mode, { if (!rolling) st.mode = it })
+                SegmentedControl(listOf(t(R.string.random_number), t(R.string.random_dice)), st.mode, { if (!rolling) st.mode = it })
                 Spacer(Modifier.height(16.dp))
                 if (st.mode == 0) {
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        NumberField("Min", st.minText, { st.minText = it }, Modifier.weight(1f), error != null && lo == null && parse(st.minText) == null)
-                        NumberField("Max", st.maxText, { st.maxText = it }, Modifier.weight(1f), error != null && lo == null && parse(st.maxText) == null)
+                        NumberField(t(R.string.random_min), st.minText, { st.minText = it }, Modifier.weight(1f), error != null && lo == null && parse(st.minText) == null)
+                        NumberField(t(R.string.random_max), st.maxText, { st.maxText = it }, Modifier.weight(1f), error != null && lo == null && parse(st.maxText) == null)
                     }
-                    SettingRow("How many") { Stepper(st.count, 1, 10) { st.count = it } }
+                    SettingRow(t(R.string.random_how_many)) { Stepper(st.count, 1, 10) { st.count = it } }
                     Row(Modifier.fillMaxWidth().height(48.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("No repeats", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
+                        Text(t(R.string.random_no_repeats), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = c.text, modifier = Modifier.weight(1f))
                         OneUiSwitch(st.noRepeats) { st.noRepeats = it }
                     }
                     if (error != null) Text(error, fontSize = 13.sp, color = c.error, modifier = Modifier.padding(top = 2.dp))
                 } else {
-                    SettingRow("Dice") { Stepper(st.diceCount, 1, 6) { st.diceCount = it } }
+                    SettingRow(t(R.string.random_dice)) { Stepper(st.diceCount, 1, 6) { st.diceCount = it } }
                     Row(Modifier.fillMaxWidth().padding(top = 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         SideOptions.forEach { s ->
                             Chip("d$s", st.sides == s, { st.sides = s }, Modifier.weight(1f), horizontalPadding = 2.dp)
                         }
                     }
-                    Text("Tap the dice or shake your phone to roll", fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp))
+                    Text(t(R.string.random_tap_the_dice_or_shake_your_phone_to_ro), fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp))
                 }
             }
             PillButton(
-                if (st.mode == 0) "Generate" else "Roll",
+                if (st.mode == 0) t(R.string.random_generate) else t(R.string.random_roll),
                 onClick = { if (st.mode == 0) generate() else rollDice() },
                 enabled = !rolling && error == null,
                 modifier = Modifier.fillMaxWidth().padding(top = 10.dp),
@@ -283,7 +286,7 @@ private fun NumberResult(values: List<Long>, modifier: Modifier) {
     val c = OneUi.colors
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         when {
-            values.isEmpty() -> Text("Tap Generate", fontSize = 18.sp, color = c.textSecondary)
+            values.isEmpty() -> Text(t(R.string.random_tap_generate), fontSize = 18.sp, color = c.textSecondary)
             values.size == 1 -> {
                 val s = fmt(values[0])
                 val size = when { s.length <= 4 -> 96; s.length <= 6 -> 80; s.length <= 9 -> 60; else -> 44 }
@@ -334,7 +337,7 @@ private fun DiceResult(rolling: Boolean, rollId: Int, liveTotal: Int, pop: Float
             when {
                 rolling -> RollText(liveTotal.toString(), 52.sp, c.textSecondary)
                 has -> RollText(st.dice.sum().toString(), 56.sp, c.text)
-                else -> Text("Total", fontSize = 18.sp, color = c.textSecondary)
+                else -> Text(t(R.string.random_total), fontSize = 18.sp, color = c.textSecondary)
             }
         }
     }
@@ -373,8 +376,8 @@ private fun HistoryRow(items: List<HistoryEntry>) {
                 Modifier.height(36.dp).clip(CircleShape).background(c.card)
                     .clickable {
                         val cm = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                        cm.setPrimaryClip(ClipData.newPlainText("Random result", e.copy))
-                        if (Build.VERSION.SDK_INT < 33) Toast.makeText(context, "Copied", Toast.LENGTH_SHORT).show()
+                        cm.setPrimaryClip(ClipData.newPlainText(t(R.string.random_random_result), e.copy))
+                        if (Build.VERSION.SDK_INT < 33) Toast.makeText(context, t(R.string.reader_copied), Toast.LENGTH_SHORT).show()
                     }
                     .padding(horizontal = 14.dp),
                 contentAlignment = Alignment.Center,

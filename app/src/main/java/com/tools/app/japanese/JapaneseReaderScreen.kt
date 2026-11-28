@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.ui.tp
+import com.tools.app.ui.t
 import android.app.StatusBarManager
 import android.content.ComponentName
 import android.content.Intent
@@ -102,24 +104,24 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
         if (ok && photoFile.length() > 0) JapaneseReaderActivity.openFile(ctx, photoFile)
     }
 
-    OneUiScaffold(title = "Japanese reader", onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
-        com.tools.app.ui.Tip("Share an image", "Share an image from any app and pick Read Japanese."),
-        com.tools.app.ui.Tip("Recognition", "Text is recognised on this phone. Horizontal text works best; vertical manga text is supported but less reliable."),
-        com.tools.app.ui.Tip("Credits", "Dictionary: JMdict (EDRDG), CC BY-SA 4.0. Word splitting: Kuromoji. Text recognition and translation: ML Kit."),
+    OneUiScaffold(title = t(R.string.home_japanese_reader), onBack = onBack, actions = { com.tools.app.ui.TipsMenu(listOf(
+        com.tools.app.ui.Tip(t(R.string.jp_share_an_image), t(R.string.jp_share_an_image_from_any_app_and_pick_r)),
+        com.tools.app.ui.Tip(t(R.string.jp_recognition), t(R.string.jp_text_is_recognised_on_this_phone_horiz)),
+        com.tools.app.ui.Tip(t(R.string.jp_credits), t(R.string.jp_dictionary_jmdict_edrdg_cc_by_sa_4_0_w)),
     )) }) {
         if (notice != null) card("notice") {
             Text(notice, fontSize = 14.5.sp, lineHeight = 21.sp, color = OneUi.colors.text, modifier = Modifier.padding(18.dp))
         }
 
-        sectionLabel("Read something")
+        sectionLabel(t(R.string.jp_read_something))
         card("capture") {
             ListRow(
-                "Choose image", summary = "A screenshot or picture with Japanese text",
+                t(R.string.color_choose_image), summary = t(R.string.jp_a_screenshot_or_picture_with_japanese),
                 onClick = { picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
             )
             CardDivider()
             ListRow(
-                "Take photo", summary = "A sign, a page, a game screen",
+                t(R.string.jp_take_photo), summary = t(R.string.jp_a_sign_a_page_a_game_screen),
                 onClick = {
                     photoFile.delete()
                     camera.launch(FileProvider.getUriForFile(ctx, "com.tools.app.files", photoFile))
@@ -127,22 +129,22 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
             )
         }
 
-        sectionLabel("Quick Settings tile")
+        sectionLabel(t(R.string.jp_quick_settings_tile))
         card("tile") {
             ListRow(
-                "Read the screen you are on",
-                summary = "Swipe down, tap Read Japanese. Works over Mihon, games, video and anything else, then tap a line for readings and meanings.",
+                t(R.string.jp_read_the_screen_you_are_on),
+                summary = t(R.string.jp_swipe_down_tap_read_japanese_works_ove),
             )
             CardDivider()
             ListRow(
-                if (serviceOn) "Screen capture is ready" else "App lock's accessibility service is off",
-                summary = if (serviceOn) "Uses the same accessibility service as App lock. It captures the screen only when you tap the tile."
-                else "The tile needs it to take the screenshot. After a reinstall, run ~/enable-applock.sh on your computer.",
+                if (serviceOn) t(R.string.jp_screen_capture_is_ready) else t(R.string.jp_app_lock_s_accessibility_service_is_of),
+                summary = if (serviceOn) t(R.string.jp_uses_the_same_accessibility_service_as)
+                else t(R.string.jp_the_tile_needs_it_to_take_the_screensh),
                 summaryColor = if (serviceOn) null else OneUi.colors.error,
             )
             if (Build.VERSION.SDK_INT >= 33) {
                 Row(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 16.dp)) {
-                    PillButton("Add tile to Quick Settings", {
+                    PillButton(t(R.string.jp_add_tile_to_quick_settings), {
                         runCatching {
                             ctx.getSystemService(StatusBarManager::class.java).requestAddTileService(
                                 ComponentName(ctx, JapaneseTileService::class.java), ctx.getString(R.string.read_japanese),
@@ -154,98 +156,98 @@ fun JapaneseReaderScreen(onBack: () -> Unit, notice: String? = null) {
             }
         }
 
-        sectionLabel("Dictionary")
+        sectionLabel(t(R.string.jp_dictionary))
         card("dict") {
             val s = dictState
             when {
                 s is DictState.Working -> Column(Modifier.padding(18.dp)) {
-                    Text("Preparing the dictionary…", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
+                    Text(t(R.string.jp_preparing_the_dictionary), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
                     Spacer(Modifier.height(10.dp))
                     ThinProgress(s.progress)
                     Spacer(Modifier.height(8.dp))
-                    Text("${(s.progress * 100).toInt()}%  Downloading JMdict and indexing it for offline use", fontSize = 13.sp, color = OneUi.colors.textSecondary)
+                    Text(t(R.string.jp_downloading_jmdict_and_indexing_it_for, (s.progress * 100).toInt()), fontSize = 13.sp, color = OneUi.colors.textSecondary)
                     Spacer(Modifier.height(10.dp))
-                    Text("Cancel", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent, modifier = Modifier.clickable { DictJobs.cancel() }.padding(vertical = 4.dp))
+                    Text(t(R.string.ui_cancel), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent, modifier = Modifier.clickable { DictJobs.cancel() }.padding(vertical = 4.dp))
                 }
-                s is DictState.Checking -> ListRow("Checking the latest JMdict release…")
+                s is DictState.Checking -> ListRow(t(R.string.jp_checking_the_latest_jmdict_release))
                 stats != null -> {
                     ListRow(
-                        "English dictionary installed", summary = "${"%,d".format(stats.first)} entries · ${formatMb(stats.second)} on this phone\nJMdict (EDRDG), CC BY-SA 4.0",
+                        t(R.string.jp_english_dictionary_installed), summary = t(R.string.jp_entries_on_this_phone_njmdict_edrdg_cc, "%,d".format(stats.first), formatMb(stats.second)),
                         trailing = { Icon(OneUiIcons.CheckCircle, null, tint = OneUi.colors.success, modifier = Modifier.size(24.dp)) },
                     )
                     CardDivider()
-                    ListRow("Remove dictionary", summary = "Frees the space; you can download it again", onClick = { DictJobs.delete(ctx) })
+                    ListRow(t(R.string.jp_remove_dictionary), summary = t(R.string.jp_frees_the_space_you_can_download_it_ag), onClick = { DictJobs.delete(ctx) })
                 }
                 else -> Column(Modifier.padding(18.dp)) {
-                    Text("Offline dictionary", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
-                    Text("Meanings and parts of speech for every word, with no internet needed after this download. JMdict (EDRDG), CC BY-SA 4.0.", fontSize = 13.sp, lineHeight = 18.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
+                    Text(t(R.string.jp_offline_dictionary), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
+                    Text(t(R.string.jp_meanings_and_parts_of_speech_for_every), fontSize = 13.sp, lineHeight = 18.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
                     SegmentedControl(
-                        listOf("Everything", "Common only"), if (JpPrefs.variant == DictVariant.Full) 0 else 1,
+                        listOf(t(R.string.jp_everything), t(R.string.jp_common_only)), if (JpPrefs.variant == DictVariant.Full) 0 else 1,
                         { JpPrefs.changeVariant(if (it == 0) DictVariant.Full else DictVariant.Common) },
                     )
                     Spacer(Modifier.height(12.dp))
                     if (s is DictState.Failed) Text(s.message, fontSize = 13.sp, color = OneUi.colors.error, modifier = Modifier.padding(bottom = 8.dp))
                     val size = assets[JpPrefs.variant]?.size ?: if (JpPrefs.variant == DictVariant.Full) 11_500_000L else 1_450_000L
-                    PillButton("Download dictionary (~${formatMb(size)})", { DictJobs.start(ctx, JpPrefs.variant) }, modifier = Modifier.fillMaxWidth())
+                    PillButton(t(R.string.jp_download_dictionary, formatMb(size)), { DictJobs.start(ctx, JpPrefs.variant) }, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
 
-        sectionLabel("Translation")
+        sectionLabel(t(R.string.jp_translation))
         card("translate") {
             when (val m = model) {
                 is ModelState.Ready -> {
                     ListRow(
-                        "Japanese to English model ready", summary = "Sentences are translated on this phone",
+                        t(R.string.jp_japanese_to_english_model_ready), summary = t(R.string.jp_sentences_are_translated_on_this_phone),
                         trailing = { Icon(OneUiIcons.CheckCircle, null, tint = OneUi.colors.success, modifier = Modifier.size(24.dp)) },
                     )
                     CardDivider()
-                    ListRow("Remove model", summary = "About 30 MB", onClick = { Translate.delete() })
+                    ListRow(t(R.string.jp_remove_model), summary = t(R.string.jp_about_30_mb), onClick = { Translate.delete() })
                 }
                 is ModelState.Downloading -> Column(Modifier.padding(18.dp)) {
-                    Text("Downloading the translation model…", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
+                    Text(t(R.string.jp_downloading_the_translation_model), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
                     Spacer(Modifier.height(10.dp))
                     com.tools.app.ui.ThinProgressIndeterminate(color = OneUi.colors.accent)
                     Spacer(Modifier.height(6.dp))
-                    Text(if (m.wifiOnly) "About 30 MB. Waiting for Wi-Fi if you're not on it." else "About 30 MB, over any network.", fontSize = 13.sp, color = OneUi.colors.textSecondary)
-                    if (m.wifiOnly) Text("Use mobile data instead", fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(vertical = 8.dp))
+                    Text(if (m.wifiOnly) t(R.string.jp_about_30_mb_waiting_for_wi_fi_if_you_r) else t(R.string.jp_about_30_mb_over_any_network), fontSize = 13.sp, color = OneUi.colors.textSecondary)
+                    if (m.wifiOnly) Text(t(R.string.jp_use_mobile_data_instead), fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.accent, modifier = Modifier.clickable { Translate.download(false) }.padding(vertical = 8.dp))
                 }
                 else -> Column(Modifier.padding(18.dp)) {
-                    Text("On-device translation", fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
-                    Text("Translates each line to English with ML Kit. The model (about 30 MB) also downloads by itself the first time you open a line.", fontSize = 13.sp, lineHeight = 18.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
+                    Text(t(R.string.jp_on_device_translation), fontSize = 15.5.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
+                    Text(t(R.string.jp_translates_each_line_to_english_with_m), fontSize = 13.sp, lineHeight = 18.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 3.dp, bottom = 12.dp))
                     if (m is ModelState.Failed) Text(m.message, fontSize = 13.sp, color = OneUi.colors.error, modifier = Modifier.padding(bottom = 8.dp))
-                    PillButton("Download model (~30 MB)", { Translate.download(JpPrefs.wifiOnly) }, modifier = Modifier.fillMaxWidth())
+                    PillButton(t(R.string.jp_download_model_30_mb), { Translate.download(JpPrefs.wifiOnly) }, modifier = Modifier.fillMaxWidth())
                 }
             }
             CardDivider()
             ListRow(
-                "Download over Wi-Fi only", summary = "Applies to the translation model",
+                t(R.string.jp_download_over_wi_fi_only), summary = t(R.string.jp_applies_to_the_translation_model),
                 trailing = { OneUiSwitch(JpPrefs.wifiOnly) }, onClick = { JpPrefs.changeWifiOnly(!JpPrefs.wifiOnly) },
             )
         }
 
-        sectionLabel("Display")
+        sectionLabel(t(R.string.jp_display))
         card("display") {
             ListRow(
-                "Romaji", summary = "Show Latin letters under the kana",
+                t(R.string.jp_romaji), summary = t(R.string.jp_show_latin_letters_under_the_kana),
                 trailing = { OneUiSwitch(JpPrefs.romaji) }, onClick = { JpPrefs.changeRomaji(!JpPrefs.romaji) },
             )
         }
 
-        sectionLabel("My words (${words.size})", trailing = {
-            if (words.isNotEmpty()) Text("Practice", fontSize = 14.5.sp, fontWeight = FontWeight.Bold, color = OneUi.colors.accent, modifier = Modifier.clip(CircleShape).clickable { practicing = true }.padding(horizontal = 12.dp, vertical = 6.dp))
+        sectionLabel(t(R.string.jp_my_words, words.size), trailing = {
+            if (words.isNotEmpty()) Text(t(R.string.jp_practice), fontSize = 14.5.sp, fontWeight = FontWeight.Bold, color = OneUi.colors.accent, modifier = Modifier.clip(CircleShape).clickable { practicing = true }.padding(horizontal = 12.dp, vertical = 6.dp))
         })
         if (words.isEmpty()) {
             card("empty") {
                 Column(Modifier.fillMaxWidth().padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("No words yet", fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
-                    Text("Tap the star on a word while reading and it will be saved here for practice.", fontSize = 13.5.sp, lineHeight = 19.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 4.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                    Text(t(R.string.jp_no_words_yet), fontSize = 16.sp, fontWeight = FontWeight.SemiBold, color = OneUi.colors.text)
+                    Text(t(R.string.jp_tap_the_star_on_a_word_while_reading_a), fontSize = 13.5.sp, lineHeight = 19.sp, color = OneUi.colors.textSecondary, modifier = Modifier.padding(top = 4.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 }
             }
         } else {
             item(key = "practiceBtn") {
                 Row(Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 10.dp)) {
-                    PillButton("Practice ${words.size} word${if (words.size == 1) "" else "s"}", { practicing = true }, modifier = Modifier.fillMaxWidth())
+                    PillButton(tp(R.plurals.jp_practice_words, words.size), { practicing = true }, modifier = Modifier.fillMaxWidth())
                 }
             }
             cardList(words, key = { "word-" + it.id }) { w -> SavedWordRow(w) }
@@ -259,14 +261,14 @@ private fun SavedWordRow(w: SavedWord) {
     Row(Modifier.fillMaxWidth().padding(start = 18.dp, end = 6.dp, top = 12.dp, bottom = 12.dp), verticalAlignment = Alignment.CenterVertically) {
         Column(Modifier.weight(1f)) {
             RubyWord(w.segments, 26.sp)
-            Text(w.meaning.ifEmpty { "No meaning saved" }, fontSize = 14.sp, lineHeight = 19.sp, color = c.text, maxLines = 3, modifier = Modifier.padding(top = 2.dp))
+            Text(w.meaning.ifEmpty { t(R.string.jp_no_meaning_saved) }, fontSize = 14.sp, lineHeight = 19.sp, color = c.text, maxLines = 3, modifier = Modifier.padding(top = 2.dp))
             Text(
                 listOf(w.pos, "added " + DateFmt.format(Instant.ofEpochMilli(w.added).atZone(ZoneId.systemDefault()))).filter { it.isNotEmpty() }.joinToString(" · "),
                 fontSize = 12.sp, color = c.textSecondary, modifier = Modifier.padding(top = 3.dp),
             )
         }
         Box(Modifier.size(44.dp).clip(CircleShape).clickable { WordStore.remove(w.key) }, contentAlignment = Alignment.Center) {
-            Icon(OneUiIcons.Close, "Delete", tint = c.textSecondary, modifier = Modifier.size(20.dp))
+            Icon(OneUiIcons.Close, t(R.string.pdf_delete), tint = c.textSecondary, modifier = Modifier.size(20.dp))
         }
     }
 }
@@ -286,16 +288,16 @@ private fun Flashcards(onClose: () -> Unit) {
     val total = deck.value.size
     val card = queue.firstOrNull()
 
-    ToolPage("Practice", onClose) {
+    ToolPage(t(R.string.jp_practice), onClose) {
         Column(Modifier.weight(1f).fillMaxWidth().padding(horizontal = 10.dp).navigationBarsPadding(), horizontalAlignment = Alignment.CenterHorizontally) {
             if (card == null) {
                 Spacer(Modifier.weight(1f))
-                Text("All done", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = c.text)
-                Text("$gotIt of $total words knew on the first go. Come back tomorrow and read something new.", fontSize = 15.sp, lineHeight = 21.sp, color = c.textSecondary, modifier = Modifier.padding(24.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
-                PillButton("Back to My words", onClose, modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp))
+                Text(t(R.string.convert_all_done), fontSize = 28.sp, fontWeight = FontWeight.Bold, color = c.text)
+                Text(t(R.string.jp_of_words_knew_on_the_first_go_come_bac, gotIt, total), fontSize = 15.sp, lineHeight = 21.sp, color = c.textSecondary, modifier = Modifier.padding(24.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                PillButton(t(R.string.jp_back_to_my_words), onClose, modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp))
                 Spacer(Modifier.weight(1f))
             } else {
-                Text("${(total - queue.size + 1).coerceAtMost(total)} / $total  ·  ${queue.size} to go", fontSize = 13.5.sp, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
+                Text(t(R.string.jp_to_go, (total - queue.size + 1).coerceAtMost(total), total, queue.size), fontSize = 13.5.sp, color = c.textSecondary, modifier = Modifier.padding(top = 12.dp, bottom = 12.dp))
                 Box(
                     Modifier.weight(1f).fillMaxWidth().clip(OneUi.CardShape).background(c.card).clickable { revealed = true }.padding(24.dp),
                     contentAlignment = Alignment.Center,
@@ -306,19 +308,19 @@ private fun Flashcards(onClose: () -> Unit) {
                         if (revealed) {
                             Text(card.reading.ifEmpty { card.word }, fontSize = 22.sp, fontWeight = FontWeight.SemiBold, color = c.accent, modifier = Modifier.padding(top = 18.dp))
                             if (JpPrefs.romaji) Text(Kana.toRomaji(card.reading), fontSize = 15.sp, color = c.textSecondary)
-                            Text(card.meaning.ifEmpty { "No meaning saved" }, fontSize = 18.sp, lineHeight = 25.sp, color = c.text, modifier = Modifier.padding(top = 14.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                            Text(card.meaning.ifEmpty { t(R.string.jp_no_meaning_saved) }, fontSize = 18.sp, lineHeight = 25.sp, color = c.text, modifier = Modifier.padding(top = 14.dp), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                             if (card.pos.isNotEmpty()) Text(card.pos, fontSize = 13.sp, color = c.textSecondary, modifier = Modifier.padding(top = 8.dp))
                         } else {
-                            Text("Tap to reveal", fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 28.dp))
+                            Text(t(R.string.jp_tap_to_reveal), fontSize = 15.sp, color = c.textSecondary, modifier = Modifier.padding(top = 28.dp))
                         }
                     }
                 }
                 Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    PillButton("Again", {
+                    PillButton(t(R.string.jp_again), {
                         WordStore.setBox(card.key, 0); missed.add(card.key)
                         queue = queue.drop(1) + card; revealed = false; done++
                     }, modifier = Modifier.weight(1f), tonal = true, enabled = revealed)
-                    PillButton("Got it", {
+                    PillButton(t(R.string.jp_got_it), {
                         WordStore.setBox(card.key, card.box + 1)
                         if (card.key !in missed) gotIt++
                         queue = queue.drop(1); revealed = false; done++

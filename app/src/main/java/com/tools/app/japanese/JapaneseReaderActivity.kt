@@ -1,5 +1,7 @@
 package com.tools.app.japanese
 
+import com.tools.app.R
+import com.tools.app.ui.t
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color as AColor
@@ -39,9 +41,9 @@ class JapaneseReaderActivity : ComponentActivity() {
                 if (s != null) ReaderRoot(s, onClose = { finish() })
                 else JapaneseReaderScreen(
                     onBack = { finish() },
-                    notice = if (noService) "App lock's accessibility service isn't running, so the tile can't capture the screen. " +
-                        "Turn it on in Settings > Accessibility (run ~/enable-applock.sh after reinstalling), then try the tile again. " +
-                        "You can still choose an image or take a photo below." else null,
+                    notice = if (noService) t(R.string.jp_app_lock_s_accessibility_service_isn_t) +
+                        t(R.string.jp_turn_it_on_in_settings_accessibility_r) +
+                        t(R.string.jp_you_can_still_choose_an_image_or_take) else null,
                 )
             }
         }
