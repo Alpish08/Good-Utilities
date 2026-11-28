@@ -4,7 +4,11 @@ A collection of everyday tools for Android, designed to look and feel like Samsu
 expanding titles, floating toolbar buttons, frosted menus and popups, a blurred bottom tab bar, floating
 search pill that morphs into the search bar as the keyboard opens, compact One UI buttons, multi-select with
 "All", a count chip and a floating action bar, Samsung's own four-dot loading animation, One UI sliders and switches,
-predictive back, and full dark mode.
+predictive back, and full dark mode. Pressing a row works like Samsung's Settings: a rounded highlight inside the row
+while its icon and text ease inwards (menu items a little more, like Clock's).
+
+Pages keep to what you can tap: each tool's explanations (how it works, what's supported, notes) are in its
+⋮ → Tips popup.
 
 Home lists every tool by category, over a soft colour wash you can change from ⋮ → Background (Midnight, Amethyst,
 Lagoon, Moss, Ember, Rosewood or Graphite). The bottom tab bar (Media, Files, Images, Device, Misc) works as filters:
@@ -23,7 +27,7 @@ Like it? [Support it on Ko-fi](https://ko-fi.com/Alpish08).
 - **Audio trimmer**: cut a song without losing quality.
 
 **Files**
-- **Document reader** (One Reader): a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, rotate to landscape, a frosted header and page indicator over the pages, and it remembers your page.
+- **Document reader** (One Reader): a fast PDF, Word, text and Markdown reader you can set as the default app. Search with highlights, text selection, pinch zoom, night mode, contents, password-protected PDFs, rotate to landscape, a frosted header and page indicator over the pages, and it remembers your page. Clear recents with the bin beside each one, or long-press to select several (with Undo); the files themselves stay.
 - **PDF editor**: merge, split, reorder, rotate, sign, annotate and password-protect PDFs, or create a PDF from images. Drawing with the S Pen: 20 colours, 5 brush sizes, marker, eraser (or hold the pen's button), undo and redo, pinch zoom.
 - **File converter**: images, documents, audio and video (PNG, JPG, WebP, PDF, DOCX, TXT, MP3, WAV, FLAC, M4A, MP4, WebM, GIF…).
 - **Print**: prints straight to network printers over IPP (AirPrint / Mopria / IPP Everywhere) with a live preview, page picker, two-sided printing and toner levels. No system print screen involved.
