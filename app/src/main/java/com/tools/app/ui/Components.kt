@@ -618,11 +618,16 @@ private fun Toolbar(
         if (leading != null) leading()
         else if (onBack != null) {
             val backSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+            var backLabel by remember { mutableStateOf(false) }
+            val backView = LocalView.current
             Box(
                 Modifier.size(52.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), c.isDark)
-                    .clickable(backSource, indication = null, onClick = onBack),
+                    .combinedClickable(backSource, indication = null, onClick = onBack, onLongClick = {
+                        backView.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS); backLabel = true
+                    }),
                 contentAlignment = Alignment.Center,
             ) {
+                if (backLabel) IconLabel("Navigate up") { backLabel = false }
                 FrostBackground(Modifier.size(46.dp), CircleShape, LocalToolbarChip.current)
                 // Press highlight the same 46 dp circle as the floating chip.
                 Box(Modifier.size(46.dp).clip(CircleShape).indication(backSource, LocalIndication.current), contentAlignment = Alignment.Center) {
@@ -781,7 +786,8 @@ fun ListRow(
             if (leadingGap) Spacer(Modifier.width(16.dp))
         }
         Column(Modifier.weight(1f)) {
-            Text(title, fontSize = 15.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            // One line, as the One UI guidelines ask of list titles; the summary below may run longer.
+            Text(title, fontSize = 15.5.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold, color = c.text, maxLines = 1, overflow = TextOverflow.Ellipsis)
             if (summary != null) {
                 Text(
                     summary, fontSize = 13.sp, lineHeight = 17.sp, color = summaryColor ?: c.textSecondary,
@@ -978,12 +984,17 @@ fun Chip(text: String, selected: Boolean, onClick: () -> Unit, modifier: Modifie
 fun ToolbarIcon(icon: ImageVector, description: String, onClick: () -> Unit) {
     val slot = LocalToolbarSlot.current
     val source = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    var label by remember { mutableStateOf(false) }
+    val view = LocalView.current
     Box(
         Modifier.size(width = slot, height = 48.dp).chipShadow(LocalToolbarChip.current, centredCircle(23.dp), OneUi.colors.isDark)
             .toolbarChip(LocalToolbarChip.current, chipColor(OneUi.colors.isDark), 23.dp)
-            .clickable(source, indication = null, onClick = onClick),
+            .combinedClickable(source, indication = null, onClick = onClick, onLongClick = {
+                view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS); label = true
+            }),
         contentAlignment = Alignment.Center,
     ) {
+        if (label) IconLabel(description) { label = false }
         // The press highlight matches the floating chip: inside the shared capsule, a circle as tall as the capsule
         // (48 dp, wider than the 38 dp slot, so the end buttons reach the capsule's ends); on its own, the 46 dp chip.
         Box(
@@ -1695,6 +1706,12 @@ private fun SelectionCancel(onCancel: () -> Unit) {
 @Composable
 fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabled: Boolean = true) {
     val c = OneUi.colors
+    // One UI hides the action bar while nothing is selected (guidelines, Selection control); it rises in with the first.
+    androidx.compose.animation.AnimatedVisibility(
+        enabled,
+        enter = androidx.compose.animation.slideInVertically(tween(300, easing = OneUiEasing)) { it } + androidx.compose.animation.fadeIn(tween(200)),
+        exit = androidx.compose.animation.slideOutVertically(tween(240, easing = OneUiEasing)) { it } + androidx.compose.animation.fadeOut(tween(160)),
+    ) {
     Box(Modifier.fillMaxWidth().offset(y = 4.dp), contentAlignment = Alignment.Center) {
         Row(
             Modifier
@@ -1716,8 +1733,7 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                 .border(0.5.dp, if (c.isDark) Color.White.copy(alpha = 0.05f) else Color.Black.copy(alpha = 0.05f), CircleShape)
                 .drawBehind { drawRect(searchPillBase(c.isDark)) }
                 // Like the tab pill: each button's 70 × 50 dp press capsule clears the pill's edge by 4 dp all round.
-                .padding(horizontal = 4.dp)
-                .graphicsLayer { alpha = if (enabled) 1f else 0.4f },
+                .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             items.forEach { (icon, label, action) ->
@@ -1733,7 +1749,7 @@ fun SelectionActions(items: List<Triple<ImageVector, String, () -> Unit>>, enabl
                 }
             }
         }
-    }
+    }}
 }
 
 
@@ -1786,6 +1802,61 @@ private fun TipsDialog(tips: List<Tip>, onDismiss: () -> Unit) {
                     modifier = Modifier.padding(top = if (i == 0) 0.dp else 16.dp),
                 )
                 Text(t.text, fontSize = 14.sp, lineHeight = 20.sp, color = c.textSecondary, modifier = Modifier.padding(top = 3.dp))
+            }
+        }
+    }
+}
+
+
+/**
+ * One UI's label toast: long-press an icon-only button and its name appears in a small card beside it, like a
+ * one-line, untappable ⋮ menu. It sits above the button (below when there's no room), goes after 1.5 s, and a touch
+ * elsewhere both hides it and goes straight through to whatever was touched.
+ */
+@Composable
+fun IconLabel(text: String, onDismiss: () -> Unit) {
+    val c = OneUi.colors
+    val density = LocalDensity.current
+    val shadowRoom = 10.dp
+    val dismiss by rememberUpdatedState(onDismiss)
+    LaunchedEffect(Unit) { kotlinx.coroutines.delay(1500); dismiss() }
+    val position = remember(density) {
+        object : androidx.compose.ui.window.PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: androidx.compose.ui.unit.IntRect, windowSize: androidx.compose.ui.unit.IntSize,
+                layoutDirection: androidx.compose.ui.unit.LayoutDirection, popupContentSize: androidx.compose.ui.unit.IntSize,
+            ): androidx.compose.ui.unit.IntOffset {
+                val gap = with(density) { 2.dp.roundToPx() }
+                val margin = with(density) { 2.dp.roundToPx() }
+                val x = (anchorBounds.center.x - popupContentSize.width / 2).coerceIn(margin, (windowSize.width - popupContentSize.width - margin).coerceAtLeast(margin))
+                val above = anchorBounds.top - popupContentSize.height - gap
+                val top = with(density) { 40.dp.roundToPx() }
+                return androidx.compose.ui.unit.IntOffset(x, if (above >= top) above else anchorBounds.bottom + gap)
+            }
+        }
+    }
+    androidx.compose.ui.window.Popup(
+        popupPositionProvider = position, onDismissRequest = onDismiss,
+        properties = androidx.compose.ui.window.PopupProperties(focusable = false, dismissOnClickOutside = true),
+    ) {
+        val shown = remember { androidx.compose.animation.core.MutableTransitionState(false).apply { targetState = true } }
+        androidx.compose.animation.AnimatedVisibility(
+            shown,
+            enter = androidx.compose.animation.fadeIn(tween(150)) + androidx.compose.animation.scaleIn(tween(220, easing = OneUiEasing), initialScale = 0.9f),
+        ) {
+            Box(Modifier.padding(shadowRoom)) {
+                Text(
+                    text, fontSize = 14.sp, fontWeight = FontWeight.Medium, color = c.text, maxLines = 1,
+                    modifier = Modifier
+                        .shadow(
+                            8.dp, RoundedCornerShape(18.dp),
+                            ambientColor = Color.Black.copy(alpha = if (c.isDark) 0.6f else 0.3f),
+                            spotColor = Color.Black.copy(alpha = if (c.isDark) 0.8f else 0.35f),
+                        )
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(c.popup)
+                        .padding(horizontal = 16.dp, vertical = 9.dp),
+                )
             }
         }
     }

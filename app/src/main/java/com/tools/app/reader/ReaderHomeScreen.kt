@@ -15,6 +15,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Icon
 import androidx.compose.foundation.layout.Box
@@ -231,10 +232,17 @@ fun ReaderHomeScreen(onBack: () -> Unit) {
 /** The bin beside a recent: takes it off the list (with Undo). */
 @Composable
 private fun RemoveButton(onClick: () -> Unit) {
+    var label by remember { mutableStateOf(false) }
+    val view = androidx.compose.ui.platform.LocalView.current
     Box(
-        Modifier.size(40.dp).clip(androidx.compose.foundation.shape.CircleShape).clickable(onClick = onClick),
+        Modifier.size(40.dp).clip(androidx.compose.foundation.shape.CircleShape).combinedClickable(onClick = onClick, onLongClick = {
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS); label = true
+        }),
         contentAlignment = Alignment.Center,
-    ) { Icon(OneUiIcons.Delete, "Remove from recents", tint = OneUi.colors.text, modifier = Modifier.size(22.dp)) }
+    ) {
+        if (label) com.tools.app.ui.IconLabel("Remove from recents") { label = false }
+        Icon(OneUiIcons.Delete, "Remove from recents", tint = OneUi.colors.text, modifier = Modifier.size(22.dp))
+    }
 }
 
 private fun kindOfName(n: String) = when (n.substringAfterLast('.', "").lowercase()) {
