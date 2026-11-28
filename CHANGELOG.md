@@ -1,5 +1,8 @@
 # Changelog
 
+## 2.9.25 — 2026-11-28
+- Virtual cards in landscape: cards are sized to the screen's height (about 260 dp tall), so the whole card, the page dots and its name fit, with the neighbours peeking in at the sides. Add card's photo box gets the same limit. Portrait keeps Wallet's size.
+
 ## 2.9.24 — 2026-11-28
 - Landscape for the editors: Color picker, Image blur, Background remover, Icon maker and the PDF editor show the picture (or pages) on the left and their controls card on the right, scrolling if needed, instead of a strip of picture above the card.
 - Icon maker in landscape: "Choose logo" sits beside the icon-pack card (it was squashed into a line).

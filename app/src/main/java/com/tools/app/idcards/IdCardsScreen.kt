@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -183,10 +184,13 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
             return@OneUiScaffold
         }
         item("carousel") {
+            androidx.compose.foundation.layout.BoxWithConstraints(Modifier.fillMaxWidth()) {
+            // Wallet: the card 38 dp in from each edge, its neighbours peeking in. In landscape that card would be
+            // taller than the screen, so there it's sized to fit the height (with the dots and name under it).
+            val cardW = landscapeCardWidth()?.coerceAtMost(maxWidth - 76.dp) ?: (maxWidth - 76.dp)
             androidx.compose.foundation.pager.HorizontalPager(
                 pager,
-                // Wallet: the card 38 dp in from each edge, its neighbours peeking in.
-                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 38.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = (maxWidth - cardW) / 2),
                 pageSpacing = 14.dp,
                 modifier = Modifier.fillMaxWidth().padding(top = 8.dp, bottom = 12.dp),
             ) { i ->
@@ -194,6 +198,7 @@ private fun CardList(cards: List<IdCard>, onBack: () -> Unit, onAdd: () -> Unit)
                 FlipCard(card, turns[card.id] ?: 0, onSwipe = { down ->
                     if (card.hasBack) turns = turns + (card.id to (turns[card.id] ?: 0) + if (down) 1 else -1)
                 })
+            }
             }
         }
         // Under the cards: One UI's page indicator (the current card a capsule), then its name and side.
@@ -355,7 +360,8 @@ private fun PhotoSlot(label: String?, image: ByteArray?, onPick: () -> Unit, onC
             )
         }
         Box(
-            Modifier.fillMaxWidth().aspectRatio(CardRatio).clip(CardShape)
+            Modifier.align(Alignment.CenterHorizontally).then(landscapeCardWidth()?.let { Modifier.widthIn(max = it) } ?: Modifier)
+                .fillMaxWidth().aspectRatio(CardRatio).clip(CardShape)
                 .then(if (bmp == null) Modifier.background(c.card).border(1.dp, c.divider, CardShape) else Modifier)
                 .clickable(onClick = onPick),
             contentAlignment = Alignment.Center,
@@ -422,3 +428,14 @@ private val ID_TIPS = listOf(
     com.tools.app.ui.Tip("Crop in Gallery first", "Crop and straighten the photos in Gallery (Edit › crop finds the card's edges), then pick them here, or share a photo to \"Add to Virtual cards\"."),
     com.tools.app.ui.Tip("Turn a card over", "Swipe down or up on a card to see its back."),
 )
+
+/**
+ * In landscape (a short screen) the widest card that still fits the height: the screen less the toolbar, the pager's
+ * padding and the dots and name under the card. null in portrait, where cards keep Wallet's width.
+ */
+@Composable
+private fun landscapeCardWidth(): androidx.compose.ui.unit.Dp? {
+    val h = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp.dp
+    if (h >= com.tools.app.ui.CompactHeight) return null
+    return ((h - 64.dp - 20.dp - 80.dp) * CardRatio).coerceAtLeast(200.dp)
+}
