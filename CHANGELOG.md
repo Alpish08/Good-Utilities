@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.9.24 — 2026-11-28
+- Landscape for the editors: Color picker, Image blur, Background remover, Icon maker and the PDF editor show the picture (or pages) on the left and their controls card on the right, scrolling if needed, instead of a strip of picture above the card.
+- Icon maker in landscape: "Choose logo" sits beside the icon-pack card (it was squashed into a line).
+
 ## 2.9.23 — 2026-11-28
 Landscape, following Samsung's own apps and the One UI guidelines:
 - Pages open with the compact title bar in landscape (no big title, which took over half the screen), and the status bar hides (swipe down to see it).

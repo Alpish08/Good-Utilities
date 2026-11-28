@@ -1902,3 +1902,23 @@ fun ColumnScope.ToolSplit(topWeight: Float, top: @Composable (Modifier) -> Unit,
         bottom(Modifier.weight(1f - topWeight).fillMaxWidth())
     }
 }
+
+
+/**
+ * An editor page: the picture (taking the room that's left) over its controls card. In landscape the picture sits on
+ * the left and the card on the right, centred and scrolling if it's taller than the screen, so the picture keeps
+ * a usable size instead of shrinking to a strip above the card.
+ */
+@Composable
+fun ColumnScope.EditorSplit(picture: @Composable (Modifier) -> Unit, controls: @Composable ColumnScope.() -> Unit) {
+    val wide = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+    if (wide) Row(Modifier.weight(1f).fillMaxWidth()) {
+        picture(Modifier.weight(1f).fillMaxHeight())
+        Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            Column(Modifier.fillMaxWidth().verticalScroll(androidx.compose.foundation.rememberScrollState()), content = controls)
+        }
+    } else {
+        picture(Modifier.weight(1f).fillMaxWidth())
+        controls()
+    }
+}

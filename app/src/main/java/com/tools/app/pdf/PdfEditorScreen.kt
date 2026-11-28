@@ -1,5 +1,6 @@
 package com.tools.app.pdf
 
+import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.PictureAsPdf
 import androidx.compose.material.icons.Icons
@@ -146,9 +147,10 @@ fun PdfEditorScreen(onBack: () -> Unit) {
             s.notice?.let { Text(it.text, color = if (it.error) c.error else c.success, fontSize = 14.sp, modifier = Modifier.padding(24.dp, 8.dp)) }
         } else {
             val selected = s.selected
+            EditorSplit(picture = { m ->
             LazyVerticalGrid(
                 GridCells.Fixed(3),
-                Modifier.weight(1f).fillMaxWidth(),
+                m,
                 contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
@@ -157,6 +159,7 @@ fun PdfEditorScreen(onBack: () -> Unit) {
                     PageCell(p, i + 1, p.id in selected, Modifier.animateItem()) { s.toggle(p.id) }
                 }
             }
+            }) {
             ActionCard(
                 busy = s.busy, running = running,
                 onAddPdfs = { openMany.launch(pdfMime) },
@@ -169,6 +172,7 @@ fun PdfEditorScreen(onBack: () -> Unit) {
                 export = export,
                 onGrantAccess = { context.startActivity(Storage.accessIntent(context).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
             )
+            }
         }
     }
 

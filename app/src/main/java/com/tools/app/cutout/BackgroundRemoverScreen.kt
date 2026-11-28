@@ -1,5 +1,6 @@
 package com.tools.app.cutout
 
+import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.AutoFixHigh
 import androidx.compose.material.icons.Icons
@@ -151,10 +152,9 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
         val shown = if (showOriginal || cutout == null) src else cutout!!
         val image = remember(shown) { shown.asImageBitmap() }
 
+        EditorSplit(picture = { m ->
         Box(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
+            m
                 .padding(horizontal = CardMargin, vertical = 4.dp),
             contentAlignment = Alignment.Center,
         ) {
@@ -195,7 +195,7 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
                 }
             }
         }
-
+        }) {
         Column(
             Modifier
                 .padding(horizontal = CardMargin, vertical = 6.dp)
@@ -227,6 +227,7 @@ fun BackgroundRemoverScreen(onBack: () -> Unit) {
                     }
                 },
             )
+        }
         }
     }
 }

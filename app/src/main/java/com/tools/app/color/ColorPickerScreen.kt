@@ -1,5 +1,6 @@
 package com.tools.app.color
 
+import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.Colorize
 import androidx.compose.material.icons.Icons
@@ -129,10 +130,9 @@ fun ColorPickerScreen(onBack: () -> Unit) {
 
         // Image + crosshair + loupe
         val appear = com.tools.app.ui.rememberFadeIn(img)
+        EditorSplit(picture = { m ->
         Box(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
+            m
                 .padding(horizontal = CardMargin, vertical = 4.dp)
                 .graphicsLayer { alpha = appear },
         ) {
@@ -187,7 +187,7 @@ fun ColorPickerScreen(onBack: () -> Unit) {
                 }
             }
         }
-
+        }) {
         // Color details
         val argb = picked ?: 0
         Column(
@@ -212,6 +212,7 @@ fun ColorPickerScreen(onBack: () -> Unit) {
             }
             if (palette.isNotEmpty()) Swatches("From this image", palette) { picked = it; PickerState.color = it }
             if (saved.isNotEmpty()) Swatches("Saved · hold to remove", saved, onLongClick = { saved = SavedColors.remove(context, it) }) { picked = it; PickerState.color = it }
+        }
         }
     }
 }

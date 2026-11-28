@@ -1,5 +1,6 @@
 package com.tools.app.blur
 
+import com.tools.app.ui.EditorSplit
 import com.tools.app.ui.theme.IconColors
 import androidx.compose.material.icons.rounded.BlurOn
 import androidx.compose.material.icons.Icons
@@ -122,10 +123,9 @@ fun BlurScreen(onBack: () -> Unit) {
         val brushPx = brush * 0.12f * maxOf(src.width, src.height) + 8f
         val appear = com.tools.app.ui.rememberFadeIn(img)
 
+        EditorSplit(picture = { m ->
         ComposeCanvas(
-            Modifier
-                .weight(1f)
-                .fillMaxWidth()
+            m
                 .padding(horizontal = CardMargin, vertical = 4.dp)
                 .graphicsLayer { alpha = appear }
                 .pointerInput(src, mode, brushPx) {
@@ -170,7 +170,7 @@ fun BlurScreen(onBack: () -> Unit) {
             }
         }
             }
-
+        }) {
         Column(
             Modifier
                 .padding(horizontal = CardMargin, vertical = 6.dp)
@@ -211,6 +211,7 @@ fun BlurScreen(onBack: () -> Unit) {
                     }
                 },
             )
+        }
         }
     }
 }

@@ -15,6 +15,7 @@ import com.tools.app.ui.fadingEdges
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -189,6 +190,16 @@ fun IconMakerScreen(onBack: () -> Unit) {
             return@ToolPage
         }
         if (logoSrc == null) {
+            val wideStart = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            // Landscape has no room for both stacked (the button got squashed): the intro beside the pack card.
+            if (wideStart) Row(Modifier.weight(1f).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                EmptyState(
+                    Icons.Rounded.Category, IconColors.Orange, "Make a matching icon",
+                    "Pick a logo and it's placed on your icon pack's empty tile, ready to choose in your launcher.", "Choose logo", choose,
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                )
+                Box(Modifier.weight(1f)) { Column { PackCard(list, pack, baseName, onPack = { choosingPack = true }, onBase = { choosingBase = true }) } }
+            } else {
             EmptyState(
                 Icons.Rounded.Category, IconColors.Orange, "Make a matching icon",
                 "Pick a logo and it's placed on your icon pack's empty tile, ready to choose in your launcher.", "Choose logo", choose,
@@ -196,8 +207,10 @@ fun IconMakerScreen(onBack: () -> Unit) {
             )
             PackCard(list, pack, baseName, onPack = { choosingPack = true }, onBase = { choosingBase = true })
             androidx.compose.foundation.layout.Spacer(Modifier.height(24.dp))
-        } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
-            Preview(result, status)
+            }
+        } else {
+            // The pack, look and save controls; in landscape beside the preview instead of under it.
+            val settings: @Composable androidx.compose.foundation.layout.ColumnScope.() -> Unit = {
             PackCard(list, pack, baseName, onPack = { choosingPack = true }, onBase = { choosingBase = true })
             Column(
                 Modifier.padding(horizontal = CardMargin, vertical = 6.dp).fillMaxWidth().clip(OneUi.CardShape).background(c.card).padding(vertical = 14.dp),
@@ -258,6 +271,15 @@ fun IconMakerScreen(onBack: () -> Unit) {
                     }
                 },
             )
+            }
+            val wide = androidx.compose.ui.platform.LocalConfiguration.current.orientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE
+            if (wide) Row(Modifier.weight(1f).fillMaxWidth()) {
+                Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) { Preview(result, status) }
+                Column(Modifier.weight(1f).fillMaxHeight().verticalScroll(rememberScrollState()), content = settings)
+            } else Column(Modifier.weight(1f).verticalScroll(rememberScrollState())) {
+                Preview(result, status)
+                settings()
+            }
         }
     }
 

@@ -72,7 +72,7 @@ Good Utilities is free, with no ads and no accounts. If it's useful to you, you 
 - **More One UI widgets**: new utility widgets drawn to match Samsung's own (Clock, Weather, Battery), for quick
   glances and one-tap actions from the home screen.
 - **New everyday tools**: more small, focused utilities for things that otherwise need an ad-filled app from the store.
-- **Landscape mode**: the editors (blur, color picker, background remover, icon maker, PDF editor) side by side in landscape, like Random and the Compressor already are.
+- **Landscape mode**: App lock and Virtual cards still to check in landscape; the rest of the app is laid out for it.
 
 ## Changes
 
